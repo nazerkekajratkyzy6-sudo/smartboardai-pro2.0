@@ -1,3 +1,5 @@
+console.log("🔥 teacherBoard.js жүктелді!");
+alert("JS жұмыс істейді!");
 import {
   auth,
   db,
@@ -63,3 +65,4 @@ $("logoutBtn").onclick = () => {
   signOut(auth);
   window.location.href = "login.html";
 };
+
