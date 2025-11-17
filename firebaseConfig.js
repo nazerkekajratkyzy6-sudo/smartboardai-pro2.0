@@ -1,55 +1,11 @@
-// firebaseConfig.js — SmartBoardAI PRO
-// Firebase v10 modules
+// firebaseConfig.js — SmartBoardAI PRO (FINAL, WORKING)
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import {
-  getAuth,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  signOut,
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import {
-  getDatabase,
-  ref,
-  set,
-  update,
-  onValue,
-  push,
-  get,
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
-// --------------------------------------------------
-// 🔥 МІНЕ ОСЫ ЖЕРГЕ — өз Firebase config-іңді қоясың
-// --------------------------------------------------
-const firebaseConfig = { 
-  apiKey : "AIzaSyCzAgHT_TQhXPvNuJA2R1xkazPkUD8HeG0" , 
-  authDomain : "smartboardai-pro1.firebaseapp.com" , 
-  databaseURL : "https://smartboardai-pro1-default-rtdb.firebaseio.com" , 
-  идентификатор проекта : «smartboardai-pro1» , 
-  storageBucket : "smartboardai-pro1.firebasestorage.app" , 
-  messagingSenderId : "1039702770246" , 
-  appId : "1:1039702770246:web:213b296998e8f4f41d0047" 
-};
-// --------------------------------------------------
-
-// Firebase Init
-export const app = initializeApp(firebaseConfig);
-
-// Auth services
-export const auth = getAuth(app);
-export const provider = new GoogleAuthProvider();
-
-// Realtime Database service
-export const db = getDatabase(app);
-
-// Export helpers
-export {
-  onAuthStateChanged,
-  signOut,
-  ref,
-  set,
-  update,
-  onValue,
-  push,
-  get,
+export const firebaseConfig = {
+  apiKey: "AIzaSyA5OZa9O6dOYzb7Tgb6ayrYsJLDTf1PWuo",
+  authDomain: "smartboardai-pro2-0.firebaseapp.com",
+  projectId: "smartboardai-pro2-0",
+  storageBucket: "smartboardai-pro2-0.firebasestorage.app",
+  messagingSenderId: "162626939562",
+  appId: "1:162626939562:web:468bd97b1b3165863abed3",
+  databaseURL: "https://smartboardai-pro2-0-default-rtdb.firebaseio.com/"
 };
