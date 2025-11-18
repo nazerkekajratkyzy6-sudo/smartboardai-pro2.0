@@ -1,22 +1,16 @@
 console.log("student.js жүктелді");
 
+// FirebaseConfig-тен қажет функцияларды аламыз
 import {
-  auth,
   db,
-  signInAnonymously,
-  onAuthStateChanged
+  ref,
+  get,
+  push
 } from "./firebaseConfig.js";
 
-import {
-  ref,
-  set,
-  get,
-  child
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-// 🔹 DOM элементтер
+// DOM элементтер
 const joinSection = document.getElementById("joinSection");
-const answerBox = document.getElementById("answerBox");
+const writeSection = document.getElementById("writeSection");
 
 const nameInput = document.getElementById("studentName");
 const roomInput = document.getElementById("roomId");
@@ -24,82 +18,69 @@ const roomInput = document.getElementById("roomId");
 const joinBtn = document.getElementById("joinBtn");
 const joinMsg = document.getElementById("joinMsg");
 
-const studentNameLabel = document.getElementById("studentNameLabel");
-const roomLabel = document.getElementById("roomLabel");
-
-const answerInput = document.getElementById("answerInput");
+const answerBox = document.getElementById("answerBox");
 const sendBtn = document.getElementById("sendBtn");
-const statusMsg = document.getElementById("statusMsg");
+const sendMsg = document.getElementById("sendMsg");
 
-// 🔹 Қолданушы ID
-let UID = null;
+let studentName = "";
+let roomId = "";
 
-// 🔹 Firebase қауіпсіз кіру
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    UID = user.uid;
-    console.log("Оқушы аноним кіру:", UID);
-  } else {
-    signInAnonymously(auth);
-  }
-});
-
-// 🔹 Кіру батырмасы
+// ------------------------------
+//   ⚡ 1) JOIN ROOM
+// ------------------------------
 joinBtn.addEventListener("click", async () => {
-  const name = nameInput.value.trim();
-  const room = roomInput.value.trim().toUpperCase();
+    studentName = nameInput.value.trim();
+    roomId = roomInput.value.trim();
 
-  if (!name || !room) {
-    joinMsg.textContent = "❗ Атыңызды және Room ID жазыңыз.";
-    joinMsg.style.color = "red";
-    return;
-  }
+    if (!studentName || !roomId) {
+        joinMsg.textContent = "Екеуін де толтырыңыз!";
+        joinMsg.style.color = "red";
+        return;
+    }
 
-  // 🔥 Room бар-жоғын тексеру
-  const roomRef = ref(db, `rooms/${room}/status`);
+    // Бұл Room бар ма?
+    const roomRef = ref(db, "rooms/" + roomId);
+    const roomSnap = await get(roomRef);
 
-  const snap = await get(roomRef);
+    if (!roomSnap.exists()) {
+        joinMsg.textContent = "Мұғалім бөлмесі табылмады!";
+        joinMsg.style.color = "red";
+        return;
+    }
 
-  if (!snap.exists()) {
-    joinMsg.textContent = "❗ Мұғалім бөлмесі табылмады.";
-    joinMsg.style.color = "red";
-    return;
-  }
+    // JOIN SUCCESS
+    joinMsg.textContent = "Қосылдыңыз!";
+    joinMsg.style.color = "green";
 
-  // 🔥 Оқушыны тіркеу
-  await set(ref(db, `rooms/${room}/students/${UID}`), {
-    name: name,
-    joinedAt: Date.now()
-  });
+    joinSection.style.display = "none";
+    writeSection.style.display = "block";
 
-  studentNameLabel.textContent = name;
-  roomLabel.textContent = room;
-
-  joinSection.style.display = "none";
-  answerBox.style.display = "block";
-
-  joinMsg.textContent = "";
+    document.getElementById("joinedInfo").textContent =
+        `Қосылдыңыз: ${studentName} · Room: ${roomId}`;
 });
 
-// 🔹 Жауап жіберу
+
+// ------------------------------
+//   ⚡ 2) SEND ANSWER
+// ------------------------------
 sendBtn.addEventListener("click", async () => {
-  const text = answerInput.value.trim();
-  const room = roomLabel.textContent;
+    const answer = answerBox.value.trim();
 
-  if (!text) {
-    statusMsg.textContent = "❗ Жауап бос.";
-    statusMsg.style.color = "red";
-    return;
-  }
+    if (answer === "") {
+        sendMsg.textContent = "Жауап бос болмауы керек!";
+        sendMsg.style.color = "red";
+        return;
+    }
 
-  await set(ref(db, `rooms/${room}/answers/${UID}`), {
-    name: studentNameLabel.textContent,
-    text: text,
-    time: Date.now()
-  });
+    const answersRef = ref(db, `rooms/${roomId}/answers`);
+    await push(answersRef, {
+        student: studentName,
+        text: answer,
+        time: Date.now()
+    });
 
-  statusMsg.textContent = "✔ Жауап жіберілді!";
-  statusMsg.style.color = "green";
+    sendMsg.textContent = "Жауап жіберілді!";
+    sendMsg.style.color = "green";
 
-  answerInput.value = "";
+    answerBox.value = "";
 });
