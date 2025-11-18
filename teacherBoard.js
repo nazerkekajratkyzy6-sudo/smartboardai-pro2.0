@@ -64,5 +64,38 @@ $("logoutBtn").onclick = () => {
   signOut(auth);
   window.location.href = "login.html";
 };
+// ------------------------------
+//   ⚡ ОҚУШЫ ЖАУАПТАРЫН LIVE ТҮРДЕ ТЫҢДАУ
+// ------------------------------
+import { db, ref, onValue } from "./firebaseConfig.js";
+
+function listenAnswers(roomId) {
+    const answersRef = ref(db, `rooms/${roomId}/answers`);
+
+    onValue(answersRef, (snapshot) => {
+        const answersBox = document.getElementById("answersBox");
+
+        if (!answersBox) return;
+
+        answersBox.innerHTML = ""; // тазарту
+
+        snapshot.forEach((child) => {
+            const data = child.val();
+
+            const div = document.createElement("div");
+            div.className = "answerItem";
+
+            div.innerHTML = `
+                <b>${data.student}</b>: ${data.text}
+                <br>
+                <small>${new Date(data.time).toLocaleTimeString()}</small>
+                <hr>
+            `;
+
+            answersBox.appendChild(div);
+        });
+    });
+}
+
 
 
