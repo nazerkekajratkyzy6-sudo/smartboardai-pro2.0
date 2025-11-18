@@ -2,127 +2,57 @@
 <html lang="kk">
 <head>
   <meta charset="UTF-8" />
-  <title>SmartBoardAI PRO — Мұғалім тақтасы</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="./styles/main.css" />
+  <title>SmartBoardAI — Мұғалім тактасы</title>
+  <link rel="stylesheet" href="./styles/board.css" />
+  <script defer type="module" src="./teacherBoard.js"></script>
 </head>
-<body class="app-body">
-  <header class="topbar">
-    <div class="topbar-left">
-      <div class="logo">SmartBoardAI <span class="badge pastel">PRO</span></div>
-      <div class="subtitle">Мұғалім тақтасы · Live room</div>
+
+<body>
+<div class="container">
+
+  <!-- Сол панель -->
+  <div class="sidebar">
+    <h3>Room басқару</h3>
+    <button id="createRoomBtn" class="btn-primary">Жаңа Room</button>
+    <div class="label">Room ID:</div>
+    <div id="roomIdLabel" class="room-id">–</div>
+
+    <p class="small">
+      Оқушылар student.html бетіне өтіп, Room ID енгізеді.
+    </p>
+  </div>
+
+  <!-- Негізгі интерактивті тақта -->
+  <div class="main">
+    <h2>Интерактивті тақта</h2>
+    <div id="boardArea" class="board-area">
+      <i class="small">Оқушылар жауаптарын жібергенде — осы жерде көрінеді</i>
     </div>
-    <div class="topbar-right">
-      <span id="statusBar" class="status">Жүктелуде...</span>
-      <button id="logoutBtn" class="btn btn-ghost">Шығу</button>
+  </div>
+
+  <!-- Оң панель -->
+  <div class="rightbar">
+
+    <!-- Room ID көрсеткіші -->
+    <div class="card">
+      <h3>Room ID & оқушылар</h3>
+      <div id="roomIdLabel2" class="room-id">–</div>
     </div>
-  </header>
 
-  <main class="layout">
-    <aside class="sidebar">
-      <div class="card">
-        <h3>Room басқару</h3>
-        <p class="small">Оқушыларға Room ID беріңіз.</p>
-        <div class="room-row">
-          <button id="createRoomBtn" class="btn btn-primary">Жаңа Room</button>
-          <button id="copyRoomBtn" class="btn btn-ghost">Көшіру</button>
-        </div>
-        <div class="small" style="margin-top:6px;">
-          Room: <code id="roomIdLabel">–</code>
-        </div>
-        <div class="small" style="margin-top:4px;">
-          Оқушылар: <code>student.html</code> бетіне өтіп, Room ID енгізеді.
-        </div>
+    <!-- Оқушы жауаптары -->
+    <div class="card">
+      <h3>Оқушы жауаптары</h3>
+      <div id="answersBox" style="
+          max-height: 300px;
+          overflow-y: auto;
+          border: 1px solid #ddd;
+          padding: 8px;
+          border-radius: 6px;">
+        <i class="small">Жауаптар күтілуде…</i>
       </div>
+    </div>
 
-      <div class="card">
-        <h3>Сабақ тақырыбы</h3>
-        <input id="lessonTitle" type="text" placeholder="Бөлім / тақырып" />
-      </div>
-
-      <div class="card">
-        <h3>AI шаблондар</h3>
-        <p class="small">Тез толтыру үшін чипті таңдаңыз:</p>
-        <div class="chips">
-          <button class="chip" data-ai="quiz5">5 сұрақтық тест</button>
-          <button class="chip" data-ai="quiz10">10 сұрақтық тест</button>
-          <button class="chip" data-ai="rebus">Ребус</button>
-          <button class="chip" data-ai="anagram">Анаграмма</button>
-          <button class="chip" data-ai="truthfalse">Шын/Жалған</button>
-          <button class="chip" data-ai="pisa">PISA</button>
-          <button class="chip" data-ai="reflection">Рефлексия</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Құралдар</h3>
-        <div class="tools">
-          <button class="tool-btn active">📋 Карточкалар</button>
-          <button class="tool-btn">🎮 Ойындар</button>
-          <button class="tool-btn">∑ Формула</button>
-        </div>
-      </div>
-    </aside>
-
-    <section class="board-area">
-      <div class="card">
-        <div class="board-header">
-          <div>
-            <h2>Интерактивті тақта</h2>
-            <p class="small">Карточкалар, тапсырмалар, AI-генерацияланған блоктар.</p>
-          </div>
-          <div class="tabs">
-            <button class="tab-pill active">Тақта</button>
-            <button class="tab-pill">Тапсырмалар</button>
-            <button class="tab-pill">Қорытынды</button>
-          </div>
-        </div>
-
-        <div id="boardCanvas" class="board-canvas"></div>
-      </div>
-
-      <div class="card">
-        <h3>AI тапсырма генераторы (тек мәтінді дайындау)</h3>
-        <p class="small">
-          Мұнда тапсырма/текст жаза аласыз немесе жоғарыдағы чиптер арқылы шаблон толтырасыз.
-          Пәрменді жазып, «Блокқа қосу» таңдаңыз — тақтада жаңа карточка пайда болады.
-        </p>
-        <textarea id="aiPrompt" placeholder="Мысалы: 7-сынып, пайызға байланысты 5 есеп."></textarea>
-        <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
-          <button id="aiGenerateBtn" class="btn btn-primary">➕ Блокқа қосу</button>
-          <span class="small">Бұл жерде AI онлайн шақырылмайды, тек мәтінді карточкаға қосады. Кейін OpenAI қосуға дайын.</span>
-        </div>
-      </div>
-    </section>
-
-    <aside class="rightbar">
-      <div class="card">
-        <h3>Room ID & оқушылар</h3>
-        <p class="small">Room: <code id="roomIdLabel2">–</code></p>
-        <div id="studentsList" class="students-list"></div>
-      </div>
-
-      <div class="card">
-        <h3>Эмоциялық рефлексия</h3>
-        <p class="small">Оқушылар смайлик таңдайды, статистика осында көрінеді.</p>
-        <div class="emoji-row">
-          <button class="emoji-btn" data-emoji="🙂">🙂</button>
-          <button class="emoji-btn" data-emoji="😐">😐</button>
-          <button class="emoji-btn" data-emoji="😕">😕</button>
-          <button class="emoji-btn" data-emoji="😢">😢</button>
-          <button class="emoji-btn" data-emoji="🤩">🤩</button>
-        </div>
-        <div id="emojiStats" class="small" style="margin-top:4px;"></div>
-      </div>
-
-      <div class="card">
-        <h3>Word Cloud (сөз бұлты)</h3>
-        <p class="small">Оқушылар бір сөзбен сабақ туралы жазады.</p>
-        <div id="wordCloud" class="word-cloud"></div>
-      </div>
-    </aside>
-  </main>
-
-  <script type="module" src="./teacherBoard.js"></script>
+  </div>
+</div>
 </body>
 </html>
