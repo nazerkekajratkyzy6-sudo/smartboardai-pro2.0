@@ -1,101 +1,95 @@
-console.log("🔥 teacherBoard.js жүктелді!");
+console.log("teacherBoard.js жүктелді!");
+
 import {
   auth,
   db,
-  onAuthStateChanged,
-  signOut,
   ref,
   set,
-  push
+  push,
+  get,
+  onAuthStateChanged
 } from "./firebaseConfig.js";
 
-// UI helpers
+
+// ▪▪▪ ҚЫСҚА DOM функциялары
 function $(id) {
   return document.getElementById(id);
 }
 
 function setStatus(text) {
-  $("statusBar").textContent = text;
+  const board = $("boardArea");
+  board.innerHTML = `<div class="status">${text}</div>`;
 }
 
-// Random Room ID
+
+// ▪▪▪ Room ID генерациясы
 function randomRoomId() {
-  const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-  let out = "";
+  const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const numbers = "23456789";
+  let id = "";
   for (let i = 0; i < 6; i++) {
-    out += chars[Math.floor(Math.random() * chars.length)];
+    id += i < 3
+      ? letters[Math.floor(Math.random() * letters.length)]
+      : numbers[Math.floor(Math.random() * numbers.length)];
   }
-  return out;
+  return id;
 }
 
-let currentRoomId = null;
 
-// ========== EVENTS ==========
+// ▪▪▪ LIVE тыңдау — оқушы жауаптары
+function listenAnswers(roomId) {
+  const answersRef = ref(db, "rooms/" + roomId + "/answers");
 
-// Жаңа Room құру
+  onValue(answersRef, (snapshot) => {
+    const data = snapshot.val();
+    const box = $("answersBox");
+
+    if (!data) {
+      box.innerHTML = `<i class="small">Жауап әлі жоқ…</i>`;
+      return;
+    }
+
+    let html = "";
+    Object.keys(data).forEach((key) => {
+      const item = data[key];
+      html += `
+        <div class="answer-item">
+          <b>${item.name}</b><br>
+          ${item.text}
+          <hr>
+        </div>
+      `;
+    });
+
+    box.innerHTML = html;
+  });
+}
+
+
+// ▪▪▪ Жаңа бөлме жасау
 $("createRoomBtn").onclick = async () => {
   const roomId = randomRoomId();
-  currentRoomId = roomId;
 
-  // Firebase-ке жазамыз
+  // Firebase-ке жаңа бөлме жазу
   await set(ref(db, "rooms/" + roomId), {
     createdAt: Date.now(),
-    lessonTitle: "",
-    board: [],
-    students: {}
+    answers: {}
   });
 
-  // Экранға шығару
   $("roomIdLabel").textContent = roomId;
   $("roomIdLabel2").textContent = roomId;
 
   setStatus("Жаңа бөлме жасалды: " + roomId);
+
+  // LIVE тыңдау қосылады
+  listenAnswers(roomId);
 };
 
-// Room ID көшіру
-$("copyRoomBtn").onclick = () => {
-  if (!currentRoomId) return;
-  navigator.clipboard.writeText(currentRoomId);
-  setStatus("Room ID көшірілді");
-};
 
-// Logout
-$("logoutBtn").onclick = () => {
-  signOut(auth);
-  window.location.href = "login.html";
-};
-// ------------------------------
-//   ⚡ ОҚУШЫ ЖАУАПТАРЫН LIVE ТҮРДЕ ТЫҢДАУ
-// ------------------------------
-import { db, ref, onValue } from "./firebaseConfig.js";
-
-function listenAnswers(roomId) {
-    const answersRef = ref(db, `rooms/${roomId}/answers`);
-
-    onValue(answersRef, (snapshot) => {
-        const answersBox = document.getElementById("answersBox");
-
-        if (!answersBox) return;
-
-        answersBox.innerHTML = ""; // тазарту
-
-        snapshot.forEach((child) => {
-            const data = child.val();
-
-            const div = document.createElement("div");
-            div.className = "answerItem";
-
-            div.innerHTML = `
-                <b>${data.student}</b>: ${data.text}
-                <br>
-                <small>${new Date(data.time).toLocaleTimeString()}</small>
-                <hr>
-            `;
-
-            answersBox.appendChild(div);
-        });
-    });
-}
-
-
-
+// ▪▪▪ Тақта қайта ашылса — тыңдауды авто қайта қосу
+window.addEventListener("load", () => {
+  const roomId = $("roomIdLabel").textContent;
+  if (roomId && roomId !== "–") {
+    listenAnswers(roomId);
+  }
+});
