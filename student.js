@@ -1,24 +1,25 @@
-// -------------------------
-// SmartBoardAI — Student.js
-// -------------------------
+// -----------------------------------
+// SmartBoardAI — Student (One-page)
+// -----------------------------------
 
 console.log("student.js жүктелді");
 
-// 1) ЕСКІ ДЕРЕКТЕРДІ ТАЗАЛАУ — өте маңызды!
+// Ескі деректерді өшіру (ескі бөлмеге кіріп кетпесін)
 localStorage.removeItem("studentRoomId");
 localStorage.removeItem("studentName");
 
-// Элементтер
+// HTML элементтері
 const joinBtn = document.getElementById("joinBtn");
 const sendBtn = document.getElementById("sendBtn");
 const clearBtn = document.getElementById("clearBtn");
 
+const answerBox = document.getElementById("answerBox");
 const answerInput = document.getElementById("answerInput");
 const statusMsg = document.getElementById("statusMsg");
 
-// -------------------------
-// 2) БӨЛМЕГЕ ҚОСЫЛУ
-// -------------------------
+// -----------------------------------
+// 1) БӨЛМЕГЕ ҚОСЫЛУ (осы бетте)
+// -----------------------------------
 if (joinBtn) {
     joinBtn.addEventListener("click", () => {
         const name = document.getElementById("studentName").value.trim();
@@ -29,19 +30,20 @@ if (joinBtn) {
             return;
         }
 
-        // Жаңа бөлме сақтау
         localStorage.setItem("studentName", name);
         localStorage.setItem("studentRoomId", room);
 
-        // Негізгі оқушы панеліне өту
-        window.location.href = "studentBoard.html";
+        // Кіру формасын жасырамыз
+        document.getElementById("joinSection").style.display = "none";
+
+        // Жауап жазатын аймақты көрсетеміз
+        answerBox.style.display = "block";
     });
 }
 
-
-// -------------------------
-// 3) ANSWER САҚТАУ (Firebase Realtime Database)
-// -------------------------
+// -----------------------------------
+// 2) FIREBASE-ҚА ЖАУАП ЖІБЕРУ
+// -----------------------------------
 import {
     db,
     ref,
@@ -52,6 +54,7 @@ import {
 if (sendBtn) {
     sendBtn.addEventListener("click", async () => {
         const text = answerInput.value.trim();
+
         if (!text) {
             alert("Жауап бос болмауы керек!");
             return;
@@ -62,7 +65,7 @@ if (sendBtn) {
 
         if (!room || !name) {
             alert("Бөлмеге қайта кіріңіз!");
-            window.location.href = "student.html";
+            location.reload();
             return;
         }
 
@@ -80,16 +83,14 @@ if (sendBtn) {
             statusMsg.innerText = "✔ Жауап жіберілді!";
         } catch (err) {
             statusMsg.style.color = "red";
-            statusMsg.innerText = "⚠ Қате! Жауап жіберілмеді.";
-            console.error(err);
+            statusMsg.innerText = "⚠ Қате!";
         }
     });
 }
 
-
-// -------------------------
-// 4) ТАЗАЛАУ БАТЫРМАСЫ
-// -------------------------
+// -----------------------------------
+// 3) ТАЗАЛАУ
+// -----------------------------------
 if (clearBtn) {
     clearBtn.addEventListener("click", () => {
         answerInput.value = "";
