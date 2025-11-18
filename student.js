@@ -1,99 +1,105 @@
-// -----------------------------------
-// SmartBoardAI — Student (One-page)
-// -----------------------------------
-
 console.log("student.js жүктелді");
 
-// Ескі деректерді өшіру (ескі бөлмеге кіріп кетпесін)
-localStorage.removeItem("studentRoomId");
-localStorage.removeItem("studentName");
-
-// HTML элементтері
-const joinBtn = document.getElementById("joinBtn");
-const sendBtn = document.getElementById("sendBtn");
-const clearBtn = document.getElementById("clearBtn");
-
-const answerBox = document.getElementById("answerBox");
-const answerInput = document.getElementById("answerInput");
-const statusMsg = document.getElementById("statusMsg");
-
-// -----------------------------------
-// 1) БӨЛМЕГЕ ҚОСЫЛУ (осы бетте)
-// -----------------------------------
-if (joinBtn) {
-    joinBtn.addEventListener("click", () => {
-        const name = document.getElementById("studentName").value.trim();
-        const room = document.getElementById("roomId").value.trim();
-
-        if (!name || !room) {
-            alert("Атыңыз бен Room ID енгізіңіз!");
-            return;
-        }
-
-        localStorage.setItem("studentName", name);
-        localStorage.setItem("studentRoomId", room);
-
-        // Кіру формасын жасырамыз
-        document.getElementById("joinSection").style.display = "none";
-
-        // Жауап жазатын аймақты көрсетеміз
-        answerBox.style.display = "block";
-    });
-}
-
-// -----------------------------------
-// 2) FIREBASE-ҚА ЖАУАП ЖІБЕРУ
-// -----------------------------------
 import {
-    db,
-    ref,
-    push,
-    set
+  auth,
+  db,
+  signInAnonymously,
+  onAuthStateChanged
 } from "./firebaseConfig.js";
 
-if (sendBtn) {
-    sendBtn.addEventListener("click", async () => {
-        const text = answerInput.value.trim();
+import {
+  ref,
+  set,
+  get,
+  child
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        if (!text) {
-            alert("Жауап бос болмауы керек!");
-            return;
-        }
+// 🔹 DOM элементтер
+const joinSection = document.getElementById("joinSection");
+const answerBox = document.getElementById("answerBox");
 
-        const name = localStorage.getItem("studentName");
-        const room = localStorage.getItem("studentRoomId");
+const nameInput = document.getElementById("studentName");
+const roomInput = document.getElementById("roomId");
 
-        if (!room || !name) {
-            alert("Бөлмеге қайта кіріңіз!");
-            location.reload();
-            return;
-        }
+const joinBtn = document.getElementById("joinBtn");
+const joinMsg = document.getElementById("joinMsg");
 
-        try {
-            const answerRef = ref(db, `rooms/${room}/answers`);
-            const newAnswer = push(answerRef);
+const studentNameLabel = document.getElementById("studentNameLabel");
+const roomLabel = document.getElementById("roomLabel");
 
-            await set(newAnswer, {
-                name: name,
-                answer: text,
-                time: Date.now()
-            });
+const answerInput = document.getElementById("answerInput");
+const sendBtn = document.getElementById("sendBtn");
+const statusMsg = document.getElementById("statusMsg");
 
-            statusMsg.style.color = "green";
-            statusMsg.innerText = "✔ Жауап жіберілді!";
-        } catch (err) {
-            statusMsg.style.color = "red";
-            statusMsg.innerText = "⚠ Қате!";
-        }
-    });
-}
+// 🔹 Қолданушы ID
+let UID = null;
 
-// -----------------------------------
-// 3) ТАЗАЛАУ
-// -----------------------------------
-if (clearBtn) {
-    clearBtn.addEventListener("click", () => {
-        answerInput.value = "";
-        statusMsg.innerText = "";
-    });
-}
+// 🔹 Firebase қауіпсіз кіру
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    UID = user.uid;
+    console.log("Оқушы аноним кіру:", UID);
+  } else {
+    signInAnonymously(auth);
+  }
+});
+
+// 🔹 Кіру батырмасы
+joinBtn.addEventListener("click", async () => {
+  const name = nameInput.value.trim();
+  const room = roomInput.value.trim().toUpperCase();
+
+  if (!name || !room) {
+    joinMsg.textContent = "❗ Атыңызды және Room ID жазыңыз.";
+    joinMsg.style.color = "red";
+    return;
+  }
+
+  // 🔥 Room бар-жоғын тексеру
+  const roomRef = ref(db, `rooms/${room}/status`);
+
+  const snap = await get(roomRef);
+
+  if (!snap.exists()) {
+    joinMsg.textContent = "❗ Мұғалім бөлмесі табылмады.";
+    joinMsg.style.color = "red";
+    return;
+  }
+
+  // 🔥 Оқушыны тіркеу
+  await set(ref(db, `rooms/${room}/students/${UID}`), {
+    name: name,
+    joinedAt: Date.now()
+  });
+
+  studentNameLabel.textContent = name;
+  roomLabel.textContent = room;
+
+  joinSection.style.display = "none";
+  answerBox.style.display = "block";
+
+  joinMsg.textContent = "";
+});
+
+// 🔹 Жауап жіберу
+sendBtn.addEventListener("click", async () => {
+  const text = answerInput.value.trim();
+  const room = roomLabel.textContent;
+
+  if (!text) {
+    statusMsg.textContent = "❗ Жауап бос.";
+    statusMsg.style.color = "red";
+    return;
+  }
+
+  await set(ref(db, `rooms/${room}/answers/${UID}`), {
+    name: studentNameLabel.textContent,
+    text: text,
+    time: Date.now()
+  });
+
+  statusMsg.textContent = "✔ Жауап жіберілді!";
+  statusMsg.style.color = "green";
+
+  answerInput.value = "";
+});
