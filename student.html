@@ -6,34 +6,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="./styles/main.css" />
 </head>
+
 <body class="app-body app-body-center">
   <div class="card card-narrow">
     <h2>📚 SmartBoardAI — Оқушы</h2>
     <p class="small">Атыңызды және мұғалім берген Room ID кодын жазыңыз.</p>
 
-    <div id="joinBox">
-      <input id="nameInput" type="text" placeholder="Атыңыз" />
-      <input id="codeInput" type="text" placeholder="Room ID (мысалы: A7Q9Z)" />
+    <!-- 🔹 КІРУ БӨЛІМІ -->
+    <div id="joinSection">
+      <input id="studentName" type="text" placeholder="Атыңыз" />
+      <input id="roomId" type="text" placeholder="Room ID (мысалы: A7Q9Z)" />
       <button id="joinBtn" class="btn btn-primary">Қосылу</button>
       <p id="joinMsg" class="small"></p>
     </div>
 
-    <div id="lessonBox" style="display:none;">
+    <!-- 🔹 ЖАУАП ЖІБЕРУ БӨЛІМІ -->
+    <div id="answerBox" style="display:none;">
       <p class="small">
         Қосылдыңыз: <span id="studentNameLabel"></span> · Room:
         <code id="roomLabel"></code>
       </p>
+
       <h4>✏ Жауабыңызды енгізіңіз</h4>
+
       <textarea id="answerInput" rows="3" placeholder="Жауапты жазыңыз"></textarea>
+
       <div style="margin-top:8px; display:flex; gap:6px;">
         <button id="sendBtn" class="btn btn-primary">Жіберу</button>
         <button id="clearBtn" class="btn btn-ghost">Тазалау</button>
       </div>
-      <p id="resultMsg" class="small"></p>
+
+      <p id="statusMsg" class="small"></p>
     </div>
   </div>
 
   <script type="module" src="./student.js"></script>
 </body>
 </html>
-
