@@ -1,81 +1,51 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SmartBoardAI — Оқушы</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f7ff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .card {
-            background: white;
-            padding: 30px;
-            width: 420px;
-            border-radius: 18px;
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
-        }
-
-        input, textarea {
-            width: 100%;
-            padding: 12px;
-            margin-top: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 15px;
-        }
-
-        button {
-            margin-top: 15px;
-            padding: 12px;
-            width: 100%;
-            border: none;
-            background: #3b5bff;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-        }
-
-        p {
-            margin-top: 10px;
-            font-size: 14px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>SmartBoardAI — Оқушы</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="./styles/main.css" />
 </head>
-
-<body>
-
-<div class="card">
-
+<body class="app-body app-body-center">
+  <div class="card card-narrow">
     <h2>📚 SmartBoardAI — Оқушы</h2>
+    <p class="small">Атыңызды және мұғалім берген Room ID кодын жазыңыз.</p>
 
-    <!-- JOIN SECTION -->
-    <div id="joinSection">
-        <input id="studentName" placeholder="Атыңыз" />
-        <input id="roomId" placeholder="Room ID" />
-        <button id="joinBtn">Қосылу</button>
-        <p id="joinMsg"></p>
+    <div id="joinBox">
+      <input id="nameInput" type="text" placeholder="Атыңыз" />
+      <input id="codeInput" type="text" placeholder="Room ID (мысалы: A7Q9Z)" />
+      <button id="joinBtn" class="btn btn-primary">Қосылу</button>
+      <p id="joinMsg" class="small"></p>
     </div>
 
-    <!-- WRITE SECTION -->
-    <div id="writeSection" style="display:none;">
-        <p id="joinedInfo"></p>
+    <div id="lessonBox" style="display:none;">
+      <p class="small">
+        Қосылдыңыз: <span id="studentNameLabel"></span> · Room:
+        <code id="roomLabel"></code>
+      </p>
 
-        <textarea id="answerBox" rows="4" placeholder="Жауабыңызды жазыңыз"></textarea>
-        <button id="sendBtn">Жіберу</button>
-        <p id="sendMsg"></p>
+      <h4>✏ Жауабыңызды енгізіңіз</h4>
+      <textarea id="answerInput" rows="3" placeholder="Жауапты жазыңыз"></textarea>
+      <div style="margin-top:8px; display:flex; gap:6px;">
+        <button id="sendBtn" class="btn btn-primary">Жіберу</button>
+        <button id="clearBtn" class="btn btn-ghost">Тазалау</button>
+      </div>
+      <p id="resultMsg" class="small"></p>
+
+      <hr style="margin:12px 0;" />
+
+      <h4>💬 Word Cloud — 1 сөз</h4>
+      <p class="small">Сабақты бір сөзбен сипаттаңыз.</p>
+      <div style="display:flex; gap:6px; margin-top:4px;">
+        <input id="wordInput" type="text"
+               placeholder="Мысалы: қызық, қиын, түсінікті..."
+               style="flex:1;" />
+        <button id="sendWordBtn" class="btn btn-ghost">Қосу</button>
+      </div>
+      <p id="wordMsg" class="small"></p>
     </div>
+  </div>
 
-</div>
-
-<script type="module" src="student.js"></script>
+  <script type="module" src="./student.js"></script>
 </body>
 </html>
