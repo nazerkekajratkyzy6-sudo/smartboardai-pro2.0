@@ -1,29 +1,53 @@
-console.log("teacherBoard.js жүктелді!");
+console.log("🔥 teacherBoard.js жүктелді!");
 
 import {
   auth,
   db,
+  onAuthStateChanged,
+  signOut,
   ref,
   set,
-  push,
-  get,
-  onAuthStateChanged
+  onValue
 } from "./firebaseConfig.js";
 
+// Көмекші DOM функция
+const $ = (id) => document.getElementById(id);
 
-// ▪▪▪ ҚЫСҚА DOM функциялары
-function $(id) {
-  return document.getElementById(id);
+// Негізгі элементтер
+const statusBar    = $("statusBar");
+const logoutBtn    = $("logoutBtn");
+const createRoomBtn = $("createRoomBtn");
+const copyRoomBtn   = $("copyRoomBtn");
+
+const roomIdLabel  = $("roomIdLabel");
+const roomIdLabel2 = $("roomIdLabel2");
+
+const boardCanvas  = $("boardCanvas");
+const lessonTitle  = $("lessonTitle");
+
+const aiPrompt     = $("aiPrompt");
+const aiGenerateBtn = $("aiGenerateBtn");
+
+const answersBox   = $("answersBox");
+const studentsList = $("studentsList");
+const emojiStats   = $("emojiStats");
+
+let currentRoomId = null;
+let emojiCounts = {
+  "🙂": 0,
+  "😐": 0,
+  "😕": 0,
+  "😢": 0,
+  "🤩": 0
+};
+
+// 🔹 Статус шығару
+function setStatus(msg) {
+  if (statusBar) statusBar.textContent = msg;
 }
 
-function setStatus(text) {
-  const board = $("boardArea");
-  board.innerHTML = `<div class="status">${text}</div>`;
-}
-
-
-// ▪▪▪ Room ID генерациясы
-function randomRoomId() {
+// 🔹 Room ID генераторы
+function generateRoomId() {
   const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
   const numbers = "23456789";
   let id = "";
@@ -35,61 +59,190 @@ function randomRoomId() {
   return id;
 }
 
-
-// ▪▪▪ LIVE тыңдау — оқушы жауаптары
+// 🔹 Оқушы жауаптарын тыңдау
 function listenAnswers(roomId) {
-  const answersRef = ref(db, "rooms/" + roomId + "/answers");
+  const answersRef = ref(db, `rooms/${roomId}/answers`);
 
   onValue(answersRef, (snapshot) => {
-    const data = snapshot.val();
-    const box = $("answersBox");
+    answersBox.innerHTML = "";
 
-    if (!data) {
-      box.innerHTML = `<i class="small">Жауап әлі жоқ…</i>`;
+    if (!snapshot.exists()) {
+      answersBox.innerHTML = `<i class="small">Әзірге жауап жоқ…</i>`;
       return;
     }
 
-    let html = "";
-    Object.keys(data).forEach((key) => {
-      const item = data[key];
-      html += `
-        <div class="answer-item">
-          <b>${item.name}</b><br>
-          ${item.text}
-          <hr>
-        </div>
+    const studentsSet = new Set();
+
+    snapshot.forEach((child) => {
+      const data = child.val();
+      studentsSet.add(data.student);
+
+      const div = document.createElement("div");
+      div.className = "answer-item";
+      div.innerHTML = `
+        <b>${data.student}</b><br/>
+        ${data.text}
+        <br/>
+        <small>${new Date(data.time).toLocaleTimeString()}</small>
       `;
+      answersBox.appendChild(div);
     });
 
-    box.innerHTML = html;
+    // Оқушылар тізімі
+    studentsList.innerHTML = "";
+    studentsSet.forEach((name) => {
+      const li = document.createElement("div");
+      li.textContent = "👤 " + name;
+      studentsList.appendChild(li);
+    });
   });
 }
 
+// 🔹 Жаңа board-карточка жасау (AI генератордан, немесе қолмен)
+function addBoardCard(text) {
+  if (!boardCanvas) return;
 
-// ▪▪▪ Жаңа бөлме жасау
-$("createRoomBtn").onclick = async () => {
-  const roomId = randomRoomId();
+  const card = document.createElement("div");
+  card.className = "board-card";
+  card.innerHTML = `
+    <div class="board-card-body">
+      ${text.replace(/\n/g, "<br/>")}
+    </div>
+  `;
+  boardCanvas.appendChild(card);
+}
 
-  // Firebase-ке жаңа бөлме жазу
-  await set(ref(db, "rooms/" + roomId), {
-    createdAt: Date.now(),
-    answers: {}
+// 🔹 AI шаблон чиптері (тек текст генерациялайды, OpenAI шақырмайды)
+function initAIChips() {
+  const chips = document.querySelectorAll(".chip");
+  chips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const type = chip.dataset.ai;
+      let tpl = "";
+
+      switch (type) {
+        case "quiz5":
+          tpl = "5 сұрақтық тест құрастыр: \n1) Сұрақ...\nA)\nB)\nC)\nD)\nДұрыс жауап: ";
+          break;
+        case "quiz10":
+          tpl = "10 сұрақтық викторина құрастыр, тақырып: ...";
+          break;
+        case "rebus":
+          tpl = "«... » тақырыбына бастауыш сыныпқа арналған қарапайым ребус ойлап тап.";
+          break;
+        case "anagram":
+          tpl = "«... » сөзінен анаграммалар құрастыр, 1 дұрыс, 3 қате нұсқа.";
+          break;
+        case "truthfalse":
+          tpl = "Тақырып бойынша 5 тұжырым жаз, әрқайсысы 'шын' немесе 'жалған' белгісімен.";
+          break;
+        case "pisa":
+          tpl = "PISA форматында өмірлік жағдайға байланысты есеп жаз, 4 жауап нұсқасымен.";
+          break;
+        case "reflection":
+          tpl = "Сабақ соңына 5 рефлексия сұрағын жаз: не үйренді, не қиын болды, т.б.";
+          break;
+      }
+
+      aiPrompt.value = tpl;
+    });
+  });
+}
+
+// 🔹 Эмоция батырмалары
+function initEmojis() {
+  const emojiButtons = document.querySelectorAll(".emoji-btn");
+  emojiButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const e = btn.dataset.emoji;
+      if (!emojiCounts[e]) emojiCounts[e] = 0;
+      emojiCounts[e]++;
+
+      const parts = Object.entries(emojiCounts)
+        .filter(([_, cnt]) => cnt > 0)
+        .map(([emo, cnt]) => `${emo} — ${cnt}`);
+
+      emojiStats.textContent = parts.length
+        ? parts.join(" · ")
+        : "";
+    });
+  });
+}
+
+// 🔹 Бастапқы инициализация
+function init() {
+  setStatus("Дайын.");
+
+  // Auth бақылау (қалауыңша)
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // Қаласаң, логинге қайтаратын жер
+      // window.location.href = "./auth/login.html";
+      setStatus("Қонақ режимі (auth жоқ)");
+    } else {
+      setStatus("Кіру: " + (user.email || "мұғалім"));
+    }
   });
 
-  $("roomIdLabel").textContent = roomId;
-  $("roomIdLabel2").textContent = roomId;
-
-  setStatus("Жаңа бөлме жасалды: " + roomId);
-
-  // LIVE тыңдау қосылады
-  listenAnswers(roomId);
-};
-
-
-// ▪▪▪ Тақта қайта ашылса — тыңдауды авто қайта қосу
-window.addEventListener("load", () => {
-  const roomId = $("roomIdLabel").textContent;
-  if (roomId && roomId !== "–") {
-    listenAnswers(roomId);
+  // Logout
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        window.location.href = "./index.html";
+      } catch (e) {
+        alert("Шығуда қате: " + e.message);
+      }
+    });
   }
-});
+
+  // Жаңа Room
+  createRoomBtn.addEventListener("click", async () => {
+    const id = generateRoomId();
+    currentRoomId = id;
+
+    await set(ref(db, "rooms/" + id), {
+      createdAt: Date.now(),
+      lessonTitle: lessonTitle.value || "",
+      answers: {}
+    });
+
+    roomIdLabel.textContent = id;
+    roomIdLabel2.textContent = id;
+
+    setStatus("Жаңа Room жасалды: " + id);
+
+    listenAnswers(id);
+  });
+
+  // Room көшіру
+  copyRoomBtn.addEventListener("click", async () => {
+    if (!currentRoomId) {
+      alert("Алдымен Room жасаңыз.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(currentRoomId);
+      setStatus("Room ID көшірілді: " + currentRoomId);
+    } catch (e) {
+      alert("Көшіруде қате: " + e.message);
+    }
+  });
+
+  // AI → карточкаға қосу (әзірге тек текстті тақтаға шығарады)
+  aiGenerateBtn.addEventListener("click", () => {
+    const text = aiPrompt.value.trim();
+    if (!text) {
+      alert("Алдымен мәтін жазыңыз.");
+      return;
+    }
+    addBoardCard(text);
+    aiPrompt.value = "";
+  });
+
+  initAIChips();
+  initEmojis();
+}
+
+// Бет жүктелгенде іске қосамыз
+window.addEventListener("DOMContentLoaded", init);
