@@ -1,4 +1,4 @@
-// firebaseConfig.js — FINАЛ (Auth + Database толық жұмыс істейді)
+// firebaseConfig.js — SmartBoardAI PRO (Firebase v10)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -17,12 +17,11 @@ import {
   ref,
   set,
   push,
-  get
+  get,
+  onValue
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// ↑ Дәл осы 'get' – student.js үшін қажет!!
-// get() болмай, student.js "қатып" қалады.
-
+// 🔐 Сен берген конфиг (smartboardai-pro2-0)
 const firebaseConfig = {
   apiKey: "AIzaSyA5OZa9O6dOYzb7Tgb6ayrYsJLDTf1PWuo",
   authDomain: "smartboardai-pro2-0.firebaseapp.com",
@@ -33,11 +32,13 @@ const firebaseConfig = {
   appId: "1:162626939562:web:468bd97b1b3165863abed3"
 };
 
+// 🔥 Инициализация
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 const googleProvider = new GoogleAuthProvider();
 
+// Барлық керек нәрсені экспорттаймыз
 export {
   app,
   auth,
@@ -53,5 +54,6 @@ export {
   ref,
   set,
   push,
-  get
+  get,
+  onValue
 };
