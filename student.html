@@ -1,49 +1,60 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>SmartBoardAI — Оқушы</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="./styles/main.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./styles/main.css">
 </head>
-<body class="app-body app-body-center">
-  <div class="card card-narrow">
-    <h2>📚 SmartBoardAI — Оқушы</h2>
-    <p class="small">Атыңызды және мұғалім берген Room ID кодын жазыңыз.</p>
 
-    <div id="joinBox">
-      <input id="nameInput" type="text" placeholder="Атыңыз" />
-      <input id="codeInput" type="text" placeholder="Room ID (мысалы: A7Q9Z)" />
+<body class="student-body">
+
+  <div class="student-container">
+    
+    <h2 class="student-title">🎓 Оқушы панелі</h2>
+    <p class="small">Мұғалім берген Room ID арқылы қосылыңыз.</p>
+
+    <!-- Join -->
+    <div class="card student-card">
+      <h3>Бөлмеге қосылу</h3>
+
+      <input id="studentName" type="text" placeholder="Атыңыз" class="input">
+      <input id="roomId" type="text" placeholder="Room ID" class="input">
+
       <button id="joinBtn" class="btn btn-primary">Қосылу</button>
-      <p id="joinMsg" class="small"></p>
+
+      <p id="joinStatus" class="small" style="margin-top:6px;"></p>
     </div>
 
-    <div id="lessonBox" style="display:none;">
-      <p class="small">
-        Қосылдыңыз: <span id="studentNameLabel"></span> · Room:
-        <code id="roomLabel"></code>
-      </p>
-
-      <h4>✏ Жауабыңызды енгізіңіз</h4>
-      <textarea id="answerInput" rows="3" placeholder="Жауапты жазыңыз"></textarea>
-      <div style="margin-top:8px; display:flex; gap:6px;">
-        <button id="sendBtn" class="btn btn-primary">Жіберу</button>
-        <button id="clearBtn" class="btn btn-ghost">Тазалау</button>
-      </div>
-      <p id="resultMsg" class="small"></p>
-
-      <hr style="margin:12px 0;" />
-
-      <h4>💬 Word Cloud — 1 сөз</h4>
-      <p class="small">Сабақты бір сөзбен сипаттаңыз.</p>
-      <div style="display:flex; gap:6px; margin-top:4px;">
-        <input id="wordInput" type="text"
-               placeholder="Мысалы: қызық, қиын, түсінікті..."
-               style="flex:1;" />
-        <button id="sendWordBtn" class="btn btn-ghost">Қосу</button>
-      </div>
-      <p id="wordMsg" class="small"></p>
+    <!-- Answer -->
+    <div class="card student-card">
+      <h3>📘 Тапсырмаға жауап беру</h3>
+      <textarea id="answerInput" placeholder="Жауабыңызды жазыңыз..." class="textarea"></textarea>
+      <button id="sendAnswerBtn" class="btn btn-secondary">Жауап жіберу</button>
+      <div id="answerMsg" class="small"></div>
     </div>
+
+    <!-- Word Cloud -->
+    <div class="card student-card">
+      <h3>💬 Рефлексия (1 сөз)</h3>
+      <input id="wordInput" type="text" placeholder="Бір сөз жазыңыз..." class="input">
+      <button id="sendWordBtn" class="btn btn-secondary">Қосу</button>
+      <div id="wordMsg" class="small"></div>
+    </div>
+
+    <!-- Emoji -->
+    <div class="card student-card">
+      <h3>🙂 Эмоциялық рефлексия</h3>
+      <div class="emoji-row">
+        <button class="emoji-btn" data-emoji="🙂">🙂</button>
+        <button class="emoji-btn" data-emoji="😐">😐</button>
+        <button class="emoji-btn" data-emoji="😕">😕</button>
+        <button class="emoji-btn" data-emoji="😢">😢</button>
+        <button class="emoji-btn" data-emoji="🤩">🤩</button>
+      </div>
+      <p class="small">Сіздің эмоцияңыз мұғалімге көрінеді.</p>
+    </div>
+
   </div>
 
   <script type="module" src="./student.js"></script>
