@@ -1,80 +1,120 @@
-console.log("student.js жүктелді");
+// student.js — SmartBoardAI PRO (оқушы жағы)
 
-// Firebase-тен керек функцияларды аламыз
-import {
-  db,
-  ref,
-  get,
-  push
-} from "./firebaseConfig.js";
-
-// DOM элементтер
-const joinSection  = document.getElementById("joinSection");
-const writeSection = document.getElementById("writeSection");
-
-const nameInput = document.getElementById("studentName");
-const roomInput = document.getElementById("roomId");
-
-const joinBtn  = document.getElementById("joinBtn");
-const joinMsg  = document.getElementById("joinMsg");
-
-const answerBox = document.getElementById("answerBox");
-const sendBtn   = document.getElementById("sendBtn");
-const sendMsg   = document.getElementById("sendMsg");
+import { db, ref, set, get, push } from "./firebaseConfig.js";
 
 let studentName = "";
 let roomId = "";
 
-// ⚡ 1) Room-ға қосылу
-joinBtn.addEventListener("click", async () => {
+const nameInput = document.getElementById("nameInput");
+const codeInput = document.getElementById("codeInput");
+const joinBtn = document.getElementById("joinBtn");
+const joinMsg = document.getElementById("joinMsg");
+
+const lessonBox = document.getElementById("lessonBox");
+const joinBox = document.getElementById("joinBox");
+const studentNameLabel = document.getElementById("studentNameLabel");
+const roomLabel = document.getElementById("roomLabel");
+const answerInput = document.getElementById("answerInput");
+const sendBtn = document.getElementById("sendBtn");
+const clearBtn = document.getElementById("clearBtn");
+const resultMsg = document.getElementById("resultMsg");
+
+// Word Cloud элементтері
+const wordInput = document.getElementById("wordInput");
+const sendWordBtn = document.getElementById("sendWordBtn");
+const wordMsg = document.getElementById("wordMsg");
+
+// Локал сақтау (авто-қайта қосылу)
+const savedName = localStorage.getItem("studentName");
+const savedRoom = localStorage.getItem("roomId");
+if (savedName && savedRoom) {
+  studentName = savedName;
+  roomId = savedRoom;
+  showLessonBox();
+}
+
+function showLessonBox() {
+  joinBox.style.display = "none";
+  lessonBox.style.display = "block";
+  studentNameLabel.textContent = studentName;
+  roomLabel.textContent = roomId;
+}
+
+// Room-ға қосылу
+joinBtn?.addEventListener("click", async () => {
   studentName = nameInput.value.trim();
-  roomId      = roomInput.value.trim();
-
+  roomId = codeInput.value.trim();
   if (!studentName || !roomId) {
-    joinMsg.textContent = "Атыңызды және Room ID толтырыңыз!";
-    joinMsg.style.color = "red";
+    joinMsg.textContent = "Барлық өрісті толтырыңыз.";
     return;
   }
 
-  // Мұғалім бөлмесі бар ма?
-  const roomRef = ref(db, "rooms/" + roomId);
-  const roomSnap = await get(roomRef);
-
-  if (!roomSnap.exists()) {
-    joinMsg.textContent = "Мұғалім бөлмесі табылмады!";
-    joinMsg.style.color = "red";
+  const roomRef = ref(db, `rooms/${roomId}`);
+  const snap = await get(roomRef);
+  if (!snap.exists()) {
+    joinMsg.textContent = "Мұндай Room табылмады.";
     return;
   }
 
-  // Сәтті қосылса
-  joinMsg.textContent = "Бөлмеге қосылдыңыз ✔";
-  joinMsg.style.color = "green";
-
-  joinSection.style.display  = "none";
-  writeSection.style.display = "block";
-
-  document.getElementById("joinedInfo").textContent =
-    `Қосылдыңыз: ${studentName} · Room: ${roomId}`;
-});
-
-// ⚡ 2) Жауап жіберу
-sendBtn.addEventListener("click", async () => {
-  const answer = answerBox.value.trim();
-
-  if (answer === "") {
-    sendMsg.textContent = "Жауап бос болмауы керек!";
-    sendMsg.style.color = "red";
-    return;
-  }
-
-  const answersRef = ref(db, `rooms/${roomId}/answers`);
-  await push(answersRef, {
-    student: studentName,
-    text: answer,
-    time: Date.now()
+  const studentsRef = ref(db, `rooms/${roomId}/students`);
+  const newRef = push(studentsRef);
+  await set(newRef, {
+    name: studentName,
+    joinedAt: Date.now()
   });
 
-  sendMsg.textContent = "Жауап жіберілді ✔";
-  sendMsg.style.color = "green";
-  answerBox.value = "";
+  localStorage.setItem("studentName", studentName);
+  localStorage.setItem("roomId", roomId);
+
+  joinMsg.textContent = "";
+  showLessonBox();
+});
+
+// Жауап жіберу
+sendBtn?.addEventListener("click", async () => {
+  const ans = answerInput.value.trim();
+  if (!ans) {
+    resultMsg.textContent = "Жауап бос!";
+    return;
+  }
+  if (!roomId || !studentName) {
+    resultMsg.textContent = "Алдымен Room-ға қосылыңыз.";
+    return;
+  }
+
+  const ansRef = ref(db, `rooms/${roomId}/answers/${studentName}`);
+  await set(ansRef, {
+    answer: ans,
+    ts: Date.now()
+  });
+
+  resultMsg.textContent = "✅ Жауап жіберілді!";
+});
+
+// Жауапты тазалау (тек локал)
+clearBtn?.addEventListener("click", () => {
+  answerInput.value = "";
+  resultMsg.textContent = "";
+});
+
+// Word Cloud — 1 сөз жіберу
+sendWordBtn?.addEventListener("click", async () => {
+  const w = wordInput.value.trim();
+  if (!w) {
+    wordMsg.textContent = "Сөз бос!";
+    return;
+  }
+  if (!roomId) {
+    wordMsg.textContent = "Алдымен Room-ға қосылыңыз.";
+    return;
+  }
+
+  const wordsRef = ref(db, `rooms/${roomId}/reflection/words`);
+  await push(wordsRef, {
+    word: w,
+    ts: Date.now()
+  });
+
+  wordMsg.textContent = "✅ Сөз қосылды!";
+  wordInput.value = "";
 });
