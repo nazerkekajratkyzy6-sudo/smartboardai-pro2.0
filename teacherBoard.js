@@ -1,4 +1,4 @@
-// teacherBoard.js — SmartBoardAI PRO (Final)
+// teacherBoard.js — SmartBoardAI PRO 2.0 (AI + Live Room)
 
 import {
   auth,
@@ -18,9 +18,7 @@ let boardState = {
   items: [] // {id, type, text, createdAt}
 };
 
-function $(id) {
-  return document.getElementById(id);
-}
+const $ = (id) => document.getElementById(id);
 
 function setStatus(text) {
   const el = $("statusBar");
@@ -36,7 +34,7 @@ function randomRoomId() {
   return out;
 }
 
-// 🔐 Авторизация
+// 🔐 Auth
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = "./auth/login.html";
@@ -46,7 +44,7 @@ onAuthStateChanged(auth, (user) => {
   initBoard();
 });
 
-// ----------------- INIT BOARD -----------------
+// ---------------- INIT BOARD ----------------
 function initBoard() {
   const createRoomBtn = $("createRoomBtn");
   const copyRoomBtn = $("copyRoomBtn");
@@ -79,7 +77,7 @@ function initBoard() {
     setStatus(`Room ID көшірілді: ${currentRoomId}`);
   });
 
-  // Сабақ тақырыбын сақтау
+  // Сабақ тақырыбы
   lessonTitleInput?.addEventListener("change", () => {
     boardState.lessonTitle = lessonTitleInput.value;
     saveBoard();
@@ -103,19 +101,37 @@ function initBoard() {
     });
   });
 
-  // AI → карточкаға қосу (пока без реального AI)
-  aiGenerateBtn?.addEventListener("click", () => {
+  // 🤖 AI + карточка
+  aiGenerateBtn?.addEventListener("click", async () => {
+    const text = aiPrompt.value.trim();
+    if (!text) return;
     if (!currentRoomId) {
       setStatus("Алдымен Room жасаңыз.");
       return;
     }
-    const text = aiPrompt.value.trim();
-    if (!text) return;
-    addCard({
-      type: "ai-task",
-      text: `🧠 AI тапсырма:\n${text}`
-    });
-    aiPrompt.value = "";
+
+    setStatus("AI ойлап жатыр...");
+
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        body: JSON.stringify({ prompt: text })
+      });
+
+      const data = await res.json();
+      const content = data.answer || "AI жауап бере алмады.";
+
+      addCard({
+        type: "ai-task",
+        text: content
+      });
+
+      setStatus("AI тапсырма тақтаға қосылды!");
+      aiPrompt.value = "";
+    } catch (e) {
+      console.error(e);
+      setStatus("AI қате берді.");
+    }
   });
 
   // Эмоциялық рефлексия
@@ -130,7 +146,7 @@ function initBoard() {
     });
   });
 
-  // Логаут
+  // Logout
   logoutBtn?.addEventListener("click", () => {
     signOut(auth).then(() => {
       localStorage.removeItem("sbai_room");
@@ -138,7 +154,7 @@ function initBoard() {
     });
   });
 
-  // Tabs
+  // Tabs (әзірше тек визуал)
   document.querySelectorAll(".tab-pill").forEach((tab) => {
     tab.addEventListener("click", () => {
       document
@@ -149,7 +165,7 @@ function initBoard() {
   });
 }
 
-// ----------------- ROOM DB -----------------
+// -------------- ROOM DB ----------------
 function createRoomInDb(roomId) {
   const roomRef = ref(db, `rooms/${roomId}`);
   set(roomRef, {
@@ -166,7 +182,7 @@ function attachRoom(roomId) {
   if (label2) label2.textContent = roomId;
   setStatus(`Room: ${roomId} · live режим`);
 
-  // Тақта (board)
+  // Board
   const boardRef = ref(db, `rooms/${roomId}/board`);
   onValue(boardRef, (snap) => {
     if (!snap.exists()) return;
@@ -176,13 +192,13 @@ function attachRoom(roomId) {
     renderBoard();
   });
 
-  // Оқушылар
+  // Students
   const studentsRef = ref(db, `rooms/${roomId}/students`);
   onValue(studentsRef, (snap) => {
     renderStudents(snap.val() || {});
   });
 
-  // Эмоция
+  // Emoji
   const emojiRef = ref(db, `rooms/${roomId}/reflection/emoji`);
   onValue(emojiRef, (snap) => {
     renderEmojiStats(snap.val() || {});
@@ -194,18 +210,18 @@ function attachRoom(roomId) {
     renderWordCloud(snap.val() || {});
   });
 
-  // Оқушы жауаптары
+  // Answers
   listenAnswers(roomId);
 }
 
-// ----------------- BOARD SAVE -----------------
+// -------------- BOARD SAVE ----------------
 function saveBoard() {
   if (!currentRoomId) return;
   const boardRef = ref(db, `rooms/${currentRoomId}/board`);
   set(boardRef, boardState);
 }
 
-// ----------------- BOARD: ADD/DELETE/RENDER -----------------
+// -------------- BOARD RENDER ----------------
 function addCard({ type, text }) {
   if (!boardState.items) boardState.items = [];
   const id = "c" + Date.now();
@@ -299,7 +315,7 @@ function renderBoard() {
   });
 }
 
-// ----------------- STUDENTS -----------------
+// -------------- STUDENTS ----------------
 function renderStudents(studentsObj) {
   const list = $("studentsList");
   if (!list) return;
@@ -323,7 +339,7 @@ function renderStudents(studentsObj) {
   });
 }
 
-// ----------------- EMOJI STATS -----------------
+// -------------- EMOJI ----------------
 function renderEmojiStats(emojiObj) {
   const statsEl = $("emojiStats");
   if (!statsEl) return;
@@ -343,7 +359,7 @@ function renderEmojiStats(emojiObj) {
   statsEl.textContent = "Жауаптар → " + parts.join(" · ");
 }
 
-// ----------------- WORD CLOUD -----------------
+// -------------- WORD CLOUD ----------------
 function renderWordCloud(wordsObj) {
   const cloud = $("wordCloud");
   if (!cloud) return;
@@ -368,7 +384,7 @@ function renderWordCloud(wordsObj) {
   });
 }
 
-// ----------------- ANSWERS (Оқушы жауаптары) -----------------
+// -------------- ANSWERS ----------------
 function listenAnswers(roomId) {
   const answersRef = ref(db, `rooms/${roomId}/answers`);
   onValue(answersRef, (snap) => {
@@ -398,7 +414,7 @@ function listenAnswers(roomId) {
   });
 }
 
-// ----------------- AI TEMPLATE PROMPTS -----------------
+// -------------- AI TEMPLATE PROMPTS ----------------
 function makeTemplatePrompt(mode) {
   switch (mode) {
     case "quiz5":
@@ -410,12 +426,10 @@ function makeTemplatePrompt(mode) {
       return "Физика тақырыбына 5 анаграмма жаса. Сөздер: жылдамдық, күш, масса, энергия, температура.";
     case "truthfalse":
       return "Алгебра тақырыбы бойынша 10 пайымдау жаз. Әрқайсысы үшін «шын/жалған» деп белгіле.";
-    case "match":
-      return "Формула мен атауларын сәйкестендіру тапсырмасын жаса. 6–8 жұп.";
     case "pisa":
-      return "PISA форматында 3 мәтіндік есеп жаса: контексті — дүкен, жол, ауа райы. 7-сынып математика.";
+      return "PISA форматы: дүкен, жол, ауа райы контекстінде 3 мәтіндік есеп жаса.";
     case "reflection":
-      return "Сабақ соңында қолдануға 5 рефлексия сұрағын жаса: не түсінді, не қиын болды, қай сәт ұнады.";
+      return "Сабақ соңында қолдануға 5 рефлексия сұрағын жаса.";
     default:
       return "";
   }
