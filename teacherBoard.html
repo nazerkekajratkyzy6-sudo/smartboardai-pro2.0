@@ -6,10 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="./styles/main.css" />
 </head>
-
 <body class="app-body">
-
-  <!-- TOP BAR -->
+  <!-- Жоғарғы панель -->
   <header class="topbar">
     <div class="topbar-left">
       <div class="logo">SmartBoardAI <span class="badge pastel">PRO</span></div>
@@ -22,32 +20,31 @@
   </header>
 
   <main class="layout">
-
-    <!-- LEFT BAR -->
+    <!-- Сол жақ панель -->
     <aside class="sidebar">
-
-      <!-- ROOM -->
       <div class="card">
         <h3>Room басқару</h3>
         <p class="small">Оқушыларға Room ID беріңіз.</p>
-
         <div class="room-row">
           <button id="createRoomBtn" class="btn btn-primary">Жаңа Room</button>
           <button id="copyRoomBtn" class="btn btn-ghost">Көшіру</button>
         </div>
-
-        <div class="small">Room: <code id="roomIdLabel">–</code></div>
+        <div class="small" style="margin-top:6px;">
+          Room: <code id="roomIdLabel">–</code>
+        </div>
+        <div class="small" style="margin-top:4px;">
+          Оқушылар: <code>student.html</code> бетіне өтіп, Room ID енгізеді.
+        </div>
       </div>
 
-      <!-- LESSON TITLE -->
       <div class="card">
         <h3>Сабақ тақырыбы</h3>
         <input id="lessonTitle" type="text" placeholder="Бөлім / тақырып" />
       </div>
 
-      <!-- AI TEMPLATES -->
       <div class="card">
         <h3>AI шаблондар</h3>
+        <p class="small">Тез толтыру үшін чипті таңдаңыз:</p>
         <div class="chips">
           <button class="chip" data-ai="quiz5">5 сұрақтық тест</button>
           <button class="chip" data-ai="quiz10">10 сұрақтық тест</button>
@@ -59,7 +56,6 @@
         </div>
       </div>
 
-      <!-- TOOLS -->
       <div class="card">
         <h3>Құралдар</h3>
         <div class="tools">
@@ -68,43 +64,58 @@
           <button class="tool-btn">∑ Формула</button>
         </div>
       </div>
-
     </aside>
 
-    <!-- CENTER BOARD -->
+    <!-- Орталық тақта -->
     <section class="board-area">
-
-      <!-- INTERACTIVE BOARD -->
       <div class="card">
-        <h2>Интерактивті тақта</h2>
+        <div class="board-header">
+          <div>
+            <h2>Интерактивті тақта</h2>
+            <p class="small">Карточкалар, тапсырмалар, AI-генерацияланған блоктар.</p>
+          </div>
+          <div class="tabs">
+            <button class="tab-pill active">Тақта</button>
+            <button class="tab-pill">Тапсырмалар</button>
+            <button class="tab-pill">Қорытынды</button>
+          </div>
+        </div>
         <div id="boardCanvas" class="board-canvas"></div>
       </div>
 
-      <!-- AI GENERATOR -->
       <div class="card">
-        <h3>AI тапсырма генераторы</h3>
-        <textarea id="aiPrompt" placeholder="Мысалы: 7-сыныпқа 5 есеп"></textarea>
-        <button id="aiGenerateBtn" class="btn btn-primary" style="margin-top:8px;">➕ Блокқа қосу</button>
+        <h3>AI тапсырма генераторы (тек мәтін)</h3>
+        <p class="small">
+          Мұнда тапсырма/текст жаза аласыз немесе жоғарыдағы чиптер арқылы шаблон толтырасыз.
+          «Блокқа қосу» батырмасы — мәтінді тақтаға карточка қылады.
+        </p>
+        <textarea id="aiPrompt" placeholder="Мысалы: 7-сынып, пайызға байланысты 5 есеп."></textarea>
+        <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+          <button id="aiGenerateBtn" class="btn btn-primary">➕ Блокқа қосу</button>
+          <span class="small">Қазір нақты AI шақырылмайды, тек мәтін блокқа қосылады.</span>
+        </div>
       </div>
 
-      <!-- ANSWERS -->
+      <!-- ЖАҢА: Оқушы жауаптары -->
       <div class="card">
         <h3>Оқушы жауаптары</h3>
-        <div id="answersBox" class="answers-box"></div>
+        <div id="answersBox" class="answers-box">
+          <div class="small">Әзірше жауап жоқ...</div>
+        </div>
       </div>
-
     </section>
 
-    <!-- RIGHT BAR -->
+    <!-- Оң жақ панель -->
     <aside class="rightbar">
-
       <div class="card">
-        <h3>Оқушылар</h3>
+        <h3>Room ID & оқушылар</h3>
+        <p class="small">Room: <code id="roomIdLabel2">–</code></p>
         <div id="studentsList" class="students-list"></div>
       </div>
 
       <div class="card">
         <h3>Эмоциялық рефлексия</h3>
+        <p class="small">Оқушылар смайлик таңдайды, статистика осында көрінеді.</p>
         <div class="emoji-row">
           <button class="emoji-btn" data-emoji="🙂">🙂</button>
           <button class="emoji-btn" data-emoji="😐">😐</button>
@@ -112,19 +123,17 @@
           <button class="emoji-btn" data-emoji="😢">😢</button>
           <button class="emoji-btn" data-emoji="🤩">🤩</button>
         </div>
-        <div id="emojiStats" class="small"></div>
+        <div id="emojiStats" class="small" style="margin-top:4px;"></div>
       </div>
 
       <div class="card">
-        <h3>Word Cloud</h3>
+        <h3>Word Cloud (сөз бұлты)</h3>
+        <p class="small">Оқушылар бір сөзбен сабақ туралы жазады.</p>
         <div id="wordCloud" class="word-cloud"></div>
       </div>
-
     </aside>
   </main>
 
-  <!-- Main script -->
-  <script type="module" src="/teacherBoard.js"></script>
-
+  <script type="module" src="./teacherBoard.js"></script>
 </body>
 </html>
