@@ -1,29 +1,44 @@
-import OpenAI from "openai";
-
 export default async function handler(req, res) {
   try {
+    // Body оқу
     const body = req.body ? JSON.parse(req.body) : {};
-    const prompt = body.prompt || "";
+    const prompt = body.prompt || "Сұрақ бос.";
 
-    const client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
+    // API key оқу
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: "API KEY жоқ!!!" });
+    }
+
+    // OpenAI шақыру
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + apiKey
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: "Сен қазақ мұғалімдеріне көмектесетін ассистентсің." },
+          { role: "user", content: prompt }
+        ],
+        max_tokens: 300
+      })
     });
 
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: "You are a Kazakh teacher AI assistant." },
-        { role: "user", content: prompt }
-      ],
-      max_tokens: 300
-    });
+    const data = await response.json();
 
-    const result = completion.choices[0].message.content;
+    if (data.error) {
+      return res.status(500).json({ error: data.error.message });
+    }
 
-    res.status(200).json({ answer: result });
+    const answer = data.choices?.[0]?.message?.content || "Жауап табылмады.";
+
+    res.status(200).json({ answer });
 
   } catch (err) {
-    console.log("AI ERROR:", err);
-    res.status(500).json({ error: err.message });
+    console.log("SERVER ERROR:", err);
+    res.status(500).json({ error: err.toString() });
   }
 }
