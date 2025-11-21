@@ -1,411 +1,169 @@
-// teacherBoard.js — SmartBoardAI PRO 2.0 (AI + Live Room)
+// SmartBoardAI PRO 2.0 — FINAL teacherBoard.js
+// Барлық функциялар біріктірілген толық нұсқа
+
+console.log("TeacherBoard.js loaded ✔ FINAL");
 
 import {
   auth,
   db,
-  onAuthStateChanged,
-  signOut,
   ref,
   set,
+  push,
+  get,
   onValue,
-  push
+  onAuthStateChanged,
+  signOut
 } from "./firebaseConfig.js";
 
+/* ============================================================
+   1. ADMIN (EMAIL) PROTECTION
+============================================================ */
 let currentUser = null;
-let currentRoomId = null;
-let boardState = {
-  lessonTitle: "",
-  items: [] // {id, type, text, createdAt}
-};
 
-const $ = (id) => document.getElementById(id);
-
-function setStatus(text) {
-  const el = $("statusBar");
-  if (el) el.textContent = text;
-}
-
-function randomRoomId() {
-  const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-  let out = "";
-  for (let i = 0; i < 5; i++) {
-    out += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return out;
-}
-
-// 🔐 Auth
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = "./auth/login.html";
     return;
   }
+
+  const allowed = "your_email@gmail.com"; // ← МҰНДА ӨЗ EMAIL ЖАЗ
+  if (user.email !== allowed) {
+    document.body.innerHTML =
+      "<h2 style='padding:40px;text-align:center;'>❌ Бұл тақта тек әкімшіге арналған.</h2>";
+    signOut(auth);
+    return;
+  }
+
   currentUser = user;
   initBoard();
 });
 
-// ---------------- INIT BOARD ----------------
-function initBoard() {
-  const createRoomBtn = $("createRoomBtn");
-  const copyRoomBtn = $("copyRoomBtn");
-  const lessonTitleInput = $("lessonTitle");
-  const aiPrompt = $("aiPrompt");
-  const aiGenerateBtn = $("aiGenerateBtn");
-  const logoutBtn = $("logoutBtn");
+/* ============================================================
+   2. SHORT UTILS
+============================================================ */
+const $ = (id) => document.getElementById(id);
+const lp$ = (id) => document.getElementById(id);
 
-  const savedRoom = localStorage.getItem("sbai_room");
-  if (savedRoom) currentRoomId = savedRoom;
+/* ============================================================
+   3. BOARD STATE
+============================================================ */
+let boardState = [];
 
-  if (!currentRoomId) {
-    setStatus("Room жоқ. «Жаңа Room» батырмасын басыңыз.");
-  } else {
-    attachRoom(currentRoomId);
-  }
-
-  // Room жасау
-  createRoomBtn?.addEventListener("click", () => {
-    const newRoom = randomRoomId();
-    currentRoomId = newRoom;
-    localStorage.setItem("sbai_room", newRoom);
-    createRoomInDb(newRoom);
-    attachRoom(newRoom);
-  });
-
-  copyRoomBtn?.addEventListener("click", () => {
-    if (!currentRoomId) return;
-    navigator.clipboard?.writeText(currentRoomId);
-    setStatus(`Room ID көшірілді: ${currentRoomId}`);
-  });
-
-  // Сабақ тақырыбы
-  lessonTitleInput?.addEventListener("change", () => {
-    boardState.lessonTitle = lessonTitleInput.value;
-    saveBoard();
-  });
-
-  // Құралдар
-  document.querySelectorAll(".tool-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document
-        .querySelectorAll(".tool-btn")
-        .forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-    });
-  });
-
-  // AI шаблондар
-  document.querySelectorAll(".chip").forEach((chip) => {
-    chip.addEventListener("click", () => {
-      const mode = chip.getAttribute("data-ai");
-      aiPrompt.value = makeTemplatePrompt(mode);
-    });
-  });
-
-  // 🤖 AI + карточка
-  aiGenerateBtn?.addEventListener("click", async () => {
-    const text = aiPrompt.value.trim();
-    if (!text) return;
-    if (!currentRoomId) {
-      setStatus("Алдымен Room жасаңыз.");
-      return;
-    }
-
-    setStatus("AI ойлап жатыр...");
-
-    try {
-      const res = await fetch("/api/ai", {
-        method: "POST",
-        body: JSON.stringify({ prompt: text })
-      });
-
-      const data = await res.json();
-      const content = data.answer || "AI жауап бере алмады.";
-
-      addCard({
-        type: "ai-task",
-        text: content
-      });
-
-      setStatus("AI тапсырма тақтаға қосылды!");
-      aiPrompt.value = "";
-    } catch (e) {
-      console.error(e);
-      setStatus("AI қате берді.");
-    }
-  });
-
-  // Эмоциялық рефлексия
-  document.querySelectorAll(".emoji-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      if (!currentRoomId) return;
-      const emoji = btn.getAttribute("data-emoji");
-      push(ref(db, `rooms/${currentRoomId}/reflection/emoji`), {
-        emoji,
-        at: Date.now()
-      });
-    });
-  });
-
-  // Logout
-  logoutBtn?.addEventListener("click", () => {
-    signOut(auth).then(() => {
-      localStorage.removeItem("sbai_room");
-      window.location.href = "./auth/login.html";
-    });
-  });
-
-  // Tabs (әзірше тек визуал)
-  document.querySelectorAll(".tab-pill").forEach((tab) => {
-    tab.addEventListener("click", () => {
-      document
-        .querySelectorAll(".tab-pill")
-        .forEach((t) => t.classList.remove("active"));
-      tab.classList.add("active");
-    });
-  });
-}
-
-// -------------- ROOM DB ----------------
-function createRoomInDb(roomId) {
-  const roomRef = ref(db, `rooms/${roomId}`);
-  set(roomRef, {
-    createdAt: Date.now(),
-    ownerUid: currentUser?.uid || null,
-    lessonTitle: $("lessonTitle")?.value || ""
-  });
-}
-
-function attachRoom(roomId) {
-  const label1 = $("roomIdLabel");
-  const label2 = $("roomIdLabel2");
-  if (label1) label1.textContent = roomId;
-  if (label2) label2.textContent = roomId;
-  setStatus(`Room: ${roomId} · live режим`);
-
-  // Board
-  const boardRef = ref(db, `rooms/${roomId}/board`);
-  onValue(boardRef, (snap) => {
-    if (!snap.exists()) return;
-    boardState = snap.val() || { lessonTitle: "", items: [] };
-    const lessonTitleInput = $("lessonTitle");
-    if (lessonTitleInput) lessonTitleInput.value = boardState.lessonTitle || "";
-    renderBoard();
-  });
-
-  // Students
-  const studentsRef = ref(db, `rooms/${roomId}/students`);
-  onValue(studentsRef, (snap) => {
-    renderStudents(snap.val() || {});
-  });
-
-  // Emoji
-  const emojiRef = ref(db, `rooms/${roomId}/reflection/emoji`);
-  onValue(emojiRef, (snap) => {
-    renderEmojiStats(snap.val() || {});
-  });
-
-  // Word Cloud
-  const wordsRef = ref(db, `rooms/${roomId}/reflection/words`);
-  onValue(wordsRef, (snap) => {
-    renderWordCloud(snap.val() || {});
-  });
-
-  // Answers
-  listenAnswers(roomId);
-}
-
-// -------------- BOARD SAVE ----------------
-function saveBoard() {
-  if (!currentRoomId) return;
-  const boardRef = ref(db, `rooms/${currentRoomId}/board`);
-  set(boardRef, boardState);
-}
-
-// -------------- BOARD RENDER ----------------
-function addCard({ type, text }) {
-  if (!boardState.items) boardState.items = [];
-  const id = "c" + Date.now();
-  boardState.items.push({
-    id,
-    type,
-    text,
-    createdAt: Date.now()
-  });
-  saveBoard();
+function addCard(block) {
+  const id = "id-" + Math.random().toString(36).substr(2, 9);
+  boardState.push({ id, ...block });
+  renderBoard();
 }
 
 function deleteCard(id) {
-  if (!boardState.items) return;
-  boardState.items = boardState.items.filter((i) => i.id !== id);
-  saveBoard();
+  boardState = boardState.filter((b) => b.id !== id);
+  renderBoard();
 }
 
-function typeLabelFor(type) {
-  switch (type) {
-    case "text":
-      return "Текст";
-    case "ai-task":
-      return "AI тапсырма";
-    default:
-      return type;
-  }
-}
-
+/* ============================================================
+   4. RENDER BOARD
+============================================================ */
 function renderBoard() {
-  const canvas = document.querySelector("#boardCanvas");
-  if (!canvas) return;
-  canvas.innerHTML = "";
+  const el = $("boardArea");
+  el.innerHTML = "";
 
-  if (!boardState.items || boardState.items.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "empty-board";
-    empty.textContent = "Әзірше блок жоқ. Төмендегі өріске жазыңыз.";
-    canvas.appendChild(empty);
-  } else {
-    boardState.items.forEach((item) => {
-      const card = document.createElement("div");
-      card.className = "board-card";
+  boardState.forEach((b) => {
+    const card = document.createElement("div");
+    card.className = "board-card";
 
-      const header = document.createElement("div");
-      header.className = "board-card-header";
+    // Header
+    const header = document.createElement("div");
+    header.className = "board-card-header";
 
-      const typeLabel = document.createElement("span");
-      typeLabel.className = "badge";
-      typeLabel.textContent = typeLabelFor(item.type);
+    const badge = document.createElement("span");
+    badge.className = "badge";
+    badge.textContent = b.type;
 
-      const actions = document.createElement("div");
-      actions.className = "board-card-actions";
-      const delBtn = document.createElement("button");
-      delBtn.textContent = "Өшіру";
-      delBtn.addEventListener("click", () => deleteCard(item.id));
-      actions.appendChild(delBtn);
+    const del = document.createElement("button");
+    del.textContent = "Өшіру";
+    del.className = "toggle-btn";
+    del.onclick = () => deleteCard(b.id);
 
-      header.appendChild(typeLabel);
-      header.appendChild(actions);
+    header.appendChild(badge);
+    header.appendChild(del);
 
-      const body = document.createElement("div");
-      body.className = "board-card-body";
-      body.textContent = item.text;
+    // Body
+    const body = document.createElement("div");
+    body.className = "board-card-body";
+    body.innerHTML = (b.text || "").replace(/\n/g, "<br>");
 
-      card.appendChild(header);
-      card.appendChild(body);
-      canvas.appendChild(card);
-    });
-  }
+    // Toggle
+    const btn = document.createElement("button");
+    btn.textContent = "Ашу";
+    btn.className = "toggle-btn";
+    btn.onclick = () => {
+      card.classList.toggle("expanded");
+      btn.textContent = card.classList.contains("expanded") ? "Жабу" : "Ашу";
+      if (window.MathJax) window.MathJax.typeset();
+    };
 
-  const addCardEl = document.createElement("div");
-  addCardEl.style.marginTop = "10px";
-  addCardEl.innerHTML = `
-    <textarea id="newBlockText"
-      placeholder="Жаңа текст блок немесе тапсырма жазыңыз..."
-      style="width:100%; min-height:60px; border-radius:8px; border:1px solid #d1d5db; padding:6px; font-family:inherit; font-size:13px;"></textarea>
-    <button id="addBlockBtn"
-      style="margin-top:4px; padding:6px 10px; border-radius:999px; border:none; background:#4a6cf7; color:white; font-size:12px; cursor:pointer;">
-      ➕ Блок қосу
-    </button>
+    card.appendChild(header);
+    card.appendChild(body);
+    card.appendChild(btn);
+
+    el.appendChild(card);
+  });
+
+  // Add new block
+  const addBlock = document.createElement("div");
+  addBlock.innerHTML = `
+    <textarea id="newBlockText" placeholder="Жаңа блок..." style="width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;"></textarea>
+    <button id="addBlockBtn" class="toggle-btn" style="margin-top:4px;">➕ Қосу</button>
   `;
-  canvas.appendChild(addCardEl);
 
-  const addBtn = $("addBlockBtn");
-  addBtn?.addEventListener("click", () => {
+  el.appendChild(addBlock);
+
+  $("addBlockBtn").onclick = () => {
     const txt = $("newBlockText").value.trim();
     if (!txt) return;
     addCard({ type: "text", text: txt });
     $("newBlockText").value = "";
-  });
+  };
 }
 
-// -------------- STUDENTS ----------------
-function renderStudents(studentsObj) {
-  const list = $("studentsList");
-  if (!list) return;
-  list.innerHTML = "";
-
-  const ids = Object.keys(studentsObj);
-  if (ids.length === 0) {
-    list.innerHTML = `<div class="small">Әзірше оқушы қосылған жоқ.</div>`;
-    return;
-  }
-
-  ids.forEach((key) => {
-    const st = studentsObj[key];
-    const row = document.createElement("div");
-    row.className = "student-row";
-    row.innerHTML = `
-      <span>${st.name || "Аты жоқ"}</span>
-      <span class="badge">joined</span>
-    `;
-    list.appendChild(row);
-  });
-}
-
-// -------------- EMOJI ----------------
-function renderEmojiStats(emojiObj) {
-  const statsEl = $("emojiStats");
-  if (!statsEl) return;
-
-  const counts = {};
-  Object.keys(emojiObj).forEach((k) => {
-    const e = emojiObj[k].emoji;
-    counts[e] = (counts[e] || 0) + 1;
+/* ============================================================
+   5. AI GENERATION
+============================================================ */
+async function openAI(prompt, lang = "kk") {
+  const res = await fetch("/api/ai", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt, lang }),
   });
 
-  if (Object.keys(counts).length === 0) {
-    statsEl.textContent = "Әзірше жауап жоқ.";
-    return;
-  }
+  if (!res.ok) throw new Error("AI error");
 
-  const parts = Object.keys(counts).map((e) => `${e}: ${counts[e]}`);
-  statsEl.textContent = "Жауаптар → " + parts.join(" · ");
+  const data = await res.json();
+  return data.answer || data.text || data.content || "";
 }
 
-// -------------- WORD CLOUD ----------------
-function renderWordCloud(wordsObj) {
-  const cloud = $("wordCloud");
-  if (!cloud) return;
-  cloud.innerHTML = "";
+/* ============================================================
+   6. ROOM / STUDENT ANSWERS
+============================================================ */
+let currentRoomId = null;
 
-  const keys = Object.keys(wordsObj);
-  if (keys.length === 0) {
-    cloud.innerHTML = `<span class="small">Пікір жоқ.</span>`;
-    return;
-  }
-
-  keys.forEach((k) => {
-    const w = wordsObj[k].word || "";
-    if (!w) return;
-    const span = document.createElement("span");
-    span.textContent = w;
-    span.style.padding = "3px 6px";
-    span.style.borderRadius = "999px";
-    span.style.background = "#e0ecff";
-    span.style.fontSize = "11px";
-    cloud.appendChild(span);
-  });
-}
-
-// -------------- ANSWERS ----------------
 function listenAnswers(roomId) {
-  const answersRef = ref(db, `rooms/${roomId}/answers`);
-  onValue(answersRef, (snap) => {
-    const box = $("answersBox");
-    if (!box) return;
+  const answersRef = ref(db, "rooms/" + roomId + "/answers");
 
-    const data = snap.val();
+  onValue(answersRef, (snapshot) => {
+    const box = $("answersBox");
+    const data = snapshot.val();
+
     if (!data) {
-      box.innerHTML = `<div class="small">Әзірше жауап жоқ...</div>`;
+      box.innerHTML = "<div class='small'>Әзірше жауап жоқ...</div>";
       return;
     }
 
     let html = "";
-    Object.keys(data).forEach((studentName) => {
-      const item = data[studentName];
-      const ans = item?.answer || "";
+    Object.values(data).forEach((v) => {
       html += `
         <div class="answer-item">
-          <b>${studentName}</b><br>
-          <div>${ans}</div>
-          <hr>
+          <b>${v.name}</b><br>${v.text}
         </div>
       `;
     });
@@ -414,23 +172,148 @@ function listenAnswers(roomId) {
   });
 }
 
-// -------------- AI TEMPLATE PROMPTS ----------------
-function makeTemplatePrompt(mode) {
-  switch (mode) {
-    case "quiz5":
-    case "quiz10":
-      return "7-сынып математика тақырыбы бойынша көп таңдаулы тест құрастыр.";
-    case "rebus":
-      return "Бастауыш сыныпқа арналған визуалды ребус ойлап тап.";
-    case "anagram":
-      return "Физика тақырыбына 5 анаграмма жаса. Сөздер: жылдамдық, күш, масса, энергия, температура.";
-    case "truthfalse":
-      return "Алгебра тақырыбы бойынша 10 пайымдау жаз. Әрқайсысы үшін «шын/жалған» деп белгіле.";
-    case "pisa":
-      return "PISA форматы: дүкен, жол, ауа райы контекстінде 3 мәтіндік есеп жаса.";
-    case "reflection":
-      return "Сабақ соңында қолдануға 5 рефлексия сұрағын жаса.";
-    default:
-      return "";
-  }
+/* ============================================================
+   7. LESSON PLANNER MODAL CONTROL
+============================================================ */
+function openLessonPlanner() {
+  lp$("lpOverlay").classList.remove("lp-hidden");
+  lp$("lessonPlannerModal").classList.remove("lp-hidden");
+}
+
+function closeLessonPlanner() {
+  lp$("lpOverlay").classList.add("lp-hidden");
+  lp$("lessonPlannerModal").classList.add("lp-hidden");
+}
+
+/* ============================================================
+   8. FULLSCREEN MODE
+============================================================ */
+function setupFullscreen() {
+  const fsBtn = $("fullscreenToggleBtn");
+
+  fsBtn.onclick = () => {
+    document.body.classList.toggle("fullscreen");
+    fsBtn.textContent = document.body.classList.contains("fullscreen")
+      ? "⛶ Exit"
+      : "⛶ Fullscreen";
+  };
+}
+
+/* ============================================================
+   9. INIT BOARD
+============================================================ */
+function initBoard() {
+  console.log("Board initialized ✔");
+
+  /* ROOM */
+  $("createRoomBtn").onclick = () => {
+    currentRoomId = Math.random().toString(36).substr(2, 6).toUpperCase();
+    $("roomIdLabel").textContent = currentRoomId;
+    $("roomIdLabel2").textContent = currentRoomId;
+    listenAnswers(currentRoomId);
+  };
+
+  /* TOOLS */
+  $("toolCard").onclick = () => addCard({ type: "card", text: "Жаңа карточка" });
+  $("toolPhoto").onclick = () => addCard({ type: "photo", text: "Фото (әзірленуде)" });
+  $("toolVideo").onclick = () => addCard({ type: "video", text: "Видео (әзірленуде)" });
+  $("toolLink").onclick = () => addCard({ type: "link", text: "Сілтеме (әзірленуде)" });
+  $("toolFormula").onclick = () => addCard({ type: "formula", text: "E = mc^2" });
+  $("toolTrainer").onclick = () => addCard({ type: "trainer", text: "Тренажер (әзірленуде)" });
+  $("toolQuiz").onclick = () => addCard({ type: "quiz", text: "Викторина (әзірленуде)" });
+
+  /* AI BUTTON */
+  $("aiGenerateBtn").onclick = async () => {
+    const prompt = $("aiPrompt").value.trim();
+    if (!prompt) return;
+
+    $("aiGenerateBtn").disabled = true;
+    $("aiGenerateBtn").textContent = "AI ойланып жатыр...";
+
+    try {
+      const answer = await openAI(prompt);
+
+      const blocks = answer
+        .split(/\n\s*\n/)
+        .map((p) => p.trim())
+        .filter(Boolean);
+
+      blocks.forEach((b) => addCard({ type: "AI", text: b }));
+
+      $("aiPrompt").value = "";
+    } catch (e) {
+      alert("AI қате берді");
+    }
+
+    $("aiGenerateBtn").disabled = false;
+    $("aiGenerateBtn").textContent = "AI → Блок қосу";
+  };
+
+  /* LESSON PLANNER BUTTONS */
+  $("lessonPlannerBtn").onclick = () => openLessonPlanner();
+  $("lpCloseBtn").onclick = () => closeLessonPlanner();
+  $("lpOverlay").onclick = () => closeLessonPlanner();
+
+  $("lpGenerateBtn").onclick = async () => {
+    const subject = lp$("lpSubject").value || "Математика";
+    const grade = lp$("lpGrade").value || "7-сынып";
+    const topic = lp$("lpTopic").value || "Тақырып";
+    const lang = lp$("lpLang").value || "kk";
+    const format = lp$("lpFormat").value;
+    const extra = lp$("lpExtra").value || "";
+
+    const prompt = `
+Сабақ жоспарын құр:
+Пән: ${subject}
+Сынып: ${grade}
+Тақырып: ${topic}
+Формат: ${format}
+Талаптар: ${extra}
+`.trim();
+
+    $("lpGenerateBtn").disabled = true;
+    $("lpGenerateBtn").textContent = "AI жоспар құруда...";
+
+    try {
+      const plan = await openAI(prompt, lang);
+      lp$("lpResultText").value = plan;
+      document.querySelector(".lp-result").classList.remove("lp-hidden");
+      $("lpInsertToBoardBtn").classList.remove("lp-hidden");
+    } catch (err) {
+      alert("AI қате");
+    }
+
+    $("lpGenerateBtn").disabled = false;
+    $("lpGenerateBtn").textContent = "🤖 Сабақ жоспарын құру";
+  };
+
+  $("lpInsertToBoardBtn").onclick = () => {
+    const t = lp$("lpResultText").value.trim();
+    if (!t) return;
+
+    addCard({
+      type: "lesson-plan",
+      text: t,
+    });
+
+    closeLessonPlanner();
+  };
+
+  /* TABS */
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.onclick = () => {
+      document.querySelectorAll(".tab-btn").forEach((x) =>
+        x.classList.remove("active")
+      );
+      document.querySelectorAll(".tab-content").forEach((x) =>
+        x.classList.remove("active")
+      );
+
+      btn.classList.add("active");
+      $("tab-" + btn.dataset.tab).classList.add("active");
+    };
+  });
+
+  setupFullscreen();
+  renderBoard();
 }
