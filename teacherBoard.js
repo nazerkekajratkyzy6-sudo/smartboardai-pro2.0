@@ -26,7 +26,7 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
 
-  const allowed = "your_email@gmail.com"; // ← МҰНДА ӨЗ EMAIL ЖАЗ
+  const allowed = "naz-erke_k@mail.ru"; // ← МҰНДА ӨЗ EMAIL ЖАЗ
   if (user.email !== allowed) {
     document.body.innerHTML =
       "<h2 style='padding:40px;text-align:center;'>❌ Бұл тақта тек әкімшіге арналған.</h2>";
@@ -317,3 +317,4 @@ function initBoard() {
   setupFullscreen();
   renderBoard();
 }
+
