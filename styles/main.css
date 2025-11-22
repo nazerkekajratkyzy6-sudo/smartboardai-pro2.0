@@ -1,337 +1,240 @@
 /* ============================================================
-   GLOBAL
-============================================================ */
+   SmartBoardAI PRO — MAIN.CSS (FULL RESTORE + IMPROVED UI)
+   ============================================================ */
 
-:root {
-  --sb-bg: #f4f6fa;
-  --sb-white: #ffffff;
-  --sb-blue: #2563eb;
-  --sb-blue-light: #dbe8ff;
-  --sb-text: #1f2937;
-  --sb-muted: #6b7280;
-  --sb-border: #e5e7eb;
-  --sb-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  --sb-radius: 12px;
-  --sb-radius-lg: 16px;
-}
-
+/* --------- BASE --------- */
 body {
   margin: 0;
+  padding: 0;
   font-family: "Inter", Arial, sans-serif;
-  background: var(--sb-bg);
-  color: var(--sb-text);
-  overflow: hidden;
+  background: #f0f4ff;
+  color: #1a1a1a;
 }
 
-h1,h2,h3,h4 {
-  margin: 0;
-  font-weight: 600;
-}
-
-/* ============================================================
-   TOPBAR
-============================================================ */
-
+/* --------- TOPBAR --------- */
 .topbar {
   height: 60px;
-  background: var(--sb-white);
-  padding: 10px 22px;
+  background: white;
+  border-bottom: 1px solid #dce3f7;
+  padding: 0 25px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--sb-border);
-  box-shadow: var(--sb-shadow);
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
-.topbar-left {
-  font-size: 20px;
-  font-weight: 700;
+.topbar select,
+.topbar button {
+  margin-left: 10px;
 }
 
-.lang-select {
-  padding: 6px 10px;
-  font-size: 14px;
-  border-radius: var(--sb-radius);
-  border: 1px solid var(--sb-border);
-}
-
-/* ============================================================
-   MAIN GRID
-============================================================ */
-
+/* --------- GRID LAYOUT --------- */
 .main-container {
   display: grid;
   grid-template-columns: 260px 1fr 300px;
   height: calc(100vh - 60px);
 }
 
-.sidebar, .rightbar {
-  background: var(--sb-white);
-  padding: 18px;
+/* --------- SIDEBAR --------- */
+.sidebar {
+  background: #ffffff;
+  border-right: 1px solid #dae2f1;
+  padding: 22px;
   overflow-y: auto;
-  border-right: 1px solid var(--sb-border);
 }
 
-.rightbar {
-  border-right: none;
-  border-left: 1px solid var(--sb-border);
+.sidebar h3 {
+  margin: 18px 0 10px;
+  font-size: 18px;
+  font-weight: 600;
 }
 
-.section-title {
-  font-size: 17px;
-  margin-bottom: 12px;
-  color: var(--sb-blue);
-  font-weight: 700;
-}
-
-hr {
-  border: none;
-  height: 1px;
-  background: var(--sb-border);
-  margin: 14px 0;
-}
-
-/* ============================================================
-   TOOLS
-============================================================ */
-
-.tool-btn {
+.sidebar button {
   width: 100%;
-  padding: 10px;
-  background: var(--sb-blue-light);
-  border: none;
-  border-radius: var(--sb-radius);
-  margin-bottom: 8px;
+  padding: 12px;
+  text-align: left;
+  border-radius: 10px;
+  border: 1px solid #d0d9f2;
+  margin-bottom: 10px;
+  background: #eef3ff;
   cursor: pointer;
-  font-size: 15px;
-  color: var(--sb-blue);
   transition: 0.2s;
 }
 
-.tool-btn:hover {
-  background: var(--sb-blue);
-  color: white;
+.sidebar button:hover {
+  background: #dce6ff;
 }
 
-/* ============================================================
-   BOARD AREA
-============================================================ */
-
-.board-area-container {
-  height: 100%;
+/* --------- BOARD AREA --------- */
+.board-area {
+  padding: 25px;
   overflow-y: auto;
-  padding: 18px;
+  background: #f5f8ff;
 }
 
+.add-block-box textarea {
+  width: 100%;
+  height: 120px;
+  border-radius: 12px;
+  border: 1px solid #cbd8ff;
+  padding: 12px;
+  font-size: 15px;
+  resize: vertical;
+}
+
+.add-block-box button {
+  margin-top: 10px;
+  width: 100%;
+  background: #2f6bff;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.add-block-box button:hover {
+  background: #1e54d9;
+}
+
+/* --------- BOARD CARDS --------- */
 .board-card {
-  background: var(--sb-white);
-  border-radius: var(--sb-radius-lg);
-  padding: 15px;
-  margin-bottom: 15px;
-  box-shadow: var(--sb-shadow);
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+  padding: 15px 20px;
+  margin-bottom: 18px;
 }
 
 .board-card-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   font-weight: 600;
 }
 
 .board-card-body {
-  padding-top: 5px;
-  line-height: 1.45;
-  max-width: 100%;
-  overflow-x: auto;
+  max-height: 450px;
+  overflow-y: auto;
+  padding-right: 10px;
 }
 
-textarea#newBlockText {
-  width: 100%;
-  min-height: 80px;
-  border-radius: var(--sb-radius);
-  border: 1px solid var(--sb-border);
-  padding: 10px;
-  resize: vertical;
-  font-size: 15px;
+/* --------- RIGHTBAR --------- */
+.rightbar {
+  background: #ffffff;
+  border-left: 1px solid #dae2f1;
+  padding: 22px;
+  overflow-y: auto;
 }
 
-#addBlockBtn {
-  background: var(--sb-blue);
-  color: white;
-  width: 100%;
+.rightbar h3 {
+  margin-top: 20px;
+  font-size: 17px;
+}
+
+/* --------- ROOM BOX --------- */
+.room-box {
+  background: #eef4ff;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.room-btn {
+  background: #3aa655;
   padding: 10px;
   border: none;
-  border-radius: var(--sb-radius);
-  margin-top: 8px;
-  cursor: pointer;
-}
-
-/* ============================================================
-   DRAWING CANVAS
-============================================================ */
-
-.drawing-panel {
-  background: var(--sb-white);
-  padding: 12px;
-  border-radius: var(--sb-radius);
-  box-shadow: var(--sb-shadow);
-}
-
-.drawing-tools button {
-  margin-right: 8px;
-  padding: 6px 10px;
-  border-radius: var(--sb-radius);
-  border: 1px solid var(--sb-border);
-  background: var(--sb-blue-light);
-  cursor: pointer;
-}
-
-.drawing-tools button.active {
-  background: var(--sb-blue);
+  border-radius: 10px;
   color: white;
-}
-
-#drawingCanvas {
+  cursor: pointer;
   width: 100%;
-  height: 420px;
-  background: white;
-  border: 1px solid var(--sb-border);
-  border-radius: var(--sb-radius-lg);
-  margin-top: 10px;
 }
 
-/* ============================================================
-   ANSWERS / EMOJI / CLOUD
-============================================================ */
+.room-btn:hover {
+  background: #2e8042;
+}
 
+/* --------- ANSWERS --------- */
 .answers-box {
-  background: #f9fafb;
-  padding: 10px;
-  border-radius: var(--sb-radius);
-  max-height: 235px;
-  overflow-y: auto;
-  border: 1px solid var(--sb-border);
+  background: #f7f9ff;
+  border-radius: 10px;
+  padding: 12px;
+  min-height: 30px;
 }
 
-.answer-item {
-  padding: 6px 0;
-}
-
+/* --------- EMOTION --------- */
 .emoji-row {
-  display: flex;
-  gap: 6px;
+  margin: 10px 0;
 }
 
 .emoji-btn {
-  background: var(--sb-blue-light);
   border: none;
-  padding: 6px 10px;
-  border-radius: var(--sb-radius);
-  font-size: 20px;
+  background: transparent;
+  font-size: 24px;
   cursor: pointer;
 }
 
-.word-cloud span {
-  display: inline-block;
-  margin: 4px;
-  color: var(--sb-blue);
-}
-
-/* ============================================================
-   MODALS (Lesson, Trainer, QR, Share)
-============================================================ */
-
-.lp-overlay,
-#trainerOverlay,
-#qrOverlay,
-#shareOverlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.45);
-  z-index: 900;
-}
-
-.lp-modal,
-#trainerModal,
-#qrModal,
-#shareModal {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--sb-white);
-  padding: 22px;
-  width: 420px;
-  border-radius: var(--sb-radius-lg);
-  z-index: 999;
-  box-shadow: var(--sb-shadow);
-}
-
-.lp-hidden { display: none; }
-
-.modal-title {
-  font-size: 20px;
-  margin-bottom: 12px;
-  font-weight: 700;
-  color: var(--sb-blue);
-}
-
-.modal-input {
-  width: 100%;
+/* --------- WORD CLOUD --------- */
+.word-cloud {
+  background: #f0f4ff;
+  height: 120px;
+  border-radius: 10px;
   padding: 10px;
-  border-radius: var(--sb-radius);
-  border: 1px solid var(--sb-border);
+  overflow-y: auto;
+}
+
+/* --------- FULLSCREEN --------- */
+.fullscreen .sidebar,
+.fullscreen .rightbar { display: none; }
+
+.fullscreen .main-container {
+  grid-template-columns: 1fr;
+}
+
+.fullscreen .board-area {
+  height: calc(100vh - 60px);
+}
+
+/* --------- DRAWING TOOL --------- */
+
+#drawingCanvas {
+  border: 2px solid #b8ccff;
+  border-radius: 12px;
+  background: white;
+}
+
+.drawing-controls button,
+.drawing-controls input {
+  margin-right: 10px;
+}
+
+/* --------- TRAINERS SECTION --------- */
+.trainer-box input {
+  width: 48%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #c8d6ff;
   margin-bottom: 10px;
 }
 
-.modal-btn {
-  width: 100%;
+.trainer-box button {
+  width: 140px;
   padding: 10px;
-  background: var(--sb-blue);
+  background: #0077ff;
   color: white;
+  border-radius: 10px;
   border: none;
-  border-radius: var(--sb-radius);
-  margin-top: 10px;
   cursor: pointer;
 }
 
-/* ============================================================
-   FULLSCREEN MODE
-============================================================ */
-
-.fullscreen .sidebar,
-.fullscreen .rightbar {
-  display: none !important;
-}
-
-.fullscreen .main-container {
-  grid-template-columns: 1fr !important;
-}
-
-.fullscreen .board-area-container {
-  height: calc(100vh - 60px);
-  padding: 20px;
-}
-
-/* ============================================================
-   EXPORT ROOT
-============================================================ */
-
-#boardExportRoot {
-  padding: 20px;
-  max-width: 900px;
-  margin: auto;
-}
-
-/* ============================================================
-   SCROLL FIX
-============================================================ */
-
+/* --------- SCROLLBAR --------- */
 ::-webkit-scrollbar {
   width: 8px;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #c5c9d1;
-  border-radius: 4px;
+  background: #bcd0ff;
+  border-radius: 10px;
 }
