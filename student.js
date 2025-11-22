@@ -1,95 +1,92 @@
-// student.js — SmartBoardAI PRO 2.0 (Оқушы LIVE)
-
 import {
   db,
   ref,
-  set,
-  push
+  push,
+  set
 } from "./firebaseConfig.js";
 
 const $ = (id) => document.getElementById(id);
 
-let studentName = "";
-let roomId = "";
+let selectedAvatar = null;
+let roomId = null;
+let studentName = null;
 
-// -------------------- JOIN --------------------
-$("joinBtn")?.addEventListener("click", async () => {
+/* --------------------------
+      Аватар таңдау
+--------------------------- */
+document.querySelectorAll(".avatar-option").forEach((el) => {
+  el.onclick = () => {
+    document.querySelectorAll(".avatar-option")
+      .forEach((x) => x.classList.remove("selected"));
+
+    el.classList.add("selected");
+    selectedAvatar = el.textContent.trim();
+  };
+});
+
+/* --------------------------
+      Кіру
+--------------------------- */
+$("joinBtn").onclick = () => {
   studentName = $("studentName").value.trim();
-  roomId = $("roomId").value.trim();
+  roomId = $("roomInput").value.trim();
 
-  if (!studentName || !roomId) {
-    $("joinStatus").textContent = "Атыңызды және Room ID енгізіңіз.";
-    return;
-  }
+  if (!selectedAvatar) return alert("Аватар таңдаңыз!");
+  if (!studentName) return alert("Атыңызды жазыңыз!");
+  if (!roomId) return alert("Room ID жазыңыз!");
 
-  // Firebase-ке студентті жазу
-  await set(ref(db, `rooms/${roomId}/students/${studentName}`), {
+  $("welcomeMsg").textContent = `${selectedAvatar} ${studentName}, сіз бөлмеге кірдіңіз!`;
+
+  document.querySelector(".center-wrapper").style.display = "none";
+  $("workUI").classList.remove("hidden");
+};
+
+/* --------------------------
+      Жауап жіберу
+--------------------------- */
+$("sendAnswerBtn").onclick = async () => {
+  const txt = $("answerInput").value.trim();
+  if (!txt) return;
+
+  await push(ref(db, `rooms/${roomId}/answers`), {
+    avatar: selectedAvatar,
     name: studentName,
-    joinedAt: Date.now()
+    text: txt,
+    time: Date.now()
   });
 
-  $("joinStatus").textContent = "Сіз бөлмеге қосылдыңыз!";
-});
-
-// -------------------- ANSWER SEND --------------------
-$("sendAnswerBtn")?.addEventListener("click", async () => {
-  if (!studentName || !roomId) {
-    $("answerMsg").textContent = "Алдымен бөлмеге қосылыңыз!";
-    return;
-  }
-
-  const text = $("answerInput").value.trim();
-  if (!text) {
-    $("answerMsg").textContent = "Жауап бос!";
-    return;
-  }
-
-  await set(ref(db, `rooms/${roomId}/answers/${studentName}`), {
-    answer: text,
-    ts: Date.now()
-  });
-
-  $("answerMsg").textContent = "Жауап жіберілді!";
   $("answerInput").value = "";
-});
+};
 
-// -------------------- WORD CLOUD --------------------
-$("sendWordBtn")?.addEventListener("click", async () => {
-  if (!studentName || !roomId) {
-    $("wordMsg").textContent = "Алдымен бөлмеге қосылыңыз!";
-    return;
-  }
+/* --------------------------
+      Эмоция жіберу
+--------------------------- */
+document.querySelectorAll(".emoji-btn").forEach((el) => {
+  el.onclick = async () => {
+    const emoji = el.dataset.emoji;
 
-  const w = $("wordInput").value.trim();
-  if (!w) {
-    $("wordMsg").textContent = "Сөз бос!";
-    return;
-  }
-
-  await push(ref(db, `rooms/${roomId}/reflection/words`), {
-    word: w,
-    ts: Date.now()
-  });
-
-  $("wordMsg").textContent = "Қосылды!";
-  $("wordInput").value = "";
-});
-
-// -------------------- EMOJI --------------------
-document.querySelectorAll(".emoji-btn").forEach((btn) => {
-  btn.addEventListener("click", async () => {
-    if (!studentName || !roomId) {
-      $("joinStatus").textContent = "Алдымен бөлмеге қосылыңыз!";
-      return;
-    }
-
-    const emoji = btn.getAttribute("data-emoji");
-
-    await push(ref(db, `rooms/${roomId}/reflection/emoji`), {
+    await push(ref(db, `rooms/${roomId}/emoji`), {
+      avatar: selectedAvatar,
+      name: studentName,
       emoji,
-      ts: Date.now()
+      time: Date.now()
     });
-
-    $("joinStatus").textContent = "Эмоция жіберілді!";
-  });
+  };
 });
+
+/* --------------------------
+      Word Cloud жіберу
+--------------------------- */
+$("sendCloudBtn").onclick = async () => {
+  const word = $("cloudInput").value.trim();
+  if (!word) return;
+
+  await push(ref(db, `rooms/${roomId}/cloud`), {
+    avatar: selectedAvatar,
+    name: studentName,
+    word,
+    time: Date.now()
+  });
+
+  $("cloudInput").value = "";
+};
