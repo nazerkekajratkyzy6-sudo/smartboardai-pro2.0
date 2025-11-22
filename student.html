@@ -2,61 +2,69 @@
 <html lang="kk">
 <head>
   <meta charset="UTF-8">
-  <title>SmartBoardAI — Оқушы</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./styles/main.css">
+  <title>SmartBoardAI • Student</title>
+
+  <!-- ЖАҢА CSS ФАЙЛДЫҢ ДҰРЫС ЖОЛЫ -->
+  <link rel="stylesheet" href="./styles/student.css">
 </head>
 
-<body class="student-body">
+<body>
 
-  <div class="student-container">
-    
-    <h2 class="student-title">🎓 Оқушы панелі</h2>
-    <p class="small">Мұғалім берген Room ID арқылы қосылыңыз.</p>
+  <!-- Кіру панелі -->
+  <div class="center-wrapper">
+    <div class="card">
 
-    <!-- Join -->
-    <div class="card student-card">
-      <h3>Бөлмеге қосылу</h3>
+      <h2 class="title">SmartBoardAI • Student</h2>
 
-      <input id="studentName" type="text" placeholder="Атыңыз" class="input">
-      <input id="roomId" type="text" placeholder="Room ID" class="input">
+      <p class="subtitle">Аватар таңдаңыз</p>
 
-      <button id="joinBtn" class="btn btn-primary">Қосылу</button>
-
-      <p id="joinStatus" class="small" style="margin-top:6px;"></p>
-    </div>
-
-    <!-- Answer -->
-    <div class="card student-card">
-      <h3>📘 Тапсырмаға жауап беру</h3>
-      <textarea id="answerInput" placeholder="Жауабыңызды жазыңыз..." class="textarea"></textarea>
-      <button id="sendAnswerBtn" class="btn btn-secondary">Жауап жіберу</button>
-      <div id="answerMsg" class="small"></div>
-    </div>
-
-    <!-- Word Cloud -->
-    <div class="card student-card">
-      <h3>💬 Рефлексия (1 сөз)</h3>
-      <input id="wordInput" type="text" placeholder="Бір сөз жазыңыз..." class="input">
-      <button id="sendWordBtn" class="btn btn-secondary">Қосу</button>
-      <div id="wordMsg" class="small"></div>
-    </div>
-
-    <!-- Emoji -->
-    <div class="card student-card">
-      <h3>🙂 Эмоциялық рефлексия</h3>
-      <div class="emoji-row">
-        <button class="emoji-btn" data-emoji="🙂">🙂</button>
-        <button class="emoji-btn" data-emoji="😐">😐</button>
-        <button class="emoji-btn" data-emoji="😕">😕</button>
-        <button class="emoji-btn" data-emoji="😢">😢</button>
-        <button class="emoji-btn" data-emoji="🤩">🤩</button>
+      <div id="avatarList" class="avatar-list">
+        <div class="avatar-option">🦊</div>
+        <div class="avatar-option">🐼</div>
+        <div class="avatar-option">🐤</div>
+        <div class="avatar-option">🐯</div>
+        <div class="avatar-option">👧</div>
+        <div class="avatar-option">👦</div>
       </div>
-      <p class="small">Сіздің эмоцияңыз мұғалімге көрінеді.</p>
+
+      <input id="studentName" class="input" type="text" placeholder="Атыңыз">
+      <input id="roomInput" class="input" type="text" placeholder="Room ID">
+
+      <button id="joinBtn" class="btn">🔵 Кіру</button>
     </div>
+  </div>
+
+  <!-- Жұмыс интерфейсі -->
+  <div id="workUI" class="hidden work-ui">
+
+    <h3 id="welcomeMsg"></h3>
+    <h4>Жауабыңызды жазыңыз</h4>
+
+    <textarea id="answerInput" class="input textarea" placeholder="Менің жауабым..."></textarea>
+    <button id="sendAnswerBtn" class="btn small">Жіберу</button>
+
+    <hr>
+
+    <h4>Эмоция</h4>
+    <div id="emojiRow" class="emoji-row">
+      <button class="emoji-btn" data-emoji="🙂">🙂</button>
+      <button class="emoji-btn" data-emoji="😐">😐</button>
+      <button class="emoji-btn" data-emoji="😕">😕</button>
+      <button class="emoji-btn" data-emoji="😢">😢</button>
+      <button class="emoji-btn" data-emoji="🤩">🤩</button>
+    </div>
+
+    <hr>
+
+    <h4>Word Cloud (бір сөзбен пікір)</h4>
+    <input id="cloudInput" class="input" type="text" placeholder="1 сөз жаз...">
+    <button id="sendCloudBtn" class="btn small">Жіберу</button>
 
   </div>
 
-  <script type="module" src="./student.js"></script>
+  <!-- JS -->
+  <script type="module" src="student.js"></script>
+
 </body>
 </html>
