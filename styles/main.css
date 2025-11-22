@@ -1,408 +1,337 @@
-/* ---------- GLOBAL RESET ---------- */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Inter", sans-serif;
+/* ============================================================
+   GLOBAL
+============================================================ */
+
+:root {
+  --sb-bg: #f4f6fa;
+  --sb-white: #ffffff;
+  --sb-blue: #2563eb;
+  --sb-blue-light: #dbe8ff;
+  --sb-text: #1f2937;
+  --sb-muted: #6b7280;
+  --sb-border: #e5e7eb;
+  --sb-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  --sb-radius: 12px;
+  --sb-radius-lg: 16px;
 }
 
 body {
-  background: #f4f6fb;
-  color: #1f2937;
+  margin: 0;
+  font-family: "Inter", Arial, sans-serif;
+  background: var(--sb-bg);
+  color: var(--sb-text);
+  overflow: hidden;
 }
 
-/* ---------- HEADER ---------- */
-header {
-  background: #ffffff;
-  padding: 16px 26px;
+h1,h2,h3,h4 {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* ============================================================
+   TOPBAR
+============================================================ */
+
+.topbar {
+  height: 60px;
+  background: var(--sb-white);
+  padding: 10px 22px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #e5e7eb;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  align-items: center;
+  border-bottom: 1px solid var(--sb-border);
+  box-shadow: var(--sb-shadow);
 }
 
-header h2 {
-  font-size: 22px;
+.topbar-left {
+  font-size: 20px;
   font-weight: 700;
 }
 
-/* ---------- BUTTONS ---------- */
-button {
-  cursor: pointer;
-  border: none;
-}
-
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.ai-btn-primary,
-#createRoomBtn {
-  background: linear-gradient(135deg, #4a6cf7, #6d8bff);
-  color: white;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-weight: 600;
-  box-shadow: 0 4px 10px rgba(74,108,247,0.25);
-}
-
-/* SECONDARY */
-.lp-btn-secondary {
-  background: #e5e7eb;
-  color: #111827;
-  padding: 10px 14px;
-  border-radius: 10px;
+.lang-select {
+  padding: 6px 10px;
   font-size: 14px;
-  font-weight: 600;
+  border-radius: var(--sb-radius);
+  border: 1px solid var(--sb-border);
 }
 
-/* ---------- LAYOUT ---------- */
+/* ============================================================
+   MAIN GRID
+============================================================ */
+
 .main-container {
   display: grid;
-  grid-template-columns: 220px 1fr 310px;
-  gap: 22px;
-  padding: 20px;
+  grid-template-columns: 260px 1fr 300px;
+  height: calc(100vh - 60px);
 }
 
-/* ---------- LEFT SIDEBAR ---------- */
-.sidebar {
-  background: #ffffff;
+.sidebar, .rightbar {
+  background: var(--sb-white);
   padding: 18px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  border: 1px solid #e5e7eb;
+  overflow-y: auto;
+  border-right: 1px solid var(--sb-border);
 }
 
-.sidebar h3 {
-  font-size: 18px;
+.rightbar {
+  border-right: none;
+  border-left: 1px solid var(--sb-border);
+}
+
+.section-title {
+  font-size: 17px;
   margin-bottom: 12px;
+  color: var(--sb-blue);
+  font-weight: 700;
 }
 
-.sidebar button {
-  margin-bottom: 8px;
+hr {
+  border: none;
+  height: 1px;
+  background: var(--sb-border);
+  margin: 14px 0;
+}
+
+/* ============================================================
+   TOOLS
+============================================================ */
+
+.tool-btn {
   width: 100%;
   padding: 10px;
-  border-radius: 10px;
-  background: #f3f4f6;
-  font-weight: 600;
+  background: var(--sb-blue-light);
+  border: none;
+  border-radius: var(--sb-radius);
+  margin-bottom: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  color: var(--sb-blue);
+  transition: 0.2s;
 }
 
-.sidebar button:hover {
-  background: #e5e7eb;
+.tool-btn:hover {
+  background: var(--sb-blue);
+  color: white;
 }
 
-/* ---------- BOARD AREA ---------- */
-.board-area {
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 20px;
-  min-height: 600px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-  border: 1px solid #e5e7eb;
+/* ============================================================
+   BOARD AREA
+============================================================ */
+
+.board-area-container {
+  height: 100%;
   overflow-y: auto;
+  padding: 18px;
 }
 
 .board-card {
-  background: #fafafa;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  margin-bottom: 16px;
-  padding: 18px;
-  transition: 0.25s;
-}
-
-.board-card.expanded {
-  background: #ffffff;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  background: var(--sb-white);
+  border-radius: var(--sb-radius-lg);
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: var(--sb-shadow);
 }
 
 .board-card-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.badge {
-  padding: 4px 10px;
-  border-radius: 10px;
-  background: #e0e7ff;
-  color: #3949ab;
+  margin-bottom: 8px;
   font-weight: 600;
 }
 
-.toggle-btn {
-  border-radius: 8px;
-  padding: 6px 10px;
-  background: #f3f4f6;
-  font-weight: 600;
+.board-card-body {
+  padding-top: 5px;
+  line-height: 1.45;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
-.toggle-btn:hover {
-  background: #e5e7eb;
-}
-
-/* ---------- RIGHTBAR ---------- */
-.rightbar {
-  background: #ffffff;
-  padding: 18px;
-  border-radius: 20px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-  border: 1px solid #e5e7eb;
-}
-
-.tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.tab-btn {
-  flex: 1;
+textarea#newBlockText {
+  width: 100%;
+  min-height: 80px;
+  border-radius: var(--sb-radius);
+  border: 1px solid var(--sb-border);
   padding: 10px;
-  background: #f3f4f6;
-  border-radius: 10px;
-  font-weight: 600;
+  resize: vertical;
+  font-size: 15px;
 }
 
-.tab-btn.active {
-  background: #4a6cf7;
+#addBlockBtn {
+  background: var(--sb-blue);
+  color: white;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: var(--sb-radius);
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+/* ============================================================
+   DRAWING CANVAS
+============================================================ */
+
+.drawing-panel {
+  background: var(--sb-white);
+  padding: 12px;
+  border-radius: var(--sb-radius);
+  box-shadow: var(--sb-shadow);
+}
+
+.drawing-tools button {
+  margin-right: 8px;
+  padding: 6px 10px;
+  border-radius: var(--sb-radius);
+  border: 1px solid var(--sb-border);
+  background: var(--sb-blue-light);
+  cursor: pointer;
+}
+
+.drawing-tools button.active {
+  background: var(--sb-blue);
   color: white;
 }
 
-.tab-content {
-  display: none;
+#drawingCanvas {
+  width: 100%;
+  height: 420px;
+  background: white;
+  border: 1px solid var(--sb-border);
+  border-radius: var(--sb-radius-lg);
+  margin-top: 10px;
 }
 
-.tab-content.active {
-  display: block;
-}
+/* ============================================================
+   ANSWERS / EMOJI / CLOUD
+============================================================ */
 
-/* ---------- ANSWER ITEMS ---------- */
-.answer-item {
-  background: #eef2ff;
+.answers-box {
+  background: #f9fafb;
   padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 6px;
+  border-radius: var(--sb-radius);
+  max-height: 235px;
+  overflow-y: auto;
+  border: 1px solid var(--sb-border);
 }
 
-/* ---------- EMOJI ---------- */
+.answer-item {
+  padding: 6px 0;
+}
+
 .emoji-row {
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 6px;
 }
 
 .emoji-btn {
-  font-size: 26px;
-  padding: 8px;
-  flex: 1;
-  background: #fafafa;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-}
-
-.emoji-btn:hover {
-  background: #e0e7ff;
-}
-
-/* ---------- WORD CLOUD ---------- */
-.word-cloud .word-item {
-  display: inline-block;
-  padding: 6px 10px;
-  margin: 6px;
-  background: #e0e7ff;
-  color: #3949ab;
-  border-radius: 10px;
-  font-weight: 600;
-}
-
-/* ---------- AI PANEL ---------- */
-.ai-panel {
-  background: #ffffff;
-  margin: 20px;
-  padding: 18px;
-  border-radius: 16px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-  border: 1px solid #e5e7eb;
-}
-
-.ai-textarea {
-  width: 100%;
-  min-height: 90px;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
-}
-
-.ai-panel-actions {
-  margin-top: 10px;
-  display: flex;
-  gap: 10px;
-}
-
-/* ---------- STUDENT PANEL ---------- */
-.student-wrapper {
-  max-width: 600px;
-  margin: 40px auto;
-  background: #ffffff;
-  padding: 28px;
-  border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  border: 1px solid #e5e7eb;
-}
-
-.student-wrapper h2 {
-  margin-bottom: 12px;
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.student-wrapper .small {
-  color: #6b7280;
-  margin-bottom: 20px;
-  font-size: 14px;
-}
-
-.section-title {
-  margin: 20px 0 8px;
-  font-weight: 600;
-  font-size: 17px;
-}
-
-.student-wrapper input,
-.student-wrapper textarea {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
-}
-
-.student-wrapper button {
-  background: linear-gradient(135deg, #4a6cf7, #6d8bff);
+  background: var(--sb-blue-light);
   border: none;
-  padding: 12px;
-  margin-top: 8px;
-  border-radius: 12px;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: var(--sb-radius);
+  font-size: 20px;
+  cursor: pointer;
 }
 
-/* ---------- FULLSCREEN MODE ---------- */
+.word-cloud span {
+  display: inline-block;
+  margin: 4px;
+  color: var(--sb-blue);
+}
+
+/* ============================================================
+   MODALS (Lesson, Trainer, QR, Share)
+============================================================ */
+
+.lp-overlay,
+#trainerOverlay,
+#qrOverlay,
+#shareOverlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.45);
+  z-index: 900;
+}
+
+.lp-modal,
+#trainerModal,
+#qrModal,
+#shareModal {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--sb-white);
+  padding: 22px;
+  width: 420px;
+  border-radius: var(--sb-radius-lg);
+  z-index: 999;
+  box-shadow: var(--sb-shadow);
+}
+
+.lp-hidden { display: none; }
+
+.modal-title {
+  font-size: 20px;
+  margin-bottom: 12px;
+  font-weight: 700;
+  color: var(--sb-blue);
+}
+
+.modal-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--sb-radius);
+  border: 1px solid var(--sb-border);
+  margin-bottom: 10px;
+}
+
+.modal-btn {
+  width: 100%;
+  padding: 10px;
+  background: var(--sb-blue);
+  color: white;
+  border: none;
+  border-radius: var(--sb-radius);
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+/* ============================================================
+   FULLSCREEN MODE
+============================================================ */
+
 .fullscreen .sidebar,
-.fullscreen .rightbar,
-.fullscreen .ai-panel {
+.fullscreen .rightbar {
   display: none !important;
 }
 
 .fullscreen .main-container {
   grid-template-columns: 1fr !important;
-  padding: 0 !important;
 }
 
-.fullscreen .board-area {
-  border-radius: 0 !important;
-  height: calc(100vh - 70px);
-  width: 100%;
-  padding: 26px !important;
-}
-
-/* ---------- LESSON PLANNER MODAL ---------- */
-.lp-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.35);
-  z-index: 50;
-}
-
-.lp-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.lp-hidden {
-  display: none !important;
-}
-
-.lp-modal-inner {
-  width: 90%;
-  max-width: 700px;
-  max-height: 90vh;
-  background: white;
-  border-radius: 18px;
+.fullscreen .board-area-container {
+  height: calc(100vh - 60px);
   padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
 }
 
-.lp-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* ============================================================
+   EXPORT ROOT
+============================================================ */
+
+#boardExportRoot {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
 }
 
-.lp-header h3 {
-  font-size: 20px;
-  font-weight: 700;
+/* ============================================================
+   SCROLL FIX
+============================================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-.lp-close-btn {
-  background: #f3f4f6;
-  border-radius: 10px;
-  padding: 6px 10px;
-  font-size: 16px;
-}
-
-.lp-body label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 6px;
-  font-size: 14px;
-}
-
-.lp-body input,
-.lp-body select,
-.lp-body textarea {
-  padding: 8px;
-  border-radius: 10px;
-  background: #f9fafb;
-  border: 1px solid #d1d5db;
-}
-
-.lp-body textarea {
-  min-height: 60px;
-}
-
-.lp-footer {
-  display: flex;
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.lp-result {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 10px;
-}
-
-.lp-result textarea {
-  width: 100%;
-  min-height: 180px;
-  border: 1px solid #d1d5db;
-  padding: 10px;
-  border-radius: 10px;
+::-webkit-scrollbar-thumb {
+  background: #c5c9d1;
+  border-radius: 4px;
 }
