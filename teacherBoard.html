@@ -1,188 +1,213 @@
 <!DOCTYPE html>
 <html lang="kk">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartBoardAI PRO — Мұғалім тақтасы</title>
+  <title>SmartBoardAI PRO – Мұғалім</title>
 
-  <link rel="stylesheet" href="./styles/main.css" />
+  <link rel="stylesheet" href="./main.css" />
 
-  <!-- MathJax Формула -->
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <!-- KaTeX (формула үшін) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <!-- QR (student үшін) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+
+  <!-- Export үшін: html2canvas + jsPDF -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
-
 <body>
 
-  <!-- PIN код қорғау -->
-  <script>
-    (function () {
-      const PIN = "3947";
-      const entered = prompt("Мұғалім тақтасына кіру үшін PIN енгізіңіз:");
-      if (entered !== PIN) {
-        document.body.innerHTML =
-          "<h2 style='padding:40px;text-align:center;font-family:sans-serif;'>❌ Қате PIN. Кіру мүмкін емес.</h2>";
-        throw new Error("Wrong PIN");
-      }
-    })();
-  </script>
+  <!-- Жоғарғы панель -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo-text">SmartBoardAI PRO 2.0</span>
+      <select id="langSelect" class="lang-select">
+        <option value="kk">KZ</option>
+        <option value="ru">RU</option>
+        <option value="en">EN</option>
+      </select>
+    </div>
+    <div class="topbar-right">
+      <input id="saveName" class="save-input" type="text" placeholder="Сабақ атауы">
+      <button id="saveLessonBtn" class="btn small">💾 Сақтау</button>
+      <button id="loadLessonBtn" class="btn small">📂 Жүктеу</button>
 
-  <header>
-    <h2>SmartBoardAI PRO — Мұғалім тақтасы</h2>
-    <div style="display:flex;gap:16px;align-items:center;">
-      <button id="createRoomBtn">Жаңа Room</button>
-      <span><b>Room ID:</b> <span id="roomIdLabel">–</span></span>
+      <!-- EXPORT ҚЫЗМЕТТЕРІ -->
+      <button id="exportPdfBtn" class="btn small">📄 PDF</button>
+      <button id="exportPngBtn" class="btn small">🖼 Image</button>
+      <button id="shareLessonBtn" class="btn small">🔗 Share</button>
 
-      <!-- FULLSCREEN -->
-      <button id="fullscreenToggleBtn"
-        style="background:#e5e7eb;color:#111;padding:10px 14px;border-radius:10px;">
-        ⛶ Fullscreen
-      </button>
+      <button id="qrBtn" class="btn small">📱 QR (student)</button>
+      <button id="fullscreenToggleBtn" class="btn small">⛶ Толық экран</button>
     </div>
   </header>
 
-  <!-- AI панелі -->
-  <div class="ai-panel">
-    <h3>AI тапсырма генераторы</h3>
-    <textarea id="aiPrompt" class="ai-textarea" placeholder="AI-ға тапсырма жазыңыз..."></textarea>
-
-    <div class="ai-panel-actions">
-      <button id="aiGenerateBtn" class="ai-btn-primary">AI → Блок қосу</button>
-      <button id="lessonPlannerBtn" class="lp-btn-secondary">📘 Lesson Planner</button>
-    </div>
-  </div>
-
-  <div class="main-container">
-
+  <!-- Негізгі layout -->
+  <main class="main-container">
     <!-- Сол жақ панель -->
     <aside class="sidebar">
-      <h3>Құралдар</h3>
-      <button id="toolCard">Карточка</button>
-      <button id="toolPhoto">Фото</button>
-      <button id="toolVideo">Видео</button>
-      <button id="toolLink">Сілтеме</button>
-      <button id="toolFormula">Формула</button>
-      <button id="toolTrainer">Тренажер</button>
-      <button id="toolQuiz">Викторина</button>
+      <h3 class="toolsTitle">Құралдар</h3>
+
+      <div class="card">
+        <h4>Контент блоктар</h4>
+        <button id="toolCard" class="btn block-btn">📄 Карточка</button>
+        <button id="toolFormula" class="btn block-btn">∑ Формула</button>
+        <button id="toolPhoto" class="btn block-btn">🖼 Фото</button>
+        <button id="toolVideo" class="btn block-btn">🎬 Видео</button>
+        <button id="toolLink" class="btn block-btn">🔗 Сілтеме</button>
+      </div>
+
+      <div class="card">
+        <h4>Интерактив</h4>
+        <button id="toolTrainer" class="btn block-btn">🧠 Тренажер</button>
+        <button id="toolQuiz" class="btn block-btn">❓ Викторина (Kahoot стилі)</button>
+      </div>
+
+      <div class="card">
+        <h4>AI панелі</h4>
+        <div class="ai-mode-switch">
+          <button class="ai-mode-btn active" data-mode="lesson">Сабақ жоспары</button>
+          <button class="ai-mode-btn" data-mode="content">Контент</button>
+          <button class="ai-mode-btn" data-mode="creative">Креатив</button>
+        </div>
+        <textarea id="aiPrompt" class="input ai-input" placeholder="Тапсырмаңызды жазыңыз..."></textarea>
+        <button id="aiRunBtn" class="btn block-btn">✨ Генерациялау</button>
+        <div id="aiOutput" class="ai-output">
+          <span class="small">AI жауабы осында шығады…</span>
+        </div>
+        <div class="ai-actions">
+          <button id="aiInsertBtn" class="btn small">⬇ Тақтаға енгізу</button>
+          <button id="aiCopyBtn" class="btn small">📋 Көшіру</button>
+          <button id="aiClearBtn" class="btn small">🧹 Тазалау</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>Сабақ жоспары (LP)</h4>
+        <button id="lessonPlannerBtn" class="btn block-btn">📑 Lesson Planner</button>
+      </div>
     </aside>
 
-    <!-- Тақта -->
-    <section id="boardArea" class="board-area"></section>
+    <!-- Ортаңғы аймақ: DRAWING + BLOCK BOARD -->
+    <section class="board-area" id="boardExportRoot">
+
+      <!-- ✏️ DRAWING ТАҚТАСЫ -->
+      <div class="drawing-wrapper">
+        <div class="drawing-toolbar">
+          <span class="drawing-title">✏️ Сурет салу тақтасы</span>
+          <div class="drawing-tools">
+            <button id="drawPenBtn" class="btn tiny active">Қалам</button>
+            <button id="drawMarkerBtn" class="btn tiny">Маркер</button>
+            <button id="drawEraserBtn" class="btn tiny">Өшіргіш</button>
+
+            <label class="draw-label">
+              🎨
+              <input type="color" id="drawColor" value="#111827">
+            </label>
+
+            <label class="draw-label">
+              ➖
+              <input type="range" id="drawSize" min="2" max="30" value="5">
+            </label>
+
+            <button id="drawClearBtn" class="btn tiny">🧹 Тазалау</button>
+          </div>
+        </div>
+
+        <div class="drawing-canvas-container">
+          <canvas id="drawingCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Көп бет tab-тары -->
+      <div id="pageTabs" class="page-tabs"></div>
+
+      <!-- Контент блоктар орналасатын аймақ -->
+      <div id="boardArea" class="board-cards"></div>
+
+      <!-- Оқушы жауаптары -->
+      <div class="card">
+        <h3 class="answersTitle">Оқушы жауаптары</h3>
+        <div id="answersBox" class="answers-box">
+          <div class="small">Әзірше жауап жоқ...</div>
+        </div>
+      </div>
+    </section>
 
     <!-- Оң жақ панель -->
     <aside class="rightbar">
-      <div class="rightbar-card">
+      <div class="card">
+        <h3 class="roomTitle">Room ID & оқушылар</h3>
+        <p class="small">Room: <code id="roomIdLabel">–</code></p>
+        <button id="createRoomBtn" class="btn small">🟢 Жаңа бөлме</button>
+      </div>
 
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="answers">Жауаптар</button>
-          <button class="tab-btn" data-tab="students">Оқушылар</button>
-          <button class="tab-btn" data-tab="emoji">Эмоция</button>
-          <button class="tab-btn" data-tab="cloud">Word Cloud</button>
-        </div>
+      <div class="card">
+        <h3 class="moodTitle">Эмоциялық рефлексия</h3>
+        <p class="small">Смайлик арқылы көңіл-күйді бағалау.</p>
+        <div id="emojiStats" class="small" style="margin-top:4px;">Дерек жоқ…</div>
+      </div>
 
-        <!-- ANSWERS -->
-        <div id="tab-answers" class="tab-content active">
-          <h3>Оқушы жауаптары</h3>
-          <div id="answersBox" class="answers-box">
-            <div class="small">Әзірше жауап жоқ...</div>
-          </div>
-        </div>
-
-        <!-- STUDENTS -->
-        <div id="tab-students" class="tab-content">
-          <h3>Оқушылар</h3>
-          <p>Room: <code id="roomIdLabel2">–</code></p>
-          <div id="studentsList" class="students-list">
-            <div class="small">Ешкім қосылмады</div>
-          </div>
-        </div>
-
-        <!-- EMOJI -->
-        <div id="tab-emoji" class="tab-content">
-          <h3>Эмоциялық рефлексия</h3>
-          <div class="emoji-row">
-            <button class="emoji-btn" data-emoji="🙂">🙂</button>
-            <button class="emoji-btn" data-emoji="😐">😐</button>
-            <button class="emoji-btn" data-emoji="😕">😕</button>
-            <button class="emoji-btn" data-emoji="😢">😢</button>
-            <button class="emoji-btn" data-emoji="🤩">🤩</button>
-          </div>
-          <div id="emojiStats" class="small"></div>
-        </div>
-
-        <!-- WORD CLOUD -->
-        <div id="tab-cloud" class="tab-content">
-          <h3>Word Cloud (сөз бұлты)</h3>
-          <div id="wordCloud" class="word-cloud">
-            <div class="small">Пікір жоқ...</div>
-          </div>
-        </div>
-
+      <div class="card">
+        <h3 class="cloudTitle">Word Cloud (сөз бұлты)</h3>
+        <p class="small">Оқушылар бір сөзбен сабақ туралы жазады.</p>
+        <div id="wordCloud" class="word-cloud"></div>
       </div>
     </aside>
+  </main>
 
+  <!-- Lesson Planner MODAL -->
+  <div id="lpOverlay" class="lp-overlay lp-hidden"></div>
+  <div id="lessonPlannerModal" class="lp-modal lp-hidden">
+    <h3>📑 Lesson Planner (AI)</h3>
+    <textarea id="lpInput" class="input textarea" placeholder="Сынып, тақырып, мақсаттар..."></textarea>
+    <div class="lp-actions">
+      <button id="lpGenerateBtn" class="btn small">✨ Сабақ жоспарын құру</button>
+      <button id="lpCloseBtn" class="btn small secondary">Жабу</button>
+    </div>
   </div>
 
-  <!-- LESSON PLANNER MODAL -->
-  <div id="lpOverlay" class="lp-overlay lp-hidden"></div>
+  <!-- Trainer MODAL -->
+  <div id="trainerOverlay" class="lp-overlay lp-hidden"></div>
+  <div id="trainerModal" class="lp-modal lp-hidden">
+    <h3>🧠 Тренажер қосу</h3>
+    <input id="trainerTitleInput" class="input" type="text" placeholder="Тренажер атауы">
+    <input id="trainerUrlInput" class="input" type="text" placeholder="https://... (iframe URL)">
+    <div class="lp-actions">
+      <button id="trainerAddBtn" class="btn small">Қосу</button>
+      <button id="trainerCloseBtn" class="btn small secondary">Жабу</button>
+    </div>
+  </div>
 
-  <div id="lessonPlannerModal" class="lp-modal lp-hidden">
-    <div class="lp-modal-inner">
+  <!-- QR MODAL -->
+  <div id="qrOverlay" class="lp-overlay lp-hidden"></div>
+  <div id="qrModal" class="lp-modal lp-hidden">
+    <h3>📱 Student QR</h3>
+    <canvas id="qrCanvas" style="width:260px;height:260px;display:block;margin:auto;"></canvas>
+    <p class="small" style="text-align:center;margin-top:10px;">
+      Оқушылар осы QR арқылы <b>student.html</b> парағына кіреді.
+    </p>
+    <div class="lp-actions" style="justify-content:center;">
+      <button id="qrCloseBtn" class="btn small secondary">Жабу</button>
+    </div>
+  </div>
 
-      <div class="lp-header">
-        <h3>📘 Lesson Planner</h3>
-        <button id="lpCloseBtn" class="lp-close-btn">✕</button>
-      </div>
-
-      <div class="lp-body">
-
-        <label>Пән:
-          <input id="lpSubject" type="text" placeholder="Математика, Қазақ тілі, Физика" />
-        </label>
-
-        <label>Сынып:
-          <input id="lpGrade" type="text" placeholder="7-сынып" />
-        </label>
-
-        <label>Тақырып:
-          <input id="lpTopic" type="text" placeholder="Мысалы: Бөлшектерді қосу" />
-        </label>
-
-        <label>Тіл:
-          <select id="lpLang">
-            <option value="kk">Қазақша</option>
-            <option value="ru">Русский</option>
-            <option value="en">English</option>
-          </select>
-        </label>
-
-        <label>Формат:
-          <select id="lpFormat">
-            <option value="short">Қысқа жоспар</option>
-            <option value="full">Толық жоспар</option>
-          </select>
-        </label>
-
-        <label>Қосымша талап:
-          <textarea id="lpExtra" placeholder="Дифференциация, ойын, ИИ қолдану..."></textarea>
-        </label>
-
-      </div>
-
-      <div class="lp-footer">
-        <button id="lpGenerateBtn" class="ai-btn-primary">🤖 Сабақ жоспарын құру</button>
-        <button id="lpInsertToBoardBtn" class="lp-btn-secondary lp-hidden">➕ Тақтаға қосу</button>
-      </div>
-
-      <div class="lp-result lp-hidden">
-        <h4>Генерацияланған жоспар:</h4>
-        <textarea id="lpResultText" readonly></textarea>
-      </div>
-
+  <!-- SHARE MODAL -->
+  <div id="shareOverlay" class="lp-overlay lp-hidden"></div>
+  <div id="shareModal" class="lp-modal lp-hidden">
+    <h3>🔗 Сабақ сілтемесі</h3>
+    <p class="small">Осы сілтемені басқа мұғалімдерге немесе конкурсқа бере аласыз.</p>
+    <input id="shareLinkInput" class="input" type="text" readonly>
+    <div class="lp-actions">
+      <button id="shareCopyBtn" class="btn small">📋 Көшіру</button>
+      <button id="shareCloseBtn" class="btn small secondary">Жабу</button>
     </div>
   </div>
 
   <script type="module" src="./teacherBoard.js"></script>
 </body>
-
 </html>
