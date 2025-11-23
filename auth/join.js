@@ -1,4 +1,4 @@
-// SmartBoardAI PRO — JOIN SYSTEM + AVATAR (FIXED)
+// SmartBoardAI PRO — JOIN SYSTEM + AVATAR (AUTH FOLDER VERSION)
 
 import {
   db,
@@ -6,11 +6,10 @@ import {
   set,
   push,
   onValue
-} from "./firebaseConfig.js";
+} from "../firebaseConfig.js";   // <<<<< МАҢЫЗДЫ: /auth/ ішінен шығу !!!
 
-console.log("JOIN.js loaded ✔");
+console.log("JOIN.js from /auth loaded ✔");
 
-// DOM дайын болған соң ғана аватарларды іздейміз
 document.addEventListener("DOMContentLoaded", () => {
 
   const nameInput = document.getElementById("studentName");
@@ -33,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ---------------------------
-  // JOIN BUTTON
+  // JOIN BUTTON CLICK
   // ---------------------------
   joinBtn.addEventListener("click", async () => {
 
@@ -58,10 +57,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const roomRef = ref(db, "rooms/" + roomId + "/students");
 
-    // Бөлме бар-жоғын тексеру
     onValue(roomRef, (snapshot) => {
 
-      // ❗ ТҮЗЕТІЛГЕН: бөлме жоқ → тек осы шарт
+      // ❗ Дұрыс шарт — бөлме жоқ болса
       if (!snapshot.exists()) {
         msg.textContent = "Мұндай бөлме жоқ!";
         return;
@@ -75,9 +73,9 @@ document.addEventListener("DOMContentLoaded", () => {
         joinedAt: Date.now()
       });
 
-      // student.html бетіне өту
+      // student.html бетіне бағыттау (түбірде орналасқан)
       window.location.href =
-        `student.html?name=${encodeURIComponent(name)}&room=${roomId}&avatar=${encodeURIComponent(avatar)}`;
+        `../student.html?name=${encodeURIComponent(name)}&room=${roomId}&avatar=${encodeURIComponent(avatar)}`;
 
     }, { onlyOnce: true });
 
