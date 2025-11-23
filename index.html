@@ -1,22 +1,82 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-  <meta charset="UTF-8" />
-  <title>SmartBoardAI PRO — Басты бет</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="./styles/main.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartBoardAI PRO</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f4f6fa;
+      font-family: Arial, sans-serif;
+      color: #222;
+    }
+
+    .welcome-box {
+      background: white;
+      padding: 40px 60px;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      text-align: center;
+      max-width: 480px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #1d4ed8;
+    }
+
+    p {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 25px;
+      line-height: 1.4;
+    }
+
+    a {
+      display: block;
+      text-decoration: none;
+      background: #1d4ed8;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      margin-top: 12px;
+      font-size: 16px;
+      transition: 0.2s;
+    }
+
+    a:hover {
+      background: #153ea8;
+    }
+
+    .secondary {
+      background: #475569;
+    }
+
+    .secondary:hover {
+      background: #334155;
+    }
+  </style>
 </head>
-<body class="app-body app-body-center">
-  <div class="card card-narrow">
+<body>
+
+  <div class="welcome-box">
     <h1>SmartBoardAI PRO</h1>
-    <p class="small">
-      Мұғалімдерге арналған интерактивті тақта, live room, рефлексия және оқушыларға арналған интерфейс.
+    <p>
+      Мұғалімдерге арналған интерактивті тақта, live room, оқушы рефлексиясы  
+      және AI-генерацияланған тапсырмалар платформасы.
     </p>
 
-    <div style="display:flex; flex-direction:column; gap:8px; margin-top:12px;">
-      <a class="btn btn-primary" href="./auth/login.html">Мұғалім ретінде кіру</a>
-      <a class="btn btn-ghost" href="./student.html">Оқушы беті</a>
-    </div>
+    <a href="auth.html">Мұғалім ретінде кіру</a>
+    <a href="student.html" class="secondary">Оқушы беті</a>
   </div>
+
 </body>
 </html>
