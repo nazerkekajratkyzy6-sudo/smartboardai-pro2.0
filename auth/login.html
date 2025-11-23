@@ -1,106 +1,104 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-  <meta charset="UTF-8" />
-  <title>SmartBoardAI — Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <title>Кіру — SmartBoardAI PRO</title>
+    <style>
+        body{
+            margin:0;
+            padding:0;
+            background:#f3f4f6;
+            font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI";
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            height:100vh;
+        }
 
-  <link rel="stylesheet" href="../styles/main.css" />
+        .login-card{
+            background:white;
+            width:360px;
+            padding:32px;
+            border-radius:18px;
+            box-shadow:0 10px 25px rgba(0,0,0,0.12);
+            text-align:center;
+        }
 
-  <!-- i18n -->
-  <script type="module" src="../i18n.js"></script>
+        h2{
+            margin-top:0;
+            font-size:26px;
+            color:#111827;
+            font-weight:700;
+        }
 
-  <style>
-    .lang-switch {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-      padding: 8px 14px;
-      cursor: pointer;
-      user-select: none;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .lang-dropdown {
-      display: none;
-      position: absolute;
-      right: 20px;
-      top: 56px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-      overflow: hidden;
-      z-index: 50;
-    }
-    .lang-dropdown button {
-      padding: 10px 16px;
-      width: 120px;
-      border: none;
-      background: white;
-      text-align: left;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .lang-dropdown button:hover {
-      background: #f3f4f6;
-    }
-  </style>
+        input{
+            width:100%;
+            padding:12px;
+            margin-top:12px;
+            border:1px solid #d1d5db;
+            border-radius:10px;
+            font-size:15px;
+            background:#f9fafb;
+        }
+
+        button{
+            width:100%;
+            padding:12px;
+            margin-top:16px;
+            border:none;
+            border-radius:10px;
+            font-size:16px;
+            font-weight:600;
+            cursor:pointer;
+            background:#4f46e5;
+            color:white;
+        }
+
+        .student-btn{
+            background:#10b981;
+            margin-top:20px;
+        }
+
+        a{
+            color:#4f46e5;
+            font-weight:600;
+            text-decoration:none;
+        }
+
+        .helper-text{
+            margin-top:16px;
+            font-size:14px;
+            color:#6b7280;
+        }
+    </style>
 </head>
+<body>
 
-<body class="app-body app-body-center">
+    <div class="login-card">
 
-  <!-- 🌐 Language Switch -->
-  <div class="lang-switch" id="langBtn">
-    🌐 <span data-lang-current>KZ</span>
-  </div>
+        <h2>Кіру</h2>
+        <p style="margin-top:-6px; color:#6b7280;">Мұғалім кабинеті — кіру</p>
 
-  <div class="lang-dropdown" id="langDropdown">
-    <button data-lang-option="kk">🇰🇿 Қазақша</button>
-    <button data-lang-option="ru">🇷🇺 Русский</button>
-    <button data-lang-option="en">🇬🇧 English</button>
-  </div>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Құпия сөз">
 
-  <div class="card card-narrow">
-    <h2 data-i18n="login_title">Кіру</h2>
-    <p class="small" data-i18n="login_subtitle_teacher">
-      Мұғалім кабинеті — кіру
-    </p>
+        <button id="loginBtn">Кіру</button>
 
-    <input id="email" type="email" data-i18n="login_email" placeholder="Email" />
-    <input id="password" type="password" data-i18n="login_password" placeholder="Құпиясөз" />
+        <div class="helper-text">
+            Аккаунтыңыз жоқ па?
+            <a href="register.html">Тіркелу</a>
+        </div>
 
-    <button id="loginBtn" class="btn btn-primary" data-i18n="login_button">
-      Кіру
-    </button>
+        <!-- Оқушы батырмасы -->
+        <button class="student-btn" onclick="window.location.href='join.html'">
+            👨‍🎓 Оқушы бөлмесіне кіру
+        </button>
 
-    <p id="msg" class="small"></p>
+        <p id="msg" style="margin-top:12px;color:red;"></p>
 
-    <p class="small" style="margin-top:10px;">
-      <span data-i18n="login_no_account">Аккаунтыңыз жоқ па?</span>
-      <a href="./register.html" data-i18n="login_register_link">Тіркелу</a>
-    </p>
-  </div>
+    </div>
 
-  <script>
-    const btn = document.getElementById("langBtn");
-    const dd = document.getElementById("langDropdown");
+    <script type="module" src="./login.js"></script>
 
-    btn.addEventListener("click", () => {
-      dd.style.display = dd.style.display === "block" ? "none" : "block";
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!btn.contains(e.target) && !dd.contains(e.target)) {
-        dd.style.display = "none";
-      }
-    });
-  </script>
-
-  <script type="module" src="./login.js"></script>
 </body>
 </html>
