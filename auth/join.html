@@ -1,16 +1,92 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-  <meta charset="UTF-8" />
-  <title>Join — SmartBoardAI</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="../styles/main.css" />
+    <meta charset="UTF-8">
+    <title>Оқушы бөлмесіне кіру — SmartBoardAI PRO</title>
+    <style>
+        body{
+            margin:0;
+            padding:0;
+            background:#f3f4f6;
+            font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI";
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            height:100vh;
+        }
+
+        .join-card{
+            background:white;
+            width:360px;
+            padding:32px;
+            border-radius:18px;
+            box-shadow:0 10px 25px rgba(0,0,0,0.12);
+            text-align:center;
+        }
+
+        h2{
+            margin-top:0;
+            font-size:26px;
+            color:#111827;
+            font-weight:700;
+        }
+
+        input{
+            width:100%;
+            padding:12px;
+            margin-top:12px;
+            border:1px solid #d1d5db;
+            border-radius:10px;
+            font-size:15px;
+            background:#f9fafb;
+        }
+
+        button{
+            width:100%;
+            padding:12px;
+            margin-top:16px;
+            border:none;
+            border-radius:10px;
+            font-size:16px;
+            font-weight:600;
+            cursor:pointer;
+            background:#10b981;
+            color:white;
+        }
+
+        .back-btn{
+            background:#4f46e5;
+            margin-top:20px;
+        }
+
+        #msg{
+            margin-top:12px;
+            font-size:14px;
+            color:red;
+        }
+    </style>
 </head>
-<body class="app-body app-body-center">
-  <div class="card card-narrow">
-    <h2>Оқушы ретінде қосылу</h2>
-    <p class="small">Бұл бет жақын арада жаңартылады. Қазір негізгі оқушы бетіне өтіңіз.</p>
-    <a class="btn btn-primary" href="../student.html">Оқушы бетіне өту</a>
-  </div>
+<body>
+
+    <div class="join-card">
+
+        <h2>Оқушы бөлмесіне кіру</h2>
+        <p style="margin-top:-6px; color:#6b7280;">Room ID арқылы кіру</p>
+
+        <input type="text" id="studentName" placeholder="Атыңыз">
+        <input type="text" id="roomId" placeholder="Room ID">
+
+        <button id="joinBtn">Кіру</button>
+
+        <button class="back-btn" onclick="window.location.href='login.html'">
+            ↩ Артқа қайту
+        </button>
+
+        <p id="msg"></p>
+
+    </div>
+
+    <script type="module" src="./join.js"></script>
+
 </body>
 </html>
