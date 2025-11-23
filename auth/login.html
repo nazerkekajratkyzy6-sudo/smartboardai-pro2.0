@@ -2,26 +2,104 @@
 <html lang="kk">
 <head>
   <meta charset="UTF-8" />
-  <title>Кіру — SmartBoardAI PRO</title>
+  <title>SmartBoardAI — Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="../styles/main.css" />
-</head>
-<body class="app-body app-body-center">
-  <div class="card card-narrow">
-    <h2>SmartBoardAI PRO</h2>
-    <p class="small">Мұғалім кабинеті — кіру</p>
 
-    <input id="email" type="email" placeholder="Email" />
-    <input id="password" type="password" placeholder="Құпиясөз" />
-    <button id="loginBtn" class="btn btn-primary">Кіру</button>
+  <link rel="stylesheet" href="../styles/main.css" />
+
+  <!-- i18n -->
+  <script type="module" src="../i18n.js"></script>
+
+  <style>
+    .lang-switch {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      padding: 8px 14px;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .lang-dropdown {
+      display: none;
+      position: absolute;
+      right: 20px;
+      top: 56px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      overflow: hidden;
+      z-index: 50;
+    }
+    .lang-dropdown button {
+      padding: 10px 16px;
+      width: 120px;
+      border: none;
+      background: white;
+      text-align: left;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .lang-dropdown button:hover {
+      background: #f3f4f6;
+    }
+  </style>
+</head>
+
+<body class="app-body app-body-center">
+
+  <!-- 🌐 Language Switch -->
+  <div class="lang-switch" id="langBtn">
+    🌐 <span data-lang-current>KZ</span>
+  </div>
+
+  <div class="lang-dropdown" id="langDropdown">
+    <button data-lang-option="kk">🇰🇿 Қазақша</button>
+    <button data-lang-option="ru">🇷🇺 Русский</button>
+    <button data-lang-option="en">🇬🇧 English</button>
+  </div>
+
+  <div class="card card-narrow">
+    <h2 data-i18n="login_title">Кіру</h2>
+    <p class="small" data-i18n="login_subtitle_teacher">
+      Мұғалім кабинеті — кіру
+    </p>
+
+    <input id="email" type="email" data-i18n="login_email" placeholder="Email" />
+    <input id="password" type="password" data-i18n="login_password" placeholder="Құпиясөз" />
+
+    <button id="loginBtn" class="btn btn-primary" data-i18n="login_button">
+      Кіру
+    </button>
 
     <p id="msg" class="small"></p>
 
     <p class="small" style="margin-top:10px;">
-      Аккаунтыңыз жоқ па?
-      <a href="./register.html">Тіркелу</a>
+      <span data-i18n="login_no_account">Аккаунтыңыз жоқ па?</span>
+      <a href="./register.html" data-i18n="login_register_link">Тіркелу</a>
     </p>
   </div>
+
+  <script>
+    const btn = document.getElementById("langBtn");
+    const dd = document.getElementById("langDropdown");
+
+    btn.addEventListener("click", () => {
+      dd.style.display = dd.style.display === "block" ? "none" : "block";
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!btn.contains(e.target) && !dd.contains(e.target)) {
+        dd.style.display = "none";
+      }
+    });
+  </script>
 
   <script type="module" src="./login.js"></script>
 </body>
