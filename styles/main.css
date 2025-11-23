@@ -1,153 +1,320 @@
-/* =====================
-   GLOBAL
-======================*/
+/* ============================================================
+   SmartBoardAI PRO — Global Styles
+============================================================ */
+
 body {
   margin: 0;
-  font-family: "Segoe UI", sans-serif;
-  background: #f4f6fa;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  background: #f8fafc;
+  color: #111827;
 }
 
-/* =====================
-   TOPBAR
-======================*/
-.topbar {
-  height: 60px;
-  background: #ffffff;
-  padding: 10px 20px;
+/* ============================================================
+   HEADER
+============================================================ */
+header {
+  width: 100%;
+  background: white;
+  padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #ddd;
-  gap: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.topbar-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.top-btn {
-  padding: 8px 14px;
-  background: #eaf0ff;
-  border: 1px solid #c6d4ff;
-  border-radius: 8px;
+.ai-btn-primary {
+  background: #2563eb;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
   cursor: pointer;
-  font-size: 14px;
+  font-weight: 600;
 }
 
-.top-btn:hover {
-  background: #dbe6ff;
+.lp-btn-secondary {
+  background: #e5e7eb;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
-/* =====================
-   LAYOUT GRID
-======================*/
+/* ============================================================
+   LAYOUT
+============================================================ */
+
 .main-container {
-  display: grid;
-  grid-template-columns: 260px 1fr 300px;
-  height: calc(100vh - 60px);
-  overflow: hidden;
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 74px);
 }
 
-/* =====================
-   SIDEBAR + RIGHTBAR
-======================*/
-.sidebar,
-.rightbar {
-  background: #ffffff;
-  padding: 18px;
+/* LEFT SIDEBAR */
+.sidebar {
+  width: 240px;
+  background: white;
+  padding: 16px;
+  border-right: 1px solid #e5e7eb;
   overflow-y: auto;
-  border-right: 1px solid #eee;
 }
 
-.rightbar {
-  border-left: 1px solid #eee;
+.sidebar h3 {
+  margin-top: 16px;
+  margin-bottom: 10px;
 }
 
-/* =====================
-   BOARD AREA
-======================*/
+/* BOARD */
 .board-area {
+  flex: 1;
   padding: 20px;
   overflow-y: auto;
 }
 
-.board-card {
-  background: #fff;
+/* RIGHT SIDEBAR */
+.rightbar {
+  width: 300px;
+  background: white;
+  padding: 16px;
+  border-left: 1px solid #e5e7eb;
+  overflow-y: auto;
+}
+
+.rightbar-card {
+  background: white;
+  border-radius: 16px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+/* ============================================================
+   TABS
+============================================================ */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.tab-btn.active {
+  background: #2563eb;
+  color: white;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* ============================================================
+   ANSWERS
+============================================================ */
+
+.answers-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.answer-item {
+  background: #f8fafc;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+/* ============================================================
+   STUDENTS
+============================================================ */
+
+.student-item {
+  padding: 8px;
+  background: #f3f4f6;
   border-radius: 10px;
-  padding: 15px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  margin-bottom: 6px;
+}
+
+/* ============================================================
+   CLOUD
+============================================================ */
+
+.word-cloud {
+  min-height: 80px;
+}
+
+.cloud-word {
+  font-size: 18px;
+  margin-right: 6px;
+}
+
+/* ============================================================
+   EMOJI
+============================================================ */
+
+.emoji-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.emoji-btn {
+  font-size: 22px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 6px;
+  cursor: pointer;
+}
+
+/* ============================================================
+   BOARD CARDS
+============================================================ */
+
+.board-card {
+  background: white;
+  padding: 16px;
   margin-bottom: 14px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
 }
 
 .board-card-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
-.board-card-body {
-  max-height: 420px;
-  overflow-y: auto;
-  padding-right: 10px;
-}
-
-/* =====================
-   ADD NEW BLOCK
-======================*/
-.add-block-wrapper {
-  margin-top: 20px;
-}
-
-#newBlockText {
-  width: 100%;
-  height: 120px;
-  border-radius: 10px;
-  border: 1px solid #cbd3dd;
-  padding: 12px;
-  font-size: 14px;
-}
-
-#addBlockBtn {
-  width: 100%;
-  margin-top: 10px;
-  background: #2f65ff;
+.badge {
+  padding: 4px 10px;
+  background: #2563eb;
   color: white;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.toggle-btn {
+  background: #e5e7eb;
+  padding: 6px 12px;
   border-radius: 10px;
-  padding: 12px;
   border: none;
   cursor: pointer;
 }
 
-#addBlockBtn:hover {
-  background: #1e4fe6;
+/* ============================================================
+   FULLSCREEN
+============================================================ */
+body.fullscreen header,
+body.fullscreen .sidebar,
+body.fullscreen .rightbar {
+  display: none;
 }
 
-/* =====================
-   FULLSCREEN
-======================*/
-.fullscreen .sidebar,
-.fullscreen .rightbar {
+body.fullscreen .main-container {
+  height: 100vh;
+}
+
+body.fullscreen .board-area {
+  padding: 40px;
+  font-size: 22px;
+}
+
+/* ============================================================
+   LESSON PLANNER MODAL
+============================================================ */
+
+.lp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 4000;
+}
+
+.lp-hidden {
   display: none !important;
 }
 
-.fullscreen .main-container {
-  grid-template-columns: 1fr !important;
+.lp-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
 }
 
-/* =====================
-   FIX FOR BUTTON OVERLAP
-======================*/
-button, .btn {
+.lp-modal-inner {
+  background: white;
+  border-radius: 16px;
+  width: 480px;
+  max-height: 90vh;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.lp-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.lp-close-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
   cursor: pointer;
-  position: relative;
-  z-index: 1;
+}
+
+.lp-body label {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.lp-body input,
+.lp-body textarea,
+.lp-body select {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+/* ============================================================
+   AI PANEL
+============================================================ */
+.ai-panel {
+  background: white;
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.ai-textarea {
+  width: 100%;
+  height: 80px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.ai-panel-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
 }
