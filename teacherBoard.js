@@ -296,7 +296,12 @@ function listenAnswers(roomId) {
 
     let html = "";
     Object.values(data).forEach((v) => {
-      html += `<div class="student-item"><span>${v.name}</span></div>`;
+      html += `
+  <div class="student-item">
+    <span style="font-size:22px;margin-right:8px;">${v.avatar || "👤"}</span>
+    <span>${v.name}</span>
+  </div>
+`;
     });
     box.innerHTML = html;
   });
@@ -551,3 +556,4 @@ function initBoard() {
   setupQR();
   renderBoard();
 }
+
