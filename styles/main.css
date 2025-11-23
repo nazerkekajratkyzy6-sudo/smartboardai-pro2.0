@@ -1,240 +1,153 @@
-/* ============================================================
-   SmartBoardAI PRO — MAIN.CSS (FULL RESTORE + IMPROVED UI)
-   ============================================================ */
-
-/* --------- BASE --------- */
+/* =====================
+   GLOBAL
+======================*/
 body {
   margin: 0;
-  padding: 0;
-  font-family: "Inter", Arial, sans-serif;
-  background: #f0f4ff;
-  color: #1a1a1a;
+  font-family: "Segoe UI", sans-serif;
+  background: #f4f6fa;
 }
 
-/* --------- TOPBAR --------- */
+/* =====================
+   TOPBAR
+======================*/
 .topbar {
   height: 60px;
-  background: white;
-  border-bottom: 1px solid #dce3f7;
-  padding: 0 25px;
+  background: #ffffff;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  gap: 20px;
+}
+
+.topbar-left {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 50;
+  gap: 12px;
 }
 
-.topbar select,
-.topbar button {
-  margin-left: 10px;
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-/* --------- GRID LAYOUT --------- */
+.top-btn {
+  padding: 8px 14px;
+  background: #eaf0ff;
+  border: 1px solid #c6d4ff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.top-btn:hover {
+  background: #dbe6ff;
+}
+
+/* =====================
+   LAYOUT GRID
+======================*/
 .main-container {
   display: grid;
   grid-template-columns: 260px 1fr 300px;
   height: calc(100vh - 60px);
+  overflow: hidden;
 }
 
-/* --------- SIDEBAR --------- */
-.sidebar {
+/* =====================
+   SIDEBAR + RIGHTBAR
+======================*/
+.sidebar,
+.rightbar {
   background: #ffffff;
-  border-right: 1px solid #dae2f1;
-  padding: 22px;
+  padding: 18px;
   overflow-y: auto;
+  border-right: 1px solid #eee;
 }
 
-.sidebar h3 {
-  margin: 18px 0 10px;
-  font-size: 18px;
-  font-weight: 600;
+.rightbar {
+  border-left: 1px solid #eee;
 }
 
-.sidebar button {
-  width: 100%;
-  padding: 12px;
-  text-align: left;
-  border-radius: 10px;
-  border: 1px solid #d0d9f2;
-  margin-bottom: 10px;
-  background: #eef3ff;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.sidebar button:hover {
-  background: #dce6ff;
-}
-
-/* --------- BOARD AREA --------- */
+/* =====================
+   BOARD AREA
+======================*/
 .board-area {
-  padding: 25px;
+  padding: 20px;
   overflow-y: auto;
-  background: #f5f8ff;
 }
 
-.add-block-box textarea {
-  width: 100%;
-  height: 120px;
-  border-radius: 12px;
-  border: 1px solid #cbd8ff;
-  padding: 12px;
-  font-size: 15px;
-  resize: vertical;
-}
-
-.add-block-box button {
-  margin-top: 10px;
-  width: 100%;
-  background: #2f6bff;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 12px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.add-block-box button:hover {
-  background: #1e54d9;
-}
-
-/* --------- BOARD CARDS --------- */
 .board-card {
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.07);
-  padding: 15px 20px;
-  margin-bottom: 18px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  margin-bottom: 14px;
 }
 
 .board-card-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
-  font-weight: 600;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
 .board-card-body {
-  max-height: 450px;
+  max-height: 420px;
   overflow-y: auto;
   padding-right: 10px;
 }
 
-/* --------- RIGHTBAR --------- */
-.rightbar {
-  background: #ffffff;
-  border-left: 1px solid #dae2f1;
-  padding: 22px;
-  overflow-y: auto;
-}
-
-.rightbar h3 {
+/* =====================
+   ADD NEW BLOCK
+======================*/
+.add-block-wrapper {
   margin-top: 20px;
-  font-size: 17px;
 }
 
-/* --------- ROOM BOX --------- */
-.room-box {
-  background: #eef4ff;
-  padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
-
-.room-btn {
-  background: #3aa655;
-  padding: 10px;
-  border: none;
-  border-radius: 10px;
-  color: white;
-  cursor: pointer;
+#newBlockText {
   width: 100%;
-}
-
-.room-btn:hover {
-  background: #2e8042;
-}
-
-/* --------- ANSWERS --------- */
-.answers-box {
-  background: #f7f9ff;
-  border-radius: 10px;
-  padding: 12px;
-  min-height: 30px;
-}
-
-/* --------- EMOTION --------- */
-.emoji-row {
-  margin: 10px 0;
-}
-
-.emoji-btn {
-  border: none;
-  background: transparent;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-/* --------- WORD CLOUD --------- */
-.word-cloud {
-  background: #f0f4ff;
   height: 120px;
   border-radius: 10px;
-  padding: 10px;
-  overflow-y: auto;
+  border: 1px solid #cbd3dd;
+  padding: 12px;
+  font-size: 14px;
 }
 
-/* --------- FULLSCREEN --------- */
-.fullscreen .sidebar,
-.fullscreen .rightbar { display: none; }
-
-.fullscreen .main-container {
-  grid-template-columns: 1fr;
-}
-
-.fullscreen .board-area {
-  height: calc(100vh - 60px);
-}
-
-/* --------- DRAWING TOOL --------- */
-
-#drawingCanvas {
-  border: 2px solid #b8ccff;
-  border-radius: 12px;
-  background: white;
-}
-
-.drawing-controls button,
-.drawing-controls input {
-  margin-right: 10px;
-}
-
-/* --------- TRAINERS SECTION --------- */
-.trainer-box input {
-  width: 48%;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #c8d6ff;
-  margin-bottom: 10px;
-}
-
-.trainer-box button {
-  width: 140px;
-  padding: 10px;
-  background: #0077ff;
+#addBlockBtn {
+  width: 100%;
+  margin-top: 10px;
+  background: #2f65ff;
   color: white;
   border-radius: 10px;
+  padding: 12px;
   border: none;
   cursor: pointer;
 }
 
-/* --------- SCROLLBAR --------- */
-::-webkit-scrollbar {
-  width: 8px;
+#addBlockBtn:hover {
+  background: #1e4fe6;
 }
-::-webkit-scrollbar-thumb {
-  background: #bcd0ff;
-  border-radius: 10px;
+
+/* =====================
+   FULLSCREEN
+======================*/
+.fullscreen .sidebar,
+.fullscreen .rightbar {
+  display: none !important;
+}
+
+.fullscreen .main-container {
+  grid-template-columns: 1fr !important;
+}
+
+/* =====================
+   FIX FOR BUTTON OVERLAP
+======================*/
+button, .btn {
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
 }
