@@ -1,11 +1,19 @@
+export const config = {
+  runtime: "nodejs",
+};
+
 export default async function handler(req, res) {
   try {
-    const body = req.body ? JSON.parse(req.body) : {};
+    let body = {};
+    try {
+      body = JSON.parse(req.body);
+    } catch (e) {}
+
     const prompt = body.prompt || "Сұрақ бос.";
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: "API KEY жоқ!!!" });
+      return res.status(500).json({ error: "API KEY жоқ" });
     }
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -25,17 +33,13 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-
     if (data.error) {
       return res.status(500).json({ error: data.error.message });
     }
 
-    const answer = data.choices?.[0]?.message?.content || "Жауап табылмады.";
-
+    const answer = data.choices?.[0]?.message?.content || "Жауап табылмады";
     res.status(200).json({ answer });
-
-  } catch (err) {
-    console.log("SERVER ERROR:", err);
-    res.status(500).json({ error: err.toString() });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
   }
 }
