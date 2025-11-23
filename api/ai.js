@@ -1,16 +1,13 @@
 export default async function handler(req, res) {
   try {
-    // Body оқу
     const body = req.body ? JSON.parse(req.body) : {};
     const prompt = body.prompt || "Сұрақ бос.";
 
-    // API key оқу
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: "API KEY жоқ!!!" });
     }
 
-    // OpenAI шақыру
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
