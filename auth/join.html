@@ -3,87 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <title>Оқушы бөлмесіне кіру — SmartBoardAI PRO</title>
+
     <style>
-        body{
-            margin:0;
-            padding:0;
-            background:#f3f4f6;
-            font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI";
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            height:100vh;
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f3f4f6;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
-        .join-card{
-            background:white;
-            width:360px;
-            padding:32px;
-            border-radius:18px;
-            box-shadow:0 10px 25px rgba(0,0,0,0.12);
-            text-align:center;
+        .join-card {
+            background: white;
+            width: 380px;
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+            text-align: center;
         }
 
-        h2{
-            margin-top:0;
-            font-size:26px;
-            color:#111827;
-            font-weight:700;
+        h2 {
+            margin-top: 0;
+            font-size: 26px;
+            font-weight: 700;
+            color: #111827;
         }
 
-        input{
-            width:100%;
-            padding:12px;
-            margin-top:12px;
-            border:1px solid #d1d5db;
-            border-radius:10px;
-            font-size:15px;
-            background:#f9fafb;
+        p.subtitle {
+            margin-top: -6px;
+            color: #6b7280;
+            font-size: 14px;
         }
 
-        button{
-            width:100%;
-            padding:12px;
-            margin-top:16px;
-            border:none;
-            border-radius:10px;
-            font-size:16px;
-            font-weight:600;
-            cursor:pointer;
-            background:#10b981;
-            color:white;
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            font-size: 15px;
+            background: #f9fafb;
         }
 
-        .back-btn{
-            background:#4f46e5;
-            margin-top:20px;
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 16px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
         }
 
-        #msg{
-            margin-top:12px;
-            font-size:14px;
-            color:red;
+        #joinBtn {
+            background: #10b981;
+            color: white;
+        }
+
+        .back-btn {
+            background: #4f46e5;
+            color: white;
+        }
+
+        /* Аватар */
+        .avatar-section-title {
+            margin-top: 18px;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .avatar-row {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        .avatar {
+            font-size: 32px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 12px;
+            transition: 0.15s;
+        }
+
+        .avatar:hover {
+            background: #f3f4f6;
+        }
+
+        .avatar.selected {
+            background: #4f46e5;
+            color: white;
+            transform: scale(1.18);
+        }
+
+        #msg {
+            margin-top: 12px;
+            color: red;
+            font-size: 14px;
         }
     </style>
 </head>
+
 <body>
 
     <div class="join-card">
-
         <h2>Оқушы бөлмесіне кіру</h2>
-        <p style="margin-top:-6px; color:#6b7280;">Room ID арқылы кіру</p>
+        <p class="subtitle">Room ID арқылы кіру</p>
 
+        <!-- Аватар таңдау -->
+        <div class="avatar-section-title">Аватар таңдаңыз</div>
+
+        <div class="avatar-row">
+            <div class="avatar" data-avatar="🙂">🙂</div>
+            <div class="avatar" data-avatar="😎">😎</div>
+            <div class="avatar" data-avatar="🤓">🤓</div>
+            <div class="avatar" data-avatar="🤩">🤩</div>
+            <div class="avatar" data-avatar="🧠">🧠</div>
+        </div>
+
+        <input type="hidden" id="selectedAvatar">
+
+        <!-- Аты -->
         <input type="text" id="studentName" placeholder="Атыңыз">
+
+        <!-- Room -->
         <input type="text" id="roomId" placeholder="Room ID">
 
+        <!-- Кіру -->
         <button id="joinBtn">Кіру</button>
 
-        <button class="back-btn" onclick="window.location.href='login.html'">
-            ↩ Артқа қайту
-        </button>
+        <!-- Артқа -->
+        <button class="back-btn" onclick="window.location.href='login.html'">↩ Артқа қайту</button>
 
         <p id="msg"></p>
-
     </div>
 
     <script type="module" src="./join.js"></script>
