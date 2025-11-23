@@ -1,22 +1,75 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-  <meta charset="UTF-8" />
-  <title>SmartBoardAI PRO — Басты бет</title>
+  <meta charset="UTF-8">
+  <title>SmartBoardAI PRO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <link rel="stylesheet" href="./styles/main.css" />
+  <script type="module" src="./i18n.js"></script>
+
+  <style>
+    .center-screen {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      gap: 20px;
+    }
+
+    .start-btn {
+      background: #2563eb;
+      color: white;
+      padding: 14px 22px;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+
+    .lang-switch {
+      margin-top: 20px;
+    }
+  </style>
 </head>
-<body class="app-body app-body-center">
-  <div class="card card-narrow">
-    <h1>SmartBoardAI PRO</h1>
-    <p class="small">
-      Мұғалімдерге арналған интерактивті тақта, live room, рефлексия және оқушыларға арналған интерфейс.
+
+<body>
+
+  <div class="center-screen">
+    <h1 data-i18n="index_title">SmartBoardAI PRO</h1>
+    <p data-i18n="index_subtitle">
+      Интерактивті сабақтар үшін жаңа буын тақтасы
     </p>
 
-    <div style="display:flex; flex-direction:column; gap:8px; margin-top:12px;">
-      <a class="btn btn-primary" href="./auth/login.html">Мұғалім ретінде кіру</a>
-      <a class="btn btn-ghost" href="./student.html">Оқушы беті</a>
+    <button class="start-btn" onclick="location.href='./auth/login.html'">
+      ⏩ <span data-i18n="index_start">Бастау</span>
+    </button>
+
+    <div class="lang-switch" id="langBtn">🌐 <span data-lang-current>KZ</span></div>
+    <div class="lang-dropdown" id="langDropdown">
+      <button data-lang-option="kk">🇰🇿 Қазақша</button>
+      <button data-lang-option="ru">🇷🇺 Русский</button>
+      <button data-lang-option="en">🇬🇧 English</button>
     </div>
   </div>
+
+  <script>
+    const btn = document.getElementById("langBtn");
+    const dd = document.getElementById("langDropdown");
+
+    btn.onclick = () => {
+      dd.style.display = dd.style.display === "block" ? "none" : "block";
+    };
+
+    document.addEventListener("click", (e) => {
+      if (!btn.contains(e.target) && !dd.contains(e.target)) {
+        dd.style.display = "none";
+      }
+    });
+  </script>
+
 </body>
 </html>
