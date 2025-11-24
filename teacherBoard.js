@@ -588,3 +588,22 @@ function initBoard() {
 }
 
 
+
+/* ============================================================
+   AI COLLAPSE LOGIC
+============================================================ */
+function setupAICollapse() {
+    const header = document.getElementById("aiCollapseToggle");
+    const content = document.getElementById("aiCollapseContent");
+    const wrapper = document.querySelector(".ai-collapse-wrapper");
+
+    if (!header) return;
+
+    header.addEventListener("click", () => {
+        const isOpen = wrapper.classList.toggle("open");
+        content.style.display = isOpen ? "block" : "none";
+    });
+}
+
+// Setup басталғанда қосу керек:
+setupAICollapse();
