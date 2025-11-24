@@ -80,12 +80,13 @@
         .avatar-row {
             margin: 10px 0 15px;
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
-            gap: 14px;
+            gap: 10px;
         }
 
         .avatar {
-            font-size: 32px;
+            font-size: 30px;
             cursor: pointer;
             padding: 8px;
             border-radius: 12px;
@@ -99,7 +100,7 @@
         .avatar.selected {
             background: #4f46e5;
             color: white;
-            transform: scale(1.18);
+            transform: scale(1.15);
         }
 
         #msg {
@@ -120,11 +121,26 @@
         <div class="avatar-title">Аватар таңдаңыз</div>
 
         <div class="avatar-row" id="avatarRow">
+            <!-- Anime students -->
+            <div class="avatar" data-avatar="🧑‍🎓">🧑‍🎓</div>
+            <div class="avatar" data-avatar="👩‍🎓">👩‍🎓</div>
+
+            <!-- Emoji faces -->
             <div class="avatar" data-avatar="🙂">🙂</div>
             <div class="avatar" data-avatar="😎">😎</div>
             <div class="avatar" data-avatar="🤓">🤓</div>
-            <div class="avatar" data-avatar="🤩">🤩</div>
+            <div class="avatar" data-avatar="🤠">🤠</div>
             <div class="avatar" data-avatar="🧠">🧠</div>
+
+            <!-- Kids -->
+            <div class="avatar" data-avatar="👦">👦</div>
+            <div class="avatar" data-avatar="👧">👧</div>
+
+            <!-- Animals -->
+            <div class="avatar" data-avatar="🐼">🐼</div>
+            <div class="avatar" data-avatar="🦊">🦊</div>
+            <div class="avatar" data-avatar="🐯">🐯</div>
+            <div class="avatar" data-avatar="🦄">🦄</div>
         </div>
 
         <input type="hidden" id="selectedAvatar">
