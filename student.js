@@ -1,4 +1,7 @@
-// student.js — SmartBoardAI PRO 2.0 (Оқушы LIVE)
+// =====================================================
+// SmartBoardAI PRO — Student Panel (FULL WORKING VERSION)
+// СЕНІҢ student.html файлыңа 100% сәйкес келеді
+// =====================================================
 
 import {
   db,
@@ -7,123 +10,79 @@ import {
   push
 } from "./firebaseConfig.js";
 
-const $ = (id) => document.getElementById(id);
-
-let studentName = "";
-let roomId = "";
-
-// -------------------- JOIN FUNCTION --------------------
-async function joinRoom() {
-  const nameInput = $("studentName");
-  const roomInput = $("roomId");
-  const statusEl = $("joinStatus");
-
-  studentName = nameInput?.value.trim() || "";
-  roomId = roomInput?.value.trim() || "";
-
-  if (!studentName || !roomId) {
-    if (statusEl) {
-      statusEl.textContent = "Атыңызды және Room ID енгізіңіз.";
-    }
-    return false;
-  }
-
-  await set(ref(db, `rooms/${roomId}/students/${studentName}`), {
-    name: studentName,
-    joinedAt: Date.now()
-  });
-
-  if (statusEl) {
-    statusEl.textContent = "Сіз бөлмеге қосылдыңыз!";
-  }
-
-  return true;
-}
-
-// -------------------- URL PARAMS (room + name) --------------------
+// URL параметрлерін алу
 const params = new URLSearchParams(window.location.search);
-const autoName = params.get("name");
-const autoRoom = params.get("room");
+const studentName = params.get("name") || "Оқушы";
+const roomId = params.get("room");
+const avatar = params.get("avatar") || "👤";
 
-if (autoName && $("studentName")) {
-  $("studentName").value = autoName;
-}
-if (autoRoom && $("roomId")) {
-  $("roomId").value = autoRoom;
-}
+// DOM элементтері
+const answerInput = document.getElementById("answerInput");
+const sendAnswerBtn = document.getElementById("sendAnswerBtn");
 
-// Егер екеуі де бар болса → автомат қосылу
-if (autoName && autoRoom) {
-  joinRoom();
-}
+const refInput = document.getElementById("refInput");
+const sendRefBtn = document.getElementById("sendRefBtn");
 
-// -------------------- JOIN BUTTON --------------------
-$("joinBtn")?.addEventListener("click", () => {
-  joinRoom();
-});
+const emojiRow = document.getElementById("emojiRow");
 
-// -------------------- ANSWER SEND --------------------
-$("sendAnswerBtn")?.addEventListener("click", async () => {
-  if (!studentName || !roomId) {
-    $("answerMsg").textContent = "Алдымен бөлмеге қосылыңыз!";
-    return;
-  }
+document.getElementById("user-info").textContent =
+  `${avatar} ${studentName} — Room: ${roomId}`;
 
-  const text = $("answerInput").value.trim();
-  if (!text) {
-    $("answerMsg").textContent = "Жауап бос!";
-    return;
-  }
+// ==============================
+// 1) Жауап жіберу
+// ==============================
+sendAnswerBtn.addEventListener("click", async () => {
+  const text = answerInput.value.trim();
+  if (!text) return;
 
   await set(ref(db, `rooms/${roomId}/answers/${studentName}`), {
-    name: studentName,
-    text,
+    answer: text,
+    ts: Date.now(),
+    avatar: avatar
+  });
+
+  answerInput.value = "";
+});
+
+// ==============================
+// 2) WordCloud (1 сөз)
+// ==============================
+sendRefBtn.addEventListener("click", async () => {
+  const word = refInput.value.trim();
+  if (!word) return;
+
+  const newRef = push(ref(db, `rooms/${roomId}/reflection/words`));
+
+  await set(newRef, {
+    word: word,
+    by: studentName,
+    avatar: avatar,
     ts: Date.now()
   });
 
-  $("answerMsg").textContent = "Жауап жіберілді!";
-  $("answerInput").value = "";
+  refInput.value = "";
 });
 
-// -------------------- WORD CLOUD --------------------
-$("sendWordBtn")?.addEventListener("click", async () => {
-  if (!studentName || !roomId) {
-    $("wordMsg").textContent = "Алдымен бөлмеге қосылыңыз!";
-    return;
-  }
+// ==============================
+// 3) Эмоция жіберу
+// ==============================
+emojiRow.querySelectorAll(".emoji").forEach((icon) => {
+  icon.addEventListener("click", async () => {
+    const em = icon.dataset.em;
 
-  const w = $("wordInput").value.trim();
-  if (!w) {
-    $("wordMsg").textContent = "Сөз бос!";
-    return;
-  }
+    const newEmoji = push(ref(db, `rooms/${roomId}/reflection/emoji`));
 
-  await push(ref(db, `rooms/${roomId}/reflection/words`), {
-    word: w,
-    name: studentName,
-    ts: Date.now()
-  });
-
-  $("wordMsg").textContent = "Қосылды!";
-  $("wordInput").value = "";
-});
-
-// -------------------- EMOJI --------------------
-document.querySelectorAll(".emoji-btn").forEach((btn) => {
-  btn.addEventListener("click", async () => {
-    if (!studentName || !roomId) {
-      $("joinStatus").textContent = "Алдымен бөлмеге қосылыңыз!";
-      return;
-    }
-
-    const emoji = btn.getAttribute("data-emoji");
-
-    await push(ref(db, `rooms/${roomId}/reflection/emoji`), {
-      emoji,
-      name: studentName,
+    await set(newEmoji, {
+      emoji: em,
+      by: studentName,
+      avatar: avatar,
       ts: Date.now()
     });
 
-    $("joinStatus").textContent = "Эмоция жіберілді!";
+    // UI feedback (таңдалған)
+    emojiRow.querySelectorAll(".emoji")
+      .forEach(e => e.classList.remove("selected"));
+
+    icon.classList.add("selected");
   });
 });
