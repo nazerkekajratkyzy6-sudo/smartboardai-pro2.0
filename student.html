@@ -1,164 +1,148 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-  <meta charset="UTF-8">
-  <title>SmartBoardAI — Оқушы</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Оқушы панелі — SmartBoardAI PRO</title>
 
-  <link rel="stylesheet" href="./styles/main.css">
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
+        background: #f4f6f9;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        height: 100vh;
+        padding-top: 40px;
+    }
 
-  <!-- i18n -->
-  <script type="module" src="./i18n.js"></script>
+    .panel {
+        background: white;
+        width: 420px;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    }
 
-  <style>
-    .lang-switch {
-      position: fixed;
-      top: 18px;
-      right: 18px;
-      z-index: 50;
-      background: white;
-      border-radius: 10px;
-      padding: 8px 14px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-      font-weight: 600;
-      cursor: pointer;
+    h2 {
+        margin-top: 0;
+        text-align: center;
+        color: #111827;
+        font-size: 24px;
+        font-weight: 700;
     }
-    .lang-dropdown {
-      position: fixed;
-      top: 60px;
-      right: 18px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-      overflow: hidden;
-      display: none;
-      z-index: 50;
+
+    .user-info {
+        text-align: center;
+        font-size: 16px;
+        margin-bottom: 25px;
+        color: #374151;
     }
-    .lang-dropdown button {
-      padding: 10px 16px;
-      width: 120px;
-      border: none;
-      background: white;
-      cursor: pointer;
-      font-weight: 600;
-      text-align: left;
+
+    .section-title {
+        font-size: 17px;
+        margin-top: 25px;
+        font-weight: 600;
+        color: #1f2937;
     }
-    .lang-dropdown button:hover {
-      background: #f3f4f6;
+
+    textarea, input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        margin-top: 8px;
+        font-size: 15px;
+        background: #f9fafb;
     }
-  </style>
+
+    button {
+        margin-top: 10px;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 10px;
+        background: #4f46e5;
+        color: white;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+        width: 100%;
+    }
+
+    button:hover {
+        opacity: 0.9;
+    }
+
+    .emoji-row {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .emoji {
+        font-size: 32px;
+        cursor: pointer;
+        transition: 0.15s;
+        padding: 4px;
+        border-radius: 10px;
+    }
+
+    .emoji:hover {
+        background: #f3f4f6;
+    }
+
+    .emoji.selected {
+        background: #4f46e5;
+        color: white;
+        transform: scale(1.15);
+    }
+
+    .status {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 14px;
+        color: #6b7280;
+    }
+
+</style>
 </head>
 
-<body class="student-body">
+<body>
 
-  <!-- 🌐 Тіл ауыстырғыш -->
-  <div class="lang-switch" id="langBtn">
-    🌐 <span data-lang-current>KZ</span>
-  </div>
+<div class="panel">
 
-  <div class="lang-dropdown" id="langDropdown">
-    <button data-lang-option="kk">🇰🇿 Қазақша</button>
-    <button data-lang-option="ru">🇷🇺 Русский</button>
-    <button data-lang-option="en">🇬🇧 English</button>
-  </div>
+    <h2>🧑‍🎓 Оқушы панелі</h2>
 
-  <div class="student-container">
-    
-    <h2 class="student-title" data-i18n="student_title">🎓 Оқушы панелі</h2>
-    <p class="small" data-i18n="student_subtitle">
-      Мұғалім берген Room ID арқылы қосылыңыз.
-    </p>
+    <!-- JS арқылы толтырылады -->
+    <div id="user-info" class="user-info"></div>
 
-    <!-- Join -->
-    <div class="card student-card">
-      <h3 data-i18n="student_join_title">Бөлмеге қосылу</h3>
+    <!-- Жауап беру -->
+    <div class="section-title">✨ Тапсырмаға жауап беру</div>
+    <textarea id="answerInput" placeholder="Жауабыңызды жазыңыз..."></textarea>
+    <button id="sendAnswerBtn">Жауап жіберу</button>
 
-      <input id="studentName" type="text" class="input"
-        data-i18n="student_name_placeholder"
-        placeholder="Атыңыз">
+    <!-- Рефлексия -->
+    <div class="section-title">💬 Рефлексия (1 сөз)</div>
+    <input id="refInput" placeholder="Бір сөз жазыңыз...">
+    <button id="sendRefBtn">Қосу</button>
 
-      <input id="roomId" type="text" class="input"
-        data-i18n="student_room_placeholder"
-        placeholder="Room ID">
-
-      <button id="joinBtn" class="btn btn-primary"
-        data-i18n="student_join_button">
-        Қосылу
-      </button>
-
-      <p id="joinStatus" class="small" data-i18n="student_join_status_default"></p>
+    <!-- Эмоция -->
+    <div class="section-title">😊 Эмоциялық рефлексия</div>
+    <div class="emoji-row" id="emojiRow">
+        <div class="emoji" data-em="🙂">🙂</div>
+        <div class="emoji" data-em="😐">😐</div>
+        <div class="emoji" data-em="😕">😕</div>
+        <div class="emoji" data-em="🤩">🤩</div>
+        <div class="emoji" data-em="🥺">🥺</div>
     </div>
 
-    <!-- Answer -->
-    <div class="card student-card">
-      <h3 data-i18n="student_answer_title">📘 Тапсырмаға жауап беру</h3>
+    <div class="status">Сіздің жауаптарыңыз мұғалімге көрінеді</div>
 
-      <textarea id="answerInput" class="textarea"
-        data-i18n="student_answer_placeholder"
-        placeholder="Жауабыңызды жазыңыз..."></textarea>
+</div>
 
-      <button id="sendAnswerBtn" class="btn btn-secondary"
-        data-i18n="student_answer_send">
-        Жауап жіберу
-      </button>
+<script src="./student.js"></script>
 
-      <div id="answerMsg" class="small"></div>
-    </div>
-
-    <!-- Word Cloud -->
-    <div class="card student-card">
-      <h3 data-i18n="student_word_title">💬 Рефлексия (1 сөз)</h3>
-
-      <input id="wordInput" type="text" class="input"
-        data-i18n="student_word_placeholder"
-        placeholder="Бір сөз жазыңыз...">
-
-      <button id="sendWordBtn" class="btn btn-secondary"
-        data-i18n="student_word_send">
-        Қосу
-      </button>
-
-      <div id="wordMsg" class="small"></div>
-    </div>
-
-    <!-- Emoji -->
-    <div class="card student-card">
-      <h3 data-i18n="student_emoji_title">🙂 Эмоциялық рефлексия</h3>
-
-      <div class="emoji-row">
-        <button class="emoji-btn" data-emoji="🙂">🙂</button>
-        <button class="emoji-btn" data-emoji="😐">😐</button>
-        <button class="emoji-btn" data-emoji="😕">😕</button>
-        <button class="emoji-btn" data-emoji="😢">😢</button>
-        <button class="emoji-btn" data-emoji="🤩">🤩</button>
-      </div>
-
-      <p class="small" data-i18n="student_emoji_hint">
-        Сіздің эмоцияңыз мұғалімге көрінеді.
-      </p>
-    </div>
-
-  </div>
-
-  <!-- Dropdown JS -->
-  <script>
-    const langBtn = document.getElementById("langBtn");
-    const langDD = document.getElementById("langDropdown");
-
-    langBtn.addEventListener("click", () => {
-      langDD.style.display = langDD.style.display === "block" ? "none" : "block";
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!langBtn.contains(e.target) && !langDD.contains(e.target)) {
-        langDD.style.display = "none";
-      }
-    });
-  </script>
-
-  <script type="module" src="./student.js"></script>
 </body>
 </html>
