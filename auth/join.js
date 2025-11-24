@@ -1,17 +1,15 @@
-// SmartBoardAI PRO — JOIN SYSTEM + AVATAR (AUTH FOLDER VERSION)
+// SmartBoardAI PRO — JOIN SYSTEM + AVATAR (AUTH VERSION)
 
 import {
   db,
   ref,
   set,
-  push,
-  onValue
-} from "../firebaseConfig.js";   // <<<<< МАҢЫЗДЫ: /auth/ ішінен шығу !!!
+  push
+} from "../firebaseConfig.js";   // /auth/ ішінен шығу
 
 console.log("JOIN.js from /auth loaded ✔");
 
 document.addEventListener("DOMContentLoaded", () => {
-
   const nameInput = document.getElementById("studentName");
   const roomInput = document.getElementById("roomId");
   const joinBtn = document.getElementById("joinBtn");
@@ -20,22 +18,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const avatarBoxes = document.querySelectorAll(".avatar");
   const selectedAvatarInput = document.getElementById("selectedAvatar");
 
-  // ---------------------------
   // AVATAR SELECT
-  // ---------------------------
-  avatarBoxes.forEach(box => {
+  avatarBoxes.forEach((box) => {
     box.addEventListener("click", () => {
-      avatarBoxes.forEach(b => b.classList.remove("selected"));
+      avatarBoxes.forEach((b) => b.classList.remove("selected"));
       box.classList.add("selected");
       selectedAvatarInput.value = box.dataset.avatar;
     });
   });
 
-  // ---------------------------
-  // JOIN BUTTON CLICK
-  // ---------------------------
+  // JOIN BUTTON
   joinBtn.addEventListener("click", async () => {
-
     const name = nameInput.value.trim();
     const roomId = roomInput.value.trim().toUpperCase();
     const avatar = selectedAvatarInput.value;
@@ -55,30 +48,25 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const roomRef = ref(db, "rooms/" + roomId + "/students");
+    try {
+      // 🔹 Room бар-жоқ деп тексермейміз — бірден студентті жазамыз.
+      const studentsRef = ref(db, "rooms/" + roomId + "/students");
+      const newStudent = push(studentsRef);
 
-    onValue(roomRef, (snapshot) => {
-
-      // ❗ Дұрыс шарт — бөлме жоқ болса
-      if (!snapshot.exists()) {
-        msg.textContent = "Мұндай бөлме жоқ!";
-        return;
-      }
-
-      // Студентті тіркеу
-      const newStudent = push(roomRef);
-      set(newStudent, {
+      await set(newStudent, {
         name: name,
         avatar: avatar,
         joinedAt: Date.now()
       });
 
-      // student.html бетіне бағыттау (түбірде орналасқан)
-      window.location.href =
+      // 🔹 Тікелей student.html бетіне өтеміз (түбірде)
+      const url =
         `../student.html?name=${encodeURIComponent(name)}&room=${roomId}&avatar=${encodeURIComponent(avatar)}`;
 
-    }, { onlyOnce: true });
-
+      window.location.href = url;
+    } catch (e) {
+      console.error(e);
+      msg.textContent = "Кіру кезінде қате кетті. Кейінірек қайталап көріңіз.";
+    }
   });
-
 });
