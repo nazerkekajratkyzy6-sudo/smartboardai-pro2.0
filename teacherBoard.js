@@ -359,17 +359,47 @@ function closeLessonPlanner() {
 /* ============================================================
    8. FULLSCREEN
 ============================================================ */
+/* ============================================================
+   FULLSCREEN MODE — PRESENTATION
+   Нағыз толық экран + таза тақта
+============================================================ */
 function setupFullscreen() {
   const fsBtn = $("fullscreenToggleBtn");
   if (!fsBtn) return;
 
-  fsBtn.onclick = () => {
-    document.body.classList.toggle("fullscreen");
-    fsBtn.textContent = document.body.classList.contains("fullscreen")
-      ? "⛶ Exit"
-      : "⛶ Fullscreen";
+  // Батырма тексті мен .fullscreen класын синхрондау
+  const updateState = () => {
+    const isFs = !!document.fullscreenElement;
+    document.body.classList.toggle("fullscreen", isFs);
+    fsBtn.textContent = isFs ? "⛶ Exit" : "⛶ Fullscreen";
   };
+
+  // Батырманы басқанда: кір/шығу
+  fsBtn.addEventListener("click", () => {
+    if (!document.fullscreenElement) {
+      // Толық экранға кіру
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.error("Fullscreen error:", err);
+        });
+      }
+    } else {
+      // Толық экраннан шығу
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(err => {
+          console.error("Exit FS error:", err);
+        });
+      }
+    }
+  });
+
+  // ESC басқанда немесе жүйе fullscreen-нен шығарғанда
+  document.addEventListener("fullscreenchange", updateState);
+
+  // Алғашқы күй
+  updateState();
 }
+
 
 /* ============================================================
    9. QR LOGIN
@@ -556,4 +586,5 @@ function initBoard() {
   setupQR();
   renderBoard();
 }
+
 
