@@ -204,25 +204,32 @@
     </div>
   </header>
 
-  <!-- AI панелі -->
-  <div class="ai-panel">
-    <h3 data-i18n="ai_panel_title">AI тапсырма генераторы</h3>
-
-    <textarea id="aiPrompt" class="ai-textarea"
-      data-i18n="ai_panel_placeholder"
-      placeholder="AI-ға тапсырма жазыңыз..."></textarea>
-
-    <div class="ai-panel-actions">
-      <button id="aiGenerateBtn" class="ai-btn-primary"
-        data-i18n="ai_panel_generate">
-        AI → Блок қосу
-      </button>
-      <button id="lessonPlannerBtn" class="lp-btn-secondary"
-        data-i18n="ai_panel_lesson_planner">
-        📘 Lesson Planner
-      </button>
+  <!-- AI COLLAPSE PREMIUM PANEL -->
+<div class="ai-collapse-wrapper">
+    <div class="ai-collapse-header" id="aiCollapseToggle">
+        <span data-i18n="ai_panel_title">✨ AI тапсырма генераторы</span>
+        <span class="ai-arrow">▼</span>
     </div>
-  </div>
+
+    <div class="ai-collapse-content" id="aiCollapseContent">
+        <textarea id="aiPrompt" class="ai-compact-textarea"
+            data-i18n="ai_panel_placeholder"
+            placeholder="AI-ға тапсырма жазыңыз..."></textarea>
+
+        <div class="ai-panel-actions compact">
+            <button id="aiGenerateBtn" class="ai-btn-blue"
+                data-i18n="ai_panel_generate">
+                AI → Блок қосу
+            </button>
+
+            <button id="lessonPlannerBtn" class="ai-btn-gray"
+                data-i18n="ai_panel_lesson_planner">
+                📘 Lesson Planner
+            </button>
+        </div>
+    </div>
+</div>
+
 
   <div class="main-container">
 
@@ -437,3 +444,4 @@
 </body>
 
 </html>
+
