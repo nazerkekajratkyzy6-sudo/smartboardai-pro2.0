@@ -1,7 +1,7 @@
-// =====================================================
-// SmartBoardAI PRO — Student Panel (FULL WORKING VERSION)
-// СЕНІҢ student.html файлыңа 100% сәйкес келеді
-// =====================================================
+// ================================
+// SmartBoardAI PRO — Student Panel
+// FULL WORKING VERSION (premium)
+// ================================
 
 import {
   db,
@@ -10,13 +10,13 @@ import {
   push
 } from "./firebaseConfig.js";
 
-// URL параметрлерін алу
+// URL параметрлерін оқу
 const params = new URLSearchParams(window.location.search);
 const studentName = params.get("name") || "Оқушы";
 const roomId = params.get("room");
 const avatar = params.get("avatar") || "👤";
 
-// DOM элементтері
+// DOM
 const answerInput = document.getElementById("answerInput");
 const sendAnswerBtn = document.getElementById("sendAnswerBtn");
 
@@ -79,7 +79,7 @@ emojiRow.querySelectorAll(".emoji").forEach((icon) => {
       ts: Date.now()
     });
 
-    // UI feedback (таңдалған)
+    // Таңдалған UI
     emojiRow.querySelectorAll(".emoji")
       .forEach(e => e.classList.remove("selected"));
 
