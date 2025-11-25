@@ -1,6 +1,5 @@
 // ================================
-// SmartBoardAI PRO — Student Panel
-// FULL WORKING VERSION (premium)
+// SmartBoardAI PRO — Student Panel (FIXED FULL VERSION)
 // ================================
 
 import {
@@ -10,13 +9,34 @@ import {
   push
 } from "./firebaseConfig.js";
 
+// ------------------------------
 // URL параметрлерін оқу
+// ------------------------------
 const params = new URLSearchParams(window.location.search);
 const studentName = params.get("name") || "Оқушы";
 const roomId = params.get("room");
 const avatar = params.get("avatar") || "👤";
 
+if (!roomId) {
+  alert("Room ID табылмады!");
+}
+
+// ------------------------------
+// Оқушыны Firebase-ке тіркеу
+// ------------------------------
+async function registerStudent() {
+  await set(ref(db, `rooms/${roomId}/students/${studentName}`), {
+    name: studentName,
+    avatar: avatar,
+    joinedAt: Date.now()
+  });
+}
+
+registerStudent();
+
+// ------------------------------
 // DOM
+// ------------------------------
 const answerInput = document.getElementById("answerInput");
 const sendAnswerBtn = document.getElementById("sendAnswerBtn");
 
@@ -29,16 +49,17 @@ document.getElementById("user-info").textContent =
   `${avatar} ${studentName} — Room: ${roomId}`;
 
 // ==============================
-// 1) Жауап жіберу
+// 1) Тапсырмаға жауап жіберу
 // ==============================
 sendAnswerBtn.addEventListener("click", async () => {
   const text = answerInput.value.trim();
   if (!text) return;
 
   await set(ref(db, `rooms/${roomId}/answers/${studentName}`), {
-    answer: text,
-    ts: Date.now(),
-    avatar: avatar
+    name: studentName,
+    text: text,          // ← FIX: TeacherBoard.js осылай оқиды
+    avatar: avatar,
+    ts: Date.now()
   });
 
   answerInput.value = "";
@@ -55,7 +76,7 @@ sendRefBtn.addEventListener("click", async () => {
 
   await set(newRef, {
     word: word,
-    by: studentName,
+    name: studentName,  // teacherBoard.js үшін үйлесімді ат
     avatar: avatar,
     ts: Date.now()
   });
@@ -74,15 +95,14 @@ emojiRow.querySelectorAll(".emoji").forEach((icon) => {
 
     await set(newEmoji, {
       emoji: em,
-      by: studentName,
+      name: studentName,   // teacherBoard.js үшін FIX
       avatar: avatar,
       ts: Date.now()
     });
 
-    // Таңдалған UI
-    emojiRow.querySelectorAll(".emoji")
-      .forEach(e => e.classList.remove("selected"));
-
+    // UI highlight
+    emojiRow.querySelectorAll(".emoji").forEach(e => 
+      e.classList.remove("selected"));
     icon.classList.add("selected");
   });
 });
