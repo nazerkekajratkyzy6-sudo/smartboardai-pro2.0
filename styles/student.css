@@ -1,106 +1,188 @@
-body{
-    margin:0;
-    padding:0;
-    background:#f3f4f6;
-    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI";
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    height:100vh;
+/* --- GLOBAL --- */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Inter", Arial, sans-serif;
+    background: #f2f3f7;
+    display: flex;
+    justify-content: center;
+    padding-top: 40px;
 }
 
-.container{
-    width:100%;
-    max-width:420px;
+/* --- MAIN CARD --- */
+.card {
+    background: #fff;
+    width: 420px;
+    padding: 32px;
+    border-radius: 22px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    animation: fadeIn 0.4s ease;
 }
 
-.card{
-    background:white;
-    padding:26px;
-    border-radius:20px;
-    box-shadow:0 8px 20px rgba(0,0,0,0.1);
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-h2{
-    margin-top:0;
-    text-align:center;
-    font-size:26px;
+/* Title */
+.title {
+    text-align: center;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 25px;
 }
 
-.input{
-    width:100%;
-    padding:12px;
-    margin-top:12px;
-    border-radius:10px;
-    border:1px solid #d1d5db;
-    background:#f9fafb;
+/* Labels */
+.label {
+    font-size: 15px;
+    color: #444;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 8px;
 }
 
-.textarea{
-    width:100%;
-    height:90px;
-    padding:12px;
-    border-radius:10px;
-    border:1px solid #d1d5db;
-    background:#f9fafb;
+/* Inputs */
+.input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1.5px solid #d9d9d9;
+    font-size: 15px;
+    margin-bottom: 14px;
+    transition: 0.2s;
 }
 
-.btn-primary{
-    width:100%;
-    margin-top:14px;
-    padding:12px;
-    background:#4f46e5;
-    color:white;
-    border:none;
-    border-radius:10px;
-    font-size:16px;
-    cursor:pointer;
+.input:focus {
+    border-color: #5a54ff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(90,84,255,0.15);
 }
 
-.avatar-row{
-    display:flex;
-    gap:10px;
-    margin:10px 0;
-    justify-content:center;
+/* Textarea */
+.textarea {
+    width: 100%;
+    min-height: 70px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1.5px solid #d9d9d9;
+    font-size: 15px;
+    resize: vertical;
+    margin-bottom: 12px;
+    transition: 0.2s;
 }
 
-.avatar{
-    font-size:32px;
-    cursor:pointer;
-    padding:6px;
-    border-radius:10px;
+.textarea:focus {
+    border-color: #5a54ff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(90,84,255,0.15);
 }
 
-.avatar.selected{
-    background:#dbeafe;
-    box-shadow:0 0 0 3px #3b82f6;
+/* Buttons */
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    margin-top: 4px;
+    background: #4c3aff;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
-.emoji-row{
-    display:flex;
-    justify-content:center;
-    gap:12px;
+.btn-primary:hover {
+    background: #3a2ae6;
 }
 
-.emoji-btn{
-    border:none;
-    background:white;
-    font-size:28px;
-    cursor:pointer;
+.btn-secondary {
+    width: 100%;
+    padding: 14px;
+    background: #00a878;
+    border: none;
+    color: #fff;
+    border-radius: 12px;
+    margin-top: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
-.status{
-    margin-top:8px;
-    font-size:14px;
-    color:#dc2626;
-    text-align:center;
+.btn-secondary:hover {
+    background: #008f65;
 }
 
-.auto-banner{
-    background:#d1fae5;
-    border:1px solid #10b981;
-    padding:12px;
-    border-radius:10px;
-    margin-bottom:20px;
-    text-align:center;
+/* Status text */
+.status {
+    font-size: 14px;
+    margin-top: 6px;
+    color: #b30000;
+    min-height: 18px;
+}
+
+/* Divider */
+.divider {
+    margin: 25px 0;
+    border: none;
+    height: 1px;
+    background: #eee;
+}
+
+/* Avatar List */
+.avatar-list {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.avatar {
+    font-size: 28px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 10px;
+    transition: 0.2s;
+    border: 2px solid transparent;
+}
+
+.avatar:hover {
+    transform: scale(1.15);
+}
+
+.avatar.selected {
+    border-color: #4c3aff;
+    background: #efeaff;
+    transform: scale(1.2);
+}
+
+/* Emoji list */
+.emoji-list {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+}
+
+.emoji-btn {
+    background: #fff;
+    border: 2px solid #ddd;
+    font-size: 26px;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.emoji-btn:hover {
+    border-color: #4c3aff;
+    transform: translateY(-3px);
+}
+
+/* Footer */
+.footer-text {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
 }
