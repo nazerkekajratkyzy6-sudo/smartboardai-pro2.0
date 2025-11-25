@@ -1,5 +1,3 @@
-// student.js — SmartBoardAI PRO Premium Student Panel
-
 import { db, ref, set, push } from "./firebaseConfig.js";
 
 const $ = (id) => document.getElementById(id);
@@ -8,82 +6,93 @@ let studentName = "";
 let roomId = "";
 let avatar = "";
 
-// -------- URL PARAMS --------
+// ------------ URL AUTO MODE ------------
 const params = new URLSearchParams(window.location.search);
-studentName = params.get("name") || "";
-roomId = params.get("room") || "";
-avatar = params.get("avatar") || "🙂";
+const autoName = params.get("name");
+const autoRoom = params.get("room");
+const autoAvatar = params.get("avatar");
 
-// If something missing → block actions
-function checkJoin() {
-  return studentName && roomId;
+// AUTO MODE → бар болса, панель instantly ашылады
+if (autoName && autoRoom) {
+    studentName = autoName;
+    roomId = autoRoom;
+    avatar = autoAvatar || "😀";
+
+    $("autoJoinBanner").style.display = "block";
+    $("joinForm").style.display = "none";
+    $("mainPanel").style.display = "block";
 }
 
-// -------- SEND ANSWER --------
-$("sendAnswerBtn")?.addEventListener("click", async () => {
-  if (!checkJoin()) {
-    $("answerMsg").textContent = "Алдымен бөлмеге қосылыңыз!";
-    return;
-  }
-
-  const text = $("answerInput").value.trim();
-  if (!text) {
-    $("answerMsg").textContent = "Жауап бос!";
-    return;
-  }
-
-  await set(ref(db, `rooms/${roomId}/answers/${studentName}`), {
-    name: studentName,
-    avatar,
-    text,
-    ts: Date.now(),
-  });
-
-  $("answerMsg").textContent = "Жауап жіберілді!";
-  $("answerInput").value = "";
+// ------------ FORM MODE ------------
+document.querySelectorAll(".avatar").forEach(el => {
+    el.addEventListener("click", () => {
+        document.querySelectorAll(".avatar").forEach(a => a.classList.remove("selected"));
+        el.classList.add("selected");
+        avatar = el.dataset.avatar;
+    });
 });
 
-// -------- WORD REFLECTION --------
-$("sendWordBtn")?.addEventListener("click", async () => {
-  if (!checkJoin()) {
-    $("wordMsg").textContent = "Алдымен бөлмеге қосылыңыз!";
-    return;
-  }
+$("joinBtn")?.addEventListener("click", () => {
+    studentName = $("studentName").value.trim();
+    roomId = $("roomId").value.trim();
 
-  const w = $("wordInput").value.trim();
-  if (!w) {
-    $("wordMsg").textContent = "Бос сөз!";
-    return;
-  }
-
-  await push(ref(db, `rooms/${roomId}/reflection/words`), {
-    word: w,
-    name: studentName,
-    avatar,
-    ts: Date.now()
-  });
-
-  $("wordMsg").textContent = "Қосылды!";
-  $("wordInput").value = "";
-});
-
-// -------- EMOJI REACTION --------
-document.querySelectorAll(".emoji-btn").forEach((btn) => {
-  btn.addEventListener("click", async () => {
-    if (!checkJoin()) {
-      $("joinStatus").textContent = "Алдымен бөлмеге қосылыңыз!";
-      return;
+    if (!studentName || !roomId || !avatar) {
+        $("joinStatus").textContent = "Барлық өрісті толтырыңыз!";
+        return;
     }
 
-    const emoji = btn.dataset.emoji;
-
-    await push(ref(db, `rooms/${roomId}/reflection/emoji`), {
-      emoji,
-      name: studentName,
-      avatar,
-      ts: Date.now()
+    set(ref(db, `rooms/${roomId}/students/${studentName}`), {
+        name: studentName,
+        avatar,
+        joinedAt: Date.now(),
     });
 
-    $("joinStatus").textContent = "Эмоция жіберілді!";
-  });
+    $("joinForm").style.display = "none";
+    $("mainPanel").style.display = "block";
+});
+
+// ------------ SEND ANSWER ------------
+$("sendAnswerBtn")?.addEventListener("click", async () => {
+    const text = $("answerInput").value.trim();
+    if (!text) return;
+
+    await set(ref(db, `rooms/${roomId}/answers/${studentName}`), {
+        name: studentName,
+        avatar,
+        text,
+        ts: Date.now(),
+    });
+
+    $("answerMsg").textContent = "Жауап жіберілді!";
+    $("answerInput").value = "";
+});
+
+// ------------ WORD REFLECTION ------------
+$("sendWordBtn")?.addEventListener("click", async () => {
+    const word = $("wordInput").value.trim();
+    if (!word) return;
+
+    await push(ref(db, `rooms/${roomId}/reflection/words`), {
+        name: studentName,
+        avatar,
+        word,
+        ts: Date.now(),
+    });
+
+    $("wordMsg").textContent = "Қосылды!";
+    $("wordInput").value = "";
+});
+
+// ------------ EMOJI ------------
+document.querySelectorAll(".emoji-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+        const emoji = btn.dataset.emoji;
+
+        await push(ref(db, `rooms/${roomId}/reflection/emoji`), {
+            name: studentName,
+            avatar,
+            emoji,
+            ts: Date.now(),
+        });
+    });
 });
