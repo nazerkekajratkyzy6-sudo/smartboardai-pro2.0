@@ -3,25 +3,21 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Оқушы панелі</title>
+    <title>Оқушы панелі — SmartBoardAI PRO</title>
+
+    <!-- Premium Styles -->
     <link rel="stylesheet" href="student.css" />
 </head>
 
 <body>
 
-<div class="container">
+    <div class="card">
 
-    <!-- AUTO MODE BANNER -->
-    <div id="autoJoinBanner" class="auto-banner" style="display:none;">
-        <p>🔗 Сіз бөлмеге автомат түрде қосылдыңыз!</p>
-    </div>
+        <h2 class="title">🎓 Оқушы бөлмесіне кіру</h2>
 
-    <!-- FORM MODE -->
-    <div id="joinForm" class="card">
-        <h2>👨‍🎓 Оқушы бөлмесіне кіру</h2>
-
-        <label>Аватар таңдаңыз:</label>
-        <div class="avatar-row" id="avatarSelect">
+        <!-- Avatar Select -->
+        <label class="label">Аватар таңдаңыз:</label>
+        <div class="avatar-list" id="avatarList">
             <span class="avatar" data-avatar="😀">😀</span>
             <span class="avatar" data-avatar="😎">😎</span>
             <span class="avatar" data-avatar="🤓">🤓</span>
@@ -29,48 +25,50 @@
             <span class="avatar" data-avatar="🧠">🧠</span>
         </div>
 
-        <input id="studentName" placeholder="Атыңыз" class="input" />
-        <input id="roomId" placeholder="Room ID" class="input" />
+        <!-- Join Room -->
+        <input id="studentName" class="input" placeholder="Атыңыз..." />
+        <input id="roomId" class="input" placeholder="Room ID..." />
 
         <button id="joinBtn" class="btn-primary">Кіру</button>
+
         <p id="joinStatus" class="status"></p>
+
+        <hr class="divider" />
+
+        <!-- ANSWER -->
+        <label class="label">✨ Тапсырымаға жауап беру</label>
+        <textarea id="answerInput" class="textarea" placeholder="Жауап жазыңыз..."></textarea>
+
+        <button id="sendAnswerBtn" class="btn-primary">Жауап жіберу</button>
+        <p id="answerMsg" class="status"></p>
+
+        <hr class="divider" />
+
+        <!-- ONE-WORD REFLECTION -->
+        <label class="label">💭 Рефлексия (1 сөз)</label>
+        <input id="wordInput" class="input" placeholder="1 сөз..." />
+
+        <button id="sendWordBtn" class="btn-secondary">Қосу</button>
+        <p id="wordMsg" class="status"></p>
+
+        <hr class="divider" />
+
+        <!-- EMOJI REFLECTION -->
+        <label class="label">😊 Эмоциялық рефлексия</label>
+        <div class="emoji-list">
+            <button class="emoji-btn" data-emoji="😀">😀</button>
+            <button class="emoji-btn" data-emoji="🙂">🙂</button>
+            <button class="emoji-btn" data-emoji="😐">😐</button>
+            <button class="emoji-btn" data-emoji="🤩">🤩</button>
+            <button class="emoji-btn" data-emoji="🥺">🥺</button>
+        </div>
+
+        <p class="footer-text">Сіздің жауаптарыңыз мұғалімге көрінеді</p>
+
     </div>
 
-    <!-- MAIN PANEL -->
-    <div id="mainPanel" class="card" style="display:none;">
-        <h2>👨‍🎓 Оқушы панелі</h2>
-
-        <div class="section">
-            <h3>✨ Тапсырмаға жауап беру</h3>
-            <textarea id="answerInput" class="textarea" placeholder="Жауап жазыңыз..."></textarea>
-            <button id="sendAnswerBtn" class="btn-primary">Жауап жіберу</button>
-            <p id="answerMsg" class="status"></p>
-        </div>
-
-        <div class="section">
-            <h3>💬 Рефлексия (1 сөз)</h3>
-            <input id="wordInput" class="input" placeholder="1 сөз..." />
-            <button id="sendWordBtn" class="btn-primary">Қосу</button>
-            <p id="wordMsg" class="status"></p>
-        </div>
-
-        <div class="section">
-            <h3>😊 Эмоциялық рефлексия</h3>
-            <div class="emoji-row">
-                <button class="emoji-btn" data-emoji="😀">😀</button>
-                <button class="emoji-btn" data-emoji="😲">😲</button>
-                <button class="emoji-btn" data-emoji="😐">😐</button>
-                <button class="emoji-btn" data-emoji="🤩">🤩</button>
-                <button class="emoji-btn" data-emoji="🥺">🥺</button>
-            </div>
-            <p class="small-note">Сіздің жауаптарыңыз мұғалімге көрінеді</p>
-        </div>
-    </div>
-
-</div>
-
-<script type="module" src="firebaseConfig.js"></script>
-<script type="module" src="student.js"></script>
+    <script src="firebaseConfig.js"></script>
+    <script src="student.js"></script>
 
 </body>
 </html>
