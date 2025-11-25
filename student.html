@@ -1,75 +1,69 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Оқушы панелі — SmartBoardAI PRO</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Оқушы бөлмесіне кіру</title>
 
-    <!-- Premium Styles -->
-    <link rel="stylesheet" href="styles/student.css">
+  <!-- МАҢЫЗДЫ: ДҰРЫС ЖОЛ! -->
+  <link rel="stylesheet" href="styles/student.css">
 </head>
 
 <body>
+  <div class="student-container">
 
-    <div class="card">
+    <h1 class="title">🎓 Оқушы бөлмесіне кіру</h1>
 
-        <h2 class="title">🎓 Оқушы бөлмесіне кіру</h2>
-
-        <!-- Avatar Select -->
-        <label class="label">Аватар таңдаңыз:</label>
-        <div class="avatar-list" id="avatarList">
-            <span class="avatar" data-avatar="😀">😀</span>
-            <span class="avatar" data-avatar="😎">😎</span>
-            <span class="avatar" data-avatar="🤓">🤓</span>
-            <span class="avatar" data-avatar="🤩">🤩</span>
-            <span class="avatar" data-avatar="🧠">🧠</span>
-        </div>
-
-        <!-- Join Room -->
-        <input id="studentName" class="input" placeholder="Атыңыз..." />
-        <input id="roomId" class="input" placeholder="Room ID..." />
-
-        <button id="joinBtn" class="btn-primary">Кіру</button>
-
-        <p id="joinStatus" class="status"></p>
-
-        <hr class="divider" />
-
-        <!-- ANSWER -->
-        <label class="label">✨ Тапсырымаға жауап беру</label>
-        <textarea id="answerInput" class="textarea" placeholder="Жауап жазыңыз..."></textarea>
-
-        <button id="sendAnswerBtn" class="btn-primary">Жауап жіберу</button>
-        <p id="answerMsg" class="status"></p>
-
-        <hr class="divider" />
-
-        <!-- ONE-WORD REFLECTION -->
-        <label class="label">💭 Рефлексия (1 сөз)</label>
-        <input id="wordInput" class="input" placeholder="1 сөз..." />
-
-        <button id="sendWordBtn" class="btn-secondary">Қосу</button>
-        <p id="wordMsg" class="status"></p>
-
-        <hr class="divider" />
-
-        <!-- EMOJI REFLECTION -->
-        <label class="label">😊 Эмоциялық рефлексия</label>
-        <div class="emoji-list">
-            <button class="emoji-btn" data-emoji="😀">😀</button>
-            <button class="emoji-btn" data-emoji="🙂">🙂</button>
-            <button class="emoji-btn" data-emoji="😐">😐</button>
-            <button class="emoji-btn" data-emoji="🤩">🤩</button>
-            <button class="emoji-btn" data-emoji="🥺">🥺</button>
-        </div>
-
-        <p class="footer-text">Сіздің жауаптарыңыз мұғалімге көрінеді</p>
-
+    <!-- Аватар таңдауы -->
+    <div class="avatar-section">
+      <p>Аватар таңдаңыз:</p>
+      <div class="avatar-list">
+        <span class="avatar" data-avatar="😀">😀</span>
+        <span class="avatar" data-avatar="😎">😎</span>
+        <span class="avatar" data-avatar="🤓">🤓</span>
+        <span class="avatar" data-avatar="🤩">🤩</span>
+        <span class="avatar" data-avatar="🧠">🧠</span>
+      </div>
     </div>
 
-    <script type="module" src="student.js"></script>
+    <!-- Join form -->
+    <input id="studentName" class="input" placeholder="Атыңыз">
+    <input id="roomId" class="input" placeholder="Room ID">
+
+    <button id="joinBtn" class="btn-primary">Кіру</button>
+
+    <p id="joinStatus" class="status"></p>
+
+    <hr>
+
+    <!-- Жауап -->
+    <h3>✨ Тапсырмаға жауап беру</h3>
+    <textarea id="answerInput" class="textarea" placeholder="Жауап жазыңыз..."></textarea>
+    <button id="sendAnswerBtn" class="btn-primary">Жауап жіберу</button>
+    <p id="answerMsg" class="status"></p>
+
+    <hr>
+
+    <!-- Рефлексия -->
+    <h3>💬 Рефлексия (1 сөз)</h3>
+    <input id="wordInput" class="input" placeholder="1 сөз...">
+    <button id="sendWordBtn" class="btn-primary">Қосу</button>
+    <p id="wordMsg" class="status"></p>
+
+    <hr>
+
+    <!-- Эмоция -->
+    <h3>😊 Эмоциялық рефлексия</h3>
+    <div class="emoji-list">
+      <span class="emoji-btn" data-emoji="😀">😀</span>
+      <span class="emoji-btn" data-emoji="🙂">🙂</span>
+      <span class="emoji-btn" data-emoji="😟">😟</span>
+      <span class="emoji-btn" data-emoji="🤩">🤩</span>
+      <span class="emoji-btn" data-emoji="🥺">🥺</span>
+    </div>
+  </div>
+
+  <script src="student.js"></script>
 
 </body>
 </html>
-
-
