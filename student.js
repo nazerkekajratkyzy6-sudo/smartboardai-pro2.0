@@ -1,108 +1,89 @@
-// ================================
-// SmartBoardAI PRO — Student Panel (FIXED FULL VERSION)
-// ================================
+// student.js — SmartBoardAI PRO Premium Student Panel
 
-import {
-  db,
-  ref,
-  set,
-  push
-} from "./firebaseConfig.js";
+import { db, ref, set, push } from "./firebaseConfig.js";
 
-// ------------------------------
-// URL параметрлерін оқу
-// ------------------------------
+const $ = (id) => document.getElementById(id);
+
+let studentName = "";
+let roomId = "";
+let avatar = "";
+
+// -------- URL PARAMS --------
 const params = new URLSearchParams(window.location.search);
-const studentName = params.get("name") || "Оқушы";
-const roomId = params.get("room");
-const avatar = params.get("avatar") || "👤";
+studentName = params.get("name") || "";
+roomId = params.get("room") || "";
+avatar = params.get("avatar") || "🙂";
 
-if (!roomId) {
-  alert("Room ID табылмады!");
+// If something missing → block actions
+function checkJoin() {
+  return studentName && roomId;
 }
 
-// ------------------------------
-// Оқушыны Firebase-ке тіркеу
-// ------------------------------
-async function registerStudent() {
-  await set(ref(db, `rooms/${roomId}/students/${studentName}`), {
-    name: studentName,
-    avatar: avatar,
-    joinedAt: Date.now()
-  });
-}
+// -------- SEND ANSWER --------
+$("sendAnswerBtn")?.addEventListener("click", async () => {
+  if (!checkJoin()) {
+    $("answerMsg").textContent = "Алдымен бөлмеге қосылыңыз!";
+    return;
+  }
 
-registerStudent();
-
-// ------------------------------
-// DOM
-// ------------------------------
-const answerInput = document.getElementById("answerInput");
-const sendAnswerBtn = document.getElementById("sendAnswerBtn");
-
-const refInput = document.getElementById("refInput");
-const sendRefBtn = document.getElementById("sendRefBtn");
-
-const emojiRow = document.getElementById("emojiRow");
-
-document.getElementById("user-info").textContent =
-  `${avatar} ${studentName} — Room: ${roomId}`;
-
-// ==============================
-// 1) Тапсырмаға жауап жіберу
-// ==============================
-sendAnswerBtn.addEventListener("click", async () => {
-  const text = answerInput.value.trim();
-  if (!text) return;
+  const text = $("answerInput").value.trim();
+  if (!text) {
+    $("answerMsg").textContent = "Жауап бос!";
+    return;
+  }
 
   await set(ref(db, `rooms/${roomId}/answers/${studentName}`), {
     name: studentName,
-    text: text,          // ← FIX: TeacherBoard.js осылай оқиды
-    avatar: avatar,
+    avatar,
+    text,
+    ts: Date.now(),
+  });
+
+  $("answerMsg").textContent = "Жауап жіберілді!";
+  $("answerInput").value = "";
+});
+
+// -------- WORD REFLECTION --------
+$("sendWordBtn")?.addEventListener("click", async () => {
+  if (!checkJoin()) {
+    $("wordMsg").textContent = "Алдымен бөлмеге қосылыңыз!";
+    return;
+  }
+
+  const w = $("wordInput").value.trim();
+  if (!w) {
+    $("wordMsg").textContent = "Бос сөз!";
+    return;
+  }
+
+  await push(ref(db, `rooms/${roomId}/reflection/words`), {
+    word: w,
+    name: studentName,
+    avatar,
     ts: Date.now()
   });
 
-  answerInput.value = "";
+  $("wordMsg").textContent = "Қосылды!";
+  $("wordInput").value = "";
 });
 
-// ==============================
-// 2) WordCloud (1 сөз)
-// ==============================
-sendRefBtn.addEventListener("click", async () => {
-  const word = refInput.value.trim();
-  if (!word) return;
+// -------- EMOJI REACTION --------
+document.querySelectorAll(".emoji-btn").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    if (!checkJoin()) {
+      $("joinStatus").textContent = "Алдымен бөлмеге қосылыңыз!";
+      return;
+    }
 
-  const newRef = push(ref(db, `rooms/${roomId}/reflection/words`));
+    const emoji = btn.dataset.emoji;
 
-  await set(newRef, {
-    word: word,
-    name: studentName,  // teacherBoard.js үшін үйлесімді ат
-    avatar: avatar,
-    ts: Date.now()
-  });
-
-  refInput.value = "";
-});
-
-// ==============================
-// 3) Эмоция жіберу
-// ==============================
-emojiRow.querySelectorAll(".emoji").forEach((icon) => {
-  icon.addEventListener("click", async () => {
-    const em = icon.dataset.em;
-
-    const newEmoji = push(ref(db, `rooms/${roomId}/reflection/emoji`));
-
-    await set(newEmoji, {
-      emoji: em,
-      name: studentName,   // teacherBoard.js үшін FIX
-      avatar: avatar,
+    await push(ref(db, `rooms/${roomId}/reflection/emoji`), {
+      emoji,
+      name: studentName,
+      avatar,
       ts: Date.now()
     });
 
-    // UI highlight
-    emojiRow.querySelectorAll(".emoji").forEach(e => 
-      e.classList.remove("selected"));
-    icon.classList.add("selected");
+    $("joinStatus").textContent = "Эмоция жіберілді!";
   });
 });
