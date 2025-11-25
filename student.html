@@ -1,51 +1,76 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Оқушы панелі</title>
-  <link rel="stylesheet" href="student.css" />
-  <link rel="stylesheet" href="main.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Оқушы панелі</title>
+    <link rel="stylesheet" href="student.css" />
 </head>
 
 <body>
-  <div class="student-container">
 
-    <h2 class="title">👨‍🎓 Оқушы панелі</h2>
+<div class="container">
 
-    <!-- ANSWER SECTION -->
-    <div class="section">
-      <h3>✨ Тапсырмаға жауап беру</h3>
-      <textarea id="answerInput" class="input-area" placeholder="Жауап жазыңыз..."></textarea>
-      <button id="sendAnswerBtn" class="btn-primary">Жауап жіберу</button>
-      <p id="answerMsg" class="status"></p>
+    <!-- AUTO MODE BANNER -->
+    <div id="autoJoinBanner" class="auto-banner" style="display:none;">
+        <p>🔗 Сіз бөлмеге автомат түрде қосылдыңыз!</p>
     </div>
 
-    <!-- WORD REFLECTION -->
-    <div class="section">
-      <h3>💬 Рефлексия (1 сөз)</h3>
-      <input id="wordInput" class="input-line" placeholder="1 сөз..." />
-      <button id="sendWordBtn" class="btn-primary">Қосу</button>
-      <p id="wordMsg" class="status"></p>
+    <!-- FORM MODE -->
+    <div id="joinForm" class="card">
+        <h2>👨‍🎓 Оқушы бөлмесіне кіру</h2>
+
+        <label>Аватар таңдаңыз:</label>
+        <div class="avatar-row" id="avatarSelect">
+            <span class="avatar" data-avatar="😀">😀</span>
+            <span class="avatar" data-avatar="😎">😎</span>
+            <span class="avatar" data-avatar="🤓">🤓</span>
+            <span class="avatar" data-avatar="🤩">🤩</span>
+            <span class="avatar" data-avatar="🧠">🧠</span>
+        </div>
+
+        <input id="studentName" placeholder="Атыңыз" class="input" />
+        <input id="roomId" placeholder="Room ID" class="input" />
+
+        <button id="joinBtn" class="btn-primary">Кіру</button>
+        <p id="joinStatus" class="status"></p>
     </div>
 
-    <!-- EMOJI -->
-    <div class="section">
-      <h3>😊 Эмоциялық рефлексия</h3>
-      <div class="emoji-row">
-        <button class="emoji-btn" data-emoji="😀">😀</button>
-        <button class="emoji-btn" data-emoji="😲">😲</button>
-        <button class="emoji-btn" data-emoji="😐">😐</button>
-        <button class="emoji-btn" data-emoji="🤩">🤩</button>
-        <button class="emoji-btn" data-emoji="🥺">🥺</button>
-      </div>
-      <p class="small-note">Сіздің жауаптарыңыз мұғалімге көрінеді</p>
-      <p id="joinStatus" class="status"></p>
+    <!-- MAIN PANEL -->
+    <div id="mainPanel" class="card" style="display:none;">
+        <h2>👨‍🎓 Оқушы панелі</h2>
+
+        <div class="section">
+            <h3>✨ Тапсырмаға жауап беру</h3>
+            <textarea id="answerInput" class="textarea" placeholder="Жауап жазыңыз..."></textarea>
+            <button id="sendAnswerBtn" class="btn-primary">Жауап жіберу</button>
+            <p id="answerMsg" class="status"></p>
+        </div>
+
+        <div class="section">
+            <h3>💬 Рефлексия (1 сөз)</h3>
+            <input id="wordInput" class="input" placeholder="1 сөз..." />
+            <button id="sendWordBtn" class="btn-primary">Қосу</button>
+            <p id="wordMsg" class="status"></p>
+        </div>
+
+        <div class="section">
+            <h3>😊 Эмоциялық рефлексия</h3>
+            <div class="emoji-row">
+                <button class="emoji-btn" data-emoji="😀">😀</button>
+                <button class="emoji-btn" data-emoji="😲">😲</button>
+                <button class="emoji-btn" data-emoji="😐">😐</button>
+                <button class="emoji-btn" data-emoji="🤩">🤩</button>
+                <button class="emoji-btn" data-emoji="🥺">🥺</button>
+            </div>
+            <p class="small-note">Сіздің жауаптарыңыз мұғалімге көрінеді</p>
+        </div>
     </div>
 
-  </div>
+</div>
 
-  <script type="module" src="firebaseConfig.js"></script>
-  <script type="module" src="student.js"></script>
+<script type="module" src="firebaseConfig.js"></script>
+<script type="module" src="student.js"></script>
+
 </body>
 </html>
