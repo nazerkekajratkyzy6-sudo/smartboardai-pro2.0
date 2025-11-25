@@ -1,3 +1,6 @@
+// student.js — SmartBoardAI PRO Super Premium Student Panel
+// AUTO MODE (URL: ?name=&room=&avatar=) + FORM MODE (өз қолымен кіру)
+
 import { db, ref, set, push } from "./firebaseConfig.js";
 
 const $ = (id) => document.getElementById(id);
@@ -6,93 +9,169 @@ let studentName = "";
 let roomId = "";
 let avatar = "";
 
-// ------------ URL AUTO MODE ------------
+// ---------- 1. URL-ПАРАМЕТРЛЕР (AUTO MODE) ----------
 const params = new URLSearchParams(window.location.search);
 const autoName = params.get("name");
 const autoRoom = params.get("room");
 const autoAvatar = params.get("avatar");
 
-// AUTO MODE → бар болса, панель instantly ашылады
+// Егер URL арқылы келсе → автомат толтырамыз
 if (autoName && autoRoom) {
-    studentName = autoName;
-    roomId = autoRoom;
-    avatar = autoAvatar || "😀";
+  studentName = autoName;
+  roomId = autoRoom;
+  avatar = autoAvatar || "😀";
 
-    $("autoJoinBanner").style.display = "block";
-    $("joinForm").style.display = "none";
-    $("mainPanel").style.display = "block";
+  if ($("studentName")) $("studentName").value = studentName;
+  if ($("roomId")) $("roomId").value = roomId;
+
+  // Аватар тізімінен сәйкесін таңдау
+  document.querySelectorAll(".avatar").forEach((el) => {
+    if (el.dataset.avatar === avatar) {
+      el.classList.add("selected");
+    }
+  });
+
+  // Автоматты тіркеу (мұғалім панеліндегі оқушылар тізіміне түсу)
+  autoRegisterStudent();
 }
 
-// ------------ FORM MODE ------------
-document.querySelectorAll(".avatar").forEach(el => {
-    el.addEventListener("click", () => {
-        document.querySelectorAll(".avatar").forEach(a => a.classList.remove("selected"));
-        el.classList.add("selected");
-        avatar = el.dataset.avatar;
-    });
+// ---------- 2. АВТО-ТІРКЕУ (AUTO MODE ҮШІН) ----------
+async function autoRegisterStudent() {
+  if (!studentName || !roomId) return;
+
+  await set(ref(db, `rooms/${roomId}/students/${studentName}`), {
+    name: studentName,
+    avatar: avatar || "😀",
+    joinedAt: Date.now(),
+  });
+
+  if ($("joinStatus")) {
+    $("joinStatus").textContent = "URL арқылы бөлмеге қосылдыңыз ✅";
+    $("joinStatus").style.color = "#059669";
+  }
+}
+
+// ---------- 3. АВАТАР ТАҢДАУ (FORM MODE ҮШІН) ----------
+document.querySelectorAll(".avatar").forEach((el) => {
+  el.addEventListener("click", () => {
+    document
+      .querySelectorAll(".avatar")
+      .forEach((a) => a.classList.remove("selected"));
+    el.classList.add("selected");
+    avatar = el.dataset.avatar;
+  });
 });
 
-$("joinBtn")?.addEventListener("click", () => {
-    studentName = $("studentName").value.trim();
-    roomId = $("roomId").value.trim();
+// ---------- 4. FORM MODE — БӨЛМЕГЕ ҚОСЫЛУ ----------
+$("joinBtn")?.addEventListener("click", async () => {
+  const nameInput = $("studentName")?.value.trim();
+  const roomInput = $("roomId")?.value.trim();
 
-    if (!studentName || !roomId || !avatar) {
-        $("joinStatus").textContent = "Барлық өрісті толтырыңыз!";
-        return;
+  studentName = nameInput;
+  roomId = roomInput;
+
+  if (!studentName || !roomId || !avatar) {
+    if ($("joinStatus")) {
+      $("joinStatus").textContent = "Атыңызды, Room ID-ны және аватарды таңдаңыз!";
+      $("joinStatus").style.color = "#b91c1c";
     }
+    return;
+  }
 
-    set(ref(db, `rooms/${roomId}/students/${studentName}`), {
-        name: studentName,
-        avatar,
-        joinedAt: Date.now(),
-    });
+  await set(ref(db, `rooms/${roomId}/students/${studentName}`), {
+    name: studentName,
+    avatar: avatar,
+    joinedAt: Date.now(),
+  });
 
-    $("joinForm").style.display = "none";
-    $("mainPanel").style.display = "block";
+  if ($("joinStatus")) {
+    $("joinStatus").textContent = "Сіз бөлмеге қосылдыңыз ✅";
+    $("joinStatus").style.color = "#059669";
+  }
 });
 
-// ------------ SEND ANSWER ------------
+// ---------- 5. JOIN ТЕКСЕРУ ХЕЛПЕРІ ----------
+function ensureJoined() {
+  if (studentName && roomId) return true;
+
+  if ($("joinStatus")) {
+    $("joinStatus").textContent = "Алдымен бөлмеге қосылыңыз!";
+    $("joinStatus").style.color = "#b91c1c";
+  }
+  return false;
+}
+
+// ---------- 6. ТАПСЫРМА ЖАУАБЫН ЖІБЕРУ ----------
 $("sendAnswerBtn")?.addEventListener("click", async () => {
-    const text = $("answerInput").value.trim();
-    if (!text) return;
+  if (!ensureJoined()) return;
 
-    await set(ref(db, `rooms/${roomId}/answers/${studentName}`), {
-        name: studentName,
-        avatar,
-        text,
-        ts: Date.now(),
-    });
+  const text = $("answerInput")?.value.trim();
+  if (!text) {
+    if ($("answerMsg")) {
+      $("answerMsg").textContent = "Жауап бос!";
+      $("answerMsg").style.color = "#b91c1c";
+    }
+    return;
+  }
 
-    $("answerMsg").textContent = "Жауап жіберілді!";
-    $("answerInput").value = "";
+  await set(ref(db, `rooms/${roomId}/answers/${studentName}`), {
+    name: studentName,
+    avatar: avatar || "😀",
+    text,
+    ts: Date.now(),
+  });
+
+  if ($("answerMsg")) {
+    $("answerMsg").textContent = "Жауап жіберілді ✅";
+    $("answerMsg").style.color = "#059669";
+  }
+  if ($("answerInput")) $("answerInput").value = "";
 });
 
-// ------------ WORD REFLECTION ------------
+// ---------- 7. БІР СӨЗДІК РЕФЛЕКСИЯ ----------
 $("sendWordBtn")?.addEventListener("click", async () => {
-    const word = $("wordInput").value.trim();
-    if (!word) return;
+  if (!ensureJoined()) return;
 
-    await push(ref(db, `rooms/${roomId}/reflection/words`), {
-        name: studentName,
-        avatar,
-        word,
-        ts: Date.now(),
-    });
+  const word = $("wordInput")?.value.trim();
+  if (!word) {
+    if ($("wordMsg")) {
+      $("wordMsg").textContent = "Сөз бос!";
+      $("wordMsg").style.color = "#b91c1c";
+    }
+    return;
+  }
 
-    $("wordMsg").textContent = "Қосылды!";
-    $("wordInput").value = "";
+  await push(ref(db, `rooms/${roomId}/reflection/words`), {
+    word,
+    name: studentName,
+    avatar: avatar || "😀",
+    ts: Date.now(),
+  });
+
+  if ($("wordMsg")) {
+    $("wordMsg").textContent = "Қосылды ✅";
+    $("wordMsg").style.color = "#059669";
+  }
+  if ($("wordInput")) $("wordInput").value = "";
 });
 
-// ------------ EMOJI ------------
-document.querySelectorAll(".emoji-btn").forEach(btn => {
-    btn.addEventListener("click", async () => {
-        const emoji = btn.dataset.emoji;
+// ---------- 8. ЭМОЦИЯЛЫҚ РЕФЛЕКСИЯ ----------
+document.querySelectorAll(".emoji-btn").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    if (!ensureJoined()) return;
 
-        await push(ref(db, `rooms/${roomId}/reflection/emoji`), {
-            name: studentName,
-            avatar,
-            emoji,
-            ts: Date.now(),
-        });
+    const emoji = btn.dataset.emoji;
+
+    await push(ref(db, `rooms/${roomId}/reflection/emoji`), {
+      emoji,
+      name: studentName,
+      avatar: avatar || "😀",
+      ts: Date.now(),
     });
+
+    if ($("joinStatus")) {
+      $("joinStatus")..textContent = "Эмоция жіберілді ✅";
+      $("joinStatus").style.color = "#059669";
+    }
+  });
 });
