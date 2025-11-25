@@ -1,148 +1,51 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-<meta charset="UTF-8">
-<title>Оқушы панелі — SmartBoardAI PRO</title>
-
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
-        background: #f4f6f9;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        height: 100vh;
-        padding-top: 40px;
-    }
-
-    .panel {
-        background: white;
-        width: 420px;
-        padding: 30px;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-    }
-
-    h2 {
-        margin-top: 0;
-        text-align: center;
-        color: #111827;
-        font-size: 24px;
-        font-weight: 700;
-    }
-
-    .user-info {
-        text-align: center;
-        font-size: 16px;
-        margin-bottom: 25px;
-        color: #374151;
-    }
-
-    .section-title {
-        font-size: 17px;
-        margin-top: 25px;
-        font-weight: 600;
-        color: #1f2937;
-    }
-
-    textarea, input {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #d1d5db;
-        border-radius: 10px;
-        margin-top: 8px;
-        font-size: 15px;
-        background: #f9fafb;
-    }
-
-    button {
-        margin-top: 10px;
-        padding: 10px 16px;
-        border: none;
-        border-radius: 10px;
-        background: #4f46e5;
-        color: white;
-        cursor: pointer;
-        font-size: 15px;
-        font-weight: 600;
-        width: 100%;
-    }
-
-    button:hover {
-        opacity: 0.9;
-    }
-
-    .emoji-row {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        margin-top: 15px;
-    }
-
-    .emoji {
-        font-size: 32px;
-        cursor: pointer;
-        transition: 0.15s;
-        padding: 4px;
-        border-radius: 10px;
-    }
-
-    .emoji:hover {
-        background: #f3f4f6;
-    }
-
-    .emoji.selected {
-        background: #4f46e5;
-        color: white;
-        transform: scale(1.15);
-    }
-
-    .status {
-        margin-top: 20px;
-        text-align: center;
-        font-size: 14px;
-        color: #6b7280;
-    }
-
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Оқушы панелі</title>
+  <link rel="stylesheet" href="student.css" />
+  <link rel="stylesheet" href="main.css" />
 </head>
 
 <body>
+  <div class="student-container">
 
-<div class="panel">
+    <h2 class="title">👨‍🎓 Оқушы панелі</h2>
 
-    <h2>🧑‍🎓 Оқушы панелі</h2>
-
-    <!-- JS арқылы толтырылады -->
-    <div id="user-info" class="user-info"></div>
-
-    <!-- Жауап беру -->
-    <div class="section-title">✨ Тапсырмаға жауап беру</div>
-    <textarea id="answerInput" placeholder="Жауабыңызды жазыңыз..."></textarea>
-    <button id="sendAnswerBtn">Жауап жіберу</button>
-
-    <!-- Рефлексия -->
-    <div class="section-title">💬 Рефлексия (1 сөз)</div>
-    <input id="refInput" placeholder="Бір сөз жазыңыз...">
-    <button id="sendRefBtn">Қосу</button>
-
-    <!-- Эмоция -->
-    <div class="section-title">😊 Эмоциялық рефлексия</div>
-    <div class="emoji-row" id="emojiRow">
-        <div class="emoji" data-em="🙂">🙂</div>
-        <div class="emoji" data-em="😐">😐</div>
-        <div class="emoji" data-em="😕">😕</div>
-        <div class="emoji" data-em="🤩">🤩</div>
-        <div class="emoji" data-em="🥺">🥺</div>
+    <!-- ANSWER SECTION -->
+    <div class="section">
+      <h3>✨ Тапсырмаға жауап беру</h3>
+      <textarea id="answerInput" class="input-area" placeholder="Жауап жазыңыз..."></textarea>
+      <button id="sendAnswerBtn" class="btn-primary">Жауап жіберу</button>
+      <p id="answerMsg" class="status"></p>
     </div>
 
-    <div class="status">Сіздің жауаптарыңыз мұғалімге көрінеді</div>
+    <!-- WORD REFLECTION -->
+    <div class="section">
+      <h3>💬 Рефлексия (1 сөз)</h3>
+      <input id="wordInput" class="input-line" placeholder="1 сөз..." />
+      <button id="sendWordBtn" class="btn-primary">Қосу</button>
+      <p id="wordMsg" class="status"></p>
+    </div>
 
-</div>
+    <!-- EMOJI -->
+    <div class="section">
+      <h3>😊 Эмоциялық рефлексия</h3>
+      <div class="emoji-row">
+        <button class="emoji-btn" data-emoji="😀">😀</button>
+        <button class="emoji-btn" data-emoji="😲">😲</button>
+        <button class="emoji-btn" data-emoji="😐">😐</button>
+        <button class="emoji-btn" data-emoji="🤩">🤩</button>
+        <button class="emoji-btn" data-emoji="🥺">🥺</button>
+      </div>
+      <p class="small-note">Сіздің жауаптарыңыз мұғалімге көрінеді</p>
+      <p id="joinStatus" class="status"></p>
+    </div>
 
-<script src="./student.js"></script>
+  </div>
 
+  <script type="module" src="firebaseConfig.js"></script>
+  <script type="module" src="student.js"></script>
 </body>
 </html>
