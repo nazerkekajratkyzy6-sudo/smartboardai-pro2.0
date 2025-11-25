@@ -1,188 +1,91 @@
-/* --- GLOBAL --- */
+/* ---------- Global ---------- */
 body {
-    margin: 0;
-    padding: 0;
-    font-family: "Inter", Arial, sans-serif;
-    background: #f2f3f7;
-    display: flex;
-    justify-content: center;
-    padding-top: 40px;
+  font-family: 'Inter', sans-serif;
+  background: #f3f4f6;
+  margin: 0;
+  padding: 0;
 }
 
-/* --- MAIN CARD --- */
-.card {
-    background: #fff;
-    width: 420px;
-    padding: 32px;
-    border-radius: 22px;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-    animation: fadeIn 0.4s ease;
+/* ---------- Join Container ---------- */
+.join-container {
+  max-width: 450px;
+  margin: 40px auto;
+  background: white;
+  padding: 32px;
+  border-radius: 18px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  text-align: center;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to   { opacity: 1; transform: translateY(0); }
+h1 {
+  font-size: 26px;
+  margin-bottom: 25px;
+  color: #111827;
 }
 
-/* Title */
-.title {
-    text-align: center;
-    font-size: 26px;
-    font-weight: 700;
-    margin-bottom: 25px;
-}
-
-/* Labels */
-.label {
-    font-size: 15px;
-    color: #444;
-    font-weight: 600;
-    display: block;
-    margin-bottom: 8px;
-}
-
-/* Inputs */
-.input {
-    width: 100%;
-    padding: 12px 14px;
-    border-radius: 10px;
-    border: 1.5px solid #d9d9d9;
-    font-size: 15px;
-    margin-bottom: 14px;
-    transition: 0.2s;
-}
-
-.input:focus {
-    border-color: #5a54ff;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(90,84,255,0.15);
-}
-
-/* Textarea */
-.textarea {
-    width: 100%;
-    min-height: 70px;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1.5px solid #d9d9d9;
-    font-size: 15px;
-    resize: vertical;
-    margin-bottom: 12px;
-    transition: 0.2s;
-}
-
-.textarea:focus {
-    border-color: #5a54ff;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(90,84,255,0.15);
-}
-
-/* Buttons */
-.btn-primary {
-    width: 100%;
-    padding: 14px;
-    margin-top: 4px;
-    background: #4c3aff;
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.btn-primary:hover {
-    background: #3a2ae6;
-}
-
-.btn-secondary {
-    width: 100%;
-    padding: 14px;
-    background: #00a878;
-    border: none;
-    color: #fff;
-    border-radius: 12px;
-    margin-top: 4px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.btn-secondary:hover {
-    background: #008f65;
-}
-
-/* Status text */
-.status {
-    font-size: 14px;
-    margin-top: 6px;
-    color: #b30000;
-    min-height: 18px;
-}
-
-/* Divider */
-.divider {
-    margin: 25px 0;
-    border: none;
-    height: 1px;
-    background: #eee;
-}
-
-/* Avatar List */
+/* ---------- Avatar List ---------- */
 .avatar-list {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
 .avatar {
-    font-size: 28px;
-    cursor: pointer;
-    padding: 6px 10px;
-    border-radius: 10px;
-    transition: 0.2s;
-    border: 2px solid transparent;
+  font-size: 30px;
+  cursor: pointer;
+  transition: 0.25s;
+  padding: 6px;
+  border-radius: 10px;
 }
 
 .avatar:hover {
-    transform: scale(1.15);
+  transform: scale(1.15);
 }
 
-.avatar.selected {
-    border-color: #4c3aff;
-    background: #efeaff;
-    transform: scale(1.2);
+.avatar.active {
+  background: #4f46e5;
+  color: white;
+  transform: scale(1.18);
 }
 
-/* Emoji list */
-.emoji-list {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 5px;
+/* ---------- Inputs ---------- */
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 15px;
+  transition: .3s;
 }
 
-.emoji-btn {
-    background: #fff;
-    border: 2px solid #ddd;
-    font-size: 26px;
-    width: 52px;
-    height: 52px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: 0.2s;
+input:focus {
+  border-color: #4f46e5;
+  outline: none;
 }
 
-.emoji-btn:hover {
-    border-color: #4c3aff;
-    transform: translateY(-3px);
+/* ---------- Buttons ---------- */
+.btn-primary {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px 0;
+  background: #4f46e5;
+  border: none;
+  color: white;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: .3s;
 }
 
-/* Footer */
-.footer-text {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 14px;
-    color: #666;
+.btn-primary:hover {
+  background: #4338ca;
+  transform: translateY(-2px);
+}
+
+.status {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #ef4444;
 }
