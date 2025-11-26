@@ -1,106 +1,34 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-    <meta charset="UTF-8">
-    <title>Кіру — SmartBoardAI PRO</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartBoardAI PRO – Кіру</title>
 
-    <style>
-        body{
-            margin:0;
-            padding:0;
-            background:#f3f4f6;
-            font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI";
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            height:100vh;
-        }
-
-        .login-card{
-            background:white;
-            width:360px;
-            padding:32px;
-            border-radius:18px;
-            box-shadow:0 10px 25px rgba(0,0,0,0.12);
-            text-align:center;
-        }
-
-        h2{
-            margin-top:0;
-            font-size:26px;
-            color:#111827;
-            font-weight:700;
-        }
-
-        input{
-            width:100%;
-            padding:12px;
-            margin-top:12px;
-            border:1px solid #d1d5db;
-            border-radius:10px;
-            font-size:15px;
-            background:#f9fafb;
-        }
-
-        button{
-            width:100%;
-            padding:12px;
-            margin-top:16px;
-            border:none;
-            border-radius:10px;
-            font-size:16px;
-            font-weight:600;
-            cursor:pointer;
-            background:#4f46e5;
-            color:white;
-        }
-
-        .student-btn{
-            background:#10b981;
-            margin-top:20px;
-        }
-
-        a{
-            color:#4f46e5;
-            font-weight:600;
-            text-decoration:none;
-        }
-
-        .helper-text{
-            margin-top:16px;
-            font-size:14px;
-            color:#6b7280;
-        }
-    </style>
+  <link rel="stylesheet" href="../main.css" />
+  <link rel="stylesheet" href="login.css" />
 </head>
 
-<body>
+<body class="edu-bg">
+  <div class="auth-container">
 
-    <div class="login-card">
+    <div class="auth-card">
+      <h1 class="auth-title">Мұғалім кіру</h1>
+      <p class="auth-subtitle">SmartBoardAI PRO 3.0</p>
 
-        <h2>Кіру</h2>
-        <p style="margin-top:-6px; color:#6b7280;">Мұғалім кабинеті — кіру</p>
+      <input id="email" type="email" placeholder="Email" class="auth-input">
+      <input id="password" type="password" placeholder="Құпия сөз" class="auth-input">
 
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Құпия сөз">
+      <button id="loginBtn" class="auth-btn">Кіру</button>
 
-        <button id="loginBtn">Кіру</button>
-
-        <div class="helper-text">
-            Аккаунтыңыз жоқ па?
-            <a href="register.html">Тіркелу</a>
-        </div>
-
-        <!-- 🔥 ОСЫ ЖОЛ ТҮЗЕТІЛДІ -->
-        <button class="student-btn" onclick="window.location.href='../student.html'">
-            👨‍🎓 Оқушы бөлмесіне кіру
-        </button>
-
-        <p id="msg" style="margin-top:12px;color:red;"></p>
-
+      <p class="auth-link">Тіркелмегенсіз бе?
+        <a href="register.html">Тіркелу</a>
+      </p>
     </div>
 
-    <script type="module" src="./login.js"></script>
+    <div class="ornament-small"></div>
+  </div>
 
+  <script type="module" src="login.js"></script>
 </body>
 </html>
