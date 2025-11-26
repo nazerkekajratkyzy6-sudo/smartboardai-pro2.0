@@ -1,7 +1,7 @@
-// SmartBoardAI PRO 3.0 — TeacherBoard.js
-// PIN + Admin email + i18n + QR + Multi-Page + AI + Firebase
+// SmartBoardAI PRO 2.0 — FINAL teacherBoard.js
+// Барлық функциялар біріктірілген толық нұсқа
 
-console.log("TeacherBoard.js loaded ✔");
+console.log("TeacherBoard.js loaded ✔ FINAL");
 
 import {
   auth,
@@ -9,48 +9,11 @@ import {
   ref,
   set,
   push,
+  get,
   onValue,
   onAuthStateChanged,
   signOut
 } from "./firebaseConfig.js";
-
-/* ============================================================
-   0. PIN SECURITY (7142)
-============================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  const PIN = "7142"; // статикалық PIN
-  const overlay = document.getElementById("pinOverlay");
-  const input = document.getElementById("pinInput");
-  const btn = document.getElementById("pinSubmit");
-  const errorBox = document.getElementById("pinError");
-
-  if (!overlay || !input || !btn) return;
-
-  const passed = localStorage.getItem("sbai_pin_ok");
-  if (passed === "true") {
-    overlay.style.display = "none";
-    return;
-  }
-
-  overlay.style.display = "flex";
-
-  function checkPin() {
-    const val = input.value.trim();
-    if (val === PIN) {
-      localStorage.setItem("sbai_pin_ok", "true");
-      overlay.style.display = "none";
-    } else {
-      if (errorBox) errorBox.textContent = "❌ PIN дұрыс емес";
-      input.value = "";
-      input.focus();
-    }
-  }
-
-  btn.addEventListener("click", checkPin);
-  input.addEventListener("keyup", (e) => {
-    if (e.key === "Enter") checkPin();
-  });
-});
 
 /* ============================================================
    1. ADMIN (EMAIL) PROTECTION
@@ -62,208 +25,157 @@ onAuthStateChanged(auth, (user) => {
     window.location.href = "./auth/login.html";
     return;
   }
-
-  const allowed = "naz-erke_k@mail.ru"; // ← МҰНДА ӨЗ EMAIL ЖАЗ
-  if (user.email !== allowed) {
-    document.body.innerHTML =
-      "<h2 style='padding:40px;text-align:center;'>❌ Бұл тақта тек әкімшіге арналған.</h2>";
-    signOut(auth);
-    return;
-  }
-
   currentUser = user;
-  initBoard();
+  console.log("Logged in as:", user.email);
+  const emailLabel = document.getElementById("teacherEmail");
+  if (emailLabel) emailLabel.textContent = user.email;
 });
 
 /* ============================================================
-   2. UTIL
+   SHORTCUT $
 ============================================================ */
-const $ = (id) => document.getElementById(id);
-const lp$ = (id) => document.getElementById(id);
+function $(id) {
+  return document.getElementById(id);
+}
 
 /* ============================================================
-   3. MULTI-PAGE ARCHITECTURE
+   2. PIN MODAL
 ============================================================ */
+const pinModal = $("pinModal");
+const pinInput = $("pinInput");
+const pinError = $("pinError");
+const pinOverlay = $("pinOverlay");
 
-let pages = [];
-let activePageId = null;
+const STATIC_PIN = "2746";
 
-function createPage(name) {
-  const id = "page-" + Math.random().toString(36).substr(2, 6);
-  return {
-    id,
-    name,
-    blocks: []
+function openPinModal() {
+  if (!pinModal) return;
+  pinModal.classList.remove("hidden");
+  pinOverlay.classList.remove("hidden");
+  pinInput.value = "";
+  pinError.textContent = "";
+  pinInput.focus();
+}
+
+function closePinModal() {
+  if (!pinModal) return;
+  pinModal.classList.add("hidden");
+  pinOverlay.classList.add("hidden");
+}
+
+$("openPinBtn")?.addEventListener("click", openPinModal);
+pinOverlay?.addEventListener("click", closePinModal);
+$("pinCloseBtn")?.addEventListener("click", closePinModal);
+
+$("pinConfirmBtn")?.addEventListener("click", () => {
+  if (pinInput.value.trim() === STATIC_PIN) {
+    closePinModal();
+  } else {
+    pinError.textContent = "PIN қате. Қайта көріңіз.";
+  }
+});
+
+/* ENTER пернесі */
+pinInput?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    $("pinConfirmBtn").click();
+  }
+});
+
+/* ============================================================
+   3. LANGUAGE SWITCHER (KZ/RU/EN)
+============================================================ */
+const langSelect = $("langSelect");
+if (langSelect) {
+  langSelect.addEventListener("change", () => {
+    const lang = langSelect.value;
+    document.documentElement.setAttribute("data-lang", lang);
+    localStorage.setItem("sbai_lang", lang);
+    if (window.applyTranslations) {
+      window.applyTranslations(lang);
+    }
+  });
+
+  const savedLang = localStorage.getItem("sbai_lang") || "kk";
+  langSelect.value = savedLang;
+  document.documentElement.setAttribute("data-lang", savedLang);
+}
+
+/* ============================================================
+   4. FULLSCREEN TOGGLE
+============================================================ */
+const fullscreenBtn = $("fullscreenToggleBtn");
+
+if (fullscreenBtn) {
+  fullscreenBtn.onclick = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.warn("Fullscreen error:", err);
+      });
+      fullscreenBtn.textContent = "⛶ Exit Fullscreen";
+    } else {
+      document.exitFullscreen();
+      fullscreenBtn.textContent = "⛶ Fullscreen";
+    }
   };
 }
 
-function getActivePage() {
-  return pages.find((p) => p.id === activePageId) || null;
-}
-
-function initPages() {
-  if (pages.length === 0) {
-    const first = createPage("Бет 1");
-    pages.push(first);
-    activePageId = first.id;
-  }
-  renderPagesSidebar();
-}
-
-function renderPagesSidebar() {
-  const list = $("pagesList");
-  if (!list) return;
-
-  list.innerHTML = "";
-  pages.forEach((p) => {
-    const item = document.createElement("div");
-    item.className = "page-item" + (p.id === activePageId ? " active" : "");
-    item.textContent = p.name;
-    item.onclick = () => switchPage(p.id);
-    list.appendChild(item);
-  });
-}
-
-function addNewPage() {
-  const page = createPage("Бет " + (pages.length + 1));
-  pages.push(page);
-  activePageId = page.id;
-  renderPagesSidebar();
-  renderBoard();
-}
-
-function switchPage(id) {
-  const exists = pages.some((p) => p.id === id);
-  if (!exists) return;
-  activePageId = id;
-  renderPagesSidebar();
-  renderBoard();
-}
-
-function getCurrentBlocks() {
-  const page = getActivePage();
-  return page ? page.blocks : [];
-}
-
-function setCurrentBlocks(newBlocks) {
-  const page = getActivePage();
-  if (!page) return;
-  page.blocks = newBlocks;
-}
-
 /* ============================================================
-   4. BOARD (BLOCKS)
+   5. BOARD DATA STRUCTURE
 ============================================================ */
-
-function addCard(block) {
-  const state = getCurrentBlocks().slice();
-  const id = "id-" + Math.random().toString(36).substr(2, 9);
-  state.push({ id, ...block });
-  setCurrentBlocks(state);
-  renderBoard();
-}
-
-function deleteCard(id) {
-  const state = getCurrentBlocks().filter((b) => b.id !== id);
-  setCurrentBlocks(state);
-  renderBoard();
-}
+let cards = []; // [{id, type, text, ...}]
 
 function renderBoard() {
-  const el = $("boardArea");
-  if (!el) return;
+  const board = $("boardArea");
+  if (!board) return;
 
-  el.innerHTML = "";
+  board.innerHTML = "";
+  cards.forEach((card) => {
+    const div = document.createElement("div");
+    div.className = "card-block";
+    div.dataset.id = card.id;
 
-  const blocks = getCurrentBlocks();
+    if (card.type === "card") {
+      div.innerHTML = `<div class="card-inner">${card.text}</div>`;
+    } else if (card.type === "photo") {
+      div.innerHTML = `<div class="card-inner"><img src="${card.text}" class="photo-block" /></div>`;
+    } else if (card.type === "video") {
+      div.innerHTML = `<div class="card-inner"><iframe src="${card.text}" class="video-block"></iframe></div>`;
+    } else if (card.type === "link") {
+      div.innerHTML = `<div class="card-inner"><a href="${card.text}" target="_blank">${card.text}</a></div>`;
+    } else if (card.type === "formula") {
+      div.innerHTML = `<div class="card-inner formula-block">\\(${card.text}\\)</div>`;
+    } else if (card.type === "trainer") {
+      div.innerHTML = `<div class="card-inner"><iframe src="${card.text}" class="trainer-iframe"></iframe></div>`;
+    }
 
-  blocks.forEach((b) => {
-    const card = document.createElement("div");
-    card.className = "board-card";
-
-    const header = document.createElement("div");
-    header.className = "board-card-header";
-
-    const badge = document.createElement("span");
-    badge.className = "badge";
-    badge.textContent = b.type;
-
-    const del = document.createElement("button");
-    del.textContent = "Өшіру";
-    del.className = "toggle-btn";
-    del.onclick = () => deleteCard(b.id);
-
-    header.appendChild(badge);
-    header.appendChild(del);
-
-    const body = document.createElement("div");
-    body.className = "board-card-body";
-    body.innerHTML = (b.text || "").replace(/\n/g, "<br>");
-
-    const btn = document.createElement("button");
-    btn.textContent = "Ашу";
-    btn.className = "toggle-btn";
-    btn.onclick = () => {
-      card.classList.toggle("expanded");
-      btn.textContent = card.classList.contains("expanded") ? "Жабу" : "Ашу";
-      if (window.MathJax) window.MathJax.typeset();
-    };
-
-    card.appendChild(header);
-    card.appendChild(body);
-    card.appendChild(btn);
-
-    el.appendChild(card);
+    board.appendChild(div);
   });
 
-  const addBlock = document.createElement("div");
-  addBlock.innerHTML = `
-    <textarea id="newBlockText" placeholder="Жаңа блок..." style="width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;"></textarea>
-    <button id="addBlockBtn" class="toggle-btn" style="margin-top:4px;">➕ Қосу</button>
-  `;
-  el.appendChild(addBlock);
-
-  const addBtn = $("addBlockBtn");
-  if (addBtn) {
-    addBtn.onclick = () => {
-      const txt = $("newBlockText").value.trim();
-      if (!txt) return;
-      addCard({ type: "text", text: txt });
-      $("newBlockText").value = "";
-    };
+  if (window.MathJax) {
+    window.MathJax.typesetPromise();
   }
 }
 
-/* ============================================================
-   5. AI
-============================================================ */
-async function openAI(prompt, lang = "kk") {
-  const res = await fetch("/api/ai", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt, lang }),
-  });
-
-  if (!res.ok) throw new Error("AI error");
-
-  const data = await res.json();
-  return data.answer || data.text || data.content || "";
+function addCard(card) {
+  card.id = "card_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+  cards.push(card);
+  renderBoard();
 }
 
 /* ============================================================
-   6. ROOM / STUDENT ANSWERS / REFLECTION
+   6. ROOM / STUDENT ANSWERS
 ============================================================ */
 let currentRoomId = null;
 
 function listenAnswers(roomId) {
-  if (!db) return;
-
-  // ANSWERS
   const answersRef = ref(db, "rooms/" + roomId + "/answers");
+
   onValue(answersRef, (snapshot) => {
     const box = $("answersBox");
-    if (!box) return;
     const data = snapshot.val();
+
+    if (!box) return;
 
     if (!data) {
       box.innerHTML = "<div class='small'>Әзірше жауап жоқ...</div>";
@@ -281,329 +193,237 @@ function listenAnswers(roomId) {
 
     box.innerHTML = html;
   });
+}
 
-  // STUDENTS
+function listenStudents(roomId) {
   const studentsRef = ref(db, "rooms/" + roomId + "/students");
+
   onValue(studentsRef, (snapshot) => {
     const box = $("studentsList");
     if (!box) return;
-    const data = snapshot.val();
 
+    const data = snapshot.val();
     if (!data) {
       box.innerHTML = "<div class='small'>Ешкім қосылмады</div>";
       return;
     }
 
     let html = "";
-    Object.values(data).forEach((v) => {
+    Object.values(data).forEach((s) => {
       html += `
-  <div class="student-item">
-    <span style="font-size:22px;margin-right:8px;">${v.avatar || "👤"}</span>
-    <span>${v.name}</span>
-  </div>
-`;
+        <div class="student-item">
+          <b>${s.avatar || "🙂"} ${s.name || ""}</b>
+        </div>
+      `;
     });
+
     box.innerHTML = html;
   });
+}
 
-  // EMOJI
+function listenReflections(roomId) {
+  // 1) Words (Word Cloud)
+  const wordsRef = ref(db, "rooms/" + roomId + "/reflection/words");
+  onValue(wordsRef, (snapshot) => {
+    const cloud = $("wordCloud");
+    if (!cloud) return;
+
+    const data = snapshot.val();
+    if (!data) {
+      cloud.innerHTML = "<div class='small'>Пікір жоқ...</div>";
+      return;
+    }
+
+    const freq = {};
+    Object.values(data).forEach((item) => {
+      const w = (item.word || "").trim();
+      if (!w) return;
+      freq[w] = (freq[w] || 0) + 1;
+    });
+
+    const entries = Object.entries(freq);
+    if (!entries.length) {
+      cloud.innerHTML = "<div class='small'>Пікір жоқ...</div>";
+      return;
+    }
+
+    const max = Math.max(...entries.map(([, c]) => c));
+    cloud.innerHTML = entries
+      .map(([word, count]) => {
+        const size = 12 + Math.round((count / max) * 18); // 12–30px
+        return `<span style="font-size:${size}px; margin:4px; display:inline-block;">${word}</span>`;
+      })
+      .join(" ");
+  });
+
+  // 2) Emojis
   const emojiRef = ref(db, "rooms/" + roomId + "/reflection/emoji");
   onValue(emojiRef, (snapshot) => {
     const box = $("emojiStats");
     if (!box) return;
+
     const data = snapshot.val();
     if (!data) {
-      box.textContent = "Әзірше эмоция жоқ...";
+      box.textContent = "Әлі эмоция жоқ...";
       return;
     }
-    const counts = {};
-    Object.values(data).forEach((v) => {
-      counts[v.emoji] = (counts[v.emoji] || 0) + 1;
-    });
-    box.textContent = Object.entries(counts)
-      .map(([emo, c]) => `${emo} — ${c}`)
-      .join(" | ");
-  });
 
-  // WORD CLOUD
-  const wordsRef = ref(db, "rooms/" + roomId + "/reflection/words");
-  onValue(wordsRef, (snapshot) => {
-    const box = $("wordCloud");
-    if (!box) return;
-    const data = snapshot.val();
-    if (!data) {
-      box.innerHTML = "<div class='small'>Пікір жоқ...</div>";
-      return;
-    }
-    let html = "";
-    Object.values(data).forEach((v) => {
-      html += `<span class="cloud-word">${v.word}</span> `;
+    const freq = {};
+    Object.values(data).forEach((item) => {
+      const e = item.emoji || "🙂";
+      freq[e] = (freq[e] || 0) + 1;
     });
-    box.innerHTML = html;
+
+    const parts = Object.entries(freq).map(
+      ([emoji, count]) => `${emoji} — ${count}`
+    );
+    box.textContent = parts.join(" · ");
   });
 }
 
 /* ============================================================
-   7. LESSON PLANNER MODAL
+   7. LESSON PLANNER (AI)
 ============================================================ */
-function openLessonPlanner() {
-  lp$("lpOverlay").classList.remove("lp-hidden");
-  lp$("lessonPlannerModal").classList.remove("lp-hidden");
-}
+const lpOpenBtn = $("lessonPlannerBtn");
+const lpOverlay = $("lpOverlay");
+const lpModal = $("lessonPlannerModal");
+const lpCloseBtn = $("lpCloseBtn");
 
-function closeLessonPlanner() {
-  lp$("lpOverlay").classList.add("lp-hidden");
-  lp$("lessonPlannerModal").classList.add("lp-hidden");
-}
+const lpSubject = $("lpSubject");
+const lpGrade = $("lpGrade");
+const lpObjective = $("lpObjective");
+const lpDuration = $("lpDuration");
+const lpLang = $("lpLang");
 
-/* ============================================================
-   8. FULLSCREEN
-============================================================ */
-/* ============================================================
-   FULLSCREEN MODE — PRESENTATION
-   Нағыз толық экран + таза тақта
-============================================================ */
-function setupFullscreen() {
-  const fsBtn = $("fullscreenToggleBtn");
-  if (!fsBtn) return;
+const lpGenerateBtn = $("lpGenerateBtn");
+const lpResultBlock = document.querySelector(".lp-result");
+const lpResultText = $("lpResultText");
 
-  // Батырма тексті мен .fullscreen класын синхрондау
-  const updateState = () => {
-    const isFs = !!document.fullscreenElement;
-    document.body.classList.toggle("fullscreen", isFs);
-    fsBtn.textContent = isFs ? "⛶ Exit" : "⛶ Fullscreen";
+if (lpOpenBtn) {
+  lpOpenBtn.onclick = () => {
+    lpOverlay.classList.remove("lp-hidden");
+    lpModal.classList.remove("lp-hidden");
   };
-
-  // Батырманы басқанда: кір/шығу
-  fsBtn.addEventListener("click", () => {
-    if (!document.fullscreenElement) {
-      // Толық экранға кіру
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen().catch(err => {
-          console.error("Fullscreen error:", err);
-        });
-      }
-    } else {
-      // Толық экраннан шығу
-      if (document.exitFullscreen) {
-        document.exitFullscreen().catch(err => {
-          console.error("Exit FS error:", err);
-        });
-      }
-    }
-  });
-
-  // ESC басқанда немесе жүйе fullscreen-нен шығарғанда
-  document.addEventListener("fullscreenchange", updateState);
-
-  // Алғашқы күй
-  updateState();
 }
 
+if (lpCloseBtn) {
+  lpCloseBtn.onclick = () => {
+    lpOverlay.classList.add("lp-hidden");
+    lpModal.classList.add("lp-hidden");
+  };
+}
 
-/* ============================================================
-   9. QR LOGIN
-============================================================ */
-function setupQR() {
-  const qrBtn = $("qrBtn");
-  const qrOverlay = $("qrOverlay");
-  const qrModal = $("qrModal");
-  const qrCloseBtn = $("qrCloseBtn");
-  const qrImage = $("qrImage");
+if (lpOverlay) {
+  lpOverlay.onclick = () => {
+    lpOverlay.classList.add("lp-hidden");
+    lpModal.classList.add("lp-hidden");
+  };
+}
 
-  if (!qrBtn || !qrOverlay || !qrModal || !qrImage || typeof QRCode === "undefined") {
-    return;
-  }
+if (lpGenerateBtn) {
+  lpGenerateBtn.onclick = async () => {
+    const subj = lpSubject.value.trim();
+    const gr = lpGrade.value.trim();
+    const obj = lpObjective.value.trim();
+    const dur = lpDuration.value.trim();
+    const lang = lpLang.value;
 
-  qrBtn.onclick = () => {
-    const roomFromLabel = $("roomIdLabel")?.textContent.trim();
-    const roomId = currentRoomId || roomFromLabel;
-
-    if (!roomId || roomId === "–") {
-      alert("Алдымен Room жасаңыз!");
+    if (!subj || !gr || !obj || !dur) {
+      alert("Барлық өрісті толтырыңыз.");
       return;
     }
 
-    const basePath = window.location.pathname.replace("teacherBoard.html", "student.html");
-    const url = `${window.location.origin}${basePath}?room=${roomId}`;
+    lpGenerateBtn.disabled = true;
+    lpGenerateBtn.textContent = "Генерацияланып жатыр...";
 
-    qrImage.innerHTML = "";
-    QRCode.toCanvas(url, { width: 260 }, (err, canvas) => {
-      if (err) {
-        console.error(err);
-        qrImage.textContent = "QR жасау қате.";
-        return;
-      }
-      qrImage.appendChild(canvas);
-    });
+    const prompt = `
+Пән: ${subj}
+Сынып: ${gr}
+Оқу мақсаты: ${obj}
+Ұзақтығы: ${dur} минут.
 
-    qrOverlay.classList.remove("lp-hidden");
-    qrModal.classList.remove("lp-hidden");
+Толық сабақ жоспарын жаса:
+- Сабақ мақсаты
+- Қажетті ресурстар
+- Сабақ кезеңдері (Қызығушылық ояту, Жаңа тақырып, Тапсырмалар, Рефлексия)
+- Бағалау түрлері
+Тілді: ${lang} етіп бер.
+`.trim();
+
+    try {
+      const planText = await openAI(prompt, lang);
+      lpResultBlock.classList.remove("lp-hidden");
+      lpResultText.value = planText;
+    } catch (e) {
+      console.error(e);
+      alert("AI қате қайтарды.");
+    } finally {
+      lpGenerateBtn.disabled = false;
+      lpGenerateBtn.textContent = "Генерациялау";
+    }
   };
-
-  const close = () => {
-    qrOverlay.classList.add("lp-hidden");
-    qrModal.classList.add("lp-hidden");
-  };
-
-  qrCloseBtn.onclick = close;
-  qrOverlay.onclick = close;
 }
 
 /* ============================================================
-   10. INIT BOARD
+   8. AI BACKEND CALL
+============================================================ */
+async function openAI(prompt, lang = "kk") {
+  const res = await fetch("/api/ai", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt, lang }),
+  });
+
+  if (!res.ok) throw new Error("AI error");
+
+  const data = await res.json();
+  return data.answer || data.text || data.content || "";
+}
+
+/* ============================================================
+   9. INIT BOARD
 ============================================================ */
 function initBoard() {
   console.log("Board initialized ✔");
 
-  // Pages
-  initPages();
-  const addPgBtn = $("addPageBtn");
-  if (addPgBtn) addPgBtn.onclick = addNewPage;
+  /* ROOM */
+  $("createRoomBtn").onclick = () => {
+    currentRoomId = Math.random().toString(36).substr(2, 6).toUpperCase();
+    $("roomIdLabel").textContent = currentRoomId;
+    $("roomIdLabel2").textContent = currentRoomId;
+    listenAnswers(currentRoomId);
+    listenStudents(currentRoomId);
+    listenReflections(currentRoomId);
+  };
 
-  // ROOM
-  const roomBtn = $("createRoomBtn");
-  if (roomBtn) {
-    roomBtn.onclick = () => {
-      currentRoomId = Math.random().toString(36).substr(2, 6).toUpperCase();
-      $("roomIdLabel").textContent = currentRoomId;
-      $("roomIdLabel2").textContent = currentRoomId;
-      listenAnswers(currentRoomId);
-    };
-  }
-
-  // TOOLS
-  $("toolCard")?.addEventListener("click", () =>
-    addCard({ type: "card", text: "Жаңа карточка" })
-  );
-  $("toolPhoto")?.addEventListener("click", () =>
-    addCard({ type: "photo", text: "Фото (әзірленуде)" })
-  );
-  $("toolVideo")?.addEventListener("click", () =>
-    addCard({ type: "video", text: "Видео (әзірленуде)" })
-  );
-  $("toolLink")?.addEventListener("click", () =>
-    addCard({ type: "link", text: "Сілтеме (әзірленуде)" })
-  );
-  $("toolFormula")?.addEventListener("click", () =>
-    addCard({ type: "formula", text: "E = mc^2" })
-  );
-  $("toolTrainer")?.addEventListener("click", () =>
-    addCard({ type: "trainer", text: "Тренажер (әзірленуде)" })
-  );
-  $("toolQuiz")?.addEventListener("click", () =>
-    addCard({ type: "quiz", text: "Викторина (әзірленуде)" })
-  );
-
-  // AI BUTTON
-  $("aiGenerateBtn")?.addEventListener("click", async () => {
-    const prompt = $("aiPrompt").value.trim();
-    if (!prompt) return;
-
-    const btn = $("aiGenerateBtn");
-    btn.disabled = true;
-    btn.textContent = "AI ойланып жатыр...";
-
-    try {
-      const answer = await openAI(prompt);
-      const blocks = answer
-        .split(/\n\s*\n/)
-        .map((p) => p.trim())
-        .filter(Boolean);
-
-      blocks.forEach((b) => addCard({ type: "AI", text: b }));
-      $("aiPrompt").value = "";
-    } catch (e) {
-      alert("AI қате берді");
-    }
-
-    btn.disabled = false;
-    btn.textContent = "AI → Блок қосу";
-  });
-
-  // LESSON PLANNER
-  $("lessonPlannerBtn")?.addEventListener("click", () => openLessonPlanner());
-  $("lpCloseBtn")?.addEventListener("click", () => closeLessonPlanner());
-  $("lpOverlay")?.addEventListener("click", () => closeLessonPlanner());
-
-  $("lpGenerateBtn")?.addEventListener("click", async () => {
-    const subject = lp$("lpSubject").value || "Математика";
-    const grade = lp$("lpGrade").value || "7-сынып";
-    const topic = lp$("lpTopic").value || "Тақырып";
-    const lang = lp$("lpLang").value || "kk";
-    const format = lp$("lpFormat").value || "short";
-    const extra = lp$("lpExtra").value || "";
-
-    const prompt = `
-Сабақ жоспарын құр:
-Пән: ${subject}
-Сынып: ${grade}
-Тақырып: ${topic}
-Формат: ${format}
-Талаптар: ${extra}
-`.trim();
-
-    const btn = $("lpGenerateBtn");
-    btn.disabled = true;
-    btn.textContent = "AI жоспар құруда...";
-
-    try {
-      const plan = await openAI(prompt, lang);
-      lp$("lpResultText").value = plan;
-      document.querySelector(".lp-result").classList.remove("lp-hidden");
-      $("lpInsertToBoardBtn").classList.remove("lp-hidden");
-    } catch (err) {
-      alert("AI қате");
-    }
-
-    btn.disabled = false;
-    btn.textContent = "🤖 Сабақ жоспарын құру";
-  });
-
-  $("lpInsertToBoardBtn")?.addEventListener("click", () => {
-    const t = lp$("lpResultText").value.trim();
-    if (!t) return;
-    addCard({ type: "lesson-plan", text: t });
-    closeLessonPlanner();
-  });
-
-  // TABS
-  document.querySelectorAll(".tab-btn").forEach((btn) => {
-    btn.onclick = () => {
-      document.querySelectorAll(".tab-btn").forEach((x) =>
-        x.classList.remove("active")
-      );
-      document.querySelectorAll(".tab-content").forEach((x) =>
-        x.classList.remove("active")
-      );
-
-      btn.classList.add("active");
-      $("tab-" + btn.dataset.tab).classList.add("active");
-    };
-  });
-
-  setupFullscreen();
-  setupQR();
-  renderBoard();
-}
-
-
-
-/* ============================================================
-   AI COLLAPSE LOGIC
-============================================================ */
-function setupAICollapse() {
-    const header = document.getElementById("aiCollapseToggle");
-    const content = document.getElementById("aiCollapseContent");
-    const wrapper = document.querySelector(".ai-collapse-wrapper");
-
-    if (!header) return;
-
-    header.addEventListener("click", () => {
-        const isOpen = wrapper.classList.toggle("open");
-        content.style.display = isOpen ? "block" : "none";
+  /* TOOLS */
+  $("toolCard").onclick = () => addCard({ type: "card", text: "Жаңа карточка" });
+  $("toolPhoto").onclick = () =>
+    addCard({ type: "photo", text: "https://via.placeholder.com/400x250" });
+  $("toolVideo").onclick = () =>
+    addCard({ type: "video", text: "https://www.youtube.com/embed/dQw4w9WgXcQ" });
+  $("toolLink").onclick = () =>
+    addCard({ type: "link", text: "https://www.google.com" });
+  $("toolFormula").onclick = () =>
+    addCard({ type: "formula", text: "a^2 + b^2 = c^2" });
+  $("toolTrainer").onclick = () =>
+    addCard({
+      type: "trainer",
+      text: "https://learningapps.org/create.php",
     });
 }
 
-// Setup басталғанда қосу керек:
-setupAICollapse();
+/* ============================================================
+   10. LOGOUT
+============================================================ */
+$("logoutBtn")?.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "./auth/login.html";
+});
+
+/* ============================================================
+   11. START
+============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  initBoard();
+});
