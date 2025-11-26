@@ -1,320 +1,88 @@
-/* ============================================================
-   SmartBoardAI PRO — Global Styles
-============================================================ */
+/* =========================
+   EDU TECH MAIN THEME
+   Қазақи ою + жұмсақ UI
+========================= */
 
-body {
+body.edu-bg {
   margin: 0;
   padding: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, Helvetica, Arial, sans-serif;
-  background: #f8fafc;
-  color: #111827;
+  font-family: "Arial", sans-serif;
+  background: linear-gradient(180deg, #f5f9ff 0%, #e9f0ff 50%, #fefefe 100%);
+  background-attachment: fixed;
 }
 
-/* ============================================================
-   HEADER
-============================================================ */
-header {
-  width: 100%;
-  background: white;
-  padding: 16px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #e5e7eb;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.ai-btn-primary {
-  background: #2563eb;
-  color: white;
-  padding: 10px 16px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.lp-btn-secondary {
-  background: #e5e7eb;
-  padding: 10px 16px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-/* ============================================================
-   LAYOUT
-============================================================ */
-
-.main-container {
-  display: flex;
-  width: 100%;
-  height: calc(100vh - 74px);
-}
-
-/* LEFT SIDEBAR */
-.sidebar {
-  width: 240px;
-  background: white;
-  padding: 16px;
-  border-right: 1px solid #e5e7eb;
-  overflow-y: auto;
-}
-
-.sidebar h3 {
-  margin-top: 16px;
-  margin-bottom: 10px;
-}
-
-/* BOARD */
-.board-area {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-}
-
-/* RIGHT SIDEBAR */
-.rightbar {
-  width: 300px;
-  background: white;
-  padding: 16px;
-  border-left: 1px solid #e5e7eb;
-  overflow-y: auto;
-}
-
-.rightbar-card {
-  background: white;
-  border-radius: 16px;
-  padding: 12px;
-  border: 1px solid #e5e7eb;
-}
-
-/* ============================================================
-   TABS
-============================================================ */
-.tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.tab-btn {
-  flex: 1;
-  padding: 8px;
-  border-radius: 8px;
-  background: #f1f5f9;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.tab-btn.active {
-  background: #2563eb;
-  color: white;
-}
-
-.tab-content {
-  display: none;
-}
-
-.tab-content.active {
-  display: block;
-}
-
-/* ============================================================
-   ANSWERS
-============================================================ */
-
-.answers-box {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.answer-item {
-  background: #f8fafc;
-  padding: 10px;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-}
-
-/* ============================================================
-   STUDENTS
-============================================================ */
-
-.student-item {
-  padding: 8px;
-  background: #f3f4f6;
-  border-radius: 10px;
-  margin-bottom: 6px;
-}
-
-/* ============================================================
-   CLOUD
-============================================================ */
-
-.word-cloud {
-  min-height: 80px;
-}
-
-.cloud-word {
-  font-size: 18px;
-  margin-right: 6px;
-}
-
-/* ============================================================
-   EMOJI
-============================================================ */
-
-.emoji-row {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-
-.emoji-btn {
-  font-size: 22px;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 6px;
-  cursor: pointer;
-}
-
-/* ============================================================
-   BOARD CARDS
-============================================================ */
-
-.board-card {
-  background: white;
-  padding: 16px;
-  margin-bottom: 14px;
-  border-radius: 16px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-}
-
-.board-card-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.badge {
-  padding: 4px 10px;
-  background: #2563eb;
-  color: white;
-  border-radius: 8px;
-  font-size: 12px;
-}
-
-.toggle-btn {
-  background: #e5e7eb;
-  padding: 6px 12px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-}
-
-/* ============================================================
-   FULLSCREEN
-============================================================ */
-body.fullscreen header,
-body.fullscreen .sidebar,
-body.fullscreen .rightbar {
-  display: none;
-}
-
-body.fullscreen .main-container {
-  height: 100vh;
-}
-
-body.fullscreen .board-area {
+/* Welcome Box */
+.welcome-box {
+  max-width: 540px;
+  margin: 80px auto;
   padding: 40px;
-  font-size: 22px;
+  text-align: center;
+  background: #ffffffcc;
+  backdrop-filter: blur(6px);
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(92,122,234,0.15);
+  position: relative;
 }
 
-/* ============================================================
-   LESSON PLANNER MODAL
-============================================================ */
-
-.lp-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.35);
-  z-index: 4000;
+.logo-title {
+  font-size: 36px;
+  color: #5C7AEA;
+  margin-bottom: 10px;
+  font-weight: bold;
 }
 
-.lp-hidden {
-  display: none !important;
+.subtitle {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 30px;
 }
 
-.lp-modal {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 5000;
-}
-
-.lp-modal-inner {
-  background: white;
-  border-radius: 16px;
-  width: 480px;
-  max-height: 90vh;
-  padding: 24px;
-  overflow-y: auto;
-}
-
-.lp-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.lp-close-btn {
-  background: none;
-  border: none;
-  font-size: 22px;
-  cursor: pointer;
-}
-
-.lp-body label {
+/* Buttons */
+.btn-box {
   display: flex;
   flex-direction: column;
-  margin-bottom: 12px;
+  gap: 15px;
 }
 
-.lp-body input,
-.lp-body textarea,
-.lp-body select {
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-}
-
-/* ============================================================
-   AI PANEL
-============================================================ */
-.ai-panel {
-  background: white;
-  padding: 16px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.ai-textarea {
-  width: 100%;
-  height: 80px;
-  padding: 10px;
+.main-btn {
+  display: block;
+  padding: 14px;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  background: #5C7AEA;
+  color: #fff;
+  text-decoration: none;
+  font-size: 18px;
+  box-shadow: 0 4px 10px rgba(92,122,234,0.3);
+  transition: 0.2s;
 }
 
-.ai-panel-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
+.main-btn:hover {
+  background: #4b68d1;
+}
+
+.sec-btn {
+  display: block;
+  padding: 12px;
+  border-radius: 12px;
+  background: #90CAF9;
+  color: #003b80;
+  text-decoration: none;
+  font-size: 17px;
+  box-shadow: 0 4px 10px rgba(144, 202, 249, 0.3);
+  transition: 0.2s;
+}
+
+.sec-btn:hover {
+  background: #7ab6ef;
+}
+
+/* Қазақи ою */
+.ornament {
+  width: 120px;
+  height: 120px;
+  margin: 40px auto 0;
+  background-image: url('https://i.imgur.com/9d0OsxD.png'); /* нәзік қошқар мүйіз */
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.25;
 }
