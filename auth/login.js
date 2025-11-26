@@ -1,26 +1,28 @@
-import {
-  auth,
-  signInWithEmailAndPassword
-} from "../firebaseConfig.js";
+import { auth, signInWithEmailAndPassword } from "../firebaseConfig.js";
 
-const emailEl = document.getElementById("email");
-const passEl = document.getElementById("password");
-const loginBtn = document.getElementById("loginBtn");
-const msgEl = document.getElementById("msg");
-
-loginBtn?.addEventListener("click", async () => {
-  const email = emailEl.value.trim();
-  const pass = passEl.value.trim();
+document.getElementById("loginBtn").onclick = async () => {
+  const email = document.getElementById("email").value.trim();
+  const pass = document.getElementById("password").value.trim();
 
   if (!email || !pass) {
-    msgEl.textContent = "Барлық өрісті толтырыңыз.";
+    alert("Email және құпия сөзді толтырыңыз.");
     return;
   }
 
   try {
     await signInWithEmailAndPassword(auth, email, pass);
+
+    // Тек бір мұғалім кіруіне рұқсат (email-lock)
+    const allowedEmail = "YOUR_EMAIL@MAIL.COM"; // кейін өзгертіп беремін
+
+    if (email !== allowedEmail) {
+      alert("Бұл платформаға қол жеткізуге рұқсатыңыз жоқ.");
+      return;
+    }
+
     window.location.href = "../teacherBoard.html";
-  } catch (e) {
-    msgEl.textContent = "Қате: " + (e.message || "кіру мүмкін болмады.");
+
+  } catch (err) {
+    alert("Қате: " + err.message);
   }
-});
+};
