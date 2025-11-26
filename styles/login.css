@@ -1,0 +1,71 @@
+/* =======================
+   LOGIN PAGE STYLES 3.0
+======================= */
+
+.auth-container {
+  max-width: 400px;
+  margin: 100px auto;
+  text-align: center;
+  position: relative;
+}
+
+.auth-card {
+  background: #ffffffcc;
+  backdrop-filter: blur(6px);
+  padding: 35px 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(92,122,234,0.15);
+}
+
+.auth-title {
+  font-size: 30px;
+  color: #3B82F6;
+  margin-bottom: 5px;
+}
+
+.auth-subtitle {
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: 1px solid #cdd7ff;
+  background: #f6f8ff;
+  font-size: 16px;
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border-radius: 12px;
+  border: none;
+  background: #3B82F6;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+}
+
+.auth-btn:hover {
+  background: #336ed1;
+}
+
+.auth-link {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.ornament-small {
+  width: 80px;
+  height: 80px;
+  margin: 30px auto 0;
+  background-image: url('https://i.imgur.com/9d0OsxD.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.3;
+}
