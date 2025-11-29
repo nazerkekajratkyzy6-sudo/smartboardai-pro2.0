@@ -1,5 +1,4 @@
-// student.js — SmartBoardAI PRO (Student Panel C version)
-// Answer + Emoji + Word Cloud
+// student.js — SmartBoardAI PRO (Answer + Emoji + WordCloud)
 
 import { db, ref, push } from "./firebaseConfig.js";
 
@@ -23,20 +22,21 @@ const btnKZ = $("stKZ");
 const btnRU = $("stRU");
 const btnEN = $("stEN");
 
-// Кейін толтыру үшін
+// Кейін UI қосу үшін
 let emojiContainer, wcLabel, wcInput, wcBtn;
 
-// ====== UI ҚОСЫМША (ЭМОЦИЯ + WORD CLOUD) ======
+// ====== EXTRA UI: EMOJI + WORDCLOUD ======
 function createExtraUI() {
   const card = titleEl?.closest(".card") || document.querySelector(".card");
   if (!card) return;
 
-  // Эмоция батырмалары
+  // ЭМОЦИЯ
   emojiContainer = document.createElement("div");
   emojiContainer.style.marginTop = "10px";
   emojiContainer.style.display = "flex";
   emojiContainer.style.gap = "6px";
   emojiContainer.style.justifyContent = "center";
+  emojiContainer.style.flexWrap = "wrap";
 
   const emojis = ["😀", "🙂", "😐", "😢", "🤩", "😡"];
 
@@ -47,11 +47,12 @@ function createExtraUI() {
     b.className = "emoji-btn";
     b.style.width = "40px";
     b.style.padding = "6px";
+    b.style.fontSize = "20px";
     b.dataset.emoji = em;
     emojiContainer.appendChild(b);
   });
 
-  // Word cloud
+  // WORD CLOUD
   wcLabel = document.createElement("label");
   wcLabel.id = "wcLbl";
   wcLabel.style.display = "block";
@@ -82,7 +83,7 @@ function detectRoomFromURL() {
       roomInput.value = urlRoom;
     }
   } catch (e) {
-    // ештеңе істемейміз
+    // ештеңе
   }
 }
 
@@ -101,18 +102,9 @@ function sendAnswer() {
   const text = answerInput?.value.trim() || "";
   const avatar = avatarSelect?.value || "🙂";
 
-  if (!roomId) {
-    showStatus("❗ Бөлме кодын жазыңыз.");
-    return;
-  }
-  if (!name) {
-    showStatus("❗ Есіміңізді жазыңыз.");
-    return;
-  }
-  if (!text) {
-    showStatus("❗ Жауабыңызды жазыңыз.");
-    return;
-  }
+  if (!roomId) return showStatus("❗ Бөлме кодын жазыңыз.");
+  if (!name) return showStatus("❗ Есіміңізді жазыңыз.");
+  if (!text) return showStatus("❗ Жауабыңызды жазыңыз.");
 
   const ansRef = ref(db, `rooms/${roomId}/answers`);
   push(ansRef, {
@@ -132,14 +124,8 @@ function sendEmoji(emoji) {
   const name = nameInput?.value.trim() || "";
   const avatar = avatarSelect?.value || "🙂";
 
-  if (!roomId) {
-    showStatus("❗ Бөлме коды жоқ.");
-    return;
-  }
-  if (!name) {
-    showStatus("❗ Есіміңізді жазыңыз.");
-    return;
-  }
+  if (!roomId) return showStatus("❗ Бөлме коды жоқ.");
+  if (!name) return showStatus("❗ Есіміңізді жазыңыз.");
 
   const emoRef = ref(db, `rooms/${roomId}/emotions`);
   push(emoRef, {
@@ -152,25 +138,16 @@ function sendEmoji(emoji) {
   showStatus("💛 Эмоция жіберілді!");
 }
 
-// ====== SEND WORD (WORD CLOUD) ======
+// ====== SEND WORD CLOUD ======
 function sendWord() {
   const roomId = getRoomId();
   const name = nameInput?.value.trim() || "";
   const avatar = avatarSelect?.value || "🙂";
   const word = (wcInput?.value || "").trim();
 
-  if (!roomId) {
-    showStatus("❗ Бөлме коды жоқ.");
-    return;
-  }
-  if (!name) {
-    showStatus("❗ Есіміңізді жазыңыз.");
-    return;
-  }
-  if (!word) {
-    showStatus("❗ Бір сөз жазыңыз.");
-    return;
-  }
+  if (!roomId) return showStatus("❗ Бөлме коды жоқ.");
+  if (!name) return showStatus("❗ Есіміңізді жазыңыз.");
+  if (!word) return showStatus("❗ Бір сөз жазыңыз.");
 
   const wcRef = ref(db, `rooms/${roomId}/wordcloud`);
   push(wcRef, {
@@ -253,7 +230,7 @@ function attachEvents() {
   if (sendBtn) sendBtn.addEventListener("click", sendAnswer);
 
   if (emojiContainer) {
-    emojiContainer.querySelectorAll("button.emoji-btn").forEach((btn) => {
+    emojiContainer.querySelectorAll(".emoji-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         const em = btn.dataset.emoji;
         if (em) sendEmoji(em);
@@ -261,9 +238,7 @@ function attachEvents() {
     });
   }
 
-  if (wcBtn) {
-    wcBtn.addEventListener("click", sendWord);
-  }
+  if (wcBtn) wcBtn.addEventListener("click", sendWord);
 
   if (btnKZ) btnKZ.addEventListener("click", () => applyLang("kz"));
   if (btnRU) btnRU.addEventListener("click", () => applyLang("ru"));
