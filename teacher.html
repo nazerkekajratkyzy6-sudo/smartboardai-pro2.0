@@ -16,12 +16,12 @@
 
   <!-- TOP BAR -->
   <div class="topbar">
-    <div class="topbar-title">📘 SmartBoardAI PRO — Мұғалім</div>
+    <div class="topbar-title" id="topbarTitle">📘 SmartBoardAI PRO — Мұғалім</div>
 
     <div class="topbar-right">
-      <button class="lang-btn" id="langKZ">🇰🇿</button>
-      <button class="lang-btn" id="langRU">🇷🇺</button>
-      <button class="lang-btn" id="langEN">🇬🇧</button>
+      <button class="lang-btn" id="langKZ">KZ</button>
+      <button class="lang-btn" id="langRU">RU</button>
+      <button class="lang-btn" id="langEN">GB</button>
 
       <button class="logout-btn" id="logout">🔒 Шығу</button>
     </div>
@@ -33,17 +33,17 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
 
-      <h2>🧰 Құралдар</h2>
+      <h2 id="toolsTitle">🧰 Құралдар</h2>
 
-      <div class="section-title">Блоктар</div>
+      <div class="section-title" id="blocksTitle">Блоктар</div>
 
-      <button class="tool-btn" onclick="addTextBlock()">📝 Мәтін</button>
-      <button class="tool-btn" onclick="addFormula()">∑ Формула</button>
-      <button class="tool-btn" onclick="addImage()">🖼 Фото</button>
-      <button class="tool-btn" onclick="addVideo()">🎬 Видео</button>
-      <button class="tool-btn" onclick="addLink()">🔗 Сілтеме</button>
+      <button class="tool-btn" id="btnText" onclick="addTextBlock()">📝 Мәтін</button>
+      <button class="tool-btn" id="btnFormula" onclick="addFormula()">∑ Формула</button>
+      <button class="tool-btn" id="btnImage" onclick="addImage()">🖼 Фото</button>
+      <button class="tool-btn" id="btnVideo" onclick="addVideo()">🎬 Видео</button>
+      <button class="tool-btn" id="btnLink" onclick="addLink()">🔗 Сілтеме</button>
 
-      <div class="section-title">AI панелі</div>
+      <div class="section-title" id="aiTitle">AI панелі</div>
 
       <div class="ai-panel">
         <textarea id="aiPrompt" placeholder="Тапсырма немесе мәтін жазыңыз..."></textarea>
@@ -51,15 +51,15 @@
         <div id="aiOutput"></div>
       </div>
 
-      <div class="section-title">LiveRoom</div>
+      <div class="section-title" id="liveRoomTitle">LiveRoom</div>
 
       <div class="room-box">
         <div class="room-id" id="roomId">–</div>
-        <button class="btn" onclick="createRoom()">🟢 Жаңа бөлме</button>
+        <button class="btn" id="roomBtn" onclick="createRoom()">🟢 Жаңа бөлме</button>
 
         <div class="qr-box" id="qrContainer"></div>
 
-        <p style="font-size: 12px; margin-top: 8px; text-align:center;">
+        <p id="roomHint" style="font-size: 12px; margin-top: 8px; text-align:center;">
           Оқушылар <b>QR арқылы</b> қосылады
         </p>
       </div>
@@ -68,15 +68,27 @@
 
     <!-- MAIN BOARD -->
     <main class="board-area" id="board">
-      <h3 class="center-msg">✨ Сабақ құруды бастау үшін сол жақтан блок таңдаңыз</h3>
+      <h3 class="center-msg" id="boardEmpty">
+        ✨ Сабақ құруды бастау үшін сол жақтан блок таңдаңыз
+      </h3>
     </main>
 
     <!-- RIGHT PANEL -->
     <aside class="right-panel">
-      <div class="right-title">📥 Оқушы жауаптары</div>
+      <div class="right-title" id="answersTitle">📥 Оқушы жауаптары</div>
 
       <div class="right-box" id="studentAnswers">
         Әзірше жауап жоқ...
+      </div>
+
+      <div class="section-title" id="emoTitle">Эмоциялар</div>
+      <div class="right-box" id="studentEmotions">
+        Әзірше эмоция жоқ...
+      </div>
+
+      <div class="section-title" id="wcTitle">Сөз бұлты</div>
+      <div class="right-box" id="studentWordCloud">
+        Әзірше сөздер жоқ...
       </div>
     </aside>
 
