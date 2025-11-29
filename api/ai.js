@@ -1,15 +1,14 @@
-// /api/ai.js — Vercel Serverless Function
-// SmartBoardAI PRO — Premium AI Backend
-// Назарке Кайраткызы үшін арнайы
+// /api/ai.js — SmartBoardAI PRO
+// Vercel Serverless Function (Fully Fixed Version)
 
 import OpenAI from "openai";
 
-// --- OPENAI CLIENT ---
+// ============== OPENAI CLIENT ==============
 const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-// --- ALLOWED FUNCTIONS (actions) ---
+// Қолдануға рұқсат етілген әрекеттер
 const ACTIONS = [
   "chat",
   "lesson_plan",
@@ -20,9 +19,10 @@ const ACTIONS = [
   "auto_language"
 ];
 
-// --- MAIN HANDLER ---
+// ============== MAIN HANDLER ==============
 export default async function handler(req, res) {
-  // Allow POST only
+
+  // Тек POST рұқсат
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Only POST allowed" });
   }
@@ -30,6 +30,7 @@ export default async function handler(req, res) {
   try {
     const { action, prompt, lang } = req.body;
 
+    // Action дұрыс па?
     if (!ACTIONS.includes(action)) {
       return res.status(400).json({ error: "Invalid action" });
     }
@@ -37,37 +38,40 @@ export default async function handler(req, res) {
     const systemPrompt = buildSystemPrompt(action, lang);
     const userPrompt = buildUserPrompt(action, prompt, lang);
 
+    // ============== OPENAI CALL ==============
     const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o-mini",  // mini → ең тез
+      temperature: 0.7,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
-      ],
-      temperature: 0.7,
+      ]
     });
 
-    const aiText = completion.choices[0].message.content;
+    const aiText =
+      completion?.choices?.[0]?.message?.content ||
+      "AI жауап қайтара алмады.";
 
-    res.status(200).json({
+    return res.status(200).json({
       ok: true,
       action,
-      result: aiText
+      result: aiText,
     });
 
   } catch (err) {
     console.error("AI ERROR:", err);
-    res.status(500).json({
+    return res.status(500).json({
       ok: false,
-      error: err.message
+      error: err.message,
     });
   }
 }
 
-// ===============================
-// BUILD SYSTEM PROMPT
-// ===============================
+// =====================================================================
+//                           SYSTEM PROMPT
+// =====================================================================
 function buildSystemPrompt(action, lang) {
-  let L = lang || "kz";
+  const L = lang || "kz";
 
   const HEAD = {
     kz: "Сен SmartBoardAI PRO мұғалімдер платформасының ресми AI-модулі боласың.",
@@ -75,76 +79,84 @@ function buildSystemPrompt(action, lang) {
     en: "You are the official AI module of SmartBoardAI PRO."
   };
 
-  return HEAD[L] + 
+  return `
+${HEAD[L]}
+
 Міндеттерің:
 - қысқа әрі нақты жауап беру
 - блоктарға бөліп құрылымды сақтау
 - қажет болса кесте, формула, тапсырма құру
 - мектеп стандартына сай болу (KZ curriculum)
-;
+- мұғалім қолдана алатындай нақты әрі түсінікті жауап беру
+`;
 }
 
-// ===============================
-// BUILD USER PROMPT
-// ===============================
+// =====================================================================
+//                              USER PROMPT
+// =====================================================================
 function buildUserPrompt(action, prompt, lang) {
+
   switch (action) {
+
     case "chat":
-      return prompt;
+      return `${prompt}`;
 
     case "lesson_plan":
-      return 
+      return `
 Сабақ жоспарын құр:
 - тақырып
 - оқу мақсаты
-- бағалау критерийі
-- тапсырмалар
+- бағалау критерийлері
+- тапсырмалар (кемінде 3)
+- саралау
 - рефлексия
-Тіл: ${lang}.
-Тақырып: ${prompt}.
-;
+Тіл: ${lang}
+Тақырып: ${prompt}
+`;
 
     case "tasks":
-      return 
-Мына тақырып бойынша 5 тапсырма құрастыр:
+      return `
+Мына тақырып бойынша 5 аралас деңгейдегі тапсырма құр:
 ${prompt}
-Қиындық деңгейі: аралас.
-Тіл: ${lang}.
-;
+Тіл: ${lang}
+`;
 
     case "quiz":
-      return 
-Мына тақырыпқа 10 сұрақтық тест құрастыр:
-${prompt}
-Жауап кілтімен бірге.
-Тіл: ${lang}.
-;
+      return `
+Тақырып: ${prompt}
+10 сұрақтан тұратын тест құрастыр.
+Әр сұраққа 4 нұсқа бер.
+Соңында жеке "Жауап кілті" болсын.
+Тіл: ${lang}
+`;
 
     case "worksheet":
-      return 
-Мына тақырыпқа толық WORKSHEET құрастыр:
+      return `
+Толық WORKSHEET құрастыр:
 – жылы кіріспе
-– теория
+– теориялық түсіндіру
 – 5 есеп (шешімімен)
-– шағын рефлексия
+– рефлексия
 Тақырып: ${prompt}
-Тіл: ${lang}.
-;
+Тіл: ${lang}
+`;
 
     case "split_blocks":
-      return 
-Мәтінді тақтаға бөліктерге бөл:
+      return `
+Мәтінді сабаққа арналған блоктарға бөл:
 ${prompt}
-Тіл: ${lang}.
-;
+Тіл: ${lang}
+`;
 
     case "auto_language":
-      return 
-Тілін анықта да қайта жаз:
+      return `
+Төмендегі мәтіннің тілін анықта:
 ${prompt}
-;
+
+Сосын оны грамматикасы дұрыс, таза стильде қайта жаз.
+`;
 
     default:
-      return prompt;
+      return `${prompt}`;
   }
 }
