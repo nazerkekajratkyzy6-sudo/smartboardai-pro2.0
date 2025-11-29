@@ -1,104 +1,141 @@
-// i18n.js — SmartBoardAI PRO (Phase 1 Final)
+// i18n.js — SmartBoardAI PRO (Phase 1 Final Version)
+// Тіл: KZ / RU / EN
 
 export const I18N = {
-  kz: {
-    // TOP BAR
-    appTitle: "📘 SmartBoardAI PRO — Мұғалім",
-    logout: "Шығу",
+  kk: {
+    // Topbar
+    title_teacher: "📘 SmartBoardAI PRO — Мұғалім",
+    logout: "🔒 Шығу",
 
-    // SIDEBAR
+    // Sidebar
     tools: "🧰 Құралдар",
-    blocks: "Блоктар",
-    text: "📝 Мәтін",
-    formula: "∑ Формула",
-    image: "🖼 Фото",
-    video: "🎬 Видео",
-    link: "🔗 Сілтеме",
-    trainer: "🧩 Тренажер",
+    blocks_title: "Блоктар",
+    text_block: "📝 Мәтін",
+    formula_block: "∑ Формула",
+    image_block: "🖼 Фото",
+    video_block: "🎬 Видео",
+    link_block: "🔗 Сілтеме",
+    trainer_block: "🎮 Тренажер (iframe)",
 
-    aiPanel: "AI панелі",
-    aiPlaceholder: "Тапсырма немесе мәтін жазыңыз...",
-    aiGenerate: "⚡ Генерация",
+    // AI panel
+    ai_panel_title: "🤖 AI Генерация",
+    ai_placeholder: "Мәтін немесе тапсырма жазыңыз...",
+    ai_generate: "⚡ Генерация",
+    ai_loading: "AI жауап дайындап жатыр...",
 
-    pages: "Беттер",
-    pageAdd: "➕ Жаңа бет",
-    pageTitle: "Бет",
+    // Multypage
+    pages_title: "📄 Беттер",
+    add_page: "➕ Бет қосу",
+    page: "Бет",
 
-    // LIVE ROOM
-    liveRoom: "LiveRoom",
-    createRoom: "🟢 Жаңа бөлме",
-    roomStudents: "Оқушылар жауаптары",
-    noAnswers: "Әзірше жауап жоқ...",
+    // Rightbar
+    student_answers: "📥 Оқушы жауаптары",
+    no_answers: "Әзірше жауап жоқ...",
 
-    // MODAL
-    modalCancel: "Болдырмау",
-    modalOk: "OK",
+    // Modal
+    modal_ok: "OK",
+    modal_cancel: "Болдырмау",
 
-    // BOARD PLACEHOLDER
-    boardEmpty: "✨ Сабақ құруды бастау үшін сол жақтан блок таңдаңыз",
+    // Modal titles
+    modal_text_title: "Мәтін енгізіңіз",
+    modal_formula_title: "Формула енгізіңіз",
+    modal_image_title: "Фото URL енгізіңіз",
+    modal_video_title: "Видео URL енгізіңіз",
+    modal_link_title: "Сілтеме енгізіңіз",
+    modal_trainer_title: "Тренажер URL енгізіңіз",
+
+    // Placeholders
+    placeholder_text: "Мәтінді жазыңыз...",
+    placeholder_formula: "a^2 + b^2 = c^2",
+    placeholder_image: "https://example.com/image.png",
+    placeholder_video: "https://youtube.com/embed/..",
+    placeholder_link: "https://...",
+    placeholder_trainer: "https://trainer.com/embed",
   },
 
   ru: {
-    appTitle: "📘 SmartBoardAI PRO — Учитель",
-    logout: "Выйти",
+    title_teacher: "📘 SmartBoardAI PRO — Учитель",
+    logout: "🔒 Выйти",
 
     tools: "🧰 Инструменты",
-    blocks: "Блоки",
-    text: "📝 Текст",
-    formula: "∑ Формула",
-    image: "🖼 Фото",
-    video: "🎬 Видео",
-    link: "🔗 Ссылка",
-    trainer: "🧩 Тренажер",
+    blocks_title: "Блоки",
+    text_block: "📝 Текст",
+    formula_block: "∑ Формула",
+    image_block: "🖼 Фото",
+    video_block: "🎬 Видео",
+    link_block: "🔗 Ссылка",
+    trainer_block: "🎮 Тренажёр (iframe)",
 
-    aiPanel: "AI панель",
-    aiPlaceholder: "Введите текст или задание...",
-    aiGenerate: "⚡ Сгенерировать",
+    ai_panel_title: "🤖 AI Генерация",
+    ai_placeholder: "Введите текст или задание...",
+    ai_generate: "⚡ Сгенерировать",
+    ai_loading: "AI готовит ответ...",
 
-    pages: "Страницы",
-    pageAdd: "➕ Новая страница",
-    pageTitle: "Страница",
+    pages_title: "📄 Страницы",
+    add_page: "➕ Добавить",
+    page: "Страница",
 
-    liveRoom: "LiveRoom",
-    createRoom: "🟢 Новая комната",
-    roomStudents: "Ответы учеников",
-    noAnswers: "Пока нет ответов...",
+    student_answers: "📥 Ответы учеников",
+    no_answers: "Ответов пока нет...",
 
-    modalCancel: "Отмена",
-    modalOk: "ОК",
+    modal_ok: "OK",
+    modal_cancel: "Отмена",
 
-    boardEmpty: "✨ Чтобы начать урок, выберите блок слева",
+    modal_text_title: "Введите текст",
+    modal_formula_title: "Введите формулу",
+    modal_image_title: "Введите URL фото",
+    modal_video_title: "Введите URL видео",
+    modal_link_title: "Введите ссылку",
+    modal_trainer_title: "Введите URL тренажёра",
+
+    placeholder_text: "Введите текст...",
+    placeholder_formula: "a^2 + b^2 = c^2",
+    placeholder_image: "https://example.com/image.png",
+    placeholder_video: "https://youtube.com/embed/..",
+    placeholder_link: "https://...",
+    placeholder_trainer: "https://trainer.com/embed",
   },
 
   en: {
-    appTitle: "📘 SmartBoardAI PRO — Teacher",
-    logout: "Logout",
+    title_teacher: "📘 SmartBoardAI PRO — Teacher",
+    logout: "🔒 Logout",
 
     tools: "🧰 Tools",
-    blocks: "Blocks",
-    text: "📝 Text",
-    formula: "∑ Formula",
-    image: "🖼 Image",
-    video: "🎬 Video",
-    link: "🔗 Link",
-    trainer: "🧩 Trainer",
+    blocks_title: "Blocks",
+    text_block: "📝 Text",
+    formula_block: "∑ Formula",
+    image_block: "🖼 Image",
+    video_block: "🎬 Video",
+    link_block: "🔗 Link",
+    trainer_block: "🎮 Trainer (iframe)",
 
-    aiPanel: "AI Panel",
-    aiPlaceholder: "Type your task or text...",
-    aiGenerate: "⚡ Generate",
+    ai_panel_title: "🤖 AI Generator",
+    ai_placeholder: "Type your task or text...",
+    ai_generate: "⚡ Generate",
+    ai_loading: "AI is preparing the answer...",
 
-    pages: "Pages",
-    pageAdd: "➕ Add Page",
-    pageTitle: "Page",
+    pages_title: "📄 Pages",
+    add_page: "➕ Add Page",
+    page: "Page",
 
-    liveRoom: "LiveRoom",
-    createRoom: "🟢 New Room",
-    roomStudents: "Student Answers",
-    noAnswers: "No answers yet...",
+    student_answers: "📥 Student Answers",
+    no_answers: "No answers yet...",
 
-    modalCancel: "Cancel",
-    modalOk: "OK",
+    modal_ok: "OK",
+    modal_cancel: "Cancel",
 
-    boardEmpty: "✨ To begin lesson, choose a block on the left",
+    modal_text_title: "Enter text",
+    modal_formula_title: "Enter formula",
+    modal_image_title: "Enter image URL",
+    modal_video_title: "Enter video URL",
+    modal_link_title: "Enter link",
+    modal_trainer_title: "Enter trainer URL",
+
+    placeholder_text: "Type text...",
+    placeholder_formula: "a^2 + b^2 = c^2",
+    placeholder_image: "https://example.com/image.png",
+    placeholder_video: "https://youtube.com/embed/..",
+    placeholder_link: "https://...",
+    placeholder_trainer: "https://trainer.com/embed",
   },
 };
