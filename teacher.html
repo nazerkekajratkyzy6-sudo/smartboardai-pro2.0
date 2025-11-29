@@ -5,8 +5,11 @@
   <title>SmartBoardAI PRO – Мұғалім</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Premium UI -->
+  <!-- MAIN CSS -->
   <link rel="stylesheet" href="main.css" />
+
+  <!-- i18n -->
+  <script src="i18n.js"></script>
 
   <!-- QR Generator -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -14,87 +17,100 @@
 
 <body>
 
-  <!-- TOP BAR -->
+  <!-- 🔵 TOP BAR -->
   <div class="topbar">
-    <div class="topbar-title" id="topbarTitle">📘 SmartBoardAI PRO — Мұғалім</div>
+    <div class="topbar-title" id="t-title">📘 SmartBoardAI PRO</div>
 
     <div class="topbar-right">
-      <button class="lang-btn" id="langKZ">KZ</button>
-      <button class="lang-btn" id="langRU">RU</button>
-      <button class="lang-btn" id="langEN">GB</button>
+      <button class="lang-btn" data-lang="kk">🇰🇿</button>
+      <button class="lang-btn" data-lang="ru">🇷🇺</button>
+      <button class="lang-btn" data-lang="en">🇬🇧</button>
 
-      <button class="logout-btn" id="logout">🔒 Шығу</button>
+      <button class="logout-btn" id="logout">🔒 <span id="t-logout">Шығу</span></button>
     </div>
   </div>
 
-  <!-- LAYOUT -->
+  <!-- 🔵 MAIN LAYOUT -->
   <div class="container">
 
-    <!-- SIDEBAR -->
+    <!-- 🔷 SIDEBAR -->
     <aside class="sidebar">
+      
+      <h2 id="s-tools">🧰 Құралдар</h2>
 
-      <h2 id="toolsTitle">🧰 Құралдар</h2>
+      <div class="section-title" id="s-blocks">Блоктар</div>
 
-      <div class="section-title" id="blocksTitle">Блоктар</div>
+      <button class="tool-btn" id="btn-text">📝 <span id="b-text">Мәтін</span></button>
+      <button class="tool-btn" id="btn-formula">∑ <span id="b-formula">Формула</span></button>
+      <button class="tool-btn" id="btn-image">🖼 <span id="b-image">Фото</span></button>
+      <button class="tool-btn" id="btn-video">🎬 <span id="b-video">Видео</span></button>
+      <button class="tool-btn" id="btn-link">🔗 <span id="b-link">Сілтеме</span></button>
+      <button class="tool-btn" id="btn-trainer">🕹 <span id="b-trainer">Тренажер</span></button>
 
-      <button class="tool-btn" id="btnText" onclick="addTextBlock()">📝 Мәтін</button>
-      <button class="tool-btn" id="btnFormula" onclick="addFormula()">∑ Формула</button>
-      <button class="tool-btn" id="btnImage" onclick="addImage()">🖼 Фото</button>
-      <button class="tool-btn" id="btnVideo" onclick="addVideo()">🎬 Видео</button>
-      <button class="tool-btn" id="btnLink" onclick="addLink()">🔗 Сілтеме</button>
-
-      <div class="section-title" id="aiTitle">AI панелі</div>
+      <!-- AI PANEL -->
+      <div class="section-title" id="t-ai">AI Панелі</div>
 
       <div class="ai-panel">
-        <textarea id="aiPrompt" placeholder="Тапсырма немесе мәтін жазыңыз..."></textarea>
-        <button class="ai-btn" onclick="generateAI()">⚡ Генерация</button>
-        <div id="aiOutput"></div>
+        <textarea id="aiPrompt" placeholder="Мәтін немесе тапсырма жазыңыз..."></textarea>
+        <button class="ai-btn" id="aiGenBtn">⚡ <span id="ai-generate">Генерация</span></button>
       </div>
 
-      <div class="section-title" id="liveRoomTitle">LiveRoom</div>
+      <!-- LIVE ROOM -->
+      <div class="section-title" id="s-live">LiveRoom</div>
 
       <div class="room-box">
         <div class="room-id" id="roomId">–</div>
-        <button class="btn" id="roomBtn" onclick="createRoom()">🟢 Жаңа бөлме</button>
+        <button class="tool-btn" id="createRoomBtn">🟢 <span id="s-create">Жаңа бөлме</span></button>
 
         <div class="qr-box" id="qrContainer"></div>
 
-        <p id="roomHint" style="font-size: 12px; margin-top: 8px; text-align:center;">
+        <p style="font-size: 12px; margin-top: 8px; text-align:center;" id="s-qr-hint">
           Оқушылар <b>QR арқылы</b> қосылады
         </p>
       </div>
 
+      <!-- PAGE MANAGER -->
+      <div class="section-title">📄 <span id="pg-title">Беттер</span></div>
+
+      <div id="pages"></div>
+
+      <button class="tool-btn" id="addPageBtn">➕ <span id="pg-add">Бет қосу</span></button>
+
     </aside>
 
-    <!-- MAIN BOARD -->
-    <main class="board-area" id="board">
-      <h3 class="center-msg" id="boardEmpty">
-        ✨ Сабақ құруды бастау үшін сол жақтан блок таңдаңыз
-      </h3>
+    <!-- 🔷 MAIN BOARD -->
+    <main class="board-area">
+      <div id="board">
+        <h3 class="center-msg" id="start-msg">
+          ✨ Сабақты бастау үшін сол жақтан блок таңдаңыз
+        </h3>
+      </div>
     </main>
 
-    <!-- RIGHT PANEL -->
+    <!-- 🔷 RIGHT PANEL -->
     <aside class="right-panel">
-      <div class="right-title" id="answersTitle">📥 Оқушы жауаптары</div>
+      <div class="right-title" id="r-answers">📥 Оқушы жауаптары</div>
 
       <div class="right-box" id="studentAnswers">
         Әзірше жауап жоқ...
-      </div>
-
-      <div class="section-title" id="emoTitle">Эмоциялар</div>
-      <div class="right-box" id="studentEmotions">
-        Әзірше эмоция жоқ...
-      </div>
-
-      <div class="section-title" id="wcTitle">Сөз бұлты</div>
-      <div class="right-box" id="studentWordCloud">
-        Әзірше сөздер жоқ...
       </div>
     </aside>
 
   </div>
 
-  <!-- SCRIPT -->
+  <!-- 🔵 MODAL (PROMPT REPLACEMENT) -->
+  <div id="modal-bg" class="modal-bg">
+    <div class="modal">
+        <h2 id="modal-title">Мәтін енгізіңіз</h2>
+        <input id="modal-input" type="text" />
+        <footer>
+            <button id="modal-cancel" class="modal-btn cancel">Болдырмау</button>
+            <button id="modal-ok" class="modal-btn ok">OK</button>
+        </footer>
+    </div>
+  </div>
+
+  <!-- JS -->
   <script type="module" src="teacher.js"></script>
   <script type="module" src="firebaseConfig.js"></script>
 
