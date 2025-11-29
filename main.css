@@ -1,154 +1,123 @@
-/* =============================
-   GLOBAL RESET & BASE
-============================= */
+/* ===================================================================
+   GLOBAL STYLES — SmartBoardAI PRO
+   Premium clean design
+=================================================================== */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Inter", Arial, sans-serif;
 }
 
 body {
-  background: #f3f4f6;
-  color: #111827;
+  font-family: Inter, Arial, sans-serif;
+  background: #f6f8fc;
+  color: #1a1a1a;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  overflow: hidden;
 }
 
-/* =============================
-   TOPBAR
-============================= */
+/* Top Navigation — teacher.html only */
 .topbar {
-  height: 58px;
+  width: 100%;
+  padding: 14px 24px;
   background: #ffffff;
-  padding: 10px 22px;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  z-index: 20;
 }
 
-.topbar-title {
-  font-size: 20px;
+.logo {
+  font-size: 22px;
   font-weight: 700;
-  color: #1f2937;
+  color: #0c3c78;
 }
 
-.topbar-right {
+/* Language switcher */
+.lang-switch {
+  display: flex;
+  gap: 6px;
+}
+
+.lang-switch button {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #eef2ff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.lang-switch button:hover {
+  background: #dbeafe;
+}
+
+/* Layout: Sidebar + Board + Answers */
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr 300px;
+  gap: 0;
+  flex: 1;
+  height: calc(100vh - 60px);
+}
+
+/* ===================================================================
+   SIDEBAR
+=================================================================== */
+.sidebar {
+  padding: 20px;
+  overflow-y: auto;
+  border-right: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.sidebar h3 {
+  font-size: 16px;
+  margin-bottom: 14px;
+  color: #374151;
+}
+
+.block-btn {
+  width: 100%;
+  padding: 10px 14px;
+  background: #eef2ff;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border: none;
+  font-size: 15px;
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.lang-btn {
-  background: #e5e7eb;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: 0.2s;
+.block-btn:hover {
+  background: #e0e7ff;
 }
 
-.lang-btn:hover {
-  background: #d1d5db;
-}
-
-.logout-btn {
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-  padding: 7px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.2s;
-  font-weight: 600;
-}
-
-.logout-btn:hover {
-  background: #fecaca;
-}
-
-/* =============================
-   LAYOUT
-============================= */
-.container {
-  display: flex;
-  height: calc(100vh - 58px);
-}
-
-/* =============================
-   SIDEBAR
-============================= */
-.sidebar {
-  width: 250px;
-  background: #ffffff;
-  border-right: 1px solid #e5e7eb;
-  padding: 22px;
-  overflow-y: auto;
-}
-
-.sidebar h2 {
-  font-size: 19px;
-  font-weight: 700;
-  margin-bottom: 14px;
-}
-
-.section-title {
-  margin-top: 20px;
-  font-size: 12px;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.tool-btn {
-  width: 100%;
-  padding: 11px;
-  margin-bottom: 8px;
-  border: 1px solid #dbeafe;
-  background: #eff6ff;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 15px;
-  transition: 0.2s;
-}
-
-.tool-btn:hover {
-  background: #dbeafe;
-}
-
-/* =============================
-   BOARD
-============================= */
-.board-area {
-  flex: 1;
-  background: #f9fafb;
-  padding: 24px;
+/* ===================================================================
+   MAIN BOARD
+=================================================================== */
+.board {
+  padding: 20px;
   overflow-y: auto;
 }
 
 .center-msg {
+  margin-top: 50px;
   text-align: center;
-  margin-top: 80px;
   font-size: 18px;
   color: #6b7280;
 }
 
-/* BLOCK CARD */
 .board-card {
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 18px;
   padding: 16px;
-  margin-bottom: 14px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  animation: fadeIn 0.3s ease;
 }
 
 .board-card-header {
@@ -158,13 +127,11 @@ body {
 }
 
 .card-delete-btn {
+  padding: 4px 10px;
   background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-  padding: 4px 8px;
+  border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
 }
 
 .card-delete-btn:hover {
@@ -172,121 +139,73 @@ body {
 }
 
 .board-image {
-  max-width: 100%;
+  width: 100%;
   border-radius: 10px;
-  margin-top: 4px;
 }
 
 .board-video {
   width: 100%;
-  height: 280px;
+  height: 350px;
   border-radius: 10px;
 }
 
-/* =============================
-   RIGHT PANEL
-============================= */
-.right-panel {
-  width: 300px;
-  background: #ffffff;
-  border-left: 1px solid #e5e7eb;
+/* ===================================================================
+   RIGHT PANEL: Answers
+=================================================================== */
+.rightpanel {
   padding: 20px;
+  border-left: 1px solid #e5e7eb;
+  background: #ffffff;
   overflow-y: auto;
 }
 
-.right-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 14px;
+.rightpanel h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
 }
 
-.right-box {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  padding: 12px;
+.answer-item {
+  padding: 10px 12px;
+  background: #f3f4f6;
   border-radius: 10px;
+  margin-bottom: 10px;
 }
 
-/* =============================
-   AI PANEL
-============================= */
-.ai-panel {
-  margin-top: 20px;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 14px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-}
-
-#aiPrompt {
-  width: 100%;
-  height: 80px;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  resize: none;
-}
-
-.ai-btn {
-  margin-top: 10px;
-  width: 100%;
-  padding: 10px;
-  background: #3b82f6;
-  border-radius: 10px;
-  border: none;
-  color: white;
-  cursor: pointer;
-  transition: 0.2s;
-  font-size: 15px;
-}
-
-.ai-btn:hover {
-  background: #2563eb;
-}
-
-#aiOutput {
-  margin-top: 10px;
-  background: #f1f5f9;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #dbeafe;
-}
-
-/* =============================
-   MODAL UI
-============================= */
-
+/* ===================================================================
+   MODAL (prompt replacement)
+=================================================================== */
 .modal-bg {
   position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
   display: none;
-  justify-content: center;
   align-items: center;
-  z-index: 999;
+  justify-content: center;
+  z-index: 30;
 }
 
 .modal {
-  background: white;
-  padding: 22px;
-  width: 340px;
+  width: 360px;
+  background: #ffffff;
+  padding: 20px;
   border-radius: 14px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-  animation: fadeIn 0.25s ease;
+  box-shadow: 0px 8px 18px rgba(0, 0, 0, 0.12);
 }
 
-#modal-title {
+.modal h2 {
   font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 #modal-input {
   width: 100%;
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
   padding: 10px;
-  border-radius: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
   margin-bottom: 16px;
 }
 
@@ -297,11 +216,10 @@ body {
 }
 
 .modal-btn {
-  padding: 8px 14px;
-  border-radius: 10px;
-  cursor: pointer;
+  padding: 7px 16px;
+  border-radius: 8px;
   border: none;
-  font-size: 14px;
+  cursor: pointer;
 }
 
 .modal-btn.cancel {
@@ -309,61 +227,24 @@ body {
 }
 
 .modal-btn.ok {
-  background: #3b82f6;
-  color: white;
-}
-
-.modal-btn.ok:hover {
   background: #2563eb;
+  color: #ffffff;
 }
 
-/* =============================
-   MULTI-PAGE
-============================= */
-
-.page-tabs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.page-tab {
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: #e5e7eb;
+/* ===================================================================
+   BOTTOM: Add Page button
+=================================================================== */
+.add-page {
+  margin-top: 20px;
+  padding: 10px 14px;
+  background: #e0f2fe;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 14px;
+  border: none;
+  width: 100%;
+  font-size: 15px;
 }
 
-.page-tab.active {
-  background: #3b82f6;
-  color: white;
-}
-
-.page-tab:hover {
-  background: #d1d5db;
-}
-
-/* =============================
-   SCROLLBAR
-============================= */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c7d2fe;
-  border-radius: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #eef2ff;
-}
-
-/* =============================
-   ANIMATIONS
-============================= */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+.add-page:hover {
+  background: #bae6fd;
 }
