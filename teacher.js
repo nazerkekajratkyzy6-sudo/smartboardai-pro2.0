@@ -305,7 +305,7 @@ window.addLink = () => {
 };
 
 // ===============================
-// AI MODULE
+// AI MODULE (FINAL VERSION)
 // ===============================
 window.generateAI = async function () {
   const promptArea = $("aiPrompt");
@@ -313,16 +313,17 @@ window.generateAI = async function () {
 
   const text = (promptArea?.value || "").trim();
   if (!text) {
-    alert(
+    const msg =
       currentLang === "ru"
         ? "Сначала введите запрос!"
         : currentLang === "en"
         ? "Enter a prompt first!"
-        : "Алдымен сұрау енгізіңіз!"
-    );
+        : "Алдымен сұрау енгізіңіз!";
+    alert(msg);
     return;
   }
 
+  // UI көрсетілім
   if (output) {
     output.innerHTML = `<div class="ai-loading">AI жауап дайындап жатыр...</div>`;
   }
@@ -332,15 +333,15 @@ window.generateAI = async function () {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        action: "chat",
         prompt: text,
         lang: currentLang,
       }),
     });
 
     const data = await res.json();
-    const answer = data.result || data.answer || "AI жауап қайтара алмады.";
+    const answer = data.answer || data.result || "AI жауап қайтара алмады.";
 
+    // 1) Панель ішіне шығару
     if (output) {
       output.innerHTML = `
         <div class="ai-answer">
@@ -351,12 +352,18 @@ window.generateAI = async function () {
         </div>
       `;
     }
+
+    // 2) ТАҚТАҒА АВТОМАТ ТҮСІРУ (өте маңызды)
+    addBlock("text", answer);
+
   } catch (err) {
+    console.error("AI ERROR:", err);
     if (output) {
-      output.innerHTML = `<div class="ai-error">Қате: AI серверіне қосыла алмады.</div>`;
+      output.innerHTML = `<div class="ai-error">❗ Қате: AI серверіне қосыла алмады.</div>`;
     }
   }
 };
+
 
 // ===============================
 // LIVEROOM + QR
@@ -490,3 +497,4 @@ function listenStudentStreams() {
       .join(" ");
   });
 }
+
