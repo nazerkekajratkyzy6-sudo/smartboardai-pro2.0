@@ -1,144 +1,132 @@
-// /api/ai.js — SmartBoardAI PRO (Vercel Serverless)
+// File: api/ai.js
 
-import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-const ACTIONS = [
-  "chat",
-  "lesson_plan",
-  "tasks",
-  "quiz",
-  "worksheet",
-  "split_blocks",
-  "auto_language",
-];
+// Vercel Node.js runtime
+export const config = {
+  runtime: "nodejs",
+};
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Only POST allowed" });
-  }
-
   try {
-    const { action, prompt, lang } = req.body;
-
-    if (!ACTIONS.includes(action)) {
-      return res.status(400).json({ error: "Invalid action" });
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method Not Allowed" });
     }
 
-    const systemPrompt = buildSystemPrompt(action, lang);
-    const userPrompt = buildUserPrompt(action, prompt, lang);
+    // ---- Body оқу ----
+    let body = {};
+    if (typeof req.body === "string") {
+      try {
+        body = JSON.parse(req.body);
+      } catch {
+        body = {};
+      }
+    } else {
+      body = req.body || {};
+    }
 
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      temperature: 0.7,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
+    const {
+      action = "chat",
+      lang = "kk",
+      prompt = "Сұрақ бос."
+    } = body;
+
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: "OPENAI_API_KEY орнатылмаған" });
+    }
+
+    // ---- Prompt құрылысы ----
+    const systemPrompt = `
+Сен SmartBoardAI PRO жүйесінің ресми AI-ассистентісің.
+Міндеттерің:
+- Сабақ жоспары, тапсырма, эссе, тест жасау
+- Мәтінді блоктарға бөліп беру
+- Мәтінді қайта жазу
+- 1–11 сыныпқа сай тапсырма құру
+- Мұғалім сұрағы қандай тілде болса, сол тілде жауап беру
+    `.trim();
+
+    const userPrompt = buildPrompt(action, prompt, lang);
+
+    // ---- OpenAI API ----
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + apiKey,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        temperature: 0.7,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      }),
     });
 
-    const aiText =
-      completion?.choices?.[0]?.message?.content ||
-      "AI жауап қайтара алмады.";
+    const data = await response.json();
 
-    return res.status(200).json({
-      ok: true,
-      action,
-      result: aiText,
-    });
+    if (data.error) {
+      console.error("OPENAI API ERROR:", data.error);
+      return res.status(500).json({ error: data.error.message });
+    }
+
+    const answer =
+      data.choices?.[0]?.message?.content || "Жауап табылмады.";
+
+    return res.status(200).json({ answer });
   } catch (err) {
-    console.error("AI ERROR:", err);
-    return res.status(500).json({
-      ok: false,
-      error: err.message,
-    });
+    console.error("SERVER ERROR:", err);
+    return res.status(500).json({ error: err.toString() });
   }
 }
 
-function buildSystemPrompt(action, lang) {
-  const L = lang || "kz";
+// 🔵 PROMPT BUILDER
+function buildPrompt(action, prompt, lang) {
+  const LANG_OUT =
+    lang === "ru"
+      ? "орыс тілінде"
+      : lang === "en"
+      ? "ағылшын тілінде"
+      : "қазақ тілінде";
 
-  const HEAD = {
-    kz: "Сен SmartBoardAI PRO мұғалімдер платформасының ресми AI-модулі боласың.",
-    ru: "Ты — официальный AI-модуль платформы SmartBoardAI PRO.",
-    en: "You are the official AI module of SmartBoardAI PRO.",
-  };
-
-  return `
-${HEAD[L]}
-
-Міндеттерің:
-- қысқа әрі нақты жауап беру
-- блоктарға бөліп құрылымды сақтау
-- қажет болса кесте, формула, тапсырма құру
-- мектеп стандартына сай болу (KZ curriculum)
-- мұғалім қолдана алатындай нақты әрі түсінікті жауап беру
-`;
-}
-
-function buildUserPrompt(action, prompt, lang) {
   switch (action) {
-    case "chat":
-      return `${prompt}`;
-
     case "lesson_plan":
       return `
 Сабақ жоспарын құр:
-- тақырып
-- оқу мақсаты
-- бағалау критерийлері
-- тапсырмалар (кемінде 3)
-- саралау
-- рефлексия
-Тіл: ${lang}
 Тақырып: ${prompt}
+Бөлімдер:
+- Оқу мақсаты
+- Бағалау критерийі
+- Теория
+- Тапсырмалар (3 деңгей)
+- Рефлексия
+Жауапты ${LANG_OUT} бер.
 `;
 
     case "tasks":
       return `
-Мына тақырып бойынша 5 аралас деңгейдегі тапсырма құр:
-${prompt}
-Тіл: ${lang}
+Тақырып: ${prompt}
+5 тапсырма құрастыр.
+Жауапты ${LANG_OUT} бер.
 `;
 
     case "quiz":
       return `
 Тақырып: ${prompt}
-10 сұрақтан тұратын тест құрастыр.
-Әр сұраққа 4 нұсқа бер.
-Соңында жеке "Жауап кілті" болсын.
-Тіл: ${lang}
+10 тест сұрағын құрастыр.
+Нұсқалар + Жауап кілті болсын.
+Жауапты ${LANG_OUT} бер.
 `;
 
-    case "worksheet":
+    case "split":
       return `
-Толық WORKSHEET құрастыр:
-– жылы кіріспе
-– теориялық түсіндіру
-– 5 есеп (шешімімен)
-– рефлексия
-Тақырып: ${prompt}
-Тіл: ${lang}
-`;
-
-    case "split_blocks":
-      return `
-Мәтінді сабаққа арналған блоктарға бөл:
+Мәтінді сабаққа арналған block форматқа бөл:
 ${prompt}
-Тіл: ${lang}
+Жауапты ${LANG_OUT} бер.
 `;
 
-    case "auto_language":
-      return `
-Төмендегі мәтіннің тілін анықта:
-${prompt}
-
-Сосын оны грамматикасы дұрыс, таза стильде қайта жаз.
-`;
     default:
-      return `${prompt}`;
+      return `${prompt}\n\nЖауапты ${LANG_OUT} бер.`;
   }
 }
