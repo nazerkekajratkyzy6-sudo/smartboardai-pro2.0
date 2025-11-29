@@ -1,250 +1,280 @@
-/* ===================================================================
-   GLOBAL STYLES — SmartBoardAI PRO
-   Premium clean design
-=================================================================== */
+/* =========================================================
+   SmartBoardAI PRO — MAIN CSS (ФАЗА 1 — Дизайн Финал)
+   Назерке Кайраткызы үшін арнайы дайындалды ❤️
+   Таза, премиум, толық responsive
+========================================================= */
 
+/* ---------- GLOBAL ---------- */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: "Inter", sans-serif;
 }
 
 body {
-  font-family: Inter, Arial, sans-serif;
-  background: #f6f8fc;
-  color: #1a1a1a;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  background: #f5f7fb;
+  color: #1f2937;
+  height: 100vh;
+  overflow: hidden;
 }
 
-/* Top Navigation — teacher.html only */
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+/* ---------- TOP BAR ---------- */
 .topbar {
-  width: 100%;
-  padding: 14px 24px;
+  height: 56px;
   background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 22px;
+  font-size: 20px;
+  font-weight: 600;
 }
 
-.logo {
-  font-size: 22px;
-  font-weight: 700;
-  color: #0c3c78;
+.topbar-right button {
+  margin-left: 10px;
 }
 
-/* Language switcher */
-.lang-switch {
-  display: flex;
-  gap: 6px;
-}
-
-.lang-switch button {
-  padding: 4px 10px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
+.lang-btn {
   background: #eef2ff;
-  cursor: pointer;
-  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 14px;
 }
 
-.lang-switch button:hover {
-  background: #dbeafe;
+.lang-btn:hover {
+  background: #dbe4ff;
 }
 
-/* Layout: Sidebar + Board + Answers */
-.layout {
+.logout-btn {
+  background: #fee2e2;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.logout-btn:hover {
+  background: #fecaca;
+}
+
+/* ---------- LAYOUT ---------- */
+.container {
   display: grid;
-  grid-template-columns: 260px 1fr 300px;
-  gap: 0;
-  flex: 1;
-  height: calc(100vh - 60px);
+  grid-template-columns: 280px auto 310px;
+  height: calc(100vh - 56px);
 }
 
-/* ===================================================================
-   SIDEBAR
-=================================================================== */
+/* ---------- SIDEBAR ---------- */
 .sidebar {
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
   padding: 20px;
   overflow-y: auto;
-  border-right: 1px solid #e5e7eb;
-  background: #ffffff;
 }
 
-.sidebar h3 {
+.section-title {
+  margin-top: 24px;
+  margin-bottom: 10px;
+  font-weight: 600;
   font-size: 16px;
-  margin-bottom: 14px;
   color: #374151;
 }
 
-.block-btn {
+.tool-btn {
   width: 100%;
-  padding: 10px 14px;
   background: #eef2ff;
+  padding: 10px 12px;
   border-radius: 10px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  border: none;
+  margin-bottom: 8px;
+  text-align: left;
   font-size: 15px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 
-.block-btn:hover {
-  background: #e0e7ff;
+.tool-btn:hover {
+  background: #dbe4ff;
 }
 
-/* ===================================================================
-   MAIN BOARD
-=================================================================== */
-.board {
+.ai-panel textarea {
+  width: 100%;
+  height: 90px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.ai-btn {
+  width: 100%;
+  background: #2563eb;
+  color: white;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+.ai-btn:hover { background: #1d4ed8; }
+
+/* ---------- ROOM ---------- */
+.room-box {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.room-id {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.qr-box {
+  margin: 10px auto;
+  width: 140px;
+  height: 140px;
+}
+
+/* ---------- PAGES ---------- */
+#pages .page-btn {
+  width: 100%;
+  background: #f3f4f6;
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+#pages .page-btn.active {
+  background: #c7d2fe;
+  font-weight: 600;
+}
+
+/* ---------- BOARD AREA ---------- */
+.board-area {
+  background: #f9fafb;
   padding: 20px;
   overflow-y: auto;
 }
 
 .center-msg {
-  margin-top: 50px;
-  text-align: center;
-  font-size: 18px;
   color: #6b7280;
+  font-size: 20px;
+  text-align: center;
+  margin-top: 50px;
 }
 
+/* Blocks */
 .board-card {
   background: #ffffff;
-  border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  margin-bottom: 18px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 12px;
 }
 
 .board-card-header {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
+  font-weight: 600;
 }
 
 .card-delete-btn {
-  padding: 4px 10px;
   background: #fee2e2;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+  color: #991b1b;
+  padding: 4px 10px;
+  border-radius: 8px;
 }
 
 .card-delete-btn:hover {
   background: #fecaca;
 }
 
-.board-image {
-  width: 100%;
-  border-radius: 10px;
-}
-
-.board-video {
-  width: 100%;
-  height: 350px;
-  border-radius: 10px;
-}
-
-/* ===================================================================
-   RIGHT PANEL: Answers
-=================================================================== */
-.rightpanel {
-  padding: 20px;
-  border-left: 1px solid #e5e7eb;
+/* ---------- RIGHT PANEL ---------- */
+.right-panel {
   background: #ffffff;
+  border-left: 1px solid #e5e7eb;
+  padding: 18px;
   overflow-y: auto;
 }
 
-.rightpanel h3 {
-  font-size: 16px;
+.right-title {
+  font-weight: 700;
+  font-size: 18px;
   margin-bottom: 10px;
 }
 
-.answer-item {
-  padding: 10px 12px;
+.right-box {
+  padding: 12px;
   background: #f3f4f6;
   border-radius: 10px;
-  margin-bottom: 10px;
+  min-height: 60px;
+  font-size: 15px;
 }
 
-/* ===================================================================
-   MODAL (prompt replacement)
-=================================================================== */
+/* ---------- MODAL ---------- */
 .modal-bg {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(2px);
+  inset: 0;
+  background: rgba(0,0,0,0.45);
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 30;
 }
 
 .modal {
-  width: 360px;
   background: #ffffff;
-  padding: 20px;
+  padding: 22px;
+  width: 380px;
   border-radius: 14px;
-  box-shadow: 0px 8px 18px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.25);
 }
 
 .modal h2 {
   font-size: 18px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 #modal-input {
   width: 100%;
   padding: 10px;
-  border-radius: 8px;
   border: 1px solid #d1d5db;
-  margin-bottom: 16px;
+  border-radius: 10px;
 }
 
 .modal footer {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+  margin-top: 16px;
 }
 
 .modal-btn {
-  padding: 7px 16px;
+  padding: 8px 14px;
   border-radius: 8px;
-  border: none;
-  cursor: pointer;
 }
 
-.modal-btn.cancel {
-  background: #e5e7eb;
+.modal-btn.cancel { background: #e5e7eb; }
+.modal-btn.ok { background: #2563eb; color: white; }
+.modal-btn.ok:hover { background:#1e40af; }
+
+/* Scrollbars */
+.sidebar::-webkit-scrollbar,
+.right-panel::-webkit-scrollbar,
+.board-area::-webkit-scrollbar {
+  width: 6px;
 }
 
-.modal-btn.ok {
-  background: #2563eb;
-  color: #ffffff;
-}
-
-/* ===================================================================
-   BOTTOM: Add Page button
-=================================================================== */
-.add-page {
-  margin-top: 20px;
-  padding: 10px 14px;
-  background: #e0f2fe;
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
   border-radius: 10px;
-  cursor: pointer;
-  border: none;
-  width: 100%;
-  font-size: 15px;
-}
-
-.add-page:hover {
-  background: #bae6fd;
 }
