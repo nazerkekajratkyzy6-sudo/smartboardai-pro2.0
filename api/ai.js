@@ -1,14 +1,11 @@
-// /api/ai.js — SmartBoardAI PRO
-// Vercel Serverless Function (Fully Fixed Version)
+// /api/ai.js — SmartBoardAI PRO (Vercel Serverless)
 
 import OpenAI from "openai";
 
-// ============== OPENAI CLIENT ==============
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Қолдануға рұқсат етілген әрекеттер
 const ACTIONS = [
   "chat",
   "lesson_plan",
@@ -16,13 +13,10 @@ const ACTIONS = [
   "quiz",
   "worksheet",
   "split_blocks",
-  "auto_language"
+  "auto_language",
 ];
 
-// ============== MAIN HANDLER ==============
 export default async function handler(req, res) {
-
-  // Тек POST рұқсат
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Only POST allowed" });
   }
@@ -30,7 +24,6 @@ export default async function handler(req, res) {
   try {
     const { action, prompt, lang } = req.body;
 
-    // Action дұрыс па?
     if (!ACTIONS.includes(action)) {
       return res.status(400).json({ error: "Invalid action" });
     }
@@ -38,14 +31,13 @@ export default async function handler(req, res) {
     const systemPrompt = buildSystemPrompt(action, lang);
     const userPrompt = buildUserPrompt(action, prompt, lang);
 
-    // ============== OPENAI CALL ==============
     const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",  // mini → ең тез
+      model: "gpt-4o-mini",
       temperature: 0.7,
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ]
+        { role: "user", content: userPrompt },
+      ],
     });
 
     const aiText =
@@ -57,7 +49,6 @@ export default async function handler(req, res) {
       action,
       result: aiText,
     });
-
   } catch (err) {
     console.error("AI ERROR:", err);
     return res.status(500).json({
@@ -67,16 +58,13 @@ export default async function handler(req, res) {
   }
 }
 
-// =====================================================================
-//                           SYSTEM PROMPT
-// =====================================================================
 function buildSystemPrompt(action, lang) {
   const L = lang || "kz";
 
   const HEAD = {
     kz: "Сен SmartBoardAI PRO мұғалімдер платформасының ресми AI-модулі боласың.",
     ru: "Ты — официальный AI-модуль платформы SmartBoardAI PRO.",
-    en: "You are the official AI module of SmartBoardAI PRO."
+    en: "You are the official AI module of SmartBoardAI PRO.",
   };
 
   return `
@@ -91,13 +79,8 @@ ${HEAD[L]}
 `;
 }
 
-// =====================================================================
-//                              USER PROMPT
-// =====================================================================
 function buildUserPrompt(action, prompt, lang) {
-
   switch (action) {
-
     case "chat":
       return `${prompt}`;
 
@@ -155,7 +138,6 @@ ${prompt}
 
 Сосын оны грамматикасы дұрыс, таза стильде қайта жаз.
 `;
-
     default:
       return `${prompt}`;
   }
