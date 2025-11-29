@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartBoardAI — Student</title>
+  <link rel="stylesheet" href="student.css" />
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- Language -->
+    <div class="lang-switch">
+      <button id="stKZ">KZ</button>
+      <button id="stRU">RU</button>
+      <button id="stEN">EN</button>
+    </div>
+
+    <!-- Card -->
+    <div class="card">
+
+      <h2 id="title">Оқушы панелі</h2>
+
+      <!-- Room Field -->
+      <label id="roomLbl">Бөлме коды:</label>
+      <input id="roomInput" type="text" placeholder="ROOM ID" />
+
+      <!-- Avatar -->
+      <label id="avLbl">Аватар:</label>
+      <select id="avatar">
+        <option>🙂</option>
+        <option>😎</option>
+        <option>🤓</option>
+        <option>🤩</option>
+        <option>😺</option>
+        <option>🐼</option>
+      </select>
+
+      <!-- Name -->
+      <label id="nameLbl">Есіміңіз:</label>
+      <input id="studentName" type="text" placeholder="Атыңыз" />
+
+      <!-- Answer -->
+      <label id="ansLbl">Жауап:</label>
+      <textarea id="studentAnswer" placeholder="Жауабыңызды жазыңыз..."></textarea>
+
+      <button id="sendBtn">Жіберу</button>
+
+      <div id="status" class="status"></div>
+
+    </div>
+  </div>
+
+  <script type="module" src="student.js"></script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <title>SmartBoardAI PRO – Мұғалім</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Premium UI -->
+  <link rel="stylesheet" href="main.css" />
+
+  <!-- QR Generator -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-title">📘 SmartBoardAI PRO — Мұғалім</div>
+
+    <div class="topbar-right">
+      <button class="lang-btn" id="langKZ">🇰🇿</button>
+      <button class="lang-btn" id="langRU">🇷🇺</button>
+      <button class="lang-btn" id="langEN">🇬🇧</button>
+
+      <button class="logout-btn" id="logout">🔒 Шығу</button>
+    </div>
+  </div>
+
+  <!-- LAYOUT -->
+  <div class="container">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <h2>🧰 Құралдар</h2>
+
+      <div class="section-title">Блоктар</div>
+
+      <button class="tool-btn" onclick="addTextBlock()">📝 Мәтін</button>
+      <button class="tool-btn" onclick="addFormula()">∑ Формула</button>
+      <button class="tool-btn" onclick="addImage()">🖼 Фото</button>
+      <button class="tool-btn" onclick="addVideo()">🎬 Видео</button>
+      <button class="tool-btn" onclick="addLink()">🔗 Сілтеме</button>
+
+      <div class="section-title">AI панелі</div>
+
+      <div class="ai-panel">
+        <textarea id="aiPrompt" placeholder="Тапсырма немесе мәтін жазыңыз..."></textarea>
+        <button class="ai-btn" onclick="generateAI()">⚡ Генерация</button>
+        <div id="aiOutput"></div>
+      </div>
+
+      <div class="section-title">LiveRoom</div>
+
+      <div class="room-box">
+        <div class="room-id" id="roomId">–</div>
+        <button class="btn" onclick="createRoom()">🟢 Жаңа бөлме</button>
+
+        <div class="qr-box" id="qrContainer"></div>
+
+        <p style="font-size: 12px; margin-top: 8px; text-align:center;">
+          Оқушылар <b>QR арқылы</b> қосылады
+        </p>
+      </div>
+
+    </aside>
+
+    <!-- MAIN BOARD -->
+    <main class="board-area" id="board">
+      <h3 class="center-msg">✨ Сабақ құруды бастау үшін сол жақтан блок таңдаңыз</h3>
+    </main>
+
+    <!-- RIGHT PANEL -->
+    <aside class="right-panel">
+      <div class="right-title">📥 Оқушы жауаптары</div>
+
+      <div class="right-box" id="studentAnswers">
+        Әзірше жауап жоқ...
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- SCRIPT -->
+  <script type="module" src="teacher.js"></script>
+  <script type="module" src="firebaseConfig.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <title>SmartBoardAI PRO – Кіру</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="main.css" />
+</head>
+
+<body class="index-body">
+
+  <div class="index-wrapper">
+    <div class="index-card">
+
+      <!-- Тіл ауыстыру -->
+      <div class="index-lang-switch">
+        <button data-lang="kk">🇰🇿 KZ</button>
+        <button data-lang="ru">🇷🇺 RU</button>
+        <button data-lang="en">🇬🇧 EN</button>
+      </div>
+
+      <!-- Лого -->
+      <div class="index-header">
+        <div class="index-logo-circle">AI</div>
+        <div>
+          <h1 id="idxTitle">SmartBoardAI PRO</h1>
+          <p id="idxSubtitle">Интерактивті сабақ платформасы</p>
+        </div>
+      </div>
+
+      <!-- Батырмалар -->
+      <div class="index-buttons">
+        <a href="teacher.html" class="index-btn index-btn-teacher" id="idxTeacherBtn">
+          👩‍🏫 <span id="idxTeacherText">Мұғалім панелі</span>
+        </a>
+
+        <a href="student.html" class="index-btn index-btn-student" id="idxStudentBtn">
+          👨‍🎓 <span id="idxStudentText">Оқушы панелі</span>
+        </a>
+      </div>
+
+      <!-- Footer -->
+      <div class="index-footer">
+        <span>AI-Pedagogy Tools by Nazerke Kairatkyzy</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TEXTS = {
+      kk: {
+        title: "SmartBoardAI PRO",
+        subtitle: "Интерактивті сабақ платформасы",
+        teacher: "Мұғалім панелі",
+        student: "Оқушы панелі",
+      },
+      ru: {
+        title: "SmartBoardAI PRO",
+        subtitle: "Интерактивная платформа для уроков",
+        teacher: "Панель учителя",
+        student: "Панель ученика",
+      },
+      en: {
+        title: "SmartBoardAI PRO",
+        subtitle: "Interactive lesson platform",
+        teacher: "Teacher Panel",
+        student: "Student Panel",
+      },
+    };
+
+    function applyLang(lang) {
+      const t = TEXTS[lang] || TEXTS["kk"];
+      document.getElementById("idxTitle").textContent = t.title;
+      document.getElementById("idxSubtitle").textContent = t.subtitle;
+      document.getElementById("idxTeacherText").textContent = t.teacher;
+      document.getElementById("idxStudentText").textContent = t.student;
+    }
+
+    document.querySelectorAll(".index-lang-switch button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const lang = btn.getAttribute("data-lang");
+        applyLang(lang);
+      });
+    });
+
+    // Әдепкі тіл
+    applyLang("kk");
+  </script>
+
+</body>
+</html>
