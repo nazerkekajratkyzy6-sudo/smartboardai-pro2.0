@@ -4,46 +4,109 @@
   <meta charset="UTF-8" />
   <title>SmartBoardAI PRO – Кіру</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- MAIN THEME -->
   <link rel="stylesheet" href="main.css" />
+
+  <style>
+    body {
+      background: #f5f7fb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .login-card {
+      background: white;
+      padding: 36px 42px;
+      width: 420px;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.10);
+      text-align: center;
+    }
+
+    .login-title {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .login-sub {
+      font-size: 16px;
+      color: #6b7280;
+      margin-bottom: 24px;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      display: block;
+      margin-top: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      color: white;
+    }
+
+    .teacher-btn { background: #2563eb; }
+    .teacher-btn:hover { background: #1d4ed8; }
+
+    .student-btn { background: #10b981; }
+    .student-btn:hover { background: #059669; }
+
+    .lang-row {
+      margin-bottom: 20px;
+    }
+
+    .lang-row button {
+      background: #eef2ff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      margin: 0 4px;
+    }
+
+    .lang-row button:hover {
+      background: #dbe4ff;
+    }
+
+    .footer {
+      margin-top: 24px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+  </style>
 </head>
 
-<body class="index-body">
+<body>
 
-  <div class="index-wrapper">
-    <div class="index-card">
-
-      <!-- Тіл ауыстыру -->
-      <div class="index-lang-switch">
+  <div class="login-card">
+      
+      <!-- Тіл -->
+      <div class="lang-row">
         <button data-lang="kk">🇰🇿 KZ</button>
         <button data-lang="ru">🇷🇺 RU</button>
         <button data-lang="en">🇬🇧 EN</button>
       </div>
 
-      <!-- Лого -->
-      <div class="index-header">
-        <div class="index-logo-circle">AI</div>
-        <div>
-          <h1 id="idxTitle">SmartBoardAI PRO</h1>
-          <p id="idxSubtitle">Интерактивті сабақ платформасы</p>
-        </div>
+      <div class="login-title" id="lgTitle">SmartBoardAI PRO</div>
+      <div class="login-sub" id="lgSub">Интерактивті сабақ платформасы</div>
+
+      <a href="teacher.html" class="login-btn teacher-btn">
+        👩‍🏫 <span id="lgTeach">Мұғалім панелі</span>
+      </a>
+
+      <a href="student.html" class="login-btn student-btn">
+        👨‍🎓 <span id="lgStud">Оқушы панелі</span>
+      </a>
+
+      <div class="footer">
+        AI-Pedagogy Tools by Nazerke Kairatkyzy
       </div>
 
-      <!-- Батырмалар -->
-      <div class="index-buttons">
-        <a href="teacher.html" class="index-btn index-btn-teacher" id="idxTeacherBtn">
-          👩‍🏫 <span id="idxTeacherText">Мұғалім панелі</span>
-        </a>
-
-        <a href="student.html" class="index-btn index-btn-student" id="idxStudentBtn">
-          👨‍🎓 <span id="idxStudentText">Оқушы панелі</span>
-        </a>
-      </div>
-
-      <!-- Footer -->
-      <div class="index-footer">
-        <span>AI-Pedagogy Tools by Nazerke Kairatkyzy</span>
-      </div>
-    </div>
   </div>
 
   <script>
@@ -63,27 +126,23 @@
       en: {
         title: "SmartBoardAI PRO",
         subtitle: "Interactive lesson platform",
-        teacher: "Teacher Panel",
-        student: "Student Panel",
+        teacher: "Teacher panel",
+        student: "Student panel",
       },
     };
 
     function applyLang(lang) {
-      const t = TEXTS[lang] || TEXTS["kk"];
-      document.getElementById("idxTitle").textContent = t.title;
-      document.getElementById("idxSubtitle").textContent = t.subtitle;
-      document.getElementById("idxTeacherText").textContent = t.teacher;
-      document.getElementById("idxStudentText").textContent = t.student;
+      const t = TEXTS[lang] || TEXTS.kk;
+      document.getElementById("lgTitle").textContent = t.title;
+      document.getElementById("lgSub").textContent = t.subtitle;
+      document.getElementById("lgTeach").textContent = t.teacher;
+      document.getElementById("lgStud").textContent = t.student;
     }
 
-    document.querySelectorAll(".index-lang-switch button").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const lang = btn.getAttribute("data-lang");
-        applyLang(lang);
-      });
+    document.querySelectorAll("button[data-lang]").forEach((btn) => {
+      btn.onclick = () => applyLang(btn.dataset.lang);
     });
 
-    // Әдепкі тіл
     applyLang("kk");
   </script>
 
