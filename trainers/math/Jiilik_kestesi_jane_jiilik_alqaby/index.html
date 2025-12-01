@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Жиілік кестесі – тренажер</title>
+<style>
+body{font-family:Arial;background:#f0f9ff;padding:20px;}
+.container{max-width:950px;margin:auto;background:white;padding:20px;
+border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,0.2);}
+h1{text-align:center;color:#0284c7;margin-top:0;}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+td,th{border:1px solid #ccc;padding:10px;text-align:center;}
+input{width:70px;text-align:center;padding:6px;border-radius:8px;border:1px solid #ccc;}
+.btn{
+padding:8px 14px;border-radius:999px;background:#0284c7;color:white;border:none;
+cursor:pointer;margin-right:6px;
+}
+.result{margin-top:10px;font-weight:bold;}
+.result.ok{color:#16a34a;}
+.result.bad{color:#dc2626;}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Жиілік кестесі және жиілік алқабы</h1>
+
+<p><b>Деректер:</b> <span id="data"></span></p>
+
+<table id="table">
+<tr>
+<th>Мән</th><th>Жиілік</th>
+</tr>
+</table>
+
+<button class="btn" onclick="check()">Тексеру</button>
+<button class="btn" onclick="showCorrect()">Дұрыс жауап</button>
+
+<div id="result" class="result"></div>
+
+</div>
+
+<script>
+let arr = [1,1,2,2,2,3,4,4,5,5,5,6,6,6,6];
+document.getElementById("data").innerText = arr.join(", ");
+
+let uniq = [...new Set(arr)].sort((a,b)=>a-b);
+let freq = {};
+uniq.forEach(v => freq[v]=arr.filter(x=>x===v).length);
+
+let html="";
+uniq.forEach(v=>{
+  html += `<tr>
+  <td>${v}</td>
+  <td><input id="f_${v}" /></td>
+  </tr>`;
+});
+document.getElementById("table").innerHTML += html;
+
+function check(){
+  const r = document.getElementById("result");
+  for(let v of uniq){
+    let user = Number(document.getElementById("f_"+v).value);
+    if(user !== freq[v]){
+      r.innerHTML="Жиілік кестесі дұрыс емес ❌";
+      r.className="result bad";
+      return;
+    }
+  }
+  let range = Math.max(...arr) - Math.min(...arr);
+  r.innerHTML = "Керемет! Жиілік кестесі дұрыс ✔<br>Жиілік алқабы: " + range;
+  r.className="result ok";
+}
+
+function showCorrect(){
+  uniq.forEach(v=>{
+    document.getElementById("f_"+v).value = freq[v];
+  });
+  const r=document.getElementById("result");
+  let range = Math.max(...arr) - Math.min(...arr);
+  r.innerHTML="Дұрыс мәндер енгізілді ✔<br>Жиілік алқабы: "+range;
+  r.className="result ok";
+}
+</script>
+
+</body>
+</html>

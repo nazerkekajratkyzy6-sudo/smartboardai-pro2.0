@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Сызықтық теңдеулер жүйесі (графиктік тәсіл) — 8-сынып</title>
+<style>
+    body{
+        margin:0;
+        padding:0;
+        background:linear-gradient(135deg,#e0f2fe,#fef9c3);
+        font-family:Arial, sans-serif;
+    }
+    .container{
+        max-width:1100px;
+        margin:24px auto 40px;
+        background:#fff;
+        padding:26px 32px;
+        border-radius:20px;
+        box-shadow:0 10px 30px rgba(0,0,0,0.15);
+    }
+    h1{text-align:center;color:#1d4ed8;margin:0;}
+    .subtitle{text-align:center;color:#4b5563;margin-bottom:20px;}
+    .task-box{
+        background:#f9fafb;
+        border:1px solid #e5e7eb;
+        padding:20px;
+        border-radius:18px;
+        margin-bottom:20px;
+    }
+    .equation{font-size:18px;color:#111827;margin-bottom:6px;}
+    .input-row{margin-top:10px;display:flex;gap:10px;align-items:center;}
+    .input-row input{
+        width:90px;
+        padding:6px 10px;
+        border:1px solid #d1d5db;
+        border-radius:999px;
+        font-size:14px;
+        text-align:center;
+    }
+    .btn{
+        padding:8px 16px;
+        border:none;
+        border-radius:999px;
+        cursor:pointer;
+        font-size:14px;
+        margin-right:6px;
+    }
+    .btn-primary{background:#22c55e;color:white;}
+    .btn-secondary{background:#e5e7eb;}
+    .btn-outline{background:white;border:1px solid #d1d5db;}
+    .result{margin-top:10px;font-weight:600;}
+    .ok{color:#16a34a;}
+    .bad{color:#b91c1c;}
+    canvas{width:100%;background:white;border:1px solid #e5e7eb;border-radius:8px;margin-top:12px;}
+    details{margin-top:10px;}
+    summary{cursor:pointer;font-weight:bold;}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Графиктік тәсілмен шешу</h1>
+    <div class="subtitle">Екі айнымалысы бар сызықтық теңдеулер жүйесі (15 есеп)</div>
+
+    <div class="task-box">
+        <div style="font-size:14px;color:#6b7280;">Есеп <span id="taskIndex"></span> / 15</div>
+
+        <div class="equation" id="eq1"></div>
+        <div class="equation" id="eq2"></div>
+
+        <div class="input-row">
+            <span>Шешімі:</span>
+            <span>x =</span> <input id="xInput">
+            <span>y =</span> <input id="yInput">
+        </div>
+
+        <div style="margin-top:12px;">
+            <button class="btn btn-primary" id="btnCheck">Тексеру</button>
+            <button class="btn btn-secondary" id="btnShow">Дұрыс жауап</button>
+            <button class="btn btn-outline" id="btnNext">Келесі</button>
+            <button class="btn btn-secondary" id="btnDraw">Графикті көру</button>
+        </div>
+
+        <div id="resultBox" class="result"></div>
+
+        <details>
+            <summary>🧮 Шешуі</summary>
+            <div id="solution" style="padding:8px 16px;"></div>
+        </details>
+    </div>
+
+    <canvas id="graph" width="900" height="420"></canvas>
+
+</div>
+
+<script>
+// -------------------------- ТАПСЫРМАЛАР (15 есеп) --------------------------
+const tasks = [
+    // 1
+    { a1:1,b1:1,c1:6,  a2:1,b2:-1,c2:2 },
+    // 2
+    { a1:2,b1:1,c1:9,  a2:-1,b2:1,c2:1 },
+    // 3
+    { a1:3,b1:-1,c1:7, a2:1,b2:2,c2:10 },
+    // 4
+    { a1:1,b1:-2,c1:4, a2:2,b2:-1,c2:7 },
+    // 5
+    { a1:-2,b1:1,c1:3, a2:1,b2:1,c2:8 },
+    // 6
+    { a1:1,b1:1,c1:5,  a2:2,b2:2,c2:10 }, // шексіз шешім
+    // 7
+    { a1:2,b1:3,c1:7,  a2:2,b2:3,c2:4 }, // шешім жоқ
+    // 8
+    { a1:3,b1:2,c1:12, a2:1,b2:-1,c2:1 },
+    // 9
+    { a1:-1,b1:4,c1:10, a2:2,b2:1,c2:7 },
+    // 10
+    { a1:5,b1:-1,c1:14, a2:1,b2:1,c2:4 },
+    // 11
+    { a1:1,b1:3,c1:9, a2:-2,b2:1,c2:3 },
+    // 12
+    { a1:3,b1:1,c1:8, a2:1,b2:-3,c2:2 },
+    // 13
+    { a1:-1,b1:2,c1:1, a2:4,b2:1,c2:11 },
+    // 14
+    { a1:2,b1:-4,c1:6, a2:1,b2:2,c2:10 },
+    // 15
+    { a1:3,b1:3,c1:9, a2:6,b2:6,c2:18 } // шексіз шешім
+];
+
+// -------------------------- Көмекші функциялар --------------------------
+function solve(t){
+    const D = t.a1*t.b2 - t.a2*t.b1;
+    const Dx = t.c1*t.b2 - t.c2*t.b1;
+    const Dy = t.a1*t.c2 - t.a2*t.c1;
+
+    if(Math.abs(D) < 1e-9){
+        if(Math.abs(Dx)<1e-9 && Math.abs(Dy)<1e-9)
+            return { type:"infinite" }; // шексіз шешім
+        return { type:"none" }; // шешім жоқ
+    }
+    return { type:"one", x:Dx/D, y:Dy/D };
+}
+
+function fmtEq(a,b,c){
+    const pa = (a===1?"x":a===-1?"-x":a+"x");
+    const pb = b>=0?"+ "+b+"y":"- "+Math.abs(b)+"y";
+    return pa+" "+pb+" = "+c;
+}
+
+let current = 0;
+
+const eq1 = document.getElementById("eq1");
+const eq2 = document.getElementById("eq2");
+const solution = document.getElementById("solution");
+const resultBox = document.getElementById("resultBox");
+const xInput = document.getElementById("xInput");
+const yInput = document.getElementById("yInput");
+
+function loadTask(){
+    const t = tasks[current];
+    eq1.textContent = "1) " + fmtEq(t.a1,t.b1,t.c1);
+    eq2.textContent = "2) " + fmtEq(t.a2,t.b2,t.c2);
+    document.getElementById("taskIndex").textContent = current+1;
+
+    const s = solve(t);
+    if(s.type==="one"){
+        solution.innerHTML = `D ≠ 0 → бір шешім бар.<br>x = ${s.x.toFixed(2)}, y = ${s.y.toFixed(2)}`;
+    } else if(s.type==="none"){
+        solution.innerHTML = `D = 0, Dx ≠ 0 немесе Dy ≠ 0 → шешімі жоқ.`;
+    } else {
+        solution.innerHTML = `D = Dx = Dy = 0 → шексіз көп шешім.`;
+    }
+
+    resultBox.textContent = "";
+    resultBox.className = "result";
+
+    xInput.value="";
+    yInput.value="";
+}
+
+document.getElementById("btnCheck").onclick = function(){
+    const t = tasks[current];
+    const s = solve(t);
+
+    if(s.type==="one"){
+        const ux = Number(xInput.value.replace(",","."));
+        const uy = Number(yInput.value.replace(",","."));
+        if(Math.abs(ux-s.x)<0.15 && Math.abs(uy-s.y)<0.15){
+            resultBox.textContent="Дұрыс! Бір шешім бар.";
+            resultBox.className="result ok";
+        } else {
+            resultBox.textContent="Қате. Қайта есептеп көр.";
+            resultBox.className="result bad";
+        }
+    } else if(s.type==="none"){
+        resultBox.textContent="Бұл жүйенің шешімі жоқ.";
+        resultBox.className="result ok";
+    } else {
+        resultBox.textContent="Бұл жүйенің шексіз көп шешімі бар.";
+        resultBox.className="result ok";
+    }
+};
+
+document.getElementById("btnShow").onclick = function(){
+    const s = solve(tasks[current]);
+    if(s.type==="one"){
+        xInput.value = s.x.toFixed(2);
+        yInput.value = s.y.toFixed(2);
+        resultBox.textContent="Нақты шешім көрсетілді.";
+        resultBox.className="result ok";
+    } else if(s.type==="none"){
+        resultBox.textContent="Шешім жоқ.";
+        resultBox.className="result ok";
+    } else {
+        resultBox.textContent="Шексіз шешім.";
+        resultBox.className="result ok";
+    }
+};
+
+document.getElementById("btnNext").onclick = function(){
+    current = (current+1)%tasks.length;
+    loadTask();
+};
+
+// -------------------------- ГРАФИК --------------------------
+const canvas = document.getElementById("graph");
+const ctx = canvas.getContext("2d");
+
+const xmin=-10,xmax=10,ymin=-10,ymax=10;
+
+function CX(x){return (x-xmin)/(xmax-xmin)*canvas.width;}
+function CY(y){return canvas.height-(y-ymin)/(ymax-ymin)*canvas.height;}
+
+function drawAxes(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.strokeStyle="#d1d5db";
+    ctx.lineWidth=1;
+    for(let x=-10;x<=10;x++){
+        const cx = CX(x);
+        ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,canvas.height); ctx.stroke();
+    }
+    for(let y=-10;y<=10;y++){
+        const cy = CY(y);
+        ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(canvas.width,cy); ctx.stroke();
+    }
+    ctx.strokeStyle="#6b7280"; ctx.lineWidth=2;
+
+    ctx.beginPath(); ctx.moveTo(0,CY(0)); ctx.lineTo(canvas.width,CY(0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(CX(0),0); ctx.lineTo(CX(0),canvas.height); ctx.stroke();
+}
+
+function drawLine(a,b,c,color){
+    ctx.strokeStyle=color;
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    let first=true;
+    for(let x=xmin;x<=xmax;x+=0.05){
+        const y=(c - a*x)/b;
+        const cx=CX(x), cy=CY(y);
+        if(first){ctx.moveTo(cx,cy); first=false;}
+        else ctx.lineTo(cx,cy);
+    }
+    ctx.stroke();
+}
+
+document.getElementById("btnDraw").onclick = function(){
+    drawAxes();
+    const t = tasks[current];
+    drawLine(t.a1,t.b1,t.c1,"#4f46e5");
+    drawLine(t.a2,t.b2,t.c2,"#ef4444");
+
+    const s = solve(t);
+    if(s.type==="one"){
+        ctx.fillStyle="#ef4444";
+        ctx.beginPath();
+        ctx.arc(CX(s.x),CY(s.y),5,0,Math.PI*2);
+        ctx.fill();
+    }
+};
+
+// --------------------------
+loadTask();
+</script>
+
+</body>
+</html>

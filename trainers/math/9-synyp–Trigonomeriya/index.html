@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>9-сынып – Тригонометрия (Сәйкестендіру ойыны)</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#eef2ff;
+    padding:22px;
+}
+.container{
+    max-width:1000px;
+    margin:auto;
+    background:white;
+    padding:30px;
+    border-radius:22px;
+    box-shadow:0 16px 36px rgba(0,0,0,0.18);
+}
+h2{
+    text-align:center;
+    font-size:28px;
+    margin-top:0;
+    color:#4338ca;
+}
+
+/* Бағандар */
+.columns{
+    display:flex;
+    justify-content:space-between;
+    margin-top:24px;
+}
+
+.col{
+    width:45%;
+    background:#e0e7ff;
+    padding:18px;
+    border-radius:18px;
+}
+
+.title{
+    text-align:center;
+    font-size:22px;
+    margin-bottom:14px;
+    color:#4338ca;
+}
+
+.item{
+    background:white;
+    padding:14px;
+    border-radius:14px;
+    border:2px solid #818cf8;
+    margin-bottom:12px;
+    cursor:pointer;
+    font-size:22px;
+    text-align:center;
+    transition:0.2s;
+}
+.item:hover{
+    background:#c7d2fe;
+}
+
+.selected{
+    background:#6366f1 !important;
+    color:white;
+}
+
+.correct{
+    background:#dcfce7 !important;
+    border-color:#16a34a !important;
+}
+.wrong{
+    background:#fee2e2 !important;
+    border-color:#dc2626 !important;
+}
+
+/* Статус */
+.status{
+    margin-top:20px;
+    font-size:24px;
+    font-weight:bold;
+}
+.ok{color:#16a34a;}
+.err{color:#dc2626;}
+
+.expl{
+    margin-top:18px;
+    background:#fff7ed;
+    border-left:6px solid #fb923c;
+    padding:16px;
+    border-radius:12px;
+    display:none;
+}
+
+/* Келесі батырмасы */
+.nextbtn{
+    margin-top:22px;
+    padding:12px 20px;
+    font-size:18px;
+    color:white;
+    background:#4338ca;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+}
+.nextbtn:hover{
+    background:#3730a3;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h2>📘 9-сынып – Тригонометрия (Сәйкестендіру)</h2>
+
+<div class="columns">
+
+    <div class="col">
+        <div class="title">Бұрыштар</div>
+        <div id="angleList"></div>
+    </div>
+
+    <div class="col">
+        <div class="title">Мәндер</div>
+        <div id="valueList"></div>
+    </div>
+
+</div>
+
+<div id="status" class="status"></div>
+<div id="expl" class="expl"></div>
+
+<button onclick="nextQ()" class="nextbtn">Келесі</button>
+
+</div>
+
+<script>
+
+/* ---- Тригонометрия деректері ---- */
+const data = [
+{
+ angle:"30°",
+ value:"1/2",
+ e:"sin(30°)=1/2"
+},
+{
+ angle:"45°",
+ value:"√2/2",
+ e:"sin(45°)=√2/2"
+},
+{
+ angle:"60°",
+ value:"√3/2",
+ e:"sin(60°)=√3/2"
+},
+{
+ angle:"0°",
+ value:"0",
+ e:"sin(0°)=0"
+},
+{
+ angle:"90°",
+ value:"1",
+ e:"sin(90°)=1"
+}
+];
+
+let pairs = [];      // ағымдағы жұптар
+let selectedAngle=null;
+let selectedValue=null;
+
+/* ---- Жаңа тапсырма ---- */
+function nextQ(){
+
+    // тізімді араластыру
+    pairs = [...data].sort(()=>Math.random()-0.5).slice(0,4);
+
+    selectedAngle=null;
+    selectedValue=null;
+
+    document.getElementById("status").textContent="";
+    document.getElementById("expl").style.display="none";
+
+    const aDiv=document.getElementById("angleList");
+    const vDiv=document.getElementById("valueList");
+
+    aDiv.innerHTML="";
+    vDiv.innerHTML="";
+
+    /* Бұрыштар */
+    pairs.forEach(p=>{
+        const div=document.createElement("div");
+        div.className="item";
+        div.textContent=p.angle;
+        div.onclick=()=> chooseAngle(div, p.angle);
+        aDiv.appendChild(div);
+    });
+
+    /* Мәндер */
+    let vals = pairs.map(p=>p.value).sort(()=>Math.random()-0.5);
+    vals.forEach(v=>{
+        const div=document.createElement("div");
+        div.className="item";
+        div.textContent=v;
+        div.onclick=()=> chooseValue(div, v);
+        vDiv.appendChild(div);
+    });
+}
+
+/* Бұрышты таңдау */
+function chooseAngle(el, angle){
+    if(selectedAngle) selectedAngle.classList.remove("selected");
+    selectedAngle = el;
+    el.classList.add("selected");
+    checkMatch();
+}
+
+/* Мәнді таңдау */
+function chooseValue(el, value){
+    if(selectedValue) selectedValue.classList.remove("selected");
+    selectedValue = el;
+    el.classList.add("selected");
+    checkMatch();
+}
+
+/* ---- Сәйкестікті тексеру ---- */
+function checkMatch(){
+    if(!selectedAngle || !selectedValue) return;
+
+    const sAngle = selectedAngle.textContent.trim();
+    const sValue = selectedValue.textContent.trim();
+
+    const correctPair = pairs.find(p=>p.angle===sAngle);
+
+    const status=document.getElementById("status");
+    const expl=document.getElementById("expl");
+
+    if(correctPair.value === sValue){
+        selectedAngle.classList.add("correct");
+        selectedValue.classList.add("correct");
+        status.textContent="✅ Дұрыс сәйкестік!";
+        status.className="status ok";
+        expl.style.display="block";
+        expl.innerHTML="Түсіндіру: "+correctPair.e;
+    }
+    else{
+        selectedAngle.classList.add("wrong");
+        selectedValue.classList.add("wrong");
+        status.textContent="❌ Қате!";
+        status.className="status err";
+        expl.style.display="block";
+        expl.innerHTML="Нұсқаулық: "+correctPair.e;
+    }
+}
+
+nextQ();
+
+</script>
+<div style="
+    margin-top:40px;
+    text-align:center;
+    font-size:18px;
+    padding:16px 0;
+    color:#4b5563;
+    border-top:4px solid #c084fc;
+    background: linear-gradient(to right, #fff, #faf5ff, #fff);
+    font-family:'Arial';
+">
+    🌿 <b>AI-Pedagogy Tools</b> by <span style="color:#7c3aed;">Nazerke Kairatkyzy</span> 🌿
+</div>
+
+</body>
+</html>

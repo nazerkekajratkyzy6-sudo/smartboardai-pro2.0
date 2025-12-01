@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title>QazMath Offline Lab – SmartBoardAI Edition</title>
+    <style>
+        *{
+            box-sizing:border-box;
+        }
+        body{
+            margin:0;
+            padding:0;
+            font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            background:linear-gradient(135deg,#e0f2fe,#f5f3ff);
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:flex-start;
+        }
+        .container{
+            width:100%;
+            max-width:1100px;
+            background:#ffffff;
+            margin:24px;
+            padding:24px 24px 32px;
+            border-radius:24px;
+            box-shadow:0 18px 45px rgba(15,23,42,0.15);
+        }
+        h1{
+            margin:0;
+            font-size:26px;
+            color:#0f172a;
+        }
+        .subtitle{
+            margin-top:4px;
+            color:#6b7280;
+            font-size:14px;
+        }
+        .tagline{
+            margin-top:8px;
+            font-size:13px;
+            color:#4b5563;
+            padding:8px 12px;
+            border-radius:999px;
+            background:linear-gradient(to right,#eff6ff,#fdf2ff);
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+        }
+        .tagline span.icon{
+            font-size:16px;
+        }
+
+        .nav{
+            margin-top:20px;
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+        }
+        .nav-btn{
+            border:none;
+            padding:10px 16px;
+            border-radius:999px;
+            font-size:14px;
+            cursor:pointer;
+            background:#e5e7eb;
+            color:#374151;
+            display:flex;
+            align-items:center;
+            gap:6px;
+            transition:all .2s ease;
+        }
+        .nav-btn span.icon{
+            font-size:16px;
+        }
+        .nav-btn:hover{
+            background:#dbeafe;
+        }
+        .nav-btn.active{
+            background:linear-gradient(to right,#2563eb,#7c3aed);
+            color:white;
+            box-shadow:0 8px 20px rgba(37,99,235,0.35);
+        }
+
+        .tool-section{
+            display:none;
+            margin-top:22px;
+        }
+        .tool-section.active{
+            display:block;
+        }
+
+        .tool-card{
+            background:#f9fafb;
+            border-radius:20px;
+            padding:18px 18px 22px;
+            box-shadow:0 10px 24px rgba(15,23,42,0.06);
+        }
+        .tool-header{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:10px;
+            margin-bottom:12px;
+        }
+        .tool-title{
+            font-size:18px;
+            font-weight:600;
+            color:#111827;
+        }
+        .tool-desc{
+            font-size:13px;
+            color:#6b7280;
+        }
+        .badge{
+            font-size:11px;
+            padding:4px 8px;
+            border-radius:999px;
+            background:#eef2ff;
+            color:#4f46e5;
+            border:1px solid rgba(79,70,229,0.25);
+        }
+
+        .form-row{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            margin-bottom:10px;
+            align-items:center;
+        }
+        label{
+            font-size:13px;
+            color:#374151;
+        }
+        input[type="number"], input[type="text"]{
+            padding:8px 10px;
+            border-radius:10px;
+            border:1px solid #d1d5db;
+            font-size:13px;
+            min-width:90px;
+        }
+        input:focus{
+            outline:none;
+            border-color:#2563eb;
+            box-shadow:0 0 0 1px rgba(37,99,235,0.35);
+        }
+        .btn-primary{
+            border:none;
+            background:linear-gradient(to right,#2563eb,#7c3aed);
+            color:white;
+            padding:9px 18px;
+            border-radius:999px;
+            font-size:13px;
+            cursor:pointer;
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            box-shadow:0 10px 22px rgba(37,99,235,0.4);
+            transition:transform .05s ease, box-shadow .1s ease;
+        }
+        .btn-primary:active{
+            transform:translateY(1px);
+            box-shadow:0 5px 14px rgba(37,99,235,0.5);
+        }
+        .btn-secondary{
+            border:none;
+            background:#e5e7eb;
+            color:#374151;
+            padding:7px 14px;
+            border-radius:999px;
+            font-size:12px;
+            cursor:pointer;
+        }
+
+        .result-box{
+            margin-top:12px;
+            padding:10px 12px;
+            border-radius:14px;
+            background:#eff6ff;
+            border:1px solid #bfdbfe;
+            font-size:13px;
+            color:#111827;
+            white-space:pre-line;
+        }
+        .result-box.error{
+            background:#fef2f2;
+            border-color:#fecaca;
+            color:#991b1b;
+        }
+
+        /* Matching game */
+        .columns{
+            display:flex;
+            gap:16px;
+            margin-top:10px;
+            flex-wrap:wrap;
+        }
+        .col{
+            flex:1 1 220px;
+            background:#ffffff;
+            border-radius:16px;
+            padding:10px;
+            border:1px solid #e5e7eb;
+        }
+        .col-title{
+            font-size:13px;
+            font-weight:600;
+            color:#111827;
+            margin-bottom:6px;
+        }
+        .item-btn{
+            width:100%;
+            text-align:left;
+            border:none;
+            background:#f9fafb;
+            padding:8px 10px;
+            border-radius:10px;
+            font-size:13px;
+            margin-bottom:6px;
+            cursor:pointer;
+            transition:all .15s ease;
+        }
+        .item-btn:hover{
+            background:#e5e7eb;
+        }
+        .item-btn.selected{
+            background:#dbeafe;
+            box-shadow:0 0 0 1px #2563eb;
+        }
+        .item-btn.correct{
+            background:#dcfce7;
+            color:#166534;
+            box-shadow:0 0 0 1px #16a34a;
+            cursor:default;
+        }
+        .item-btn.wrong{
+            background:#fee2e2;
+            color:#b91c1c;
+        }
+
+        .status{
+            margin-top:8px;
+            font-size:12px;
+            color:#4b5563;
+        }
+
+        /* Quiz */
+        .quiz-question{
+            font-size:15px;
+            font-weight:600;
+            color:#111827;
+            margin-bottom:10px;
+        }
+        .quiz-options{
+            display:flex;
+            flex-direction:column;
+            gap:6px;
+            margin-bottom:12px;
+        }
+        .quiz-option{
+            border:1px solid #e5e7eb;
+            border-radius:10px;
+            padding:8px 10px;
+            font-size:13px;
+            cursor:pointer;
+            background:#ffffff;
+            text-align:left;
+            transition:all .15s ease;
+        }
+        .quiz-option:hover{
+            background:#f3f4f6;
+        }
+        .quiz-option.selected{
+            border-color:#2563eb;
+            background:#eff6ff;
+        }
+        .quiz-option.correct{
+            border-color:#16a34a;
+            background:#dcfce7;
+            color:#166534;
+        }
+        .quiz-option.wrong{
+            border-color:#b91c1c;
+            background:#fee2e2;
+            color:#991b1b;
+        }
+        .quiz-footer{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            font-size:12px;
+            color:#6b7280;
+            margin-top:4px;
+        }
+
+        /* Footer */
+        .author-footer{
+            margin-top:28px;
+            text-align:center;
+            font-size:16px;
+            padding:16px 0 4px;
+            color:#4b5563;
+            border-top:4px solid #c084fc;
+            background:linear-gradient(to right,#ffffff,#faf5ff,#ffffff);
+        }
+        .author-footer span.name{
+            color:#7c3aed;
+            font-weight:600;
+        }
+
+        @media(max-width:640px){
+            .container{
+                margin:12px;
+                padding:18px 16px 22px;
+            }
+            h1{
+                font-size:22px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <div>
+        <h1>QazMath Offline Lab</h1>
+        <div class="subtitle">SmartBoardAI стиліндегі оффлайн математика тренажёрлары</div>
+        <div class="tagline">
+            <span class="icon">📚</span> 
+            <span>Интернетсіз жұмыс істейді · Интерактив · Авторлық құралдар</span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav">
+        <button class="nav-btn active" data-target="eq-section">
+            <span class="icon">➗</span> Теңдеу шешкіш
+        </button>
+        <button class="nav-btn" data-target="match-section">
+            <span class="icon">🧩</span> Сәйкестендіру ойыны
+        </button>
+        <button class="nav-btn" data-target="quiz-section">
+            <span class="icon">❓</span> Математикалық Quiz
+        </button>
+    </div>
+
+    <!-- 1) Equation Solver -->
+    <section id="eq-section" class="tool-section active">
+        <div class="tool-card">
+            <div class="tool-header">
+                <div>
+                    <div class="tool-title">Теңдеу шешкіш (сызықтық + квадрат)</div>
+                    <div class="tool-desc">
+                        Кез келген <b>ax² + bx + c = 0</b> түріндегі теңдеуді енгіз.
+                        Егер <b>a = 0</b> болса, сызықтық теңдеу ретінде шешіледі.
+                    </div>
+                </div>
+                <span class="badge">OFFLINE · JS</span>
+            </div>
+
+            <div class="form-row">
+                <label>a:</label>
+                <input type="number" id="coef-a" value="1" step="any">
+                <label>b:</label>
+                <input type="number" id="coef-b" value="2" step="any">
+                <label>c:</label>
+                <input type="number" id="coef-c" value="-3" step="any">
+            </div>
+            <button class="btn-primary" onclick="solveEquation()">
+                <span>Шешімін табу</span> <span>✨</span>
+            </button>
+
+            <div id="eq-result" class="result-box" style="margin-top:14px;">
+                Мұнда есептің жауабы мен қысқаша түсіндірме шығады.
+            </div>
+        </div>
+    </section>
+
+    <!-- 2) Matching Game -->
+    <section id="match-section" class="tool-section">
+        <div class="tool-card">
+            <div class="tool-header">
+                <div>
+                    <div class="tool-title">Сәйкестендіру ойыны</div>
+                    <div class="tool-desc">
+                        Сол жақтағы өрнектерді оң жақтағы дұрыс мәндерімен сәйкестендір.
+                        Барлығы дұрыс болғанда – ойын аяқталады.
+                    </div>
+                </div>
+                <span class="badge">GAME · OFFLINE</span>
+            </div>
+
+            <div class="columns">
+                <div class="col">
+                    <div class="col-title">Өрнектер</div>
+                    <div id="left-list"></div>
+                </div>
+                <div class="col">
+                    <div class="col-title">Мәндері</div>
+                    <div id="right-list"></div>
+                </div>
+            </div>
+            <div id="match-status" class="status">Екі жақтан да бір-бірден таңда.</div>
+            <button class="btn-secondary" style="margin-top:8px;" onclick="resetMatchingGame()">
+                Қайта бастау
+            </button>
+        </div>
+    </section>
+
+    <!-- 3) Quiz -->
+    <section id="quiz-section" class="tool-section">
+        <div class="tool-card">
+            <div class="tool-header">
+                <div>
+                    <div class="tool-title">Математикалық Quiz (мини-тест)</div>
+                    <div class="tool-desc">
+                        5–7 сыныпқа арналған қысқа сұрақтар. Дұрыс жауапты таңда.
+                    </div>
+                </div>
+                <span class="badge">QUIZ · OFFLINE</span>
+            </div>
+
+            <div id="quiz-content">
+                <div class="quiz-question" id="quiz-question"></div>
+                <div class="quiz-options" id="quiz-options"></div>
+                <div class="quiz-footer">
+                    <span id="quiz-progress"></span>
+                    <button class="btn-primary" onclick="nextQuestion()">
+                        Келесі сұрақ ➜
+                    </button>
+                </div>
+                <div id="quiz-status" class="status" style="margin-top:8px;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Author footer -->
+    <div class="author-footer">
+        🌿 <b>AI-Pedagogy Tools</b> by <span class="name">Nazerke Kairatkyzy</span> 🌿
+    </div>
+</div>
+
+<script>
+    // ---------- NAVIGATION ----------
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const sections = document.querySelectorAll('.tool-section');
+
+    navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.dataset.target;
+            navButtons.forEach(b => b.classList.remove('active'));
+            sections.forEach(sec => sec.classList.remove('active'));
+
+            btn.classList.add('active');
+            document.getElementById(target).classList.add('active');
+        });
+    });
+
+    // ---------- 1) EQUATION SOLVER ----------
+    function solveEquation(){
+        const a = parseFloat(document.getElementById('coef-a').value);
+        const b = parseFloat(document.getElementById('coef-b').value);
+        const c = parseFloat(document.getElementById('coef-c').value);
+        const box = document.getElementById('eq-result');
+
+        if(isNaN(a) || isNaN(b) || isNaN(c)){
+            box.classList.add('error');
+            box.textContent = 'Барлық коэффициенттерді дұрыс енгіз.';
+            return;
+        }
+
+        box.classList.remove('error');
+        const eps = 1e-10;
+        let text = '';
+
+        // a ≈ 0 → сызықтық теңдеу
+        if(Math.abs(a) < eps){
+            if(Math.abs(b) < eps){
+                if(Math.abs(c) < eps){
+                    text = '0 = 0\n\nБарлық x мәндері – теңдеудің шешімі (шексіз көп шешім).';
+                }else{
+                    text = c.toString() + ' = 0\n\nБұл теңдеудің нақты шешімі жоқ.';
+                }
+            }else{
+                const x = -c / b;
+                text = 'Сызықтық теңдеу: ' + b + 'x + ' + c + ' = 0\n\n';
+                text += 'Шешімі: x = -c / b = ' + (-c) + ' / ' + b + ' = ' + x.toFixed(4);
+            }
+        }else{
+            const D = b*b - 4*a*c;
+            text = 'Квадрат теңдеу: ' + a + 'x² + ' + b + 'x + ' + c + ' = 0\n';
+            text += 'Дискриминант: D = b² - 4ac = ' + D.toFixed(4) + '\n\n';
+
+            if(D < -eps){
+                text += 'D < 0 → Нақты түбір жоқ.';
+            }else if(Math.abs(D) <= eps){
+                const x = -b / (2*a);
+                text += 'D = 0 → Екі еселенген бір түбір:\n';
+                text += 'x = -b / (2a) = ' + (-b) + ' / ' + (2*a) + ' = ' + x.toFixed(4);
+            }else{
+                const sqrtD = Math.sqrt(D);
+                const x1 = (-b + sqrtD) / (2*a);
+                const x2 = (-b - sqrtD) / (2*a);
+                text += 'D > 0 → Екі нақты түбір:\n';
+                text += 'x₁ = (-b + √D) / 2a = ' + x1.toFixed(4) + '\n';
+                text += 'x₂ = (-b - √D) / 2a = ' + x2.toFixed(4);
+            }
+        }
+
+        box.textContent = text;
+    }
+
+    // ---------- 2) MATCHING GAME ----------
+    const matchingData = [
+        { id: 1, left: '3 + 4',         right: '7' },
+        { id: 2, left: '5 · 6',         right: '30' },
+        { id: 3, left: '18 : 3',        right: '6' },
+        { id: 4, left: '10 − 7',        right: '3' },
+        { id: 5, left: '2² + 1',        right: '5' }
+    ];
+
+    let selectedLeft = null;
+    let selectedRight = null;
+    let matchedCount = 0;
+
+    function shuffleArray(arr){
+        const a = arr.slice();
+        for(let i = a.length - 1; i > 0; i--){
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    function buildMatchingGame(){
+        const leftList = document.getElementById('left-list');
+        const rightList = document.getElementById('right-list');
+        const status = document.getElementById('match-status');
+
+        leftList.innerHTML = '';
+        rightList.innerHTML = '';
+        selectedLeft = null;
+        selectedRight = null;
+        matchedCount = 0;
+        status.textContent = 'Екі жақтан да бір-бірден таңда.';
+
+        // Сол жақ: бастапқы тәртіп
+        matchingData.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'item-btn';
+            btn.textContent = item.left;
+            btn.dataset.id = item.id;
+            btn.addEventListener('click', () => selectLeft(btn));
+            leftList.appendChild(btn);
+        });
+
+        // Оң жақ: shuffle
+        const shuffled = shuffleArray(matchingData);
+        shuffled.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'item-btn';
+            btn.textContent = item.right;
+            btn.dataset.id = item.id;
+            btn.addEventListener('click', () => selectRight(btn));
+            rightList.appendChild(btn);
+        });
+    }
+
+    function selectLeft(btn){
+        if(btn.classList.contains('correct')) return;
+
+        const allLeft = document.querySelectorAll('#left-list .item-btn');
+        allLeft.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedLeft = btn;
+        checkPair();
+    }
+
+    function selectRight(btn){
+        if(btn.classList.contains('correct')) return;
+
+        const allRight = document.querySelectorAll('#right-list .item-btn');
+        allRight.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedRight = btn;
+        checkPair();
+    }
+
+    function checkPair(){
+        const status = document.getElementById('match-status');
+        if(!selectedLeft || !selectedRight) return;
+
+        if(selectedLeft.dataset.id === selectedRight.dataset.id){
+            selectedLeft.classList.remove('selected');
+            selectedRight.classList.remove('selected');
+            selectedLeft.classList.add('correct');
+            selectedRight.classList.add('correct');
+            matchedCount++;
+            status.textContent = 'Дұрыс! ' + matchedCount + ' жұп табылды.';
+            selectedLeft = null;
+            selectedRight = null;
+
+            if(matchedCount === matchingData.length){
+                status.textContent = '🎉 Құттықтаймын! Барлық жұптарды дұрыс сәйкестендірдің.';
+            }
+        }else{
+            selectedLeft.classList.add('wrong');
+            selectedRight.classList.add('wrong');
+            status.textContent = 'Қате жұп. Қайта таңдап көр.';
+            const leftTemp = selectedLeft;
+            const rightTemp = selectedRight;
+            selectedLeft = null;
+            selectedRight = null;
+            setTimeout(() => {
+                leftTemp.classList.remove('selected','wrong');
+                rightTemp.classList.remove('selected','wrong');
+            }, 600);
+        }
+    }
+
+    function resetMatchingGame(){
+        buildMatchingGame();
+    }
+
+    // ---------- 3) QUIZ ----------
+    const quizQuestions = [
+        {
+            q: '1) 7 · 8 = ?',
+            options: ['48','54','56','64'],
+            correct: 2
+        },
+        {
+            q: '2) 3/4 бөлшегінің ондық жазылуы:',
+            options: ['0,25','0,5','0,75','1,25'],
+            correct: 2
+        },
+        {
+            q: '3) Координаталық түзуде 0 мен 5-тің дәл ортасында жатқан нүкте:',
+            options: ['1','2,5','3','4'],
+            correct: 1
+        },
+        {
+            q: '4) 30%-ды ондық бөлшек түрінде жаз:',
+            options: ['0,03','0,3','3','0,003'],
+            correct: 1
+        },
+        {
+            q: '5) Тік төртбұрыштың периметрі P=2(a+b). a=5, b=7 болса, P=?',
+            options: ['12','24','26','30'],
+            correct: 2
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let selectedOptionIndex = null;
+    let quizFinished = false;
+    let score = 0;
+
+    function renderQuestion(){
+        const qBox = document.getElementById('quiz-question');
+        const optBox = document.getElementById('quiz-options');
+        const prog = document.getElementById('quiz-progress');
+        const status = document.getElementById('quiz-status');
+
+        status.textContent = '';
+        selectedOptionIndex = null;
+        const qData = quizQuestions[currentQuestionIndex];
+
+        qBox.textContent = qData.q;
+        optBox.innerHTML = '';
+
+        qData.options.forEach((opt, idx) => {
+            const div = document.createElement('div');
+            div.className = 'quiz-option';
+            div.textContent = opt;
+            div.dataset.index = idx;
+            div.addEventListener('click', () => selectQuizOption(div));
+            optBox.appendChild(div);
+        });
+
+        prog.textContent = (currentQuestionIndex+1) + ' / ' + quizQuestions.length;
+    }
+
+    function selectQuizOption(elem){
+        if(quizFinished) return;
+        const all = document.querySelectorAll('.quiz-option');
+        all.forEach(o => o.classList.remove('selected'));
+        elem.classList.add('selected');
+        selectedOptionIndex = parseInt(elem.dataset.index);
+    }
+
+    function nextQuestion(){
+        const status = document.getElementById('quiz-status');
+        if(quizFinished){
+            status.textContent = 'Тест аяқталды. Бетті жаңартсаң – қайта басталады.';
+            return;
+        }
+        if(selectedOptionIndex === null){
+            status.textContent = 'Алдымен бір жауапты таңда.';
+            return;
+        }
+
+        // Check answer
+        const qData = quizQuestions[currentQuestionIndex];
+        const all = document.querySelectorAll('.quiz-option');
+        all.forEach(o => {
+            const idx = parseInt(o.dataset.index);
+            if(idx === qData.correct){
+                o.classList.add('correct');
+            }
+            if(idx === selectedOptionIndex && idx !== qData.correct){
+                o.classList.add('wrong');
+            }
+        });
+
+        if(selectedOptionIndex === qData.correct){
+            score++;
+            status.textContent = '✅ Дұрыс жауап!';
+        }else{
+            const correctText = qData.options[qData.correct];
+            status.textContent = '❌ Қате. Дұрыс жауап: ' + correctText;
+        }
+
+        // Move to next after short delay
+        setTimeout(() => {
+            currentQuestionIndex++;
+            if(currentQuestionIndex >= quizQuestions.length){
+                quizFinished = true;
+                const percent = Math.round(score / quizQuestions.length * 100);
+                document.getElementById('quiz-question').textContent = 'Тест аяқталды!';
+                document.getElementById('quiz-options').innerHTML = '';
+                document.getElementById('quiz-progress').textContent = '';
+                status.textContent = 'Нәтиже: ' + score + ' / ' + quizQuestions.length + ' (' + percent + '%)';
+            }else{
+                renderQuestion();
+            }
+        }, 900);
+    }
+
+    // Initial load
+    buildMatchingGame();
+    renderQuestion();
+</script>
+</body>
+</html>

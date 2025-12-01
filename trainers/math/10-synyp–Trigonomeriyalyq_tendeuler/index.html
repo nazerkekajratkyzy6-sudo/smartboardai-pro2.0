@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>10-сынып – Тригонометриялық теңдеулер (Қай шешім дұрыс?)</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#e0f2fe;
+    padding:22px;
+}
+.container{
+    max-width:950px;
+    margin:auto;
+    background:white;
+    padding:30px;
+    border-radius:22px;
+    box-shadow:0 14px 34px rgba(0,0,0,0.18);
+}
+
+h2{
+    text-align:center;
+    font-size:28px;
+    color:#0c4a6e;
+    margin-top:0;
+}
+
+/* Теңдеу */
+.eq-box{
+    background:#bae6fd;
+    padding:18px;
+    border-radius:16px;
+    font-size:26px;
+    text-align:center;
+    border-left:6px solid #0369a1;
+    margin-top:20px;
+}
+
+/* Жауап панельдері */
+.panels{
+    display:flex;
+    justify-content:space-between;
+    margin-top:26px;
+}
+
+.panel{
+    width:47%;
+    background:#f0f9ff;
+    padding:18px;
+    border-radius:18px;
+    border:2px solid #7dd3fc;
+    cursor:pointer;
+    transition:0.2s;
+}
+.panel:hover{
+    background:#dbeafe;
+}
+
+.title{
+    text-align:center;
+    font-size:20px;
+    color:#0369a1;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+.steps{
+    background:white;
+    padding:12px;
+    border-radius:12px;
+    border-left:4px solid #0ea5e9;
+    font-size:18px;
+    line-height:26px;
+}
+
+.correct{
+    border-color:#16a34a !important;
+    background:#dcfce7 !important;
+}
+.wrong{
+    border-color:#dc2626 !important;
+    background:#fee2e2 !important;
+}
+
+/* Статус */
+.status{
+    margin-top:20px;
+    font-size:24px;
+    font-weight:bold;
+}
+.ok{color:#16a34a;}
+.err{color:#dc2626;}
+
+.expl{
+    display:none;
+    background:#fff7ed;
+    padding:16px;
+    border-radius:12px;
+    border-left:6px solid #fb923c;
+    font-size:19px;
+    margin-top:18px;
+}
+
+.nextbtn{
+    margin-top:24px;
+    padding:12px 20px;
+    background:#0369a1;
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+    cursor:pointer;
+}
+.nextbtn:hover{background:#075985;}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>📘 10-сынып – Тригонометриялық теңдеулер (Қай шешім дұрыс?)</h2>
+
+<div id="eq" class="eq-box"></div>
+
+<div id="panels" class="panels"></div>
+
+<div id="status" class="status"></div>
+<div id="expl" class="expl"></div>
+
+<button onclick="nextQ()" class="nextbtn">Келесі теңдеу</button>
+
+</div>
+
+<script>
+
+/* ---- Теңдеулер ---- */
+const qs = [
+{
+ eq:"sin x = √3/2",
+ correct:"x = 60° + 360°k немесе x = 120° + 360°k",
+ wrong:"x = 45° + 180°k",
+ e:"sin x = √3/2 → x = 60°, 120° (I және II ширек). Период: 360°k."
+},
+{
+ eq:"cos x = 1/2",
+ correct:"x = 60° + 360°k немесе x = 300° + 360°k",
+ wrong:"x = 90° + 180°k",
+ e:"cos x = 1/2 → x = 60°, 300° (I және IV ширек)."
+},
+{
+ eq:"tan x = 1",
+ correct:"x = 45° + 180°k",
+ wrong:"x = 60° + 360°k",
+ e:"tan x = 1 → негізгі шешім: 45°, период: 180°."
+},
+{
+ eq:"sin x = 0",
+ correct:"x = 0° + 180°k",
+ wrong:"x = 90° + 180°k",
+ e:"sin 0° = 0; sin 180° = 0 → x = 0° + 180°k."
+},
+{
+ eq:"cos x = 0",
+ correct:"x = 90° + 180°k",
+ wrong:"x = 0° + 360°k",
+ e:"cos 90° = 0; cos 270° = 0 → x = 90° + 180°k."
+}
+];
+
+let cur;
+
+/* ---- Жаңа сұрақ ---- */
+function nextQ(){
+
+    cur = qs[Math.floor(Math.random()*qs.length)];
+
+    document.getElementById("eq").innerHTML = cur.eq;
+
+    document.getElementById("status").textContent="";
+    document.getElementById("expl").style.display="none";
+
+    const p = document.getElementById("panels");
+    p.innerHTML="";
+
+    /* Екі панель */
+    const html = `
+        <div class="panel" id="p1" onclick="check(true)">
+            <div class="title">Шешім 1</div>
+            <div class="steps">${cur.correct}</div>
+        </div>
+
+        <div class="panel" id="p2" onclick="check(false)">
+            <div class="title">Шешім 2</div>
+            <div class="steps">${cur.wrong}</div>
+        </div>
+    `;
+
+    p.innerHTML = html;
+}
+
+/* ---- Тексеру ---- */
+function check(isCorrect){
+    const status = document.getElementById("status");
+    const expl = document.getElementById("expl");
+
+    const good = document.getElementById("p1");
+    const bad = document.getElementById("p2");
+
+    if(isCorrect){
+        good.classList.add("correct");
+        status.textContent="✅ Дұрыс шешім!";
+        status.className="status ok";
+    } else {
+        bad.classList.add("wrong");
+        status.textContent="❌ Қате шешім!";
+        status.className="status err";
+    }
+
+    expl.style.display="block";
+    expl.innerHTML="Түсіндіру: "+cur.e;
+}
+
+nextQ();
+</script>
+<div style="
+    margin-top:40px;
+    text-align:center;
+    font-size:18px;
+    padding:16px 0;
+    color:#4b5563;
+    border-top:4px solid #c084fc;
+    background: linear-gradient(to right, #fff, #faf5ff, #fff);
+    font-family:'Arial';
+">
+    🌿 <b>AI-Pedagogy Tools</b> by <span style="color:#7c3aed;">Nazerke Kairatkyzy</span> 🌿
+</div>
+
+</body>
+</html>

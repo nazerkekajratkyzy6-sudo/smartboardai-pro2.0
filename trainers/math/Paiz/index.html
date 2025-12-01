@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>5-сынып – Пайыз тренажеры</title>
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+<style>
+body{
+    font-family:Arial;
+    background:#f1f5f9;
+    padding:20px;
+}
+.container{
+    max-width:780px;
+    margin:auto;
+    background:white;
+    padding:22px;
+    border-radius:16px;
+    box-shadow:0 8px 18px rgba(0,0,0,0.15);
+}
+h2{text-align:center;margin-top:0;}
+.question-box{
+    background:#e0e7ff;
+    padding:14px;
+    border-radius:12px;
+    margin-top:12px;
+    font-size:18px;
+}
+input{
+    width:100%;
+    padding:12px;
+    border:1px solid #cbd5e1;
+    border-radius:10px;
+    margin-top:8px;
+    font-size:17px;
+}
+button{
+    padding:12px 16px;
+    border:none;
+    border-radius:10px;
+    background:#2563eb;
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+    margin-top:10px;
+    margin-right:6px;
+    cursor:pointer;
+}
+button:hover{background:#1e40af;}
+.status{margin-top:10px;font-weight:bold;font-size:18px;}
+.ok{color:#16a34a;}
+.err{color:#dc2626;}
+.expl{
+    margin-top:12px;
+    background:#fff3c7;
+    padding:12px;
+    border-radius:10px;
+    display:none;
+    border-left:5px solid #fbbf24;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+<h2>📘 5-сынып – Пайыз тренажеры</h2>
+
+<div id="question" class="question-box"></div>
+
+<input id="answer" placeholder="Жауабыңды жаз..." />
+
+<button onclick="checkAnswer()">Тексеру</button>
+<button onclick="nextQ()">Келесі сұрақ</button>
+
+<div id="status" class="status"></div>
+<div id="expl" class="expl"></div>
+
+</div>
+
+<script>
+function renderMath(){
+    renderMathInElement(document.body,{
+        delimiters:[
+            {left:"$$", right:"$$", display:true},
+            {left:"\\(", right:"\\)", display:false}
+        ]
+    });
+}
+
+/* ---- СҰРАҚТАР ---- */
+const qs = [
+{
+ q:"$$200\\text{-дің } 15\\% \\text{-ы қанша?}$$",
+ a:"30",
+ e:"$$15\\% = 0.15 \\quad 200·0.15 = 30$$"
+},
+{
+ q:"$$80\\text{-нің } 25\\% \\text{-ын тап.}$$",
+ a:"20",
+ e:"$$25\\% = 0.25 \\quad 80·0.25 = 20$$"
+},
+{
+ q:"$$300\\text{-дің } 10\\% \\text{-ы?}$$",
+ a:"30",
+ e:"$$300·0.10 = 30$$"
+},
+{
+ q:"$$50\\text{ санының } 40\\% \\text{-ы?}$$",
+ a:"20",
+ e:"$$50·0.4 = 20$$"
+},
+{
+ q:"$$120\\text{-ның } 50\\% \\text{-ын тап.}$$",
+ a:"60",
+ e:"$$120·0.5 = 60$$"
+}
+];
+
+let cur;
+
+function nextQ(){
+    cur = qs[Math.floor(Math.random()*qs.length)];
+    document.getElementById("question").innerHTML = cur.q;
+    document.getElementById("status").textContent = "";
+    document.getElementById("expl").style.display="none";
+    document.getElementById("answer").value="";
+    renderMath();
+}
+
+function checkAnswer(){
+    let u = document.getElementById("answer").value.trim();
+    let status = document.getElementById("status");
+    let expl = document.getElementById("expl");
+
+    if(u === cur.a){
+        status.textContent = "✅ Дұрыс!";
+        status.className = "status ok";
+        expl.style.display="block";
+        expl.innerHTML = "Жарайсың! Түсіндіру: " + cur.e;
+        renderMath();
+    } else {
+        status.textContent = "❌ Қате! Дұрыс жауап: " + cur.a;
+        status.className = "status err";
+        expl.style.display="block";
+        expl.innerHTML = "Нұсқаулық: " + cur.e;
+        renderMath();
+    }
+}
+
+nextQ();
+</script>
+<div style="
+    margin-top:40px;
+    text-align:center;
+    font-size:18px;
+    padding:16px 0;
+    color:#4b5563;
+    border-top:4px solid #c084fc;
+    background: linear-gradient(to right, #fff, #faf5ff, #fff);
+    font-family:'Arial';
+">
+    🌿 <b>AI-Pedagogy Tools</b> by <span style="color:#7c3aed;">Nazerke Kairatkyzy</span> 🌿
+</div>
+
+</body>
+</html>

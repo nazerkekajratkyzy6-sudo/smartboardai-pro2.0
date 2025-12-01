@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Домбыра рефлексиясы – SmartBoardAI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body{
+        margin:0;
+        font-family:system-ui,Arial;
+        background:radial-gradient(circle at top,#f3e8ff,#e0f2fe);
+        display:flex;
+        justify-content:center;
+        padding:20px;
+    }
+    .wrapper{
+        max-width:900px;
+        width:100%;
+        background:#fff;
+        padding:24px;
+        border-radius:24px;
+        box-shadow:0 20px 40px rgba(0,0,0,0.15);
+    }
+    h1{text-align:center;color:#1e3a8a;margin:0;}
+    .subtitle{text-align:center;color:#64748b;margin-bottom:18px;}
+
+    .dombyra-grid{
+        display:flex;
+        justify-content:center;
+        gap:20px;
+        flex-wrap:wrap;
+    }
+    .dom-card{
+        width:180px;
+        background:linear-gradient(145deg,#e0f2fe,#f3e8ff);
+        padding:16px;
+        border-radius:20px;
+        text-align:center;
+        box-shadow:0 8px 20px rgba(0,0,0,0.12);
+    }
+    svg{width:90px;height:90px;margin-bottom:10px;}
+
+    .choice-buttons{
+        margin-top:20px;
+        display:flex;
+        justify-content:center;
+        gap:12px;
+        flex-wrap:wrap;
+    }
+    .choice-btn{
+        border:none;
+        padding:10px 20px;
+        border-radius:999px;
+        background:#e2e8f0;
+        cursor:pointer;
+        font-size:15px;
+        font-weight:600;
+        box-shadow:0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .counter-box{
+        margin-top:25px;
+        background:#f8fafc;
+        padding:14px;
+        border-radius:16px;
+        box-shadow:0 6px 12px rgba(0,0,0,0.1);
+        border:1px solid #e2e8f0;
+    }
+    .count-box{
+        background:#fff;
+        padding:10px 16px;
+        border-radius:12px;
+        font-size:15px;
+        font-weight:600;
+        box-shadow:0 4px 10px rgba(0,0,0,0.1);
+        display:inline-block;
+        margin:5px;
+    }
+
+    .reset-btn{
+        margin:14px auto 0;
+        display:block;
+        padding:10px 20px;
+        background:#6366f1;
+        border:none;
+        color:white;
+        border-radius:12px;
+        cursor:pointer;
+    }
+
+    .footer{
+        text-align:center;
+        margin-top:24px;
+        padding:10px;
+        border-top:4px solid #c084fc;
+        background:linear-gradient(to right,#fff,#f5f3ff,#fff);
+        border-radius:16px;
+        color:#4b5563;
+    }
+    .footer span{color:#7c3aed;font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+<h1>Домбыра рефлексиясы</h1>
+<div class="subtitle">Сабақ соңында көңіл күйіңді домбыра арқылы көрсет</div>
+
+<div class="dombyra-grid">
+
+    <!-- Көңілді -->
+    <div class="dom-card">
+        <svg viewBox="0 0 100 100">
+            <ellipse cx="30" cy="60" rx="20" ry="28" fill="#bae6fd"/>
+            <rect x="28" y="10" width="4" height="40" fill="#60a5fa"/>
+            <circle cx="30" cy="60" r="6" fill="#1e3a8a"/>
+        </svg>
+        <b>Көңілді</b><br><span>Сабақ өте ұнады</span>
+    </div>
+
+    <!-- Жайлы -->
+    <div class="dom-card">
+        <svg viewBox="0 0 100 100">
+            <ellipse cx="30" cy="60" rx="20" ry="28" fill="#e9d5ff"/>
+            <rect x="28" y="10" width="4" height="40" fill="#c084fc"/>
+            <circle cx="30" cy="60" r="6" fill="#6b21a8"/>
+        </svg>
+        <b>Жайлы</b><br><span>Түсіндім, бірақ жаттығу керек</span>
+    </div>
+
+    <!-- Қиын -->
+    <div class="dom-card">
+        <svg viewBox="0 0 100 100">
+            <ellipse cx="30" cy="60" rx="20" ry="28" fill="#fecdd3"/>
+            <rect x="28" y="10" width="4" height="40" fill="#fb7185"/>
+            <circle cx="30" cy="60" r="6" fill="#9f1239"/>
+        </svg>
+        <b>Қиын</b><br><span>Түсініксіз болды</span>
+    </div>
+
+</div>
+
+<!-- Buttons -->
+<div class="choice-buttons">
+    <button class="choice-btn" onclick="addCount('good')">🎶 Көңілді</button>
+    <button class="choice-btn" onclick="addCount('medium')">🎵 Жайлы</button>
+    <button class="choice-btn" onclick="addCount('bad')">🎼 Қиын</button>
+</div>
+
+<!-- Counter -->
+<div class="counter-box">
+    <div class="count-box">🎶 Көңілді: <span id="goodCount">0</span></div>
+    <div class="count-box">🎵 Жайлы: <span id="mediumCount">0</span></div>
+    <div class="count-box">🎼 Қиын: <span id="badCount">0</span></div>
+
+    <button class="reset-btn" onclick="resetCounts()">🔄 Қайта бастау</button>
+</div>
+
+<div class="footer">
+🌿 <b>AI-Pedagogy Tools</b> by <span>Nazerke Kairatkyzy</span> 🌿
+</div>
+
+</div>
+
+<script>
+let counts = { good:0, medium:0, bad:0 };
+
+function addCount(type){
+    counts[type]++;
+    document.getElementById(type+"Count").textContent = counts[type];
+}
+function resetCounts(){
+    counts = { good:0, medium:0, bad:0 };
+    document.getElementById("goodCount").textContent = 0;
+    document.getElementById("mediumCount").textContent = 0;
+    document.getElementById("badCount").textContent = 0;
+}
+</script>
+
+</body>
+</html>

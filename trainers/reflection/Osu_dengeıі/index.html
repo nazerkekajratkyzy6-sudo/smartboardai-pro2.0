@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мен бүгін қаншалықты өстім?</title>
+
+    <!-- Әдемі біртекті шрифт -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #c8e6c9, #a5d6a7, #81c784);
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+            background-color: #ffffff;
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.18);
+            border: 5px solid #a5d6a7;
+        }
+
+        h1 {
+            color: #2e7d32;
+            margin-bottom: 8px;
+            font-size: 2.4rem;
+            font-weight: 600;
+        }
+
+        h2 {
+            color: #558b2f;
+            margin-bottom: 18px;
+            font-size: 1.25rem;
+            font-weight: 400;
+        }
+
+        .game-area {
+            position: relative;
+            width: 100%;
+            height: 430px;
+            background: linear-gradient(to bottom, #b9f6ca, #81c784);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            border: 5px solid #66bb6a;
+            box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.6);
+        }
+
+        .soil {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 90px;
+            background: linear-gradient(to top, #4e342e, #6d4c41);
+            border-top: 5px solid #3e2723;
+        }
+
+        .sun {
+            position: absolute;
+            top: 22px;
+            right: 40px;
+            font-size: 60px;
+            filter: drop-shadow(0 0 12px rgba(255, 235, 59, 0.8));
+            animation: sun-glow 4s infinite alternate;
+            z-index: 5;
+        }
+
+        @keyframes sun-glow {
+            from { transform: scale(1) rotate(0deg); }
+            to   { transform: scale(1.15) rotate(8deg); }
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 1.05rem;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn span.icon {
+            font-size: 1.3rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-6px) scale(1.02);
+        }
+
+        .btn-1 { background: #ffe082; border: 3px solid #ffca28; color: #4e342e; }
+        .btn-2 { background: #dcedc8; border: 3px solid #9ccc65; color: #33691e; }
+        .btn-3 { background: #81c784; border: 3px solid #43a047; color: #ffffff; }
+
+        /* Өсімдіктер – 3 деңгей, әртүрлі биіктіктер */
+        .plant {
+            position: absolute;
+            animation: grow 1.2s ease-out, sway 3s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+
+        .level-low   { bottom: 120px; font-size: 44px; }
+        .level-mid   { bottom: 170px; font-size: 52px; }
+        .level-high  { bottom: 220px; font-size: 60px; }
+
+        @keyframes grow {
+            0%   { transform: scale(0) translateY(40px); opacity: 0; }
+            60%  { transform: scale(1.1) translateY(-10px); opacity: 1; }
+            100% { transform: scale(1) translateY(0); }
+        }
+
+        @keyframes sway {
+            0%   { transform: translateX(0) rotate(0deg); }
+            50%  { transform: translateX(3px) rotate(1.5deg); }
+            100% { transform: translateX(0) rotate(0deg); }
+        }
+
+        .counter {
+            font-size: 1.1rem;
+            color: #33691e;
+            background: #f1f8e9;
+            padding: 10px 18px;
+            border-radius: 40px;
+            display: inline-block;
+            border: 2px solid #c5e1a5;
+            margin-bottom: 10px;
+        }
+
+        .counter span {
+            font-weight: 600;
+            color: #1b5e20;
+        }
+
+        .bar-wrapper {
+            margin-top: 10px;
+            width: 100%;
+            max-width: 480px;
+            background: #e0e0e0;
+            border-radius: 30px;
+            overflow: hidden;
+            margin-left: auto;
+            margin-right: auto;
+            border: 2px solid #afb42b;
+        }
+
+        .bar-fill {
+            height: 20px;
+            width: 0%;
+            background: linear-gradient(to right, #ffeb3b, #cddc39, #8bc34a, #43a047);
+            transition: width 0.6s ease-out;
+        }
+
+        .bar-label {
+            margin-top: 6px;
+            font-size: 0.95rem;
+            color: #33691e;
+        }
+
+        .scale {
+            margin-top: 14px;
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            font-size: 1rem;
+            color: #4e342e;
+            flex-wrap: wrap;
+        }
+
+        .scale-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #f9fbe7;
+            border: 1px solid #dce775;
+        }
+
+        .instructions {
+            margin-top: 14px;
+            color: #555;
+            font-size: 0.98rem;
+            font-style: italic;
+        }
+
+        .footer {
+            margin-top: 10px;
+            color: #444;
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Мен бүгін қаншалықты өстім?</h1>
+        <h2>Өзіңді өсімдік арқылы бағала!</h2>
+
+        <div class="game-area" id="gameArea">
+            <div class="sun">☀️</div>
+            <div class="soil"></div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-1" id="btnLow">
+                <span class="icon">🌱</span>
+                <span>Әлі қиын – толық түсінбедім</span>
+            </button>
+            <button class="btn btn-2" id="btnMid">
+                <span class="icon">🌿</span>
+                <span>Жартылай түсіндім</span>
+            </button>
+            <button class="btn btn-3" id="btnHigh">
+                <span class="icon">🌳</span>
+                <span>Толық меңгердім</span>
+            </button>
+        </div>
+
+        <div class="counter">
+            🌱: <span id="lowCount">0</span> |
+            🌿: <span id="midCount">0</span> |
+            🌳: <span id="highCount">0</span>
+        </div>
+
+        <div class="bar-wrapper">
+            <div class="bar-fill" id="barFill"></div>
+        </div>
+        <div class="bar-label" id="barLabel">Сыныптың жалпы өсу деңгейі: 0%</div>
+
+        <div class="scale">
+            <div class="scale-item">🌱 – Бастапқы, әлі қиын</div>
+            <div class="scale-item">🌿 – Жартылай меңгердім</div>
+            <div class="scale-item">🌳 – Толық түсіндім</div>
+        </div>
+
+        <div class="instructions">
+            Сабақ соңында қай деңгейде тұрғаныңды көрсететін батырманы таңда.  
+            Экранда сенің де, бүкіл сыныптың да «өсу деңгейі» көрінеді.
+        </div>
+
+        <div class="footer">Nazerke Kairatkyzy</div>
+    </div>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+
+        const btnLow  = document.getElementById('btnLow');
+        const btnMid  = document.getElementById('btnMid');
+        const btnHigh = document.getElementById('btnHigh');
+
+        const lowCountEl  = document.getElementById('lowCount');
+        const midCountEl  = document.getElementById('midCount');
+        const highCountEl = document.getElementById('highCount');
+
+        const barFill  = document.getElementById('barFill');
+        const barLabel = document.getElementById('barLabel');
+
+        let lowCount = 0,
+            midCount = 0,
+            highCount = 0;
+
+        function createPlant(icon, levelClass) {
+            const plant = document.createElement('div');
+            plant.className = `plant ${levelClass}`;
+            plant.innerHTML = icon;
+
+            const maxLeft = gameArea.offsetWidth - 60;
+            plant.style.left = Math.random() * maxLeft + 'px';
+
+            gameArea.appendChild(plant);
+        }
+
+        function updateBar() {
+            const total = lowCount + midCount + highCount;
+            if (total === 0) {
+                barFill.style.width = '0%';
+                barLabel.textContent = 'Сыныптың жалпы өсу деңгейі: 0%';
+                return;
+            }
+
+            // салмақ: төмен – 1, орта – 2, жоғары – 3
+            const score = lowCount * 1 + midCount * 2 + highCount * 3;
+            const maxScore = total * 3;
+            const percent = Math.round((score / maxScore) * 100);
+
+            barFill.style.width = percent + '%';
+            barLabel.textContent = 'Сыныптың жалпы өсу деңгейі: ' + percent + '%';
+        }
+
+        btnLow.addEventListener('click', () => {
+            lowCount++;
+            lowCountEl.textContent = lowCount;
+            createPlant('🌱', 'level-low');
+            updateBar();
+        });
+
+        btnMid.addEventListener('click', () => {
+            midCount++;
+            midCountEl.textContent = midCount;
+            createPlant('🌿', 'level-mid');
+            updateBar();
+        });
+
+        btnHigh.addEventListener('click', () => {
+            highCount++;
+            highCountEl.textContent = highCount;
+            createPlant('🌳', 'level-high');
+            updateBar();
+        });
+
+        window.addEventListener('resize', () => {
+            const plants = document.querySelectorAll('.plant');
+            plants.forEach(plant => {
+                let left = parseInt(plant.style.left);
+                if (left > gameArea.offsetWidth - 60) {
+                    plant.style.left = (gameArea.offsetWidth - 60) + 'px';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

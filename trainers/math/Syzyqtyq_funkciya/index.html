@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <title>Сызықтық функция тренажері</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{
+      --bg:#eef4ff;
+      --card:#ffffff;
+      --border:#e2e8f0;
+      --text:#0f172a;
+      --muted:#64748b;
+      --accent:#2563eb;
+      --accent-soft:#eff6ff;
+      --good:#16a34a;
+      --bad:#dc2626;
+    }
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;padding:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:radial-gradient(circle at top,#dbeafe,#f8fafc);
+      color:var(--text);
+    }
+    .wrap{
+      max-width:1100px;
+      margin:24px auto 0;
+      padding:0 16px 32px;
+    }
+    .card{
+      background:var(--card);
+      border-radius:18px;
+      border:1px solid var(--border);
+      box-shadow:0 16px 40px rgba(15,23,42,.08);
+      padding:18px 18px 16px;
+    }
+    .header{
+      display:flex;justify-content:space-between;align-items:flex-start;
+      gap:12px;flex-wrap:wrap;margin-bottom:8px;
+    }
+    .title{
+      font-size:clamp(18px,2.6vw,22px);
+      font-weight:800;
+    }
+    .subtitle{
+      font-size:13px;
+      color:var(--muted);
+      max-width:500px;
+    }
+    .controls{
+      display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+    }
+    button{
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:var(--accent-soft);
+      color:var(--accent);
+      padding:8px 14px;
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+      display:inline-flex;align-items:center;gap:6px;
+      transition:.15s;
+    }
+    button.primary{
+      background:var(--accent);
+      color:#fff;
+      border-color:var(--accent);
+      box-shadow:0 10px 20px rgba(37,99,235,.35);
+    }
+    button:hover{
+      transform:translateY(-1px);
+      box-shadow:0 8px 18px rgba(15,23,42,.12);
+    }
+    button:active{
+      transform:translateY(0);
+      box-shadow:0 4px 10px rgba(15,23,42,.16);
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns: minmax(0,3fr) minmax(260px,1.5fr);
+      gap:14px;
+      margin-top:10px;
+    }
+    @media(max-width:900px){
+      .layout{grid-template-columns:1fr}
+    }
+
+    .graph-card{
+      background:#f8fafc;
+      border-radius:16px;
+      border:1px solid var(--border);
+      padding:12px;
+    }
+    .graph-header{
+      display:flex;justify-content:space-between;align-items:center;
+      gap:8px;margin-bottom:6px;flex-wrap:wrap;
+      font-size:13px;color:var(--muted);
+    }
+    .formula{
+      font-weight:700;
+      font-size:15px;
+      color:var(--text);
+    }
+    .hint-small{
+      font-size:12px;color:var(--muted);
+    }
+
+    .side{
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .info-card{
+      background:#f9fafb;
+      border-radius:14px;
+      border:1px solid var(--border);
+      padding:10px 12px;
+      font-size:13px;
+    }
+    .info-row{
+      display:flex;justify-content:space-between;gap:6px;
+      margin-bottom:4px;
+    }
+    .badge{
+      display:inline-flex;align-items:center;gap:4px;
+      padding:4px 9px;
+      border-radius:999px;
+      background:#e5edff;
+      font-size:12px;
+      font-weight:600;
+      color:#1d4ed8;
+    }
+    .stat-line{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .feedback{
+      min-height:22px;
+      font-size:14px;
+      font-weight:600;
+      margin-top:4px;
+    }
+    .feedback.ok{color:var(--good)}
+    .feedback.err{color:var(--bad)}
+
+    svg{
+      background:#ffffff;
+      border-radius:12px;
+      box-shadow:0 0 0 1px #e5e7eb;
+      width:100%;
+      max-width:640px;
+      height:auto;
+      display:block;
+    }
+
+    footer{
+      text-align:center;
+      font-size:12px;
+      color:var(--muted);
+      padding:12px 0 18px;
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="header">
+      <div>
+        <div class="title">Сызықтық функция тренажері</div>
+        <div class="subtitle">
+          Тапсырма: кездейсоқ берілген <strong>y = kx + b</strong> функциясының графигін сал.
+          Координаталық жазықтықта <strong>екі нүктені</strong> бас – тренажер сенің түзуіңнің дұрыс-бұрыс екенін тексереді
+          және қажет болса дұрыс графикті көрсетеді.
+        </div>
+      </div>
+      <div class="controls">
+        <button id="newTaskBtn" class="primary">🆕 Жаңа тапсырма</button>
+        <button id="checkBtn">✅ Тексеру</button>
+        <button id="clearPointsBtn">♻️ Нүктелерді тазалау</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <!-- ГРАФИК -->
+      <div class="graph-card">
+        <div class="graph-header">
+          <div>
+            <div class="formula" id="formulaText">y = kx + b</div>
+            <div class="hint-small">Тордың <strong>екі тор түйінін</strong> бас — сенің нүктелерің (қызғылт). Соңғы екі нүкте арқылы сенің түзуің сызылады.</div>
+          </div>
+          <div class="hint-small">Диапазон: x, y ∈ [-5; 5] (тор нүктелері – бүтін сандар)</div>
+        </div>
+        <svg id="gridSvg" viewBox="0 0 420 420"></svg>
+      </div>
+
+      <!-- ОҢ ЖАҚ: МӘЛІМЕТ, K, B, СТАТИСТИКА -->
+      <div class="side">
+        <div class="info-card">
+          <div class="info-row">
+            <span>Ағымдағы теңдеу:</span>
+            <span id="eqDisplay" style="font-weight:700;">y = kx + b</span>
+          </div>
+          <div class="info-row">
+            <span>Көлбеу коэффициенті k:</span>
+            <span id="kDisplay">–</span>
+          </div>
+          <div class="info-row">
+            <span>Теңдеудегі b (y-осьпен қиылысу):</span>
+            <span id="bDisplay">–</span>
+          </div>
+          <div class="info-row">
+            <span>Функция түрі:</span>
+            <span id="typeDisplay" class="badge">—</span>
+          </div>
+          <div class="stat-line">
+            Дұрыс жауаптар: <span id="correctCount">0</span> / <span id="totalCount">0</span>
+          </div>
+          <div class="stat-line">
+            Соңғы әрекет: <span id="lastStatus">—</span>
+          </div>
+          <div class="feedback" id="feedback"></div>
+        </div>
+
+        <div class="info-card" style="font-size:12px;line-height:1.4;">
+          <strong>Қалай жұмыс істейді?</strong><br>
+          • «Жаңа тапсырма» – жаңа сызықтық функция шығарады (k –3-тен 3-ке дейін, 0-ден басқа; b –4-тен 4-ке дейін).<br>
+          • Торда екі рет бас – екі нүкте таңдалады. Соңғы екі нүкте – сенің түзунің негізі.<br>
+          • «Тексеру» – екі нүктенің екеуі де y = kx + b теңдеуін қанағаттандырады ма, соны тексереді.<br>
+          • Егер қате болса, дұрыс түзу көк сызықпен көрсетіледі, сенің түзуің – қызғылт сызық.<br>
+          • «Нүктелерді тазалау» – тек оқушы нүктелері мен қызғылт түзу жойылады.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Created by <strong>Nazerke Kairatkyzy</strong>
+</footer>
+
+<script>
+(function(){
+  const svg = document.getElementById('gridSvg');
+  const newTaskBtn = document.getElementById('newTaskBtn');
+  const checkBtn = document.getElementById('checkBtn');
+  const clearPointsBtn = document.getElementById('clearPointsBtn');
+
+  const formulaText = document.getElementById('formulaText');
+  const eqDisplay = document.getElementById('eqDisplay');
+  const kDisplay = document.getElementById('kDisplay');
+  const bDisplay = document.getElementById('bDisplay');
+  const typeDisplay = document.getElementById('typeDisplay');
+  const feedbackEl = document.getElementById('feedback');
+  const correctCountEl = document.getElementById('correctCount');
+  const totalCountEl = document.getElementById('totalCount');
+  const lastStatusEl = document.getElementById('lastStatus');
+
+  let correctCount = 0;
+  let totalCount = 0;
+
+  // Координаталық жазықтық параметрлері
+  const size = 420;
+  const padding = 30;
+  const cells = 10; // -5..5
+  const step = (size - 2*padding) / cells;
+  const minCoord = -5;
+  const maxCoord = 5;
+
+  // Ағымдағы функция коэффициенттері
+  let currentK = 2;
+  let currentB = 1;
+
+  // Оқушы нүктелері (соңғы екі)
+  let studentPoints = []; // [{x,y,el}, ...]
+
+  // SVG-да элементтерді топтау үшін id
+  let gridDrawn = false;
+  let correctLineEl = null;
+  let studentLineEl = null;
+
+  function coordToPx(x, y){
+    const px = padding + (x - minCoord) * step;
+    const py = size - padding - (y - minCoord) * step;
+    return {x:px, y:py};
+  }
+
+  function pxToCoord(px, py){
+    const x = minCoord + (px - padding) / step;
+    const y = minCoord + (size - padding - py) / step;
+    return {x, y};
+  }
+
+  function roundToGrid(x){
+    return Math.round(x);
+  }
+
+  function createSvgElement(tag, attrs){
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for(const k in attrs){
+      el.setAttribute(k, attrs[k]);
+    }
+    return el;
+  }
+
+  function drawGrid(){
+    if(gridDrawn) return;
+    svg.innerHTML = '';
+
+    // Фон
+    const bg = createSvgElement('rect',{
+      x:0,y:0,width:size,height:size,fill:'#ffffff'
+    });
+    svg.appendChild(bg);
+
+    // Жеңіл тор сызықтары
+    for(let i=minCoord;i<=maxCoord;i++){
+      const pxX = coordToPx(i,0).x;
+      const pxY = coordToPx(0,i).y;
+
+      const vLine = createSvgElement('line',{
+        x1:pxX, y1:padding, x2:pxX, y2:size-padding,
+        stroke:'#e5edf5', 'stroke-width': (i===0?1.4:0.8),
+        'stroke-opacity': (i===0?1:0.9)
+      });
+      svg.appendChild(vLine);
+
+      const hLine = createSvgElement('line',{
+        x1:padding, y1:pxY, x2:size-padding, y2:pxY,
+        stroke:'#e5edf5', 'stroke-width': (i===0?1.4:0.8),
+        'stroke-opacity': (i===0?1:0.9)
+      });
+      svg.appendChild(hLine);
+
+      // Осьтерге сандық белгілер
+      if(i !== 0){
+        // x астына жазу
+        const tx = createSvgElement('text',{
+          x:pxX, y:size-padding+16,
+          'text-anchor':'middle',
+          'font-size':'10',
+          fill:'#6b7280'
+        });
+        tx.textContent = i;
+        svg.appendChild(tx);
+
+        // y жанына жазу
+        const ty = createSvgElement('text',{
+          x:padding-10, y:pxY+3,
+          'text-anchor':'end',
+          'font-size':'10',
+          fill:'#6b7280'
+        });
+        ty.textContent = i;
+        svg.appendChild(ty);
+      }
+    }
+
+    // Осьтерді ерекшелеу
+    const xAxis = createSvgElement('line',{
+      x1:padding, y1:coordToPx(0,0).y,
+      x2:size-padding, y2:coordToPx(0,0).y,
+      stroke:'#0f172a','stroke-width':'1.5'
+    });
+    svg.appendChild(xAxis);
+
+    const yAxis = createSvgElement('line',{
+      x1:coordToPx(0,0).x, y1:padding,
+      x2:coordToPx(0,0).x, y2:size-padding,
+      stroke:'#0f172a','stroke-width':'1.5'
+    });
+    svg.appendChild(yAxis);
+
+    // О тегі
+    const t0 = createSvgElement('text',{
+      x:coordToPx(0,0).x+6, y:coordToPx(0,0).y-4,
+      'font-size':'10', fill:'#374151'
+    });
+    t0.textContent = 'O';
+    svg.appendChild(t0);
+
+    gridDrawn = true;
+  }
+
+  function formatEquation(k,b){
+    // k бөлігін форматтау
+    let kStr = '';
+    if(k === 1){
+      kStr = 'x';
+    }else if(k === -1){
+      kStr = '-x';
+    }else{
+      kStr = k + 'x';
+    }
+
+    let bStr = '';
+    if(b > 0){
+      bStr = ' + ' + b;
+    }else if(b < 0){
+      bStr = ' - ' + Math.abs(b);
+    } // 0 болса қосылмайды
+
+    return 'y = ' + kStr + bStr;
+  }
+
+  function describeType(k){
+    if(k > 0) return 'Өспелі функция (increasing)';
+    if(k < 0) return 'Кемімелі функция (decreasing)';
+    return 'Тұрақты (k=0)';
+  }
+
+  function newTask(){
+    clearCorrectLine();
+    clearStudentLineAndPoints(true);
+
+    // k: -3..3, k!=0
+    let k = 0;
+    while(k === 0){
+      k = Math.floor(Math.random()*7) - 3; // -3..3
+    }
+    const b = Math.floor(Math.random()*9) - 4; // -4..4
+
+    currentK = k;
+    currentB = b;
+
+    const eq = formatEquation(k,b);
+    formulaText.textContent = eq;
+    eqDisplay.textContent = eq;
+    kDisplay.textContent = k;
+    bDisplay.textContent = b;
+    typeDisplay.textContent = describeType(k);
+    feedbackEl.textContent = '';
+    feedbackEl.className = 'feedback';
+    lastStatusEl.textContent = 'Жаңа тапсырма дайын.';
+  }
+
+  function clearCorrectLine(){
+    if(correctLineEl && correctLineEl.parentNode){
+      correctLineEl.parentNode.removeChild(correctLineEl);
+    }
+    correctLineEl = null;
+  }
+
+  function clearStudentLineAndPoints(keepFeedback){
+    if(studentLineEl && studentLineEl.parentNode){
+      studentLineEl.parentNode.removeChild(studentLineEl);
+    }
+    studentLineEl = null;
+    studentPoints.forEach(p=>{
+      if(p.el && p.el.parentNode) p.el.parentNode.removeChild(p.el);
+    });
+    studentPoints = [];
+    if(!keepFeedback){
+      feedbackEl.textContent = '';
+      feedbackEl.className = 'feedback';
+    }
+  }
+
+  function addStudentPoint(x,y){
+    const {x:px,y:py} = coordToPx(x,y);
+    const circle = createSvgElement('circle',{
+      cx:px, cy:py, r:5,
+      fill:'#fb923c', stroke:'#ea580c','stroke-width':'1.2'
+    });
+    svg.appendChild(circle);
+
+    studentPoints.push({x,y,el:circle});
+    if(studentPoints.length > 2){
+      // Ескі нүктені өшіреміз
+      const removed = studentPoints.shift();
+      if(removed.el && removed.el.parentNode){
+        removed.el.parentNode.removeChild(removed.el);
+      }
+    }
+    drawStudentLine();
+  }
+
+  function drawStudentLine(){
+    if(studentLineEl && studentLineEl.parentNode){
+      studentLineEl.parentNode.removeChild(studentLineEl);
+    }
+    studentLineEl = null;
+    if(studentPoints.length < 2) return;
+
+    const p1 = studentPoints[0];
+    const p2 = studentPoints[1];
+    if(p1.x === p2.x){
+      // Вертикаль – біздің y=kx+b формасына келмейді
+      const line = createSvgElement('line',{
+        x1:coordToPx(p1.x, p1.y).x,
+        y1:coordToPx(p1.x, p1.y).y,
+        x2:coordToPx(p2.x, p2.y).x,
+        y2:coordToPx(p2.x, p2.y).y,
+        stroke:'#f97316','stroke-width':'2','stroke-dasharray':'5 3'
+      });
+      svg.appendChild(line);
+      studentLineEl = line;
+      return;
+    }
+
+    // Берілген екі нүктеден түзуді бүкіл диапазонға жалғаймыз
+    const xs = minCoord;
+    const xe = maxCoord;
+    const ys = p1.y + (xs - p1.x) * ( (p2.y - p1.y) / (p2.x - p1.x) );
+    const ye = p1.y + (xe - p1.x) * ( (p2.y - p1.y) / (p2.x - p1.x) );
+
+    const pStart = coordToPx(xs, ys);
+    const pEnd   = coordToPx(xe, ye);
+
+    const line = createSvgElement('line',{
+      x1:pStart.x, y1:pStart.y,
+      x2:pEnd.x,   y2:pEnd.y,
+      stroke:'#f97316','stroke-width':'2.2'
+    });
+    svg.appendChild(line);
+    studentLineEl = line;
+  }
+
+  function drawCorrectLine(){
+    clearCorrectLine();
+    const xs = minCoord;
+    const xe = maxCoord;
+    const ys = currentK*xs + currentB;
+    const ye = currentK*xe + currentB;
+    const pStart = coordToPx(xs, ys);
+    const pEnd   = coordToPx(xe, ye);
+    const line = createSvgElement('line',{
+      x1:pStart.x, y1:pStart.y,
+      x2:pEnd.x,   y2:pEnd.y,
+      stroke:'#1d4ed8','stroke-width':'2.4','stroke-linecap':'round'
+    });
+    svg.appendChild(line);
+    correctLineEl = line;
+  }
+
+  function checkAnswer(){
+    if(studentPoints.length < 2){
+      feedbackEl.textContent = 'Алдымен торда кем дегенде екі нүктені таңдаңыз.';
+      feedbackEl.className = 'feedback err';
+      lastStatusEl.textContent = 'Нүкте жеткіліксіз.';
+      return;
+    }
+    const p1 = studentPoints[0];
+    const p2 = studentPoints[1];
+
+    totalCount++;
+    totalCountEl.textContent = totalCount;
+
+    // Екі нүкте де y = kx + b теңдеуін қанағаттандырады ма?
+    const ok1 = (p1.y === currentK * p1.x + currentB);
+    const ok2 = (p2.y === currentK * p2.x + currentB);
+
+    drawCorrectLine(); // дұрыс сызықты міндетті түрде көрсетеміз
+
+    if(ok1 && ok2){
+      correctCount++;
+      correctCountEl.textContent = correctCount;
+      feedbackEl.textContent = 'Керемет! Сенің түзуің берілген теңдеуге дәл сәйкес келеді. ✅';
+      feedbackEl.className = 'feedback ok';
+      lastStatusEl.textContent = 'Дұрыс жауап.';
+    }else{
+      feedbackEl.textContent = 'Әлі толық сәйкес емес. Көк түзуді қара: ол – дұрыс график. Қызғылт түзуді түзетіп көр. ❌';
+      feedbackEl.className = 'feedback err';
+      lastStatusEl.textContent = 'Қате, бірақ бұл – жақсы тәжірибе.';
+    }
+  }
+
+  // SVG-ға басқанда нүкте қою
+  svg.addEventListener('click', function(ev){
+    const rect = svg.getBoundingClientRect();
+    const px = ev.clientX - rect.left;
+    const py = ev.clientY - rect.top;
+
+    const {x, y} = pxToCoord(px, py);
+    const gx = roundToGrid(x);
+    const gy = roundToGrid(y);
+
+    if(gx < minCoord || gx > maxCoord || gy < minCoord || gy > maxCoord){
+      // тордан тыс
+      return;
+    }
+    addStudentPoint(gx, gy);
+    feedbackEl.textContent = '';
+    feedbackEl.className = 'feedback';
+  });
+
+  newTaskBtn.addEventListener('click', newTask);
+  checkBtn.addEventListener('click', checkAnswer);
+  clearPointsBtn.addEventListener('click', ()=>clearStudentLineAndPoints(false));
+
+  drawGrid();
+  newTask();
+})();
+</script>
+</body>
+</html>

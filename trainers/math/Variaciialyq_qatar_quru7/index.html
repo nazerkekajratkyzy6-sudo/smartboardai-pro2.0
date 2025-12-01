@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Вариациялық қатар – 7 сынып тренажері</title>
+<style>
+body{font-family:Arial;background:#eef2ff;padding:20px;}
+.container{
+    max-width:900px;margin:auto;background:white;padding:20px;
+    border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,0.2);
+}
+h1{text-align:center;color:#4f46e5;margin-top:0;}
+.box{background:#f9fafb;border-radius:12px;padding:16px;margin-top:10px;}
+.btn{
+    padding:8px 14px;border-radius:999px;border:none;cursor:pointer;
+    background:#4f46e5;color:white;margin-right:6px;
+}
+.result{margin-top:10px;font-weight:bold;}
+.result.ok{color:#16a34a;}
+.result.bad{color:#dc2626;}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Вариациялық қатар құру</h1>
+
+<p><b>Берілген деректер:</b> <span id="rawData"></span></p>
+
+<div class="box">
+<p>Сандарды кіші → үлкен ретімен жазыңыз.  
+Мысалы: <i>2, 3, 5, 8</i></p>
+
+<input id="answer" type="text" placeholder="мысалы: 2, 4, 7, 7, 9" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccc;">
+
+<br><br>
+<button class="btn" onclick="check()">Тексеру</button>
+<button class="btn" onclick="showCorrect()">Дұрыс жауап</button>
+
+<div id="result" class="result"></div>
+</div>
+</div>
+
+<script>
+const datasets = [
+    [7,3,9,4,4,2,8,5,3],
+    [12,5,8,3,9,9,1,4],
+    [6,6,6,3,2,8,9,1,5],
+    [15,12,18,10,9,12,14],
+    [20,17,16,19,14,15,13]
+];
+
+let current = Math.floor(Math.random()*datasets.length);
+const data = datasets[current];
+document.getElementById("rawData").innerText = data.join(", ");
+
+const correct = [...data].sort((a,b)=>a-b);
+
+function parse(str){
+    return str.split(/[, ]+/).map(Number).filter(x=>!isNaN(x));
+}
+
+function check(){
+    const user = parse(document.getElementById("answer").value);
+    const r = document.getElementById("result");
+
+    if(user.length !== correct.length){
+        r.innerHTML = "Сандар саны сәйкес емес!";
+        r.className="result bad"; return;
+    }
+    for(let i=0;i<correct.length;i++){
+        if(user[i] !== correct[i]){
+            r.innerHTML = "Қате. Қайта көріңіз.";
+            r.className="result bad"; return;
+        }
+    }
+    r.innerHTML = "Өте жақсы! Вариациялық қатар дұрыс ✔";
+    r.className="result ok";
+}
+
+function showCorrect(){
+    document.getElementById("answer").value = correct.join(", ");
+    const r = document.getElementById("result");
+    r.innerHTML = "Дұрыс жауап енгізілді.";
+    r.className="result ok";
+}
+</script>
+</body>
+</html>

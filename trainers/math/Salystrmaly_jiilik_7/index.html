@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Салыстырмалы жиілік – тренажер</title>
+<style>
+body{font-family:Arial;background:#fef3c7;padding:20px;}
+.container{max-width:900px;margin:auto;background:white;padding:20px;
+border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,0.2);}
+h1{text-align:center;color:#d97706;margin-top:0;}
+.box{background:#fff7ed;padding:16px;border-radius:12px;margin-top:10px;}
+input{width:100px;padding:6px;border-radius:8px;border:1px solid #ccc;text-align:center;}
+.btn{
+padding:8px 14px;border-radius:999px;background:#d97706;color:white;border:none;
+cursor:pointer;margin-right:6px;
+}
+.result{margin-top:10px;font-weight:bold;}
+.result.ok{color:#15803d;}
+.result.bad{color:#b91c1c;}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Салыстырмалы жиілік</h1>
+
+<p>Деректер: <span id="data"></span></p>
+
+<div class="box" id="box"></div>
+
+<button class="btn" onclick="check()">Тексеру</button>
+<button class="btn" onclick="showCorrect()">Дұрыс жауап</button>
+
+<div id="result" class="result"></div>
+</div>
+
+<script>
+let arr = [2,2,3,3,3,4,4,5,5,5,5];
+document.getElementById("data").innerText = arr.join(", ");
+
+let uniq = [...new Set(arr)].sort((a,b)=>a-b);
+let N = arr.length;
+let freq = {};
+uniq.forEach(v => freq[v] = arr.filter(x=>x===v).length);
+
+let html="";
+uniq.forEach(v=>{
+ html+= `${v} санының салыстырмалы жиілігі: 
+ <input id="r_${v}" placeholder="мыс: 0.27"> <br><br>`;
+});
+document.getElementById("box").innerHTML = html;
+
+function round(x){return Math.round(x*100)/100;}
+
+function check(){
+  const r = document.getElementById("result");
+  for(let v of uniq){
+    let user = Number(document.getElementById("r_"+v).value.replace(",","."));
+    let correct = round(freq[v]/N);
+    if(Math.abs(user - correct) > 0.01){
+      r.innerHTML="Қате. Салыстырмалы жиілік дұрыс емес.";
+      r.className="result bad"; return;
+    }
+  }
+  r.innerHTML="Супер! Барлығы дұрыс ✔";
+  r.className="result ok";
+}
+
+function showCorrect(){
+  uniq.forEach(v=>{
+    document.getElementById("r_"+v).value = round(freq[v]/N);
+  });
+  const r = document.getElementById("result");
+  r.innerHTML="Дұрыс мәндер енгізілді ✔";
+  r.className="result ok";
+}
+</script>
+</body>
+</html>
