@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Number Line PRO – Сан сызығында белгіле</title>
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        background:#eef2ff;
+        font-family:system-ui,Arial;
+        display:flex;
+        justify-content:center;
+    }
+    .container{
+        max-width:900px;
+        width:100%;
+        background:white;
+        padding:24px 28px 30px;
+        border-radius:18px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.18);
+    }
+    h1{
+        text-align:center;
+        font-size:26px;
+        color:#1e3a8a;
+        margin-bottom:12px;
+    }
+    input, textarea{
+        width:100%;
+        border-radius:12px;
+        border:1px solid #cbd5ff;
+        padding:10px;
+        margin-bottom:10px;
+        font-size:14px;
+    }
+    textarea{
+        height:120px;
+        resize:vertical;
+    }
+    button{
+        border:none;
+        border-radius:999px;
+        padding:10px 22px;
+        background:linear-gradient(135deg,#6366f1,#4f46e5);
+        color:white;
+        cursor:pointer;
+        font-size:15px;
+        margin-bottom:14px;
+        box-shadow:0 4px 12px rgba(79,70,229,0.35);
+    }
+
+    .task{
+        text-align:center;
+        font-size:22px;
+        margin-top:14px;
+        font-weight:700;
+        color:#1e40af;
+    }
+
+    .line-box{
+        position:relative;
+        width:100%;
+        height:80px;
+        margin-top:26px;
+    }
+    .line{
+        position:absolute;
+        top:40px;
+        left:0;
+        right:0;
+        height:4px;
+        background:#1e3a8a;
+        border-radius:4px;
+    }
+    .tick{
+        position:absolute;
+        width:2px;
+        height:18px;
+        background:#1e3a8a;
+        top:31px;
+    }
+    .label{
+        position:absolute;
+        top:52px;
+        font-size:13px;
+        text-align:center;
+        color:#1f2937;
+        width:40px;
+        margin-left:-20px;
+    }
+    .click-area{
+        position:absolute;
+        top:20px;
+        width:20px;
+        height:40px;
+        cursor:pointer;
+        transform:translateX(-50%);
+    }
+
+    .feedback{
+        text-align:center;
+        font-size:20px;
+        margin-top:14px;
+        min-height:26px;
+    }
+    .correct{
+        color:#22c55e;
+    }
+    .wrong{
+        color:#ef4444;
+    }
+
+    .finish{
+        margin-top:20px;
+        text-align:center;
+        font-size:22px;
+        font-weight:600;
+        color:#1e40af;
+    }
+    .author{
+        text-align:center;
+        font-size:14px;
+        color:#777;
+        margin-top:26px;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Number Line PRO – Сан сызығында белгіле</h1>
+
+<label>Минимум:</label>
+<input id="minVal" value="-20">
+
+<label>Максимум:</label>
+<input id="maxVal" value="80">
+
+<label>Қадам (interval):</label>
+<input id="stepVal" value="10">
+
+<label>Сандар (әр жолға бір):</label>
+<textarea id="numsArea">15
+42
+0
+-5
+78
+23
+-12</textarea>
+
+<button onclick="startGame()">Ойынды бастау</button>
+
+<div id="gameBox"></div>
+
+<div class="author">
+    © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+</div>
+
+</div>
+
+<script>
+let nums=[];
+let index=0;
+let correct=0;
+
+function startGame(){
+    const min=parseInt(document.getElementById("minVal").value);
+    const max=parseInt(document.getElementById("maxVal").value);
+    const step=parseInt(document.getElementById("stepVal").value);
+
+    nums=document.getElementById("numsArea").value
+        .trim().split(/\r?\n/).map(x=>parseInt(x.trim())).filter(n=>!isNaN(n));
+
+    if(nums.length===0){
+        alert("Кемінде бір сан енгіз.");
+        return;
+    }
+
+    index=0;
+    correct=0;
+
+    renderTask(min,max,step);
+}
+
+function renderTask(min,max,step){
+    const num=nums[index];
+    const box=document.getElementById("gameBox");
+
+    if(index>=nums.length){
+        box.innerHTML=`
+            <div class="finish">
+                Ойын аяқталды!<br>
+                Дұрыс: <b>${correct}</b> / ${nums.length}
+            </div>
+        `;
+        return;
+    }
+
+    const ticks=[];
+    for(let x=min;x<=max;x+=step){
+        ticks.push(x);
+    }
+
+    let html=`
+        <div class="task">Сан сызығынан <b>${num}</b> санын тап</div>
+        <div class="line-box">
+            <div class="line"></div>
+    `;
+
+    ticks.forEach(t=>{
+        const percent=(t-min)/(max-min)*100;
+        html+=`
+            <div class="tick" style="left:${percent}%"></div>
+            <div class="label" style="left:${percent}%">${t}</div>
+            <div class="click-area" style="left:${percent}%"
+                 onclick="check(${t}, ${num}, ${min}, ${max}, ${step})"></div>
+        `;
+    });
+
+    html+=`</div>
+           <div class="feedback" id="fbBox"></div>`;
+
+    box.innerHTML=html;
+}
+
+function check(clicked, correctNum, min,max,step){
+    const fb=document.getElementById("fbBox");
+    if(clicked===correctNum){
+        fb.textContent="Дұрыс! ✔";
+        fb.className="feedback correct";
+        correct++;
+    } else {
+        fb.textContent="Қате! ✘";
+        fb.className="feedback wrong";
+    }
+
+    setTimeout(()=>{
+        index++;
+        renderTask(min,max,step);
+    },700);
+}
+</script>
+
+</body>
+</html>

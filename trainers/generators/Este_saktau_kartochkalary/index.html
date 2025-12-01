@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Flashcards PRO – Есте сақтау карточкалары</title>
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        font-family:system-ui,Arial;
+        background:#eef2ff;
+        display:flex;
+        justify-content:center;
+    }
+    .container{
+        max-width:800px;
+        width:100%;
+        background:white;
+        border-radius:16px;
+        padding:22px 26px 30px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.18);
+        box-sizing:border-box;
+    }
+    h1{
+        text-align:center;
+        color:#1e3a8a;
+        font-size:26px;
+        margin-bottom:16px;
+    }
+    textarea{
+        width:100%;
+        height:150px;
+        border-radius:12px;
+        border:1px solid #cbd5ff;
+        padding:10px;
+        font-size:14px;
+        resize:vertical;
+        margin-bottom:10px;
+        box-sizing:border-box;
+    }
+    button{
+        border:none;
+        border-radius:999px;
+        padding:10px 22px;
+        background:linear-gradient(135deg,#6366f1,#4f46e5);
+        color:white;
+        font-size:15px;
+        cursor:pointer;
+        margin:4px 6px 10px 0;
+        box-shadow:0 4px 12px rgba(79,70,229,0.35);
+    }
+    button.secondary{
+        background:#e5e7eb;
+        color:#111827;
+        box-shadow:none;
+    }
+
+    .card{
+        margin-top:16px;
+        border-radius:16px;
+        border:1px solid #e2e8f0;
+        background:#f8fafc;
+        padding:20px;
+        text-align:center;
+        min-height:150px;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+    }
+    .front{
+        font-size:24px;
+        font-weight:600;
+        color:#111827;
+        margin-bottom:10px;
+    }
+    .back{
+        font-size:20px;
+        color:#1e40af;
+        margin-top:6px;
+        min-height:28px;
+    }
+    .label{
+        font-size:13px;
+        color:#6b7280;
+        margin-bottom:4px;
+    }
+    .buttons-row{
+        margin-top:12px;
+        display:flex;
+        justify-content:center;
+        flex-wrap:wrap;
+        gap:6px;
+    }
+    .status{
+        margin-top:10px;
+        font-size:14px;
+        color:#4b5563;
+        text-align:center;
+        min-height:22px;
+    }
+    .finish{
+        margin-top:18px;
+        font-size:20px;
+        text-align:center;
+        color:#1e3a8a;
+        font-weight:600;
+    }
+    .author{
+        margin-top:26px;
+        text-align:center;
+        font-size:14px;
+        color:#777;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Flashcards PRO – Есте сақтау карточкалары</h1>
+
+    <label>Карточкалар (әр жолға: алды - арты):</label>
+    <textarea id="dataArea">computer - компьютер
+mouse - тінтуір
+keyboard - пернетақта
+monitor - монитор
+RAM - жедел жады</textarea>
+
+    <div style="font-size:13px;color:#475569;margin-bottom:4px;">
+        Формат: <b>сөз/сұрақ - аудармасы/жауабы</b>. Мысалы: <b>Жер - Earth</b>, <b>F=ma - Ньютонның екінші заңы</b>.
+    </div>
+
+    <button onclick="startFlashcards()">Ойынды бастау</button>
+
+    <div id="cardBox" class="card" style="display:none;"></div>
+
+    <div class="author">
+        © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+    </div>
+</div>
+
+<script>
+let cards = [];       // {front, back}
+let order = [];       // индекстер
+let index = 0;
+let shownBack = false;
+let knew = 0;
+let didntKnow = 0;
+
+function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr;
+}
+
+function startFlashcards(){
+    const txt = document.getElementById("dataArea").value.trim();
+    const lines = txt.split(/\r?\n/).filter(x=>x.trim().length>0);
+    cards = [];
+
+    lines.forEach(line=>{
+        const parts = line.split(/[-–—]/);
+        if(parts.length>=2){
+            const front = parts[0].trim();
+            const back  = parts.slice(1).join("-").trim();
+            if(front && back){
+                cards.push({front, back});
+            }
+        }
+    });
+
+    if(cards.length===0){
+        alert("Кемінде бір карточка енгізіңіз (алды - арты).");
+        return;
+    }
+
+    order = cards.map((_,i)=>i);
+    shuffle(order);
+    index = 0;
+    knew = 0;
+    didntKnow = 0;
+    shownBack = false;
+
+    document.getElementById("cardBox").style.display = "block";
+    renderCard();
+}
+
+function renderCard(){
+    const box = document.getElementById("cardBox");
+
+    if(index >= order.length){
+        box.innerHTML = `
+            <div class="finish">
+                Барлық карточкалар қайталанды! 🎉<br><br>
+                Білдім: <b>${knew}</b>  |  Білмедім / қиналдым: <b>${didntKnow}</b>  |  Барлығы: ${order.length}
+            </div>
+        `;
+        return;
+    }
+
+    const card = cards[order[index]];
+    shownBack = false;
+
+    box.innerHTML = `
+        <div class="label">Алды (сұрақ / термин / сөз):</div>
+        <div class="front">${card.front}</div>
+
+        <div class="label" style="margin-top:10px;">Артқы жағы (жауап / аударма):</div>
+        <div class="back" id="backText" style="visibility:hidden;">${card.back}</div>
+
+        <div class="buttons-row">
+            <button onclick="showBack()">Жауабын көрсету</button>
+            <button class="secondary" onclick="nextCard()">Келесі</button>
+            <button class="secondary" onclick="markKnew(true)">Білдім</button>
+            <button class="secondary" onclick="markKnew(false)">Білмедім</button>
+        </div>
+
+        <div class="status" id="statusBox"></div>
+    `;
+
+    updateStatus();
+}
+
+function showBack(){
+    const back = document.getElementById("backText");
+    if(back){
+        back.style.visibility = "visible";
+    }
+    shownBack = true;
+}
+
+function nextCard(){
+    index++;
+    renderCard();
+}
+
+function markKnew(knewIt){
+    if(knewIt) knew++;
+    else didntKnow++;
+
+    index++;
+    renderCard();
+}
+
+function updateStatus(){
+    const st = document.getElementById("statusBox");
+    if(!st) return;
+    st.textContent = `Карточка: ${index+1} / ${order.length}   |   Білдім: ${knew}   |   Білмедім: ${didntKnow}`;
+}
+</script>
+
+</body>
+</html>

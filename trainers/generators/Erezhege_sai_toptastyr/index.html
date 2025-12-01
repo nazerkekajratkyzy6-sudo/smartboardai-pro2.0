@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Sorting by Rule PRO – Ережеге сай топтастыр</title>
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        font-family:system-ui,Arial;
+        background:#eef2ff;
+        display:flex;
+        justify-content:center;
+    }
+    .container{
+        max-width:1000px;
+        width:100%;
+        background:white;
+        border-radius:16px;
+        padding:22px 26px 30px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.18);
+        box-sizing:border-box;
+    }
+    h1{
+        text-align:center;
+        font-size:26px;
+        color:#1e3a8a;
+        margin-bottom:14px;
+    }
+    textarea, input{
+        width:100%;
+        border-radius:12px;
+        border:1px solid #cbd5ff;
+        padding:10px;
+        font-size:14px;
+        margin-bottom:10px;
+        box-sizing:border-box;
+    }
+    textarea{
+        height:150px;
+        resize:vertical;
+    }
+    button{
+        border:none;
+        border-radius:999px;
+        padding:10px 22px;
+        background:linear-gradient(135deg,#6366f1,#4f46e5);
+        color:white;
+        font-size:15px;
+        cursor:pointer;
+        margin-bottom:14px;
+        box-shadow:0 4px 12px rgba(79,70,229,0.35);
+    }
+
+    .wrapper{
+        display:flex;
+        gap:20px;
+        margin-top:12px;
+    }
+    .items{
+        flex:1;
+        background:#f8fafc;
+        padding:12px;
+        border-radius:16px;
+        border:1px solid #e2e8f0;
+        min-height:200px;
+    }
+    .item-btn{
+        background:#eef2ff;
+        padding:8px 14px;
+        border-radius:10px;
+        display:inline-block;
+        margin:6px;
+        font-size:17px;
+        cursor:pointer;
+        transition:0.15s;
+        border:1px solid transparent;
+    }
+    .item-btn:hover{
+        transform:scale(1.05);
+        border-color:#c7d2fe;
+    }
+    .item-btn.used{
+        opacity:0.4;
+        pointer-events:none;
+    }
+
+    .bucket{
+        flex:1;
+        background:#f8fafc;
+        border-radius:16px;
+        border:2px dashed #cbd5ff;
+        padding:12px;
+        min-height:200px;
+        text-align:center;
+        transition:0.15s;
+    }
+    .bucket.over{
+        border-color:#6366f1;
+        background:#e0e7ff;
+    }
+    .bucket.correct{
+        border-color:#22c55e;
+        background:#dcfce7;
+    }
+    .bucket.wrong{
+        border-color:#ef4444;
+        background:#fee2e2;
+    }
+
+    .rule-title{
+        font-size:18px;
+        color:#1e40af;
+        font-weight:700;
+        margin-bottom:10px;
+    }
+
+    .placed{
+        display:inline-block;
+        background:#e5e7eb;
+        padding:6px 10px;
+        margin:4px;
+        border-radius:10px;
+        font-size:16px;
+    }
+
+    .finish{
+        margin-top:18px;
+        font-size:22px;
+        font-weight:600;
+        text-align:center;
+        color:#1e3a8a;
+    }
+
+    .author{
+        margin-top:26px;
+        text-align:center;
+        font-size:14px;
+        color:#777;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Sorting by Rule PRO – Ережеге сай топтастыр</h1>
+
+    <label>Ереже A:</label>
+    <input id="ruleA" value="Жуан дауысты сөздер">
+
+    <label>Ереже B:</label>
+    <input id="ruleB" value="Жіңішке дауысты сөздер">
+
+    <label>Элементтер (әр жол: сөз - A/B):</label>
+    <textarea id="dataArea">қала - A
+төре - B
+жол - A
+көрпе - B
+сабақ - A</textarea>
+
+    <button onclick="startGame()">Ойынды бастау</button>
+
+    <div id="gameBox"></div>
+
+    <div class="author">
+        © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+    </div>
+
+</div>
+
+<script>
+let items = [];
+let total = 0;
+let placed = 0;
+let correctCount = 0;
+
+function parseItems(){
+    const txt = document.getElementById("dataArea").value.trim();
+    const lines = txt.split(/\r?\n/).filter(x=>x.trim());
+    const out = [];
+    lines.forEach(line=>{
+        const p = line.split(/[-–—]/);
+        if(p.length>=2){
+            const word = p[0].trim();
+            const bucket = p[1].trim().toUpperCase();
+            if(word && (bucket==="A" || bucket==="B")){
+                out.push({word, bucket});
+            }
+        }
+    });
+    return out;
+}
+
+function shuffle(a){
+    for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()* (i+1));
+        [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+}
+
+function startGame(){
+    items = parseItems();
+    if(items.length===0){
+        alert("Кемінде бір элемент енгізіңіз.");
+        return;
+    }
+    total = items.length;
+    placed = 0;
+    correctCount = 0;
+
+    renderGame();
+}
+
+function renderGame(){
+    const Aname = document.getElementById("ruleA").value.trim();
+    const Bname = document.getElementById("ruleB").value.trim();
+
+    const gameBox = document.getElementById("gameBox");
+
+    let html = `
+        <div class="wrapper">
+            <div class="items" id="itemsBox">
+                ${shuffle([...items]).map(x=>`
+                    <div class="item-btn" draggable="true"
+                         data-word="${x.word}"
+                         ondragstart="dragItem(event)">
+                        ${x.word}
+                    </div>
+                `).join("")}
+            </div>
+
+            <div class="bucket" id="bucketA"
+                 ondragover="allowDrop(event)"
+                 ondrop="dropItem(event, 'A')">
+                <div class="rule-title">${Aname}</div>
+            </div>
+
+            <div class="bucket" id="bucketB"
+                 ondragover="allowDrop(event)"
+                 ondrop="dropItem(event, 'B')">
+                <div class="rule-title">${Bname}</div>
+            </div>
+        </div>
+
+        <div id="finishBox"></div>
+    `;
+
+    gameBox.innerHTML = html;
+}
+
+let currentWord = "";
+
+function dragItem(ev){
+    currentWord = ev.target.dataset.word;
+}
+
+function allowDrop(ev){
+    ev.preventDefault();
+    ev.currentTarget.classList.add("over");
+}
+
+function dropItem(ev, bucket){
+    ev.preventDefault();
+    const box = ev.currentTarget;
+    box.classList.remove("over");
+
+    if(!currentWord) return;
+
+    const item = items.find(x=>x.word === currentWord);
+    if(!item) return;
+
+    const placedSpan = document.createElement("span");
+    placedSpan.className = "placed";
+    placedSpan.textContent = currentWord;
+    box.appendChild(placedSpan);
+
+    const btn = document.querySelector(`.item-btn[data-word="${currentWord}"]`);
+    if(btn) btn.classList.add("used");
+
+    placed++;
+
+    if(item.bucket === bucket){
+        correctCount++;
+        box.classList.add("correct");
+        setTimeout(()=>box.classList.remove("correct"),500);
+    } else {
+        box.classList.add("wrong");
+        setTimeout(()=>box.classList.remove("wrong"),500);
+    }
+
+    currentWord = "";
+
+    checkFinish();
+}
+
+function checkFinish(){
+    if(placed >= total){
+        document.getElementById("finishBox").innerHTML = `
+            <div class="finish">✔ Тапсырма аяқталды!<br>
+                Дұрыс: <b>${correctCount}</b> / ${total}
+            </div>`;
+    }
+}
+</script>
+
+</body>
+</html>

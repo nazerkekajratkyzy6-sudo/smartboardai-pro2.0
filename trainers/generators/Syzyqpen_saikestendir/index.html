@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Connect Lines PRO – Сызықпен сәйкестендір</title>
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        font-family:system-ui,Arial;
+        background:#eef2ff;
+        display:flex;
+        justify-content:center;
+    }
+    .container{
+        max-width:1000px;
+        width:100%;
+        background:white;
+        border-radius:16px;
+        padding:20px 24px 32px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.18);
+    }
+    h1{
+        text-align:center;
+        color:#1e3a8a;
+        font-size:26px;
+        margin-bottom:16px;
+    }
+    textarea{
+        width:100%;
+        height:150px;
+        border-radius:12px;
+        border:1px solid #cbd5ff;
+        padding:10px;
+        font-size:14px;
+        resize:vertical;
+        margin-bottom:10px;
+    }
+    button{
+        border:none;
+        border-radius:999px;
+        padding:10px 22px;
+        background:linear-gradient(135deg,#6366f1,#4f46e5);
+        color:white;
+        font-size:15px;
+        cursor:pointer;
+        margin-bottom:14px;
+        box-shadow:0 4px 12px rgba(79,70,229,0.35);
+    }
+
+    .game{
+        display:flex;
+        justify-content:space-between;
+        position:relative;
+    }
+
+    .col{
+        width:45%;
+    }
+    .item{
+        background:#eef2ff;
+        padding:12px 16px;
+        border-radius:12px;
+        margin-bottom:12px;
+        cursor:pointer;
+        border:2px solid transparent;
+        transition:0.15s;
+        font-size:18px;
+        user-select:none;
+    }
+    .item:hover{
+        transform:scale(1.02);
+        border-color:#c7d2fe;
+    }
+    .item.selected{
+        border-color:#6366f1;
+        background:#e0e7ff;
+    }
+    .item.correct{
+        background:#22c55e !important;
+        color:white !important;
+        border-color:#22c55e !important;
+    }
+    .item.wrong{
+        background:#ef4444 !important;
+        color:white !important;
+        border-color:#ef4444 !important;
+    }
+
+    svg{
+        position:absolute;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        pointer-events:none;
+    }
+
+    .finish{
+        text-align:center;
+        font-size:22px;
+        margin-top:20px;
+        color:#1e3a8a;
+        font-weight:600;
+    }
+
+    .author{
+        margin-top:26px;
+        text-align:center;
+        font-size:14px;
+        color:#777;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Connect Lines PRO – Сызықпен сәйкестендір</h1>
+
+    <label>Жұптар (сол - оң):</label>
+    <textarea id="dataArea">Алма - жеміс
+Қар - суық
+Мысық - жануар
+Үстел - жиһаз
+Балық - су жануары</textarea>
+
+    <button onclick="startGame()">Ойынды бастау</button>
+
+    <div id="gameBox"></div>
+
+    <div class="author">
+        © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+    </div>
+</div>
+
+<script>
+let pairs = [];
+let leftItems = [];
+let rightItems = [];
+let selectedLeft = null;
+let lines = [];
+let svgEl;
+
+function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr;
+}
+
+function startGame(){
+    const txt = document.getElementById("dataArea").value.trim();
+    const lines = txt.split(/\r?\n/).filter(x=>x.trim().length>0);
+
+    pairs = lines.map(l=>{
+        const parts = l.split(/[-–—]/);
+        return {
+            left: parts[0].trim(),
+            right: parts[1].trim()
+        };
+    });
+
+    renderGame();
+}
+
+function renderGame(){
+    const box = document.getElementById("gameBox");
+    leftItems = [];
+    rightItems = [];
+    selectedLeft = null;
+
+    let left = pairs.map(p=>p.left);
+    let right = pairs.map(p=>p.right);
+
+    shuffle(left);
+    shuffle(right);
+
+    box.innerHTML = `
+        <div class="game">
+            <div class="col" id="leftCol"></div>
+            <svg id="svgLines"></svg>
+            <div class="col" id="rightCol"></div>
+        </div>
+    `;
+
+    svgEl = document.getElementById("svgLines");
+
+    const leftCol = document.getElementById("leftCol");
+    const rightCol = document.getElementById("rightCol");
+
+    left.forEach(text=>{
+        const div = document.createElement("div");
+        div.className = "item";
+        div.textContent = text;
+        div.dataset.side = "left";
+        div.onclick = ()=>selectLeft(div);
+        leftCol.appendChild(div);
+        leftItems.push(div);
+    });
+
+    right.forEach(text=>{
+        const div = document.createElement("div");
+        div.className = "item";
+        div.textContent = text;
+        div.dataset.side = "right";
+        div.onclick = ()=>selectRight(div);
+        rightCol.appendChild(div);
+        rightItems.push(div);
+    });
+}
+
+function getCenter(el){
+    const r = el.getBoundingClientRect();
+    return {
+        x: r.left + r.width/2 + window.scrollX,
+        y: r.top + r.height/2 + window.scrollY
+    };
+}
+
+function drawLine(el1, el2, color){
+    const p1 = getCenter(el1);
+    const p2 = getCenter(el2);
+
+    const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+    line.setAttribute("x1", p1.x);
+    line.setAttribute("y1", p1.y);
+    line.setAttribute("x2", p2.x);
+    line.setAttribute("y2", p2.y);
+    line.setAttribute("stroke", color);
+    line.setAttribute("stroke-width", "4");
+    line.setAttribute("stroke-linecap", "round");
+    svgEl.appendChild(line);
+}
+
+function selectLeft(el){
+    leftItems.forEach(i=>i.classList.remove("selected"));
+    selectedLeft = el;
+    el.classList.add("selected");
+}
+
+function selectRight(el){
+    if(!selectedLeft) return;
+
+    const leftText = selectedLeft.textContent;
+    const rightText = el.textContent;
+
+    const correctPair = pairs.find(p => p.left===leftText && p.right===rightText);
+
+    if(correctPair){
+        // Дұрыс
+        selectedLeft.classList.add("correct");
+        el.classList.add("correct");
+        drawLine(selectedLeft, el, "#22c55e");
+    } else {
+        // Қате
+        selectedLeft.classList.add("wrong");
+        el.classList.add("wrong");
+        drawLine(selectedLeft, el, "#ef4444");
+        setTimeout(()=>{
+            selectedLeft.classList.remove("wrong");
+            el.classList.remove("wrong");
+        },700);
+    }
+
+    selectedLeft.classList.remove("selected");
+    selectedLeft = null;
+}
+</script>
+
+</body>
+</html>

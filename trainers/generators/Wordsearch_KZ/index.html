@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title>Wordsearch KZ – Жасырын сөздер</title>
+    <style>
+        body{
+            margin:0;
+            padding:20px;
+            font-family:system-ui,Arial;
+            background:#eef2ff;
+            display:flex;
+            justify-content:center;
+        }
+        .container{
+            max-width:1100px;
+            width:100%;
+            background:#ffffff;
+            border-radius:16px;
+            box-shadow:0 10px 25px rgba(0,0,0,0.18);
+            padding:20px 24px 28px;
+            display:flex;
+            gap:24px;
+            box-sizing:border-box;
+        }
+        h1{
+            margin:0 0 10px;
+            font-size:24px;
+            text-align:center;
+            color:#1e3a8a;
+        }
+        .left, .right{
+            flex:1;
+        }
+        label{
+            font-size:14px;
+            font-weight:600;
+            color:#4b5563;
+        }
+        textarea{
+            width:100%;
+            height:180px;
+            margin-top:6px;
+            margin-bottom:10px;
+            border-radius:12px;
+            border:1px solid #cbd5f5;
+            padding:10px;
+            resize:vertical;
+            font-size:14px;
+            box-sizing:border-box;
+        }
+        input[type="number"]{
+            width:70px;
+            padding:6px 8px;
+            border-radius:10px;
+            border:1px solid #cbd5f5;
+            margin-left:4px;
+        }
+        button{
+            border:none;
+            border-radius:999px;
+            padding:8px 18px;
+            font-size:14px;
+            cursor:pointer;
+            margin-top:8px;
+            margin-right:8px;
+            background:linear-gradient(135deg,#6366f1,#4f46e5);
+            color:white;
+            box-shadow:0 5px 15px rgba(79,70,229,0.35);
+        }
+        button.secondary{
+            background:#e5e7eb;
+            color:#111827;
+            box-shadow:none;
+        }
+        .status{
+            margin-top:6px;
+            font-size:13px;
+            min-height:18px;
+        }
+        .status.ok{color:#16a34a;}
+        .status.err{color:#dc2626;}
+
+        .board{
+            display:grid;
+            gap:3px;
+            margin-top:6px;
+            user-select:none;
+        }
+        .cell{
+            width:34px;
+            height:34px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:8px;
+            background:#eef2ff;
+            color:#111827;
+            font-weight:700;
+            font-size:18px;
+            cursor:pointer;
+            transition:transform 0.05s, background 0.15s;
+        }
+        .cell:hover{
+            transform:scale(1.05);
+        }
+        .cell.selected{
+            background:#fde68a;
+        }
+        .cell.found{
+            background:#22c55e;
+            color:white;
+        }
+        .words-list{
+            margin-top:10px;
+            padding:8px 10px;
+            background:#f9fafb;
+            border-radius:12px;
+            border:1px solid #e5e7eb;
+            font-size:14px;
+            max-height:220px;
+            overflow:auto;
+        }
+        .word-item.found{
+            text-decoration:line-through;
+            color:#16a34a;
+        }
+
+        .author {
+            margin-top:20px;
+            text-align:center;
+            font-size:14px;
+            color:#777;
+        }
+
+        @media (max-width:900px){
+            .container{flex-direction:column;}
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="left">
+        <h1>Жасырын сөздер – Wordsearch KZ</h1>
+
+        <label>Сөздер (әр жолға бір сөз):</label>
+        <textarea id="wordsInput">скрипт
+спрайт
+алгоритм
+жоба
+монитор
+клавиатура
+код</textarea>
+
+        <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">
+            Барлық қазақ әріптері қолдау табады: ә, ө, ү, ұ, қ, ғ, ң, і.
+        </div>
+
+        <div style="font-size:14px;margin-bottom:6px;">
+            Тор өлшемі:
+            <input type="number" id="sizeInput" value="12" min="6" max="18">
+            x <span id="sizeLabel">12</span>
+        </div>
+
+        <button id="generateBtn">Генерациялау</button>
+        <button class="secondary" id="clearSelectBtn">Таңдауды тазалау</button>
+
+        <div class="status" id="status"></div>
+
+        <div class="words-list" id="wordsList"></div>
+
+        <div class="author">
+            © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+        </div>
+    </div>
+
+    <div class="right">
+        <label>Ойын торы:</label>
+        <div id="board" class="board"></div>
+    </div>
+</div>
+
+<script>
+// Қазақ алфавиті (бас әріптер)
+const KZ_LETTERS = "АӘБВГҒДЕЁЖЗИІЙКҚЛМНҢОӨПРСТУҰҮФХҺЦЧШЩЫЬЭЮЯ";
+
+let gridSize = 12;
+let grid = [];
+let placedWords = []; // {word,row,col,dx,dy,found:false}
+
+let firstSelected = null;
+let secondSelected = null;
+
+const boardEl = document.getElementById("board");
+const wordsListEl = document.getElementById("wordsList");
+const statusEl = document.getElementById("status");
+
+function randInt(max){ return Math.floor(Math.random()*max); }
+function randomLetter(){ return KZ_LETTERS[randInt(KZ_LETTERS.length)]; }
+
+function setStatus(msg,type=""){
+    statusEl.textContent = msg;
+    statusEl.className = "status " + type;
+}
+
+// Сөздер тізімін оқу
+function getWords(){
+    const lines = document.getElementById("wordsInput").value
+        .split(/\r?\n/)
+        .map(w => w.trim())
+        .filter(w => w.length>0);
+    return lines.map(w => w.toUpperCase().replace(/\s+/g,""));
+}
+
+// Торды дайындау
+function initGrid(size){
+    gridSize = size;
+    grid = [];
+    for(let r=0;r<size;r++){
+        grid[r]=[];
+        for(let c=0;c<size;c++){
+            grid[r][c] = "";
+        }
+    }
+}
+
+// Белгілі бағытта сөзді орналастыруға бола ма?
+function canPlace(word,row,col,dx,dy){
+    let r=row, c=col;
+    for(let i=0;i<word.length;i++){
+        if(r<0 || r>=gridSize || c<0 || c>=gridSize) return false;
+        const existing = grid[r][c];
+        const ch = word[i];
+        if(existing!=="" && existing!==ch) return false;
+        r+=dx; c+=dy;
+    }
+    return true;
+}
+
+// Бір сөзді орналастыру
+function placeWord(word){
+    const dirs = [
+        [1,0],[-1,0],[0,1],[0,-1],
+        [1,1],[1,-1],[-1,1],[-1,-1]
+    ];
+    for(let attempt=0; attempt<200; attempt++){
+        const [dx,dy] = dirs[randInt(dirs.length)];
+        const row = randInt(gridSize);
+        const col = randInt(gridSize);
+        if(canPlace(word,row,col,dx,dy)){
+            let r=row, c=col;
+            for(let i=0;i<word.length;i++){
+                grid[r][c] = word[i];
+                r+=dx; c+=dy;
+            }
+            placedWords.push({word,row,col,dx,dy,found:false});
+            return true;
+        }
+    }
+    return false;
+}
+
+// Барлық сөздерді орналастыру
+function fillGrid(words){
+    placedWords = [];
+    words.forEach(w => placeWord(w));
+    // бос ұяшықтарды кездейсоқ әріппен толтыру
+    for(let r=0;r<gridSize;r++){
+        for(let c=0;c<gridSize;c++){
+            if(grid[r][c]==="") grid[r][c]=randomLetter();
+        }
+    }
+}
+
+// Торды салу
+function renderBoard(){
+    boardEl.innerHTML = "";
+    boardEl.style.gridTemplateColumns = `repeat(${gridSize}, 34px)`;
+    for(let r=0;r<gridSize;r++){
+        for(let c=0;c<gridSize;c++){
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            cell.textContent = grid[r][c];
+            cell.dataset.row = r;
+            cell.dataset.col = c;
+            cell.addEventListener("click", onCellClick);
+            boardEl.appendChild(cell);
+        }
+    }
+}
+
+// Сөздер тізімін шығару
+function renderWordsList(){
+    wordsListEl.innerHTML = "<b>Сөздер:</b><br>";
+    if(placedWords.length===0){
+        wordsListEl.innerHTML += "<i>Торға толық сыймаған сөздер бар. Тор өлшемін үлкейтіңіз.</i>";
+        return;
+    }
+    placedWords.forEach((obj,idx)=>{
+        const span = document.createElement("span");
+        span.textContent = (idx+1)+") "+obj.word;
+        span.id = "word-item-"+idx;
+        span.className = "word-item" + (obj.found ? " found" : "");
+        wordsListEl.appendChild(span);
+        wordsListEl.appendChild(document.createElement("br"));
+    });
+}
+
+// Ұяшықтарды таңдау
+function onCellClick(e){
+    const cell = e.currentTarget;
+    const r = parseInt(cell.dataset.row);
+    const c = parseInt(cell.dataset.col);
+
+    // екі нүкте болса – тазалап, жаңадан бастаймыз
+    if(firstSelected && secondSelected){
+        clearSelection();
+    }
+
+    if(!firstSelected){
+        firstSelected = {r,c,el:cell};
+        cell.classList.add("selected");
+        setStatus("Енді сол сөздің соңғы әрпін басыңыз.", "ok");
+    }else if(!secondSelected){
+        if(firstSelected.r===r && firstSelected.c===c){
+            clearSelection();
+            return;
+        }
+        secondSelected = {r,c,el:cell};
+        cell.classList.add("selected");
+        checkSelection();
+    }
+}
+
+// Таңдауды тазалау
+function clearSelection(){
+    document.querySelectorAll(".cell.selected").forEach(el=>el.classList.remove("selected"));
+    firstSelected = null;
+    secondSelected = null;
+    setStatus("", "");
+}
+
+// Таңдау арқылы сөз бар-жоғын тексеру
+function checkSelection(){
+    if(!firstSelected || !secondSelected) return;
+
+    const dr = secondSelected.r - firstSelected.r;
+    const dc = secondSelected.c - firstSelected.c;
+
+    const steps = Math.max(Math.abs(dr), Math.abs(dc));
+    if(steps===0){
+        setStatus("Бір ұяшық жеткіліксіз.", "err");
+        clearSelection();
+        return;
+    }
+
+    // тек түзу бағыттар: көлденең, тік, диагональ
+    if(!(dr===0 || dc===0 || Math.abs(dr)===Math.abs(dc))){
+        setStatus("Сөз түзу бағытта болуы керек (тік, көлденең, диагональ).", "err");
+        clearSelection();
+        return;
+    }
+
+    const dx = Math.sign(dr);
+    const dy = Math.sign(dc);
+
+    let r = firstSelected.r;
+    let c = firstSelected.c;
+    let letters = "";
+    const positions = [];
+
+    for(let i=0;i<=steps;i++){
+        if(r<0 || r>=gridSize || c<0 || c>=gridSize) break;
+        letters += grid[r][c];
+        positions.push({r,c});
+        r+=dx; c+=dy;
+    }
+
+    const forward = letters;
+    const backward = letters.split("").reverse().join("");
+
+    let matchIndex = -1;
+    let matchReversed = false;
+
+    placedWords.forEach((obj,idx)=>{
+        if(matchIndex!==-1) return;
+        if(obj.word === forward) { matchIndex = idx; matchReversed = false; }
+        else if(obj.word === backward) { matchIndex = idx; matchReversed = true; }
+    });
+
+    if(matchIndex === -1){
+        setStatus("Бұл бағытта жасырын сөз жоқ. Қайта көріңіз.", "err");
+        clearSelection();
+        return;
+    }
+
+    // Дұрыс сөз – барлық позицияларды жасылға бояймыз
+    positions.forEach(pos=>{
+        const selector = `.cell[data-row="${pos.r}"][data-col="${pos.c}"]`;
+        const el = document.querySelector(selector);
+        if(el){
+            el.classList.remove("selected");
+            el.classList.add("found");
+        }
+    });
+
+    placedWords[matchIndex].found = true;
+    const itemEl = document.getElementById("word-item-"+matchIndex);
+    if(itemEl) itemEl.classList.add("found");
+
+    setStatus("Жарайсың! «"+placedWords[matchIndex].word+"» сөзін таптың!", "ok");
+    clearSelection();
+
+    if(placedWords.length>0 && placedWords.every(w=>w.found)){
+        setStatus("Барлық сөз табылды! 👏", "ok");
+    }
+}
+
+// Негізгі генерация
+function generate(){
+    setStatus("", "");
+    const sizeInput = document.getElementById("sizeInput");
+    let size = parseInt(sizeInput.value);
+    if(isNaN(size) || size<6) size = 6;
+    if(size>18) size = 18;
+    sizeInput.value = size;
+    document.getElementById("sizeLabel").textContent = size;
+
+    const words = getWords();
+    if(words.length===0){
+        setStatus("Кемінде бір сөз енгізіңіз.", "err");
+        return;
+    }
+
+    initGrid(size);
+    fillGrid(words);
+    renderBoard();
+    renderWordsList();
+}
+
+// Батырмалар
+document.getElementById("generateBtn").addEventListener("click", generate);
+document.getElementById("clearSelectBtn").addEventListener("click", clearSelection);
+
+// Бетті ашқанда бірден генерация
+generate();
+</script>
+</body>
+</html>

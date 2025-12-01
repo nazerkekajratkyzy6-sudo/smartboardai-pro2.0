@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Қазақша сканворд / сөзжұмбақ генераторы</title>
+<style>
+  body{
+    margin:0;
+    font-family:system-ui, Arial, sans-serif;
+    background:#f7f7fb;
+    color:#222;
+    padding:16px;
+  }
+  h1{
+    text-align:center;
+    margin-top:0;
+    margin-bottom:12px;
+  }
+  .container{
+    max-width:1000px;
+    margin:0 auto;
+    background:#ffffff;
+    border-radius:12px;
+    padding:16px 18px 20px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12);
+  }
+  textarea{
+    width:100%;
+    min-height:90px;
+    resize:vertical;
+    padding:8px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-family:inherit;
+  }
+  label{font-weight:600;}
+  button{
+    padding:8px 14px;
+    margin-top:8px;
+    margin-right:8px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+    background:#ffb74d;
+    font-weight:600;
+  }
+  button:hover{background:#ffa726;}
+  button:disabled{background:#ddd;cursor:default;}
+  .grid-wrapper{
+    overflow-x:auto;
+    margin-top:14px;
+  }
+  table{
+    border-collapse:collapse;
+    margin:0 auto;
+  }
+  td{
+    width:26px;
+    height:26px;
+    border:1px solid #999;
+    text-align:center;
+    vertical-align:middle;
+    font-weight:bold;
+    font-size:16px;
+  }
+  td.block{
+    background:#e0e0e0;
+  }
+  td.empty{
+    background:#ffffff;
+  }
+  .section-title{
+    font-weight:700;
+    margin-top:16px;
+    margin-bottom:4px;
+  }
+  #clueList{
+    margin-top:4px;
+  }
+  #textOutput{
+    width:100%;
+    min-height:70px;
+    padding:6px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-family:monospace;
+    font-size:13px;
+    white-space:pre;
+  }
+  small{color:#555;}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Қазақша сканворд / сөзжұмбақ генераторы</h1>
+
+  <label for="sourceText">1) Сөздер мен сұрақтарды енгіз:</label>
+  <small><br>Әр жолда: <b>сөз - сұрақ</b> (немесе сөз : сұрақ). Мысалы:<br>
+  мектеп - Білім алатын орын<br>
+  алма - Қызыл немесе жасыл жеміс</small>
+
+  <textarea id="sourceText" placeholder="мектеп - Білім алатын орын
+алма - Қызыл немесе жасыл жеміс
+Астана - Қазақстан астанасы"></textarea>
+
+  <div style="margin-top:8px;">
+    <label for="size">Тор өлшемі:</label>
+    <select id="size">
+      <option value="15">15 x 15</option>
+      <option value="17">17 x 17</option>
+      <option value="19">19 x 19</option>
+      <option value="21">21 x 21</option>
+    </select>
+  </div>
+
+  <button onclick="generateScanword()">Сканворд генерациялау</button>
+  <button id="copyBtn" onclick="copyText()" disabled>Көшіру (мәтін)</button>
+
+  <div class="section-title">2) Торкөздер:</div>
+  <div class="grid-wrapper">
+    <div id="gridArea"><small>Алдымен сөздер мен сұрақтарды енгізіп, «генерациялау» батырмасын бас.</small></div>
+  </div>
+
+  <div class="section-title">3) Сұрақтар тізімі:</div>
+  <div id="clueList"><small>Пусто.</small></div>
+
+  <div class="section-title">4) Мәтін түріндегі нұсқасы (көшіріп қоюға ыңғайлы):</div>
+  <textarea id="textOutput" readonly placeholder="Мұнда мәтіндік сканворд пайда болады"></textarea>
+</div>
+
+<script>
+// --- Көмекші: мәтінді парсинг (сөз - сұрақ) ---
+function parseInput(text){
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+  const result = [];
+  for(const line of lines){
+    let word = "";
+    let clue = "";
+    if(line.includes("-")){
+      const parts = line.split("-");
+      word = parts[0].trim();
+      clue = parts.slice(1).join("-").trim();
+    } else if(line.includes(":")){
+      const parts = line.split(":");
+      word = parts[0].trim();
+      clue = parts.slice(1).join(":").trim();
+    } else {
+      // егер бөлінбесе, тек сөз, сұрақты бос қалдырамыз
+      word = line.trim();
+      clue = "";
+    }
+    if(word){
+      result.push({word, clue});
+    }
+  }
+  return result;
+}
+
+// --- Қазақша әріптерді «жауап» форматына келтіру (бас әріп, бос орынсыз) ---
+function normalizeAnswer(str){
+  return str
+    .toUpperCase()
+    .replace(/[^A-ZА-ЯӘІҢҒҮҰҚӨҺ0-9]/g, ""); // тек әріп/сан
+}
+
+// --- Бос тор жасау ---
+function makeEmptyGrid(size){
+  const grid = [];
+  for(let r=0; r<size; r++){
+    const row = [];
+    for(let c=0; c<size; c++){
+      row.push(""); // бос
+    }
+    grid.push(row);
+  }
+  return grid;
+}
+
+// --- Сөзді горизонталь қоюға талпыныс ---
+function tryPlaceHorizontal(grid, answer, row, col){
+  const n = grid.length;
+  if(col + answer.length > n) return false;
+  for(let i=0; i<answer.length; i++){
+    const cell = grid[row][col + i];
+    if(cell !== "" && cell !== answer[i]) return false;
+  }
+  for(let i=0; i<answer.length; i++){
+    grid[row][col + i] = answer[i];
+  }
+  return true;
+}
+
+// --- Сөзді вертикаль қоюға талпыныс ---
+function tryPlaceVertical(grid, answer, row, col){
+  const n = grid.length;
+  if(row + answer.length > n) return false;
+  for(let i=0; i<answer.length; i++){
+    const cell = grid[row + i][col];
+    if(cell !== "" && cell !== answer[i]) return false;
+  }
+  for(let i=0; i<answer.length; i++){
+    grid[row + i][col] = answer[i];
+  }
+  return true;
+}
+
+// --- Бар сөздермен қиылыстырып қоюға тырысу ---
+function placeWithCrossing(grid, answer){
+  const n = grid.length;
+  // Әр әріп бойынша, тордағы сол әріпті іздейміз
+  for(let i=0; i<answer.length; i++){
+    const ch = answer[i];
+    for(let r=0; r<n; r++){
+      for(let c=0; c<n; c++){
+        if(grid[r][c] === ch){
+          // горизонталь қоюға тырысамыз (қиылысатын нүкте)
+          const startCol = c - i;
+          if(startCol >= 0 && startCol + answer.length <= n){
+            let ok = true;
+            for(let k=0; k<answer.length; k++){
+              const cell = grid[r][startCol + k];
+              if(cell !== "" && cell !== answer[k]){ ok=false; break; }
+            }
+            if(ok){
+              for(let k=0; k<answer.length; k++){
+                grid[r][startCol + k] = answer[k];
+              }
+              return true;
+            }
+          }
+          // вертикаль қоюға тырысамыз
+          const startRow = r - i;
+          if(startRow >= 0 && startRow + answer.length <= n){
+            let ok2 = true;
+            for(let k=0; k<answer.length; k++){
+              const cell = grid[startRow + k][c];
+              if(cell !== "" && cell !== answer[k]){ ok2=false; break; }
+            }
+            if(ok2){
+              for(let k=0; k<answer.length; k++){
+                grid[startRow + k][c] = answer[k];
+              }
+              return true;
+            }
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
+
+// --- Негізгі генерация ---
+function generateScanword(){
+  const src = document.getElementById("sourceText").value.trim();
+  const size = parseInt(document.getElementById("size").value,10);
+  const gridArea = document.getElementById("gridArea");
+  const clueList = document.getElementById("clueList");
+  const textOutput = document.getElementById("textOutput");
+  const copyBtn = document.getElementById("copyBtn");
+
+  if(!src){
+    gridArea.innerHTML = "<small>Сөздер енгізілмеген.</small>";
+    clueList.innerHTML = "<small>Сұрақтар жоқ.</small>";
+    textOutput.value = "";
+    copyBtn.disabled = true;
+    return;
+  }
+
+  const items = parseInput(src);
+  if(items.length === 0){
+    gridArea.innerHTML = "<small>Жарамды жол табылмады. Формат: «сөз - сұрақ».</small>";
+    clueList.innerHTML = "<small>Сұрақтар жоқ.</small>";
+    textOutput.value = "";
+    copyBtn.disabled = true;
+    return;
+  }
+
+  // normalize answers
+  const words = items.map(it => ({
+    answer: normalizeAnswer(it.word),
+    clue: it.clue,
+    raw: it.word
+  })).filter(w => w.answer.length > 0);
+
+  if(words.length === 0){
+    gridArea.innerHTML = "<small>Әріптері жоқ жолдар.</small>";
+    clueList.innerHTML = "<small>Сұрақтар жоқ.</small>";
+    textOutput.value = "";
+    copyBtn.disabled = true;
+    return;
+  }
+
+  // ең ұзын сөзді бірінші қоямыз
+  words.sort((a,b) => b.answer.length - a.answer.length);
+
+  const grid = makeEmptyGrid(size);
+  const midRow = Math.floor(size/2);
+  const startCol = Math.max(0, Math.floor((size - words[0].answer.length)/2));
+  tryPlaceHorizontal(grid, words[0].answer, midRow, startCol);
+
+  // қалғандарын қиылыстыруға тырысамыз, болмаса басқа жол/бағанға
+  for(let w = 1; w < words.length; w++){
+    const ans = words[w].answer;
+    let placed = placeWithCrossing(grid, ans);
+    if(!placed){
+      // бос орын іздеп, горизонталь қойып көреміз
+      outer:
+      for(let r=0; r<size; r++){
+        for(let c=0; c<size; c++){
+          if(tryPlaceHorizontal(grid, ans, r, c)){
+            placed = true;
+            break outer;
+          }
+          if(tryPlaceVertical(grid, ans, r, c)){
+            placed = true;
+            break outer;
+          }
+        }
+      }
+    }
+  }
+
+  // HTML торды салу
+  const table = document.createElement("table");
+  for(let r=0; r<size; r++){
+    const tr = document.createElement("tr");
+    for(let c=0; c<size; c++){
+      const td = document.createElement("td");
+      if(grid[r][c] === ""){
+        td.className = "block";
+        td.innerHTML = "&nbsp;";
+      }else{
+        td.className = "empty";
+        td.textContent = grid[r][c];
+      }
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  }
+  gridArea.innerHTML = "";
+  gridArea.appendChild(table);
+
+  // сұрақтар тізімі
+  const ul = document.createElement("ol");
+  for(const it of words){
+    const li = document.createElement("li");
+    const clue = it.clue ? it.clue : "(сұрақ жазылмаған)";
+    li.textContent = it.raw + " — " + clue;
+    ul.appendChild(li);
+  }
+  clueList.innerHTML = "";
+  clueList.appendChild(ul);
+
+  // мәтіндік нұсқа (ASCII)
+  let textGrid = "";
+  for(let r=0; r<size; r++){
+    let line = "";
+    for(let c=0; c<size; c++){
+      line += (grid[r][c] === "" ? "#" : grid[r][c]);
+    }
+    textGrid += line + "\n";
+  }
+  textGrid += "\nСұрақтар:\n";
+  words.forEach((w,i)=>{
+    textGrid += (i+1)+") "+w.raw+" — "+(w.clue || "")+"\n";
+  });
+
+  textOutput.value = textGrid;
+  copyBtn.disabled = false;
+}
+
+// Көшіру функциясы
+function copyText(){
+  const textOutput = document.getElementById("textOutput");
+  const copyBtn = document.getElementById("copyBtn");
+  if(!textOutput.value){
+    return;
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(textOutput.value)
+      .then(()=>{
+        copyBtn.textContent = "Көшірілді ✅";
+        setTimeout(()=>{copyBtn.textContent = "Көшіру (мәтін)";},1500);
+      })
+      .catch(()=>{
+        // егер clipboard жұмыс істемесе – классикалық select+copy
+        textOutput.select();
+        document.execCommand("copy");
+        copyBtn.textContent = "Көшірілді ✅";
+        setTimeout(()=>{copyBtn.textContent = "Көшіру (мәтін)";},1500);
+      });
+  } else {
+    textOutput.select();
+    document.execCommand("copy");
+    copyBtn.textContent = "Көшірілді ✅";
+    setTimeout(()=>{copyBtn.textContent = "Көшіру (мәтін)";},1500);
+  }
+}
+</script>
+<!-- 🔥 Авторлық белгі -->
+<div style="
+    margin-top:32px;
+    text-align:center;
+    padding:12px 0;
+    font-size:18px;
+    color:#555;
+    border-top:2px solid #e5e7eb;
+">
+    AI-Pedagogy Tools by <b>Nazerke Kairatkyzy</b>
+</div>
+
+</body>
+</html>

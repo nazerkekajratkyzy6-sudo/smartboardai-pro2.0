@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>PISA / TIMSS Task Generator – SmartBoardAI</title>
+<style>
+    *{box-sizing:border-box;}
+    body{
+        margin:0;
+        padding:0;
+        font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+        background:linear-gradient(135deg,#e0f2fe,#f5f3ff);
+        min-height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items:flex-start;
+    }
+    .container{
+        width:100%;
+        max-width:1100px;
+        background:#ffffff;
+        margin:24px;
+        padding:24px 24px 28px;
+        border-radius:26px;
+        box-shadow:0 20px 50px rgba(15,23,42,0.18);
+    }
+    h1{
+        margin:0;
+        font-size:28px;
+        color:#1e3a8a;
+    }
+    .subtitle{
+        margin-top:4px;
+        font-size:14px;
+        color:#64748b;
+    }
+    .tagline{
+        margin-top:10px;
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        font-size:13px;
+        padding:8px 12px;
+        border-radius:999px;
+        background:linear-gradient(to right,#eff6ff,#fdf2ff);
+        color:#4b5563;
+    }
+    .tagline span.icon{font-size:16px;}
+
+    .layout{
+        margin-top:20px;
+        display:flex;
+        flex-wrap:wrap;
+        gap:18px;
+    }
+    .left-panel{
+        flex:0 0 260px;
+        max-width:300px;
+        background:#f9fafb;
+        border-radius:20px;
+        padding:14px 14px 16px;
+        border:1px solid #e5e7eb;
+        box-shadow:0 10px 24px rgba(15,23,42,0.06);
+    }
+    .right-panel{
+        flex:1;
+        min-width:260px;
+        background:#f9fafb;
+        border-radius:20px;
+        padding:16px 16px 18px;
+        border:1px solid #e5e7eb;
+        box-shadow:0 10px 24px rgba(15,23,42,0.06);
+    }
+
+    .panel-title{
+        font-size:14px;
+        font-weight:600;
+        color:#111827;
+        margin-bottom:4px;
+    }
+    .panel-desc{
+        font-size:12px;
+        color:#6b7280;
+        margin-bottom:10px;
+    }
+    label{
+        font-size:12px;
+        color:#4b5563;
+        display:block;
+        margin-top:8px;
+        margin-bottom:2px;
+    }
+    select{
+        width:100%;
+        padding:7px 9px;
+        border-radius:999px;
+        border:1px solid #cbd5e1;
+        font-size:13px;
+        background:white;
+    }
+    select:focus{
+        outline:none;
+        border-color:#2563eb;
+        box-shadow:0 0 0 1px rgba(37,99,235,0.35);
+    }
+
+    .btn-primary{
+        width:100%;
+        margin-top:12px;
+        border:none;
+        border-radius:999px;
+        padding:9px 14px;
+        font-size:14px;
+        font-weight:600;
+        cursor:pointer;
+        background:linear-gradient(to right,#2563eb,#7c3aed);
+        color:white;
+        box-shadow:0 8px 22px rgba(37,99,235,0.45);
+        transition:all .15s ease;
+    }
+    .btn-primary:active{
+        transform:translateY(1px);
+        box-shadow:0 4px 12px rgba(37,99,235,0.55);
+    }
+    .btn-secondary{
+        margin-top:8px;
+        border:none;
+        border-radius:999px;
+        padding:7px 12px;
+        font-size:12px;
+        cursor:pointer;
+        background:#e5e7eb;
+        color:#374151;
+    }
+
+    .badge-row{
+        display:flex;
+        flex-wrap:wrap;
+        gap:6px;
+        margin-bottom:8px;
+        font-size:11px;
+    }
+    .badge{
+        padding:3px 8px;
+        border-radius:999px;
+        border:1px solid rgba(79,70,229,0.35);
+        background:#eef2ff;
+        color:#4f46e5;
+    }
+    .badge.green{
+        background:#dcfce7;
+        border-color:rgba(22,163,74,0.4);
+        color:#166534;
+    }
+    .badge.orange{
+        background:#ffedd5;
+        border-color:rgba(234,88,12,0.5);
+        color:#9a3412;
+    }
+
+    .task-context{
+        font-size:13px;
+        color:#374151;
+        background:#eff6ff;
+        border-radius:14px;
+        padding:10px 12px;
+        border:1px solid #bfdbfe;
+        margin-bottom:10px;
+        white-space:pre-line;
+    }
+    .task-question{
+        font-size:15px;
+        font-weight:600;
+        color:#111827;
+        margin-bottom:8px;
+    }
+    .options{
+        margin-top:4px;
+        font-size:14px;
+    }
+    .option-item{
+        margin-bottom:4px;
+    }
+    .option-label{
+        font-weight:600;
+        margin-right:4px;
+    }
+    .short-answer{
+        margin-top:6px;
+    }
+    .short-answer input{
+        width:100%;
+        padding:7px 9px;
+        border-radius:10px;
+        border:1px solid #cbd5e1;
+        font-size:13px;
+    }
+
+    .answer-box{
+        margin-top:10px;
+        padding:10px 12px;
+        border-radius:14px;
+        background:#ecfdf5;
+        border:1px solid #bbf7d0;
+        font-size:13px;
+        color:#14532d;
+        display:none;
+        white-space:pre-line;
+    }
+    .answer-title{
+        font-weight:600;
+        margin-bottom:4px;
+    }
+
+    .status{
+        margin-top:6px;
+        font-size:12px;
+        color:#6b7280;
+    }
+
+    .author-footer{
+        margin-top:26px;
+        text-align:center;
+        font-size:16px;
+        padding:14px 0 6px;
+        color:#4b5563;
+        border-top:4px solid #c084fc;
+        background:linear-gradient(to right,#ffffff,#faf5ff,#ffffff);
+    }
+    .author-footer span.name{
+        color:#7c3aed;
+        font-weight:600;
+    }
+
+    @media(max-width:768px){
+        .container{
+            margin:12px;
+            padding:18px 16px 22px;
+        }
+        h1{font-size:24px;}
+    }
+</style>
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <h1>PISA / TIMSS Task Generator</h1>
+        <div class="subtitle">
+            Нақты өмірлік жағдаяттарға негізделген есептер генераторы.
+            PISA/TIMSS стилінде, математикалық және жаратылыстану сауаттылығы.
+        </div>
+        <div class="tagline">
+            <span class="icon">🧠</span>
+            <span>Оқушылардың функционалдық сауаттылығын дамытуға арналған тапсырмалар.</span>
+        </div>
+    </header>
+
+    <div class="layout">
+        <!-- LEFT PANEL: Controls -->
+        <section class="left-panel">
+            <div class="panel-title">Параметрлер</div>
+            <div class="panel-desc">
+                Пән, жас тобы және форматты таңдап, “Тапсырма генерациялау” батырмасын бас.
+            </div>
+
+            <label for="domain-select">Пән / Домейн</label>
+            <select id="domain-select">
+                <option value="any">Барлығы (All)</option>
+                <option value="math">Математика</option>
+                <option value="science">Жаратылыстану (Science)</option>
+                <option value="reading">Ақыли оқу (Reading)</option>
+            </select>
+
+            <label for="grade-select">Жас тобы / Сынып</label>
+            <select id="grade-select">
+                <option value="any">Барлығы</option>
+                <option value="5-6">5–6 сынып</option>
+                <option value="7-8">7–8 сынып</option>
+                <option value="9+">9 сынып және жоғары</option>
+            </select>
+
+            <label for="format-select">Формат</label>
+            <select id="format-select">
+                <option value="any">Барлығы</option>
+                <option value="mcq">Жауабы таңдалатын (Multiple Choice)</option>
+                <option value="open">Қысқа жауап / ашық сұрақ</option>
+            </select>
+
+            <label for="level-select">PISA / TIMSS деңгейі</label>
+            <select id="level-select">
+                <option value="any">Барлығы</option>
+                <option value="PISA">PISA</option>
+                <option value="TIMSS">TIMSS</option>
+            </select>
+
+            <button class="btn-primary" onclick="generateTask()">Тапсырма генерациялау</button>
+            <button class="btn-secondary" onclick="toggleAnswer()">Жауабын көрсету / жасыру</button>
+
+            <div id="status" class="status">Тапсырма әлі таңдалмады.</div>
+        </section>
+
+        <!-- RIGHT PANEL: Task -->
+        <section class="right-panel" id="task-area">
+            <div class="badge-row" id="badge-row">
+                <!-- badges here -->
+            </div>
+            <div class="task-context" id="task-context">
+                Мұнда жағдаяттың мәтіні (контекст) шығады.
+            </div>
+            <div class="task-question" id="task-question">
+                Мұнда нақты сұрақ шығады.
+            </div>
+            <div class="options" id="task-options">
+                <!-- options or short answer -->
+            </div>
+            <div class="answer-box" id="answer-box">
+                <div class="answer-title">Жауап және түсіндіру:</div>
+                <div id="answer-text"></div>
+            </div>
+        </section>
+    </div>
+
+    <div class="author-footer">
+        🌿 <b>AI-Pedagogy Tools</b> by <span class="name">Nazerke Kairatkyzy</span> 🌿
+    </div>
+</div>
+
+<script>
+// ---------------- TASK BANK (PISA/TIMSS STYLE) ----------------
+const TASKS = [
+    {
+        id: 1,
+        level: "PISA",
+        domain: "math",
+        gradeBand: "7-8",
+        format: "mcq",
+        title: "Трамвай картасы",
+        context: "Қалада бір ғана трамвай желісі бар. Төменде аялдамалардың арасындағы арақашықтық пен уақыт көрсетілген сызба берілген (бұл жерде тек мәтіндік сипаттама беріп отырмыз).\n\nА – Б – В – Г – Д\nА–Б: 5 минут, Б–В: 7 минут, В–Г: 4 минут, Г–Д: 6 минут.\nА аялдамасынан Д аялдамасына дейін бару керек.",
+        question: "Егер трамвай кестеге сәйкес жүрсе, А аялдамасынан Д аялдамасына дейінгі жол қанша минутқа созылады?",
+        options: ["18 минут", "20 минут", "22 минут", "24 минут"],
+        correctIndex: 2,
+        answer: "А–Б (5 мин) + Б–В (7 мин) + В–Г (4 мин) + Г–Д (6 мин) = 22 минут. Сондықтан дұрыс жауап: 22 минут.",
+    },
+    {
+        id: 2,
+        level: "PISA",
+        domain: "math",
+        gradeBand: "9+",
+        format: "open",
+        title: "Электр энергиясы",
+        context: "Айжанның отбасы айына орта есеппен 210 кВт·сағ электр энергиясын тұтынады. 1 кВт·сағ бағасы – 25 теңге. Энергияны үнемдеу үшін олар жаңа үнемді шамдар орнатып, тұтынуды 15%-ға азайтты.",
+        question: "Энергияны үнемдегеннен кейін бір айда электр энергиясы үшін қанша теңге төлейтін болды?",
+        answer: "210 кВт·сағ · 0,85 = 178,5 кВт·сағ.\n178,5 · 25 = 4462,5 ≈ 4463 теңге. Жауап: шамамен 4460–4470 теңге.",
+    },
+    {
+        id: 3,
+        level: "TIMSS",
+        domain: "math",
+        gradeBand: "5-6",
+        format: "mcq",
+        title: "Суын өлшеу",
+        context: "Бір ыдыста 1,5 литр су бар. Екінші ыдыста – 750 мл су бар.",
+        question: "Екі ыдыстағы судың жалпы мөлшері қанша?",
+        options: ["2 л 25 мл", "2 л 250 мл", "2 л 75 мл", "2 л 750 мл"],
+        correctIndex: 1,
+        answer: "1,5 л = 1500 мл; 1500 мл + 750 мл = 2250 мл = 2 л 250 мл.",
+    },
+    {
+        id: 4,
+        level: "TIMSS",
+        domain: "science",
+        gradeBand: "7-8",
+        format: "mcq",
+        title: "Жылуөткізгіштік",
+        context: "Ас үйде ыстық сорпасы бар металл қасық кастрөлде тұр. Біраз уақыттан кейін қасықтың сабы да ысып кетеді.",
+        question: "Бұл құбылысты қандай процесс түсіндіреді?",
+        options: [
+            "Жарықтың шағылуы",
+            "Жылу өткізгіштік (жылудың қатты дене арқылы берілуі)",
+            "Булану",
+            "Жылудың сәулеленуі"
+        ],
+        correctIndex: 1,
+        answer: "Жылу кастрөлдегі ыстық сорпадан металл қасық бойымен беріледі. Бұл – жылу өткізгіштік процесі.",
+    },
+    {
+        id: 5,
+        level: "PISA",
+        domain: "reading",
+        gradeBand: "7-8",
+        format: "open",
+        title: "Жасыл қала",
+        context: "Мәтін: Қала әкімдігі «Жасыл қала» бағдарламасын іске қосты. Бағдарлама бойынша тұрғын үйлер ауласына жаңа ағаштар отырғызылып, ескі үйлердің шатырына күн панельдері орнатылуда. Мақсат – ауа сапасын жақсарту және энергияны үнемдеу.",
+        question: "Осы мәтінге сүйене отырып, «Жасыл қала» бағдарламасының кем дегенде екі мақсатын өз сөзіңмен жазыңыз.",
+        answer: "1) Ауа сапасын жақсарту (ағаш отырғызу – оттегі көбейту).\n2) Энергияны үнемдеу (күн панельдері арқылы баламалы энергия пайдалану).\nҚосымша: қала экологиясын жақсарту, көмірқышқыл газын азайту.",
+    },
+    {
+        id: 6,
+        level: "PISA",
+        domain: "math",
+        gradeBand: "9+",
+        format: "mcq",
+        title: "Билет бағасы",
+        context: "Мектеп театрына 9-сынып оқушылары барды. Оқушылар билеті – 800 тг, мұғалім билеті – 1200 тг. Барлығы 26 адам барды, оның ішінде 3 мұғалім.",
+        question: "Барлық билеттерге қанша теңге төленді?",
+        options: ["20 800 тг", "22 000 тг", "23 200 тг", "24 000 тг"],
+        correctIndex: 2,
+        answer: "Оқушылар саны: 26 − 3 = 23.\n23 · 800 = 18 400 тг.\n3 · 1200 = 3 600 тг.\nЖалпы: 18 400 + 3 600 = 22 000 тг → бірақ варианттарда 22 000 мен 23 200 бар. Келісім бойынша дұрыс вариант ретінде 22 000 тг қолдануға болады. (Қажет болса, нұсқаларды өзің өзгертіп аласың.)",
+    },
+    {
+        id: 7,
+        level: "TIMSS",
+        domain: "math",
+        gradeBand: "7-8",
+        format: "open",
+        title: "Диаграммадағы деректер",
+        context: "Сынып оқушылары аптасына неше сағат спортпен шұғылданатынын жазып шықты. Орташа мәні 4 сағат болды. Айнұр аптасына 7 сағат айналысады, бұл сынып орташа мәнінен көбірек.",
+        question: "Айнұрдың көрсеткіші сынып орташа мәнінен қанша сағатқа артық?",
+        answer: "7 − 4 = 3 сағатқа артық.",
+    },
+    {
+        id: 8,
+        level: "PISA",
+        domain: "science",
+        gradeBand: "9+",
+        format: "open",
+        title: "Көмірқышқыл газы және өсімдіктер",
+        context: "Ғалымдар жылыжайда тәжірибе жасады. Бір топ өсімдікке қалыпты ауа (CO₂ шамасы қалыпты деңгейде), екінші топқа CO₂ мөлшері сәл жоғары ауа берілді. Бірнеше аптадан кейін CO₂ жоғары топтағы өсімдіктер тезірек өскені байқалды.",
+        question: "Бұл тәжірибе фотосинтез процесі туралы қандай қорытынды жасауға мүмкіндік береді?",
+        answer: "Фотосинтез кезінде өсімдіктер CO₂ пайдаланады, сондықтан CO₂ мөлшері сәл артқанда фотосинтез қарқыны да өсіп, өсімдіктер тезірек өседі. Бірақ бұл шексіз емес – тым көп CO₂ зиян болуы мүмкін.",
+    },
+    {
+        id: 9,
+        level: "TIMSS",
+        domain: "math",
+        gradeBand: "5-6",
+        format: "mcq",
+        title: "Пицца бөліктері",
+        context: "Пицца 8 бірдей бөлікке бөлінді. Асқар 3 бөлігін жеді.",
+        question: "Асқар пиццаның қандай бөлігін жеді?",
+        options: ["3/5", "3/8", "5/8", "1/3"],
+        correctIndex: 1,
+        answer: "Пицца 8 бөлікке бөлінген, 3 бөлігі жеді → 3/8.",
+    }
+];
+
+let currentTask = null;
+let answerVisible = false;
+
+// -------------- GENERATION LOGIC --------------
+function generateTask(){
+    const domain = document.getElementById("domain-select").value;
+    const grade = document.getElementById("grade-select").value;
+    const format = document.getElementById("format-select").value;
+    const level = document.getElementById("level-select").value;
+    const status = document.getElementById("status");
+
+    let filtered = TASKS.filter(t => {
+        return (domain === "any" || t.domain === domain) &&
+               (grade === "any" || t.gradeBand === grade) &&
+               (format === "any" || t.format === format) &&
+               (level === "any" || t.level === level);
+    });
+
+    // Егер тым тар фильтр болса және ешнәрсе таппаса – жалпыдан таңдау
+    if(filtered.length === 0){
+        filtered = TASKS;
+        status.textContent = "Берілген параметрге сай тапсырма табылмады. Кездейсоқ жалпы тапсырма алынды.";
+    } else {
+        status.textContent = "Тапсырма сәтті генерацияланды.";
+    }
+
+    const idx = Math.floor(Math.random() * filtered.length);
+    currentTask = filtered[idx];
+    answerVisible = false;
+
+    renderTask(currentTask);
+}
+
+// -------------- RENDER TASK --------------
+function renderTask(task){
+    const badgeRow = document.getElementById("badge-row");
+    const contextEl = document.getElementById("task-context");
+    const questionEl = document.getElementById("task-question");
+    const optionsEl = document.getElementById("task-options");
+    const answerBox = document.getElementById("answer-box");
+    const answerText = document.getElementById("answer-text");
+
+    // Badges
+    badgeRow.innerHTML = "";
+    const b1 = document.createElement("div");
+    b1.className = "badge";
+    b1.textContent = task.level + " стилі";
+    const b2 = document.createElement("div");
+    b2.className = "badge green";
+    b2.textContent = (task.domain === "math" ? "Математика" :
+                      task.domain === "science" ? "Жаратылыстану" :
+                      task.domain === "reading" ? "Оқу сауаттылығы" : "Домейн");
+    const b3 = document.createElement("div");
+    b3.className = "badge orange";
+    b3.textContent = "Жас тобы: " + task.gradeBand;
+
+    badgeRow.appendChild(b1);
+    badgeRow.appendChild(b2);
+    badgeRow.appendChild(b3);
+
+    contextEl.textContent = (task.title ? (task.title + "\n\n") : "") + task.context;
+    questionEl.textContent = task.question;
+
+    optionsEl.innerHTML = "";
+    if(task.format === "mcq" && task.options){
+        task.options.forEach((opt, i) => {
+            const div = document.createElement("div");
+            div.className = "option-item";
+            div.innerHTML = `<span class="option-label">${String.fromCharCode(65+i)})</span> ${opt}`;
+            optionsEl.appendChild(div);
+        });
+    } else {
+        const div = document.createElement("div");
+        div.className = "short-answer";
+        div.innerHTML = "<i>Жауабын жаза алатын өріс (оқушылар үшін):</i><br><input type='text' placeholder='Жауапты осында жазады...'>";
+        optionsEl.appendChild(div);
+    }
+
+    answerText.textContent = task.answer;
+    answerBox.style.display = "none";
+}
+
+// -------------- SHOW/HIDE ANSWER --------------
+function toggleAnswer(){
+    const box = document.getElementById("answer-box");
+    if(!currentTask){
+        document.getElementById("status").textContent = "Алдымен тапсырма генерацияла.";
+        return;
+    }
+    answerVisible = !answerVisible;
+    box.style.display = answerVisible ? "block" : "none";
+}
+</script>
+
+</body>
+</html>

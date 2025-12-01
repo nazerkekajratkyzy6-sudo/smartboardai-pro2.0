@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Оқушыларға рөл тағайындау генераторы</title>
+<style>
+    body{
+        font-family:Arial, sans-serif;
+        background:#f3fff4;
+        padding:20px;
+        color:#243424;
+    }
+    h1{
+        text-align:center;
+        background:#92e59c;
+        color:#113d16;
+        padding:14px;
+        border-radius:14px;
+        box-shadow:0 3px 10px rgba(0,0,0,0.18);
+    }
+    textarea{
+        width:100%;
+        height:120px;
+        padding:10px;
+        border-radius:10px;
+        border:1px solid #9ed4a4;
+        background:#ffffff;
+        font-size:15px;
+        resize:vertical;
+    }
+    button{
+        width:100%;
+        padding:12px;
+        margin-top:10px;
+        background:#54c76f;
+        border:none;
+        cursor:pointer;
+        font-size:18px;
+        color:white;
+        border-radius:12px;
+        font-weight:bold;
+        box-shadow:0 4px 12px rgba(0,0,0,0.25);
+    }
+    button:hover{
+        background:#3da85a;
+    }
+    .role-box{
+        margin-top:18px;
+        background:white;
+        border-radius:12px;
+        padding:14px;
+        border:2px solid #b8e6bd;
+        box-shadow:0 3px 10px rgba(0,0,0,0.1);
+    }
+    .role-item{
+        font-size:18px;
+        padding:8px 0;
+        border-bottom:1px dashed #ccc;
+    }
+    #outputText{
+        margin-top:12px;
+        width:100%;
+        padding:10px;
+        background:#f2fff3;
+        border-radius:10px;
+        border:1px solid #c8eacb;
+        min-height:80px;
+        white-space:pre-wrap;
+        font-family:monospace;
+    }
+</style>
+</head>
+<body>
+
+<h1>🎭 Оқушыларға рөл тағайындау генераторы</h1>
+
+<label><b>Оқушылар тізімін енгіз:</b></label>
+<textarea id="names" placeholder="Айдос
+Аружан
+Данияр
+Назерке
+Алина
+..."></textarea>
+
+<button onclick="assignRoles()">Рөлдерді бөлу</button>
+
+<div id="rolesArea"></div>
+
+<h3>📄 Көшіріп алуға дайын мәтін:</h3>
+<textarea id="outputText" readonly></textarea>
+
+<script>
+const roles = [
+    "Спикер",
+    "Көшбасшы",
+    "Тайм-кипер",
+    "Жазушы",
+    "Бағалаушы",
+    "Ресурс жинаушы",
+    "Модератор",
+    "Коммуникатор",
+    "Репортер",
+    "Сергітуші",
+    "Сұрақ қоюшы",
+    "Талдаушы"
+];
+
+function shuffle(arr){
+    for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+function assignRoles(){
+    const raw = document.getElementById("names").value.trim();
+    const rolesArea = document.getElementById("rolesArea");
+    const output = document.getElementById("outputText");
+
+    if(!raw){
+        alert("Алдымен оқушылар тізімін енгіз!");
+        return;
+    }
+
+    let students = raw.split(/\n+/).map(s => s.trim()).filter(s => s !== "");
+    shuffle(students);
+
+    // Рөлдер көбірек болуы үшін тізімді көбейтеміз
+    let rolesPool = [...roles];
+    while(rolesPool.length < students.length){
+        rolesPool = rolesPool.concat(roles);
+    }
+    shuffle(rolesPool);
+
+    rolesArea.innerHTML = "";
+    output.value = "";
+
+    const box = document.createElement("div");
+    box.className = "role-box";
+
+    students.forEach((st, idx) => {
+        const div = document.createElement("div");
+        div.className = "role-item";
+        div.innerHTML = `<b>${st}</b> — ${rolesPool[idx]}`;
+        box.appendChild(div);
+
+        output.value += `${st} — ${rolesPool[idx]}\n`;
+    });
+
+    rolesArea.appendChild(box);
+}
+</script>
+<div style="
+    margin-top:40px;
+    text-align:center;
+    font-size:18px;
+    padding:16px 0;
+    color:#4b5563;
+    border-top:4px solid #c084fc;
+    background: linear-gradient(to right, #fff, #faf5ff, #fff);
+    font-family:'Arial';
+">
+    🌿 <b>AI-Pedagogy Tools</b> by <span style="color:#7c3aed;">Nazerke Kairatkyzy</span> 🌿
+</div>
+
+</body>
+</html>

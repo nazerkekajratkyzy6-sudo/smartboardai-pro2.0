@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Odd One Out – Артық сөзді тап</title>
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        font-family:system-ui,Arial;
+        background:#eef2ff;
+        display:flex;
+        justify-content:center;
+    }
+    .container{
+        max-width:700px;
+        width:100%;
+        background:white;
+        border-radius:16px;
+        padding:20px 24px 32px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.18);
+    }
+    h1{
+        text-align:center;
+        color:#1e3a8a;
+        font-size:26px;
+        margin:0 0 16px;
+    }
+    textarea{
+        width:100%;
+        height:180px;
+        border-radius:12px;
+        border:1px solid #cbd5ff;
+        padding:10px;
+        font-size:14px;
+        resize:vertical;
+        margin-bottom:10px;
+    }
+    button{
+        border:none;
+        border-radius:999px;
+        padding:10px 22px;
+        background:linear-gradient(135deg,#6366f1,#4f46e5);
+        color:white;
+        font-size:15px;
+        cursor:pointer;
+        margin-bottom:14px;
+        box-shadow:0 4px 12px rgba(79,70,229,0.35);
+    }
+
+    .box{
+        margin-top:20px;
+        background:#f8fafc;
+        padding:20px;
+        border-radius:14px;
+        border:1px solid #e2e8f0;
+        min-height:150px;
+        text-align:center;
+    }
+    .item{
+        padding:12px 14px;
+        background:#eef2ff;
+        border-radius:10px;
+        margin-top:12px;
+        cursor:pointer;
+        font-size:18px;
+        transition:0.15s;
+        border:1px solid transparent;
+    }
+    .item:hover{
+        transform:scale(1.03);
+        border-color:#c7d2fe;
+    }
+    .correct{
+        background:#22c55e!important;
+        color:#fff!important;
+    }
+    .wrong{
+        background:#ef4444!important;
+        color:#fff!important;
+    }
+
+    .finish{
+        text-align:center;
+        font-size:22px;
+        margin-top:20px;
+        color:#1e3a8a;
+        font-weight:600;
+    }
+
+    .author{
+        margin-top:26px;
+        text-align:center;
+        font-size:14px;
+        color:#777;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Odd One Out – Артық сөзді тап</h1>
+
+    <label>Тапсырмалар (әр жолға 4 сөз, үтір арқылы):</label>
+    <textarea id="dataArea">алма, алмұрт, жүзім, орындық
+қызыл, көк, жасыл, мысық
+робот, компьютер, планшет, алма
+үшбұрыш, шаршы, тік төртбұрыш, лимон</textarea>
+
+    <div style="font-size:13px;color:#475569;margin-bottom:4px;">
+        Ереже: әр жолдың соңғы сөзі – артық элемент болып есептеледі.
+    </div>
+
+    <button onclick="startGame()">Ойынды бастау</button>
+
+    <div id="gameBox" class="box"></div>
+
+    <div class="author">
+        © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+    </div>
+</div>
+
+<script>
+let tasks = [];
+let index = 0;
+let score = 0;
+
+function startGame(){
+    const txt = document.getElementById("dataArea").value.trim();
+    const lines = txt.split(/\r?\n/).filter(x=>x.trim().length>0);
+
+    tasks = lines.map(line=>{
+        const parts = line.split(",").map(x=>x.trim());
+        return {
+            words: parts,
+            answer: parts[parts.length-1] // соңғы сөз — артық
+        };
+    });
+
+    index = 0;
+    score = 0;
+    loadTask();
+}
+
+function loadTask(){
+    const box = document.getElementById("gameBox");
+
+    if(index >= tasks.length){
+        box.innerHTML = `
+            <div class="finish">
+                Ойын аяқталды!<br>
+                Дұрыс табылғандар: <b>${score}</b> / ${tasks.length}
+            </div>
+        `;
+        return;
+    }
+
+    const t = tasks[index];
+    let shuffled = [...t.words];
+    shuffled.sort(()=>Math.random()-0.5);
+
+    box.innerHTML = `
+        <div style="font-size:18px;color:#1e3a8a;margin-bottom:10px;">
+            Артық сөзді тап:
+        </div>
+    `;
+
+    shuffled.forEach(word=>{
+        const div = document.createElement("div");
+        div.className = "item";
+        div.textContent = word;
+        div.onclick = () => checkAnswer(div, word, t.answer);
+        box.appendChild(div);
+    });
+}
+
+function checkAnswer(btn, word, correct){
+    const items = document.querySelectorAll(".item");
+    items.forEach(i=> i.style.pointerEvents="none");
+
+    if(word === correct){
+        btn.classList.add("correct");
+        score++;
+    }else{
+        btn.classList.add("wrong");
+        // дұрыс жауапты көрсетеміз
+        items.forEach(i=>{
+            if(i.textContent === correct){
+                i.classList.add("correct");
+            }
+        });
+    }
+
+    setTimeout(()=>{
+        index++;
+        loadTask();
+    },900);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Logic Grid PRO – Логикалық кесте</title>
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        font-family:system-ui,Arial;
+        background:#eef2ff;
+        display:flex;
+        justify-content:center;
+    }
+    .container{
+        max-width:1100px;
+        width:100%;
+        background:white;
+        border-radius:16px;
+        padding:22px 26px 32px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.18);
+        box-sizing:border-box;
+    }
+    h1{
+        text-align:center;
+        font-size:26px;
+        color:#1e3a8a;
+        margin-bottom:14px;
+    }
+    textarea{
+        width:100%;
+        height:120px;
+        border-radius:12px;
+        border:1px solid #cbd5ff;
+        padding:10px;
+        font-size:14px;
+        resize:vertical;
+        margin-bottom:10px;
+        box-sizing:border-box;
+    }
+    button{
+        border:none;
+        border-radius:999px;
+        padding:10px 22px;
+        background:linear-gradient(135deg,#6366f1,#4f46e5);
+        color:white;
+        font-size:15px;
+        cursor:pointer;
+        margin-bottom:14px;
+        box-shadow:0 4px 12px rgba(79,70,229,0.35);
+    }
+
+    table{
+        border-collapse:collapse;
+        width:100%;
+        margin-top:16px;
+        background:white;
+    }
+    th, td{
+        border:1px solid #cbd5ff;
+        padding:8px;
+        text-align:center;
+        font-size:14px;
+    }
+    th{
+        background:#eef2ff;
+        font-weight:600;
+    }
+
+    .cell{
+        cursor:pointer;
+        transition:0.1s;
+        user-select:none;
+    }
+    .yes{
+        background:#22c55e !important;
+        color:white !important;
+    }
+    .no{
+        background:#ef4444 !important;
+        color:white !important;
+    }
+
+    .facts{
+        margin-top:20px;
+        font-size:15px;
+        color:#1e40af;
+        font-weight:600;
+    }
+
+    .finish{
+        margin-top:18px;
+        font-size:22px;
+        text-align:center;
+        color:#1e3a8a;
+        font-weight:600;
+    }
+
+    .author{
+        margin-top:26px;
+        text-align:center;
+        font-size:14px;
+        color:#777;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Logic Grid PRO – Логикалық кесте</h1>
+
+    <label>Категориялар (әр жолға: элементтер үтір арқылы):</label>
+    <textarea id="catArea">Айжан, Марат, Данияр
+Математика, Қазақ тілі, Биология
+Доп, Кітап, Телефон</textarea>
+
+    <label>Факттар (формат: A - B - true/false):</label>
+    <textarea id="factsArea">Айжан - Математика - false
+Телефон - Қазақ тілі - false
+Данияр - Доп - false</textarea>
+
+    <button onclick="startGame()">Кестені құру</button>
+
+    <div id="gameBox"></div>
+
+    <div class="author">
+        © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+    </div>
+
+</div>
+
+<script>
+function parseCategories(){
+    const rows = document.getElementById("catArea").value.trim().split(/\r?\n/);
+    return rows.map(r => r.split(",").map(x=>x.trim()));
+}
+
+function parseFacts(){
+    const lines = document.getElementById("factsArea").value.trim().split(/\r?\n/);
+    const facts = [];
+    lines.forEach(line=>{
+        const parts=line.split(/[-–—]/).map(x=>x.trim());
+        if(parts.length===3){
+            facts.push({
+                A:parts[0],
+                B:parts[1],
+                val:parts[2].toLowerCase()==="true"
+            });
+        }
+    });
+    return facts;
+}
+
+function startGame(){
+    const cats = parseCategories();
+    if(cats.length < 2){
+        alert("Кемінде 2 категория керек!");
+        return;
+    }
+
+    const A = cats[0];
+    const B = cats[1];
+    const facts = parseFacts();
+
+    renderGrid(A, B, facts);
+}
+
+function renderGrid(A, B, facts){
+    const box = document.getElementById("gameBox");
+    let html = `<table><tr><th></th>`;
+    B.forEach(b=> html += `<th>${b}</th>`);
+    html += `</tr>`;
+
+    A.forEach(a=>{
+        html += `<tr><th>${a}</th>`;
+        B.forEach(b=>{
+            const fact = facts.find(f=> f.A===a && f.B===b);
+            let cls = "";
+            if(fact){
+                cls = fact.val ? "yes" : "no";
+            }
+            html += `<td class="cell ${cls}" data-a="${a}" data-b="${b}" onclick="toggleCell(this)"></td>`;
+        });
+        html += `</tr>`;
+    });
+
+    html += `</table>
+            <div class="facts">Факттарға байланысты кей ұяшықтар алдын ала белгіленген.</div>`;
+
+    box.innerHTML = html;
+}
+
+function toggleCell(el){
+    if(el.classList.contains("yes")){
+        el.classList.remove("yes");
+        el.classList.add("no");
+    } 
+    else if(el.classList.contains("no")){
+        el.classList.remove("no");
+    } 
+    else {
+        el.classList.add("yes");
+    }
+}
+</script>
+
+</body>
+</html>

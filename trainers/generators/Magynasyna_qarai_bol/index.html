@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Logic Groups PRO – 3 топқа бөл</title>
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        background:#eef2ff;
+        font-family:system-ui,Arial;
+        display:flex;
+        justify-content:center;
+    }
+    .container{
+        max-width:1100px;
+        width:100%;
+        background:white;
+        padding:24px 30px;
+        border-radius:18px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.18);
+    }
+    h1{
+        text-align:center;
+        color:#1e3a8a;
+        margin-bottom:16px;
+    }
+    textarea, input{
+        width:100%;
+        border-radius:12px;
+        border:1px solid #cbd5ff;
+        padding:10px;
+        margin-bottom:10px;
+        font-size:14px;
+    }
+    textarea{
+        height:130px;
+        resize:vertical;
+    }
+    button{
+        border:none;
+        border-radius:999px;
+        padding:10px 22px;
+        background:linear-gradient(135deg,#6366f1,#4f46e5);
+        color:white;
+        cursor:pointer;
+        font-size:15px;
+        margin-bottom:14px;
+        box-shadow:0 4px 12px rgba(79,70,229,0.35);
+    }
+
+    .items{
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        margin-top:14px;
+        background:#f8fafc;
+        padding:12px;
+        border-radius:12px;
+        min-height:80px;
+    }
+    .item{
+        background:#eef2ff;
+        border:1px solid #cbd5ff;
+        padding:8px 14px;
+        border-radius:10px;
+        font-size:17px;
+        cursor:grab;
+        transition:0.15s;
+    }
+    .item:hover{
+        transform:scale(1.05);
+        border-color:#6366f1;
+    }
+
+    .buckets{
+        display:flex;
+        gap:16px;
+        margin-top:18px;
+    }
+    .bucket{
+        flex:1;
+        background:#f8fafc;
+        border-radius:16px;
+        border:2px dashed #cbd5ff;
+        padding:12px;
+        min-height:220px;
+        text-align:center;
+        transition:0.15s;
+    }
+    .bucket.over{
+        border-color:#6366f1;
+        background:#e0e7ff;
+    }
+    .title{
+        font-size:18px;
+        font-weight:700;
+        color:#1e40af;
+        margin-bottom:10px;
+    }
+
+    .placed{
+        display:inline-block;
+        padding:6px 10px;
+        margin:6px;
+        border-radius:10px;
+        background:#e5e7eb;
+        font-size:16px;
+    }
+
+    .correct{
+        background:#22c55e !important;
+        color:white !important;
+    }
+    .wrong{
+        background:#ef4444 !important;
+        color:white !important;
+    }
+
+    .finish{
+        margin-top:20px;
+        font-size:22px;
+        text-align:center;
+        color:#1e40af;
+        font-weight:600;
+    }
+
+    .author{
+        margin-top:26px;
+        text-align:center;
+        font-size:14px;
+        color:#777;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Logic Groups PRO – Үш топқа бөл</h1>
+
+<label>1-топ атауы:</label>
+<input id="g1" value="Жемістер">
+
+<label>2-топ атауы:</label>
+<input id="g2" value="Көкөністер">
+
+<label>3-топ атауы:</label>
+<input id="g3" value="Тұрмыстық заттар">
+
+<label>Элементтер (формат: сөз - 1/2/3):</label>
+<textarea id="dataArea">алма - 1
+алмұрт - 1
+жүзім - 1
+сәбіз - 2
+қияр - 2
+кәді - 2
+қасық - 3
+үтік - 3
+ыдыс - 3
+пияз - 2
+банан - 1
+шыны - 3</textarea>
+
+<button onclick="startGame()">Ойынды бастау</button>
+
+<div id="gameBox"></div>
+
+<div class="author">
+    © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+</div>
+
+</div>
+
+<script>
+let items=[];
+let correctMap={};
+let placedCount=0;
+
+function startGame(){
+    const txt=document.getElementById("dataArea").value.trim().split(/\r?\n/);
+    items=[];
+    correctMap={};
+
+    txt.forEach(line=>{
+        const p=line.split(/[-–—]/);
+        if(p.length>=2){
+            const word=p[0].trim();
+            const grp=parseInt(p[1]);
+            if([1,2,3].includes(grp)){
+                items.push(word);
+                correctMap[word]=grp;
+            }
+        }
+    });
+
+    placedCount=0;
+
+    renderGame();
+}
+
+function renderGame(){
+    const g1=document.getElementById("g1").value;
+    const g2=document.getElementById("g2").value;
+    const g3=document.getElementById("g3").value;
+
+    const box=document.getElementById("gameBox");
+
+    let html=`
+        <div class="items" id="itemsBox">
+            ${items.map(w=>`
+                <div class="item" draggable="true"
+                     data-word="${w}"
+                     ondragstart="dragStart(event)">
+                    ${w}
+                </div>
+            `).join("")}
+        </div>
+
+        <div class="buckets">
+            <div class="bucket" data-b="1"
+                 ondragover="dragOver(event)"
+                 ondrop="dropItem(event,1)">
+                <div class="title">${g1}</div>
+            </div>
+
+            <div class="bucket" data-b="2"
+                 ondragover="dragOver(event)"
+                 ondrop="dropItem(event,2)">
+                <div class="title">${g2}</div>
+            </div>
+
+            <div class="bucket" data-b="3"
+                 ondragover="dragOver(event)"
+                 ondrop="dropItem(event,3)">
+                <div class="title">${g3}</div>
+            </div>
+        </div>
+
+        <div id="finishBox"></div>
+    `;
+
+    box.innerHTML=html;
+}
+
+let dragWord="";
+
+function dragStart(e){
+    dragWord=e.target.dataset.word;
+}
+
+function dragOver(e){
+    e.preventDefault();
+    e.currentTarget.classList.add("over");
+}
+
+function dropItem(e,targetGroup){
+    e.preventDefault();
+    e.currentTarget.classList.remove("over");
+
+    const el=document.querySelector(`.item[data-word="${dragWord}"]`);
+    if(!el) return;
+
+    el.classList.add("placed");
+
+    if(correctMap[dragWord]===targetGroup){
+        el.classList.add("correct");
+    } else {
+        el.classList.add("wrong");
+    }
+
+    e.currentTarget.appendChild(el);
+
+    placedCount++;
+
+    if(placedCount===items.length){
+        finishGame();
+    }
+}
+
+function finishGame(){
+    const correct=document.querySelectorAll(".correct").length;
+    const total=items.length;
+
+    document.getElementById("finishBox").innerHTML=`
+        <div class="finish">Дұрыс: <b>${correct}</b> / ${total}</div>
+    `;
+}
+</script>
+
+</body>
+</html>

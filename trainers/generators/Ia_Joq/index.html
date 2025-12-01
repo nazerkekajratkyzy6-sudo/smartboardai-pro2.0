@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>True / False – Иә / Жоқ</title>
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        font-family:system-ui,Arial;
+        background:#eef2ff;
+        display:flex;
+        justify-content:center;
+    }
+    .container{
+        max-width:750px;
+        width:100%;
+        background:white;
+        border-radius:16px;
+        padding:20px 24px 32px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.18);
+    }
+    h1{
+        text-align:center;
+        color:#1e3a8a;
+        margin:0 0 16px;
+        font-size:26px;
+    }
+    textarea{
+        width:100%;
+        height:160px;
+        border-radius:12px;
+        border:1px solid #cbd5ff;
+        padding:10px;
+        font-size:14px;
+        resize:vertical;
+        margin-bottom:10px;
+    }
+    button{
+        border:none;
+        border-radius:999px;
+        padding:10px 22px;
+        background:linear-gradient(135deg,#6366f1,#4f46e5);
+        color:white;
+        font-size:15px;
+        cursor:pointer;
+        margin-bottom:14px;
+        box-shadow:0 4px 12px rgba(79,70,229,0.35);
+    }
+
+    .statement{
+        font-size:22px;
+        font-weight:600;
+        text-align:center;
+        color:#1e293b;
+        min-height:80px;
+        margin-bottom:20px;
+    }
+
+    .btns{
+        display:flex;
+        justify-content:center;
+        gap:20px;
+    }
+    .tf-btn{
+        border:none;
+        border-radius:12px;
+        padding:14px 30px;
+        font-size:20px;
+        font-weight:600;
+        cursor:pointer;
+        background:#eef2ff;
+        transition:0.15s;
+        border:2px solid transparent;
+    }
+    .tf-btn:hover{
+        transform:scale(1.05);
+        border-color:#c7d2fe;
+    }
+    .correct{
+        background:#22c55e!important;
+        color:#fff!important;
+    }
+    .wrong{
+        background:#ef4444!important;
+        color:#fff!important;
+    }
+
+    .finish{
+        text-align:center;
+        font-size:22px;
+        margin-top:24px;
+        color:#1e3a8a;
+        font-weight:600;
+    }
+
+    .author{
+        margin-top:26px;
+        text-align:center;
+        font-size:14px;
+        color:#777;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>True / False – Иә / Жоқ</h1>
+
+    <label>Мәлімдемелер (әр жолға: сөйлем - true/false):</label>
+    <textarea id="dataArea">Жер күнді айналады - true
+5+7 = 15 - false
+Алматы Қазақстанда орналасқан - true
+Мысық ұша алады - false
+Су 0°С-та қатып қалады - true</textarea>
+
+    <div style="font-size:13px;color:#475569;margin-bottom:4px;">
+        Формат: <b>мәтін - true</b> немесе <b>мәтін - false</b>  
+        (true = Иә, false = Жоқ)
+    </div>
+
+    <button onclick="startGame()">Ойынды бастау</button>
+
+    <div id="gameBox"></div>
+
+    <div class="author">
+        © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+    </div>
+
+</div>
+
+<script>
+let tasks = [];
+let order = [];
+let index = 0;
+let score = 0;
+
+function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr;
+}
+
+function startGame(){
+    const txt = document.getElementById("dataArea").value.trim();
+    const lines = txt.split(/\r?\n/).filter(x=>x.trim().length>0);
+
+    tasks = [];
+
+    lines.forEach(line=>{
+        const parts = line.split(/[-–—]/);
+        if(parts.length>=2){
+            const st = parts[0].trim();
+            const ans = parts[1].trim().toLowerCase();
+            if(st && (ans==="true" || ans==="false")){
+                tasks.push({
+                    text: st,
+                    correct: ans==="true"
+                });
+            }
+        }
+    });
+
+    if(tasks.length === 0){
+        alert("Мәліметтер дұрыс енгізілмеген!");
+        return;
+    }
+
+    order = tasks.map((_,i)=>i);
+    shuffle(order);
+
+    index = 0;
+    score = 0;
+
+    loadTask();
+}
+
+function loadTask(){
+    const box = document.getElementById("gameBox");
+
+    if(index >= order.length){
+        box.innerHTML = `
+            <div class="finish">
+                Ойын аяқталды!<br>
+                Дұрыс жауаптар: <b>${score}</b> / ${order.length}
+            </div>
+        `;
+        return;
+    }
+
+    const task = tasks[order[index]];
+
+    box.innerHTML = `
+        <div class="statement">${task.text}</div>
+
+        <div class="btns">
+            <button class="tf-btn" onclick="checkAnswer(this,true)">Иә</button>
+            <button class="tf-btn" onclick="checkAnswer(this,false)">Жоқ</button>
+        </div>
+    `;
+}
+
+function checkAnswer(btn, chosen){
+    const task = tasks[order[index]];
+    const correctBtnTxt = task.correct ? "Иә" : "Жоқ";
+
+    const allBtns = document.querySelectorAll(".tf-btn");
+    allBtns.forEach(b=>b.disabled = true);
+
+    if(chosen === task.correct){
+        btn.classList.add("correct");
+        score++;
+    } else {
+        btn.classList.add("wrong");
+        // дұрыс жауапты көрсетеміз
+        allBtns.forEach(b=>{
+            if(b.textContent === correctBtnTxt){
+                b.classList.add("correct");
+            }
+        });
+    }
+
+    setTimeout(()=>{
+        index++;
+        loadTask();
+    },900);
+}
+</script>
+
+</body>
+</html>

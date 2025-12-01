@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Қазақша анаграмма генераторы</title>
+<style>
+  body{
+    margin:0;
+    font-family:system-ui, Arial, sans-serif;
+    background:#f5f5f5;
+    color:#222;
+    padding:16px;
+  }
+  h1{
+    text-align:center;
+    margin-top:0;
+    margin-bottom:12px;
+  }
+  .container{
+    max-width:900px;
+    margin:0 auto;
+    background:#ffffff;
+    border-radius:12px;
+    padding:16px 18px 20px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.12);
+  }
+  textarea{
+    width:100%;
+    min-height:70px;
+    resize:vertical;
+    padding:8px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-family:inherit;
+  }
+  label{font-weight:600;}
+  input[type="number"]{
+    width:80px;
+    padding:4px;
+    border-radius:6px;
+    border:1px solid #ccc;
+  }
+  button{
+    padding:8px 14px;
+    margin-top:8px;
+    margin-right:8px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+    background:#ffb74d;
+    font-weight:600;
+  }
+  button:hover{background:#ffa726;}
+  button:disabled{
+    background:#ddd;
+    cursor:default;
+  }
+  .section-title{
+    font-weight:700;
+    margin-top:16px;
+    margin-bottom:4px;
+  }
+  .letters{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:6px;
+  }
+  .letter-tile{
+    min-width:28px;
+    padding:4px 6px;
+    text-align:center;
+    border-radius:6px;
+    background:#e3f2fd;
+    border:1px solid #90caf9;
+    cursor:pointer;
+    font-weight:600;
+  }
+  .letter-tile:hover{
+    background:#bbdefb;
+  }
+  #manualOutput{
+    width:100%;
+    min-height:40px;
+    padding:6px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    margin-top:4px;
+    font-family:inherit;
+  }
+  #anagramList{
+    max-height:260px;
+    overflow-y:auto;
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:8px 10px;
+    background:#fafafa;
+  }
+  #anagramList ol{
+    padding-left:20px;
+    margin:0;
+  }
+  small{color:#666;}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Қазақша анаграмма генераторы</h1>
+
+  <!-- КІРІС -->
+  <label for="sourceText">1) Сөз немесе сөйлемді енгіз:</label>
+  <textarea id="sourceText" placeholder="Мысалы: мектеп, ана, ұлттық ойын, жаңа жыл"></textarea>
+
+  <div style="margin-top:8px;">
+    <label for="maxCount">Анаграмма саны (макс.):</label>
+    <input id="maxCount" type="number" min="1" max="200" value="20">
+    <small>Ұзын сөздер үшін 10–20 жеткілікті.</small>
+  </div>
+
+  <button onclick="generateAnagrams()">Анаграмма жасау</button>
+  <button id="downloadBtn" onclick="downloadAnagrams()" disabled>Жүктеп алу (.txt)</button>
+
+  <!-- ӘРІПТЕРМЕН ОЙНАУ -->
+  <div class="section-title">2) Әріптерден өз анаграммаңды құр:</div>
+  <small>Төмендегі әріптерді бассаң, төменгі жолға жиналады.</small>
+  <div id="letters" class="letters"></div>
+
+  <div style="margin-top:6px;">
+    <input id="manualOutput" placeholder="Мұнда өз құрастырған сөзің/сөйлемің шығады">
+  </div>
+  <div style="margin-top:4px;">
+    <button onclick="backspaceManual()">← Бір әріпті өшіру</button>
+    <button onclick="clearManual()">Тазалау</button>
+  </div>
+
+  <!-- АВТО-Анаграммалар -->
+  <div class="section-title">3) Генератор ұсынған анаграммалар:</div>
+  <div id="anagramList">
+    <small>Әзірге бос. Жоғарыдағы «Анаграмма жасау» батырмасын бас.</small>
+  </div>
+</div>
+
+<script>
+let lastAnagrams = [];
+
+// Көмекші: мәтіннен әріптер жиынын алу
+function getLetters(text){
+  const removeChars = /[ \n\r\t.,!?;:"'()\-]/g;
+  return text.replace(removeChars, "");
+}
+
+function permuteAll(chars){
+  const results = [];
+  function helper(prefix, rest){
+    if(rest.length === 0){
+      results.push(prefix);
+      return;
+    }
+    for(let i=0; i<rest.length; i++){
+      helper(prefix + rest[i], rest.slice(0,i) + rest.slice(i+1));
+    }
+  }
+  helper("", chars);
+  return Array.from(new Set(results));
+}
+
+function randomPermutations(chars, maxCount){
+  const set = new Set();
+  const arr = chars.split("");
+  const maxAttempts = maxCount * 200;
+  let attempts = 0;
+
+  while(set.size < maxCount && attempts < maxAttempts){
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    set.add(arr.join(""));
+    attempts++;
+  }
+  return Array.from(set);
+}
+
+function generateAnagrams(){
+  const src = document.getElementById("sourceText").value.trim();
+  const maxCount = parseInt(document.getElementById("maxCount").value,10) || 20;
+  const listDiv = document.getElementById("anagramList");
+  const lettersDiv = document.getElementById("letters");
+  const downloadBtn = document.getElementById("downloadBtn");
+
+  if(!src){
+    listDiv.innerHTML = "<small>Алдымен сөз немесе сөйлем енгіз.</small>";
+    downloadBtn.disabled = true;
+    lettersDiv.innerHTML = "";
+    return;
+  }
+
+  const letters = getLetters(src);
+  if(letters.length === 0){
+    listDiv.innerHTML = "<small>Тек әріп енгізу керек.</small>";
+    downloadBtn.disabled = true;
+    lettersDiv.innerHTML = "";
+    return;
+  }
+
+  lettersDiv.innerHTML = "";
+  for(const ch of letters){
+    const span = document.createElement("span");
+    span.className = "letter-tile";
+    span.textContent = ch;
+    span.onclick = () => {
+      document.getElementById("manualOutput").value += ch;
+    };
+    lettersDiv.appendChild(span);
+  }
+
+  let anagrams;
+  if(letters.length <= 8){
+    const all = permuteAll(letters);
+    anagrams = all.slice(0, maxCount);
+  } else {
+    anagrams = randomPermutations(letters, maxCount);
+  }
+
+  if(anagrams.length === 0){
+    listDiv.innerHTML = "<small>Анаграмма табылмады.</small>";
+    downloadBtn.disabled = true;
+    return;
+  }
+
+  lastAnagrams = anagrams;
+
+  const ol = document.createElement("ol");
+  for(const a of anagrams){
+    const li = document.createElement("li");
+    li.textContent = a;
+    ol.appendChild(li);
+  }
+  listDiv.innerHTML = "";
+  listDiv.appendChild(ol);
+  downloadBtn.disabled = false;
+}
+
+function clearManual(){
+  document.getElementById("manualOutput").value = "";
+}
+
+function backspaceManual(){
+  const field = document.getElementById("manualOutput");
+  field.value = field.value.slice(0, -1);
+}
+
+function downloadAnagrams(){
+  if(!lastAnagrams || lastAnagrams.length === 0) return;
+  const text = lastAnagrams.join("\n");
+  const blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "anagrammalar.txt";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+
+<!-- 🔥 Авторлық белгі -->
+<div style="
+    margin-top:32px;
+    text-align:center;
+    padding:12px 0;
+    font-size:18px;
+    color:#555;
+    border-top:2px solid #e5e7eb;
+">
+    AI-Pedagogy Tools by <b>Nazerke Kairatkyzy</b>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Crossword Generator – SmartBoardAI</title>
+
+<style>
+    body{
+        margin:0;
+        padding:0;
+        font-family:system-ui, -apple-system, Arial;
+        background:linear-gradient(135deg,#e0f2fe,#f5f3ff);
+        display:flex;
+        justify-content:center;
+        align-items:flex-start;
+        min-height:100vh;
+    }
+    .container{
+        width:100%;
+        max-width:1050px;
+        background:white;
+        margin:24px;
+        padding:26px;
+        border-radius:28px;
+        box-shadow:0 20px 45px rgba(15,23,42,0.18);
+    }
+    h1{
+        margin:0;
+        font-size:28px;
+        color:#1e3a8a;
+    }
+    .desc{
+        color:#64748b;
+        font-size:14px;
+        margin-top:6px;
+    }
+
+    textarea{
+        width:100%;
+        min-height:150px;
+        border-radius:18px;
+        border:1px solid #cbd5e1;
+        padding:12px;
+        font-size:15px;
+        background:#f8fafc;
+        margin-top:14px;
+    }
+    textarea:focus{
+        outline:none;
+        border-color:#2563eb;
+        box-shadow:0 0 0 2px rgba(37,99,235,0.25);
+    }
+
+    button{
+        margin-top:14px;
+        border:none;
+        border-radius:999px;
+        padding:10px 20px;
+        font-size:15px;
+        font-weight:600;
+        cursor:pointer;
+        background:linear-gradient(to right,#2563eb,#7c3aed);
+        color:white;
+        box-shadow:0 8px 22px rgba(37,99,235,0.45);
+        transition:.15s;
+    }
+    button:active{
+        transform:translateY(1px);
+        box-shadow:0 4px 12px rgba(37,99,235,0.55);
+    }
+
+    .layout{
+        margin-top:22px;
+        display:flex;
+        flex-wrap:wrap;
+        gap:20px;
+    }
+    .crossword{
+        flex:1.4;
+        min-width:300px;
+        background:#f1f5f9;
+        border-radius:20px;
+        padding:14px;
+        border:1px solid #dbeafe;
+        overflow:auto;
+    }
+    .clues{
+        flex:1;
+        min-width:260px;
+        background:#fafafa;
+        border-radius:20px;
+        padding:14px;
+        border:1px solid #e5e7eb;
+        max-height:550px;
+        overflow:auto;
+    }
+    .clues h3{
+        margin:6px 0 10px;
+        color:#1e40af;
+    }
+
+    table{
+        border-collapse:collapse;
+        margin:auto;
+    }
+    td{
+        width:36px;
+        height:36px;
+        border:1px solid #cbd5e1;
+        text-align:center;
+        background:white;
+        font-size:18px;
+        font-weight:600;
+        color:#1e293b;
+    }
+    td input{
+        width:100%;
+        height:100%;
+        border:none;
+        text-align:center;
+        font-size:18px;
+        background:transparent;
+        outline:none;
+        text-transform:uppercase;
+    }
+    td.block{
+        background:#cbd5e1;
+    }
+
+    .footer{
+        margin-top:28px;
+        padding:14px 0 6px;
+        text-align:center;
+        font-size:16px;
+        color:#4b5563;
+        border-top:4px solid #c084fc;
+        background:linear-gradient(to right,#fff,#faf5ff,#fff);
+        border-radius:16px;
+    }
+    .footer span{
+        color:#7c3aed;
+        font-weight:600;
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🧩 Crossword Generator</h1>
+<div class="desc">
+    Әр жолға: <b>сөз : анықтама</b> форматын жаз.  
+    Мысалы: <b>функция : тәуелділік</b>  
+</div>
+
+<textarea id="input" placeholder="Мысалы:
+математика : ғылым
+теңдеу : теңдік
+функция : тәуелділік
+алгебра : бөлім
+геометрия : фигуралар"></textarea>
+
+<button onclick="generate()">Кроссворд құру</button>
+<button onclick="checkAnswers()">Тексеру</button>
+
+<div class="layout">
+    <div class="crossword" id="crossword"></div>
+    <div class="clues" id="clues"></div>
+</div>
+
+<div class="footer">
+    🌿 <b>AI-Pedagogy Tools</b> by <span>Nazerke Kairatkyzy</span> 🌿
+</div>
+
+</div>
+
+<script>
+function parseInput(){
+    const raw = document.getElementById("input").value.trim();
+    const lines = raw.split("\n");
+
+    const pairs = [];
+    for(const line of lines){
+        if(!line.includes(":")) continue;
+        const [word, clue] = line.split(":");
+        pairs.push({
+            word:word.trim().toUpperCase(),
+            clue:clue.trim()
+        });
+    }
+    return pairs;
+}
+
+function generate(){
+    const data = parseInput();
+    if(data.length === 0){
+        alert("Формат: сөз : анықтама");
+        return;
+    }
+
+    const size = 18;
+    const grid = Array.from({length:size}, () =>
+        Array.from({length:size}, () => "")
+    );
+
+    let row = 2;
+    let col = 2;
+    let horizontal = true;
+
+    const cluesDiv = document.getElementById("clues");
+    cluesDiv.innerHTML = "<h3>Сұрақтар:</h3>";
+
+    data.forEach((item, idx) => {
+        cluesDiv.innerHTML += `<b>${idx+1}.</b> ${item.clue}<br><br>`;
+
+        const w = item.word;
+
+        if(horizontal){
+            for(let i=0;i<w.length;i++){
+                if(col+i < size){
+                    grid[row][col+i] = w[i];
+                }
+            }
+            col += 3;
+            horizontal = false;
+        } else {
+            for(let i=0;i<w.length;i++){
+                if(row+i < size){
+                    grid[row+i][col] = w[i];
+                }
+            }
+            row += 3;
+            horizontal = true;
+        }
+    });
+
+    drawGrid(grid);
+}
+
+function drawGrid(grid){
+    const cw = document.getElementById("crossword");
+    cw.innerHTML = "";
+
+    const table = document.createElement("table");
+
+    grid.forEach(row=>{
+        const tr = document.createElement("tr");
+        row.forEach(cell=>{
+            const td = document.createElement("td");
+
+            if(cell === ""){
+                td.className = "block";
+            } else {
+                const inp = document.createElement("input");
+                inp.maxLength = 1;
+                td.appendChild(inp);
+                td.dataset.solution = cell;
+            }
+            tr.appendChild(td);
+        });
+        table.appendChild(tr);
+    });
+
+    cw.appendChild(table);
+}
+
+function checkAnswers(){
+    const cells = document.querySelectorAll("#crossword td");
+    let correct = 0, total = 0;
+
+    cells.forEach(td=>{
+        if(td.dataset.solution){
+            total++;
+            const val = td.querySelector("input").value.toUpperCase();
+            if(val === td.dataset.solution){
+                td.style.background = "#d1fae5";
+                correct++;
+            } else {
+                td.style.background = "#fee2e2";
+            }
+        }
+    });
+
+    alert(`Дұрыс: ${correct} / ${total}`);
+}
+</script>
+
+</body>
+</html>

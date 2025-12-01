@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>SmartBoardAI – WordCloud (Облако слов)</title>
+<style>
+    *{box-sizing:border-box;}
+    body{
+        margin:0;
+        padding:0;
+        font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        background:linear-gradient(135deg,#e0f2fe,#f5f3ff);
+        min-height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items:flex-start;
+    }
+    .container{
+        width:100%;
+        max-width:960px;
+        background:#ffffff;
+        margin:24px;
+        padding:24px 24px 30px;
+        border-radius:26px;
+        box-shadow:0 20px 50px rgba(15,23,42,0.18);
+    }
+    h1{
+        margin:0;
+        font-size:26px;
+        color:#0f172a;
+    }
+    .subtitle{
+        margin-top:4px;
+        font-size:14px;
+        color:#6b7280;
+    }
+    .tagline{
+        margin-top:10px;
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        font-size:13px;
+        padding:8px 12px;
+        border-radius:999px;
+        background:linear-gradient(to right,#eff6ff,#fdf2ff);
+        color:#4b5563;
+    }
+    .tagline span.icon{font-size:16px;}
+
+    .layout{
+        display:flex;
+        gap:18px;
+        margin-top:20px;
+        flex-wrap:wrap;
+    }
+    .left-panel{
+        flex:1 1 260px;
+        background:#f9fafb;
+        padding:14px 14px 16px;
+        border-radius:20px;
+        box-shadow:0 10px 24px rgba(15,23,42,0.06);
+    }
+    .panel-title{
+        font-size:14px;
+        font-weight:600;
+        color:#111827;
+        margin-bottom:6px;
+    }
+    .panel-desc{
+        font-size:12px;
+        color:#6b7280;
+        margin-bottom:10px;
+    }
+    textarea{
+        width:100%;
+        min-height:130px;
+        resize:vertical;
+        border-radius:14px;
+        border:1px solid #d1d5db;
+        padding:8px 10px;
+        font-size:13px;
+        font-family:inherit;
+    }
+    textarea:focus{
+        outline:none;
+        border-color:#2563eb;
+        box-shadow:0 0 0 1px rgba(37,99,235,0.35);
+    }
+    .row{
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        margin-top:10px;
+        align-items:center;
+        font-size:12px;
+        color:#4b5563;
+    }
+    label{
+        font-size:12px;
+        color:#4b5563;
+    }
+    input[type="number"]{
+        width:70px;
+        padding:6px 8px;
+        border-radius:999px;
+        border:1px solid #d1d5db;
+        font-size:12px;
+    }
+    input[type="checkbox"]{
+        transform:scale(1.05);
+        margin-right:4px;
+    }
+    .buttons{
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+        margin-top:10px;
+    }
+    button{
+        border:none;
+        cursor:pointer;
+        font-size:13px;
+        border-radius:999px;
+        padding:8px 16px;
+        font-weight:500;
+        transition:all .15s ease;
+    }
+    .btn-primary{
+        background:linear-gradient(to right,#2563eb,#7c3aed);
+        color:white;
+        box-shadow:0 8px 20px rgba(37,99,235,0.45);
+    }
+    .btn-primary:active{
+        transform:translateY(1px);
+        box-shadow:0 4px 12px rgba(37,99,235,0.55);
+    }
+    .btn-secondary{
+        background:#e5e7eb;
+        color:#374151;
+    }
+    .btn-secondary:hover{
+        background:#d1d5db;
+    }
+
+    .right-panel{
+        flex:1.6 1 320px;
+        background:#f9fafb;
+        border-radius:20px;
+        padding:14px 14px 18px;
+        box-shadow:0 10px 24px rgba(15,23,42,0.06);
+        display:flex;
+        flex-direction:column;
+    }
+    .cloud-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:8px;
+        gap:8px;
+    }
+    .cloud-title{
+        font-size:14px;
+        font-weight:600;
+        color:#111827;
+    }
+    .badge{
+        font-size:11px;
+        padding:4px 8px;
+        border-radius:999px;
+        background:#eef2ff;
+        color:#4f46e5;
+        border:1px solid rgba(79,70,229,0.35);
+    }
+    .cloud-area{
+        flex:1;
+        margin-top:4px;
+        background:radial-gradient(circle at top,#eff6ff,#e5e7eb);
+        border-radius:16px;
+        padding:14px;
+        overflow:auto;
+        border:1px solid #dbeafe;
+    }
+    .cloud-inner{
+        display:flex;
+        flex-wrap:wrap;
+        gap:6px 10px;
+        align-items:flex-start;
+    }
+    .word-item{
+        display:inline-block;
+        padding:2px 4px;
+        border-radius:10px;
+        white-space:nowrap;
+        cursor:default;
+        transition:transform .1s ease, box-shadow .1s ease, background-color .1s ease;
+    }
+    .word-item:hover{
+        transform:translateY(-1px);
+        box-shadow:0 4px 10px rgba(15,23,42,0.2);
+    }
+    .cloud-footer{
+        margin-top:6px;
+        font-size:11px;
+        color:#4b5563;
+        display:flex;
+        justify-content:space-between;
+        gap:4px;
+        flex-wrap:wrap;
+    }
+
+    .author-footer{
+        margin-top:26px;
+        text-align:center;
+        font-size:16px;
+        padding:14px 0 6px;
+        color:#4b5563;
+        border-top:4px solid #c084fc;
+        background:linear-gradient(to right,#ffffff,#faf5ff,#ffffff);
+    }
+    .author-footer span.name{
+        color:#7c3aed;
+        font-weight:600;
+    }
+
+    @media(max-width:640px){
+        .container{
+            margin:12px;
+            padding:18px 16px 22px;
+        }
+        h1{font-size:22px;}
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <header>
+        <h1>WordCloud – Облако сөздер</h1>
+        <div class="subtitle">
+            Сөздер жиілігін визуал түрде көрсетуге арналған SmartBoardAI оффлайн құралы.
+        </div>
+        <div class="tagline">
+            <span class="icon">🌥️</span>
+            <span>Рефлексия, brainstorm, тақырыптық сөздікке өте ыңғайлы.</span>
+        </div>
+    </header>
+
+    <!-- Layout -->
+    <div class="layout">
+        <!-- Left panel: input -->
+        <section class="left-panel">
+            <div class="panel-title">1. Сөздер тізімін енгіз</div>
+            <div class="panel-desc">
+                Әр сөзді бөлек жолға жаза аласың немесе үтір арқылы бөлуге болады. 
+                Бір сөз бірнеше рет жазылса – жиі кездесетін ретінде үлкенірек шығады.
+            </div>
+            <textarea id="words-input" placeholder="Мысалы:
+математика
+теңдеу
+функция
+оқушы
+рефлексия
+ойын, ойын, ойын"></textarea>
+
+            <div class="row" style="margin-top:12px;">
+                <div>
+                    <label for="max-words">Макс. сөз саны:</label>
+                    <input type="number" id="max-words" min="5" max="200" value="60">
+                </div>
+                <div>
+                    <label for="min-font">Қаріп (min–max, px):</label>
+                    <input type="number" id="min-font" value="14" min="8" max="60">
+                    <input type="number" id="max-font" value="40" min="10" max="80">
+                </div>
+            </div>
+
+            <div class="row">
+                <label><input type="checkbox" id="ignore-case" checked>Регистрді елемеу (Математика = математика)</label>
+            </div>
+            <div class="row">
+                <label><input type="checkbox" id="ignore-small" checked>Қысқа сөздерді (1–2 әріп) алып тастау</label>
+            </div>
+
+            <div class="buttons">
+                <button class="btn-primary" onclick="generateCloud()">Облако жасау</button>
+                <button class="btn-secondary" onclick="shuffleCloud()">Қайта араластыру</button>
+                <button class="btn-secondary" onclick="clearAll()">Тазарту</button>
+            </div>
+        </section>
+
+        <!-- Right panel: cloud -->
+        <section class="right-panel">
+            <div class="cloud-header">
+                <div class="cloud-title">2. Облако сөзі</div>
+                <span class="badge">OFFLINE · HTML · JS</span>
+            </div>
+            <div class="cloud-area">
+                <div id="cloud-inner" class="cloud-inner">
+                    <!-- мұнда сөздер шығады -->
+                </div>
+            </div>
+            <div class="cloud-footer">
+                <span id="cloud-info">Сөздер әлі енгізілген жоқ.</span>
+                <span>Кеңес: рефлексия, brainstorm, жаңа тақырып сөздігін құруға қолдан.</span>
+            </div>
+        </section>
+    </div>
+
+    <!-- Author footer -->
+    <div class="author-footer">
+        🌿 <b>AI-Pedagogy Tools</b> by <span class="name">Nazerke Kairatkyzy</span> 🌿
+    </div>
+</div>
+
+<script>
+    // Палитра түстері (пастель, SmartBoardAI стилі)
+    const COLORS = [
+        "#1d4ed8","#7c3aed","#0f766e","#ea580c","#2563eb",
+        "#db2777","#0f172a","#15803d","#b45309","#0369a1"
+    ];
+
+    function parseWords(raw){
+        const ignoreCase = document.getElementById("ignore-case").checked;
+        const ignoreSmall = document.getElementById("ignore-small").checked;
+
+        // жол және үтір бойынша бөлу
+        let parts = raw
+            .split(/[\n,;]/g)
+            .map(w => w.trim())
+            .filter(w => w.length > 0);
+
+        if(ignoreCase){
+            parts = parts.map(w => w.toLowerCase());
+        }
+
+        if(ignoreSmall){
+            parts = parts.filter(w => w.length > 2);
+        }
+
+        const freq = {};
+        for(const w of parts){
+            freq[w] = (freq[w] || 0) + 1;
+        }
+        return freq;
+    }
+
+    function generateCloud(){
+        const input = document.getElementById("words-input").value;
+        const cloudInner = document.getElementById("cloud-inner");
+        const info = document.getElementById("cloud-info");
+        cloudInner.innerHTML = "";
+
+        const freq = parseWords(input);
+        const entries = Object.entries(freq);
+
+        if(entries.length === 0){
+            info.textContent = "Сөздер табылған жоқ. Алдымен мәтін/сөздер тізімін енгіз.";
+            return;
+        }
+
+        // жиілік бойынша кему ретімен
+        entries.sort((a,b) => b[1] - a[1]);
+
+        const maxWords = parseInt(document.getElementById("max-words").value) || 60;
+        const limited = entries.slice(0, maxWords);
+
+        const counts = limited.map(e => e[1]);
+        const maxCount = Math.max(...counts);
+        const minCount = Math.min(...counts);
+
+        const minFont = parseInt(document.getElementById("min-font").value) || 14;
+        const maxFont = parseInt(document.getElementById("max-font").value) || 40;
+
+        function scale(count){
+            if(maxCount === minCount) return (minFont + maxFont)/2;
+            const t = (count - minCount) / (maxCount - minCount);
+            return Math.round(minFont + t * (maxFont - minFont));
+        }
+
+        // араласу үшін аздап shuffle
+        const shuffled = limited.slice();
+        for(let i = shuffled.length - 1; i > 0; i--){
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+
+        shuffled.forEach(([word,count]) => {
+            const span = document.createElement("span");
+            span.className = "word-item";
+
+            const size = scale(count);
+            const color = COLORS[Math.floor(Math.random()*COLORS.length)];
+            const weight = count >= maxCount ? 700 :
+                           count >= (minCount + maxCount)/2 ? 600 : 500;
+
+            span.textContent = word;
+            span.style.fontSize = size + "px";
+            span.style.color = color;
+            span.style.fontWeight = weight;
+
+            // фонды кейбіріне ғана беру
+            if(size < (minFont + maxFont)/2){
+                span.style.backgroundColor = "rgba(255,255,255,0.5)";
+            }else{
+                span.style.backgroundColor = "rgba(255,255,255,0.8)";
+                span.style.padding = "4px 8px";
+            }
+
+            cloudInner.appendChild(span);
+        });
+
+        info.textContent = "Сөз саны: " + limited.length +
+            " | Жиілік диапазоны: " + minCount + " – " + maxCount;
+    }
+
+    function shuffleCloud(){
+        const inner = document.getElementById("cloud-inner");
+        if(!inner.children.length){
+            document.getElementById("cloud-info").textContent =
+                "Алдымен облако жаса, содан кейін араластыруға болады.";
+            return;
+        }
+        const nodes = Array.from(inner.children);
+        for(let i = nodes.length - 1; i > 0; i--){
+            const j = Math.floor(Math.random() * (i + 1));
+            inner.appendChild(nodes[j]);
+        }
+    }
+
+    function clearAll(){
+        document.getElementById("words-input").value = "";
+        document.getElementById("cloud-inner").innerHTML = "";
+        document.getElementById("cloud-info").textContent = "Сөздер әлі енгізілген жоқ.";
+    }
+</script>
+
+</body>
+</html>

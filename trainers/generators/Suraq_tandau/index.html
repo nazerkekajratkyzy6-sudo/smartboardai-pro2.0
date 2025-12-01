@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Тапсырма / Сұрақ таңдау генераторы</title>
+<style>
+    body{
+        font-family:Arial, sans-serif;
+        background:#fff6e8;
+        padding:20px;
+        color:#402612;
+    }
+    h1{
+        text-align:center;
+        background:#ffcf8b;
+        padding:14px;
+        border-radius:14px;
+        color:#4a2a0f;
+        box-shadow:0 3px 10px rgba(0,0,0,0.2);
+        margin-bottom:18px;
+    }
+
+    textarea{
+        width:100%;
+        height:120px;
+        padding:10px;
+        font-size:16px;
+        border-radius:12px;
+        border:1px solid #d9a870;
+        background:#fffdf8;
+        resize:vertical;
+    }
+
+    .btn{
+        padding:14px;
+        width:100%;
+        margin-top:12px;
+        border:none;
+        border-radius:12px;
+        background:#ffa742;
+        color:white;
+        font-weight:bold;
+        font-size:18px;
+        cursor:pointer;
+        box-shadow:0 4px 12px rgba(0,0,0,0.25);
+    }
+    .btn:hover{ background:#ff9522; }
+
+    #resultBox{
+        margin-top:22px;
+        padding:30px;
+        background:#fffaf2;
+        border-radius:16px;
+        text-align:center;
+        font-size:26px;
+        font-weight:bold;
+        border:3px dashed #ffb364;
+        min-height:80px;
+    }
+
+    /* Айналу эффекті */
+    @keyframes spinFlash {
+      0% {opacity:1; transform:scale(1);}
+      50% {opacity:0.4; transform:scale(1.05);}
+      100% {opacity:1; transform:scale(1);}
+    }
+    .spin{
+        animation: spinFlash 0.2s infinite;
+    }
+
+    #history{
+        margin-top:20px;
+        font-size:15px;
+        background:#fff1da;
+        padding:12px;
+        border-radius:10px;
+        border:1px solid #e5b687;
+        white-space:pre-wrap;
+    }
+</style>
+</head>
+<body>
+
+<h1>🎯 Тапсырма / Сұрақ таңдау генераторы</h1>
+
+<label><b>Тапсырмалар тізімін енгіз:</b></label>
+<textarea id="tasks" placeholder="Үшбұрыштар теңдігі
+Виет теоремасы
+Геометриялық прогрессия
+Вектор тақырыбы
+Пифагор теоремасы
+..."></textarea>
+
+<button class="btn" onclick="pickTask()">Таңдау 🎲</button>
+<button class="btn" onclick="clearAll()">Тазалау 🗑</button>
+
+<div id="resultBox">Таңдалған тапсырма осында шығады</div>
+
+<h3>📝 Таңдалған тапсырмалар тарихы:</h3>
+<div id="history">(Бос)</div>
+
+<script>
+let used = new Set();
+
+function pickTask(){
+    const raw = document.getElementById("tasks").value.trim();
+    if(!raw){
+        alert("Алдымен тапсырмалар тізімін енгіз!");
+        return;
+    }
+
+    let list = raw.split(/\n+/).map(s=>s.trim()).filter(s=>s!=="");
+
+    // Қайталанбау үшін:
+    let available = list.filter(t => !used.has(t));
+    if(available.length === 0){
+        used.clear();
+        available = list;
+    }
+
+    let resultBox = document.getElementById("resultBox");
+    resultBox.classList.add("spin");
+    resultBox.innerHTML = "Таңдалуда...";
+
+    setTimeout(()=>{
+        const chosen = available[Math.floor(Math.random() * available.length)];
+        resultBox.classList.remove("spin");
+        resultBox.innerHTML = "⭐ " + chosen + " ⭐";
+        used.add(chosen);
+
+        // тарихқа қосу
+        const historyDiv = document.getElementById("history");
+        if(historyDiv.textContent.trim() === "(Бос)"){
+            historyDiv.textContent = chosen;
+        } else {
+            historyDiv.textContent = historyDiv.textContent + "\n" + chosen;
+        }
+
+    }, 800);
+}
+
+function clearAll(){
+    document.getElementById("tasks").value = "";
+    document.getElementById("resultBox").innerHTML = "Таңдалған тапсырма осында шығады";
+    document.getElementById("history").textContent = "(Бос)";
+    used.clear();
+}
+</script>
+<div style="
+    margin-top:40px;
+    text-align:center;
+    font-size:18px;
+    padding:16px 0;
+    color:#4b5563;
+    border-top:4px solid #c084fc;
+    background: linear-gradient(to right, #fff, #faf5ff, #fff);
+    font-family:'Arial';
+">
+    🌿 <b>AI-Pedagogy Tools</b> by <span style="color:#7c3aed;">Nazerke Kairatkyzy</span> 🌿
+</div>
+
+</body>
+</html>

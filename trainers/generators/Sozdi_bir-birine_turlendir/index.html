@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Word Morphing PRO – Сөзді түрлендір</title>
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        font-family:system-ui,Arial;
+        background:#eef2ff;
+        display:flex;
+        justify-content:center;
+    }
+    .container{
+        max-width:700px;
+        width:100%;
+        background:white;
+        padding:24px 28px;
+        border-radius:18px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.18);
+    }
+    h1{
+        text-align:center;
+        color:#1e3a8a;
+        margin-bottom:16px;
+    }
+    input{
+        width:100%;
+        border-radius:12px;
+        border:1px solid #cbd5ff;
+        padding:10px;
+        font-size:16px;
+        margin-bottom:10px;
+        box-sizing:border-box;
+    }
+    button{
+        border:none;
+        border-radius:999px;
+        padding:10px 22px;
+        background:linear-gradient(135deg,#6366f1,#4f46e5);
+        color:white;
+        cursor:pointer;
+        font-size:15px;
+        margin-bottom:14px;
+        box-shadow:0 4px 12px rgba(79,70,229,0.35);
+    }
+
+    .current{
+        text-align:center;
+        font-size:28px;
+        font-weight:700;
+        color:#1e40af;
+        margin-top:12px;
+    }
+
+    .history{
+        margin-top:20px;
+        padding:12px;
+        background:#f3f4f6;
+        border-radius:12px;
+        min-height:80px;
+        font-size:16px;
+    }
+
+    .error{
+        color:#ef4444;
+        text-align:center;
+        font-size:17px;
+        margin-top:10px;
+        min-height:22px;
+    }
+    .success{
+        color:#22c55e;
+        font-weight:700;
+        text-align:center;
+        margin-top:10px;
+        font-size:20px;
+    }
+
+    .author{
+        margin-top:26px;
+        text-align:center;
+        font-size:14px;
+        color:#777;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Word Morphing PRO – Сөзді бір-біріне түрлендір</h1>
+
+<label>Бастапқы сөз:</label>
+<input id="startWord" value="ас">
+
+<label>Соңғы сөз:</label>
+<input id="endWord" value="оқ">
+
+<button onclick="startGame()">Ойынды бастау</button>
+
+<div id="gameBox"></div>
+
+<div class="author">
+    © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+</div>
+
+</div>
+
+<script>
+let start = "";
+let end = "";
+let current = "";
+let historyArr = [];
+
+function startGame(){
+    start = document.getElementById("startWord").value.trim();
+    end = document.getElementById("endWord").value.trim();
+
+    if(start.length !== end.length){
+        alert("Екі сөздің ұзындығы бірдей болуы керек!");
+        return;
+    }
+
+    current = start;
+    historyArr = [start];
+
+    renderGame();
+}
+
+function renderGame(){
+    const box = document.getElementById("gameBox");
+
+    box.innerHTML = `
+        <div class="current">Қазіргі сөз: <b>${current}</b></div>
+
+        <input id="newWord" placeholder="Жаңа сөз енгіз..." />
+
+        <button onclick="tryWord()">Қосу</button>
+
+        <div id="msgBox" class="error"></div>
+
+        <div class="history">
+            ${historyArr.join(" → ")}
+        </div>
+    `;
+}
+
+function tryWord(){
+    const newWord = document.getElementById("newWord").value.trim();
+    const msg = document.getElementById("msgBox");
+
+    if(newWord.length !== current.length){
+        msg.textContent = "Сөз ұзындығы өзгермеуі керек!";
+        return;
+    }
+
+    // тек 1 әріп айырмашылығы болу керек
+    let diff = 0;
+    for(let i=0;i<newWord.length;i++){
+        if(newWord[i] !== current[i]) diff++;
+    }
+
+    if(diff !== 1){
+        msg.textContent = "Тек 1 әріп өзгертуге болады!";
+        return;
+    }
+
+    msg.textContent = "";
+    current = newWord;
+    historyArr.push(newWord);
+    renderGame();
+
+    if(current === end){
+        winMessage();
+    }
+}
+
+function winMessage(){
+    const box = document.getElementById("gameBox");
+
+    box.innerHTML += `
+        <div class="success">
+            🎉 Жарайсың! Сөзді дұрыс түрлендірдің!
+        </div>
+    `;
+}
+</script>
+
+</body>
+</html>

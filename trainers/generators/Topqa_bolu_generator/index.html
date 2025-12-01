@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Оқушыларды топқа бөлу генераторы</title>
+<style>
+    body{
+        font-family:Arial, sans-serif;
+        background:#f3f7ff;
+        padding:20px;
+        color:#2a2a2a;
+    }
+    h1{
+        text-align:center;
+        background:#a3c4ff;
+        color:#0f1b33;
+        padding:14px;
+        border-radius:14px;
+        box-shadow:0 3px 10px rgba(0,0,0,0.18);
+    }
+    textarea{
+        width:100%;
+        height:120px;
+        padding:10px;
+        border-radius:10px;
+        border:1px solid #9db0da;
+        background:#ffffff;
+        font-size:15px;
+        resize:vertical;
+    }
+    select, button{
+        font-size:17px;
+        padding:10px;
+        border-radius:10px;
+        border:none;
+        margin-top:10px;
+    }
+    button{
+        width:100%;
+        background:#5d94ff;
+        color:white;
+        cursor:pointer;
+        font-weight:bold;
+        box-shadow:0 4px 10px rgba(0,0,0,0.25);
+    }
+    button:hover{
+        background:#4a80e3;
+    }
+
+    .group-box{
+        margin-top:18px;
+        background:white;
+        border-radius:12px;
+        padding:14px;
+        border:2px solid #c3d2ff;
+        box-shadow:0 3px 10px rgba(0,0,0,0.1);
+    }
+    .group-title{
+        font-size:20px;
+        font-weight:bold;
+        color:#2a3d78;
+        margin-bottom:6px;
+    }
+    .group-member{
+        padding:6px 0;
+        border-bottom:1px dashed #ddd;
+        font-size:17px;
+    }
+    #outputText{
+        width:100%;
+        margin-top:12px;
+        min-height:80px;
+        border-radius:10px;
+        border:1px solid #ccd7ff;
+        background:#f7faff;
+        padding:8px;
+        white-space:pre-wrap;
+        font-family:monospace;
+    }
+</style>
+</head>
+<body>
+
+<h1>👥 Оқушыларды топқа бөлу генераторы</h1>
+
+<label><b>Оқушылар тізімін енгіз:</b></label>
+<textarea id="names" placeholder="Айдос
+Аружан
+Данияр
+Назерке
+Алина
+..."></textarea>
+
+<label><b>Топтағы адам саны:</b></label>
+<select id="groupSize">
+    <option value="2">2 адам</option>
+    <option value="3">3 адам</option>
+    <option value="4">4 адам</option>
+    <option value="5">5 адам</option>
+</select>
+
+<button onclick="makeGroups()">Топқа бөлу</button>
+
+<div id="groupsArea"></div>
+
+<h3>📄 Көшіріп алу үшін дайын мәтін:</h3>
+<textarea id="outputText" readonly></textarea>
+
+<script>
+const groupNames = [
+    "Тұлпар", "Қыран", "Жігер", "Алаш", "Самғау",
+    "Болашақ", "Алға", "Ізденіс", "Шабыт", "Бірлік",
+    "Достық", "Қанат", "Арман", "Бәйтерек", "ЖасҚыран"
+];
+
+function shuffle(arr){
+    for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+function makeGroups(){
+    const raw = document.getElementById("names").value.trim();
+    const size = parseInt(document.getElementById("groupSize").value);
+    const groupsArea = document.getElementById("groupsArea");
+    const output = document.getElementById("outputText");
+
+    if(!raw){
+        alert("Алдымен оқушыларды енгіз!");
+        return;
+    }
+
+    let list = raw.split(/\n+/).map(s => s.trim()).filter(s => s !== "");
+    shuffle(list);
+
+    let groupList = [];
+    for(let i = 0; i < list.length; i += size){
+        groupList.push(list.slice(i, i+size));
+    }
+
+    groupsArea.innerHTML = "";
+    output.value = "";
+
+    groupList.forEach((grp, idx) => {
+        const div = document.createElement("div");
+        div.className = "group-box";
+
+        const title = document.createElement("div");
+        title.className = "group-title";
+        title.innerHTML = (groupNames[idx % groupNames.length] + " тобы");
+        div.appendChild(title);
+
+        grp.forEach(name => {
+            const m = document.createElement("div");
+            m.className = "group-member";
+            m.textContent = name;
+            div.appendChild(m);
+        });
+
+        groupsArea.appendChild(div);
+
+        output.value += title.innerHTML + ":\n" + grp.join(", ") + "\n\n";
+    });
+}
+</script>
+<div style="
+    margin-top:40px;
+    text-align:center;
+    font-size:18px;
+    padding:16px 0;
+    color:#4b5563;
+    border-top:4px solid #c084fc;
+    background: linear-gradient(to right, #fff, #faf5ff, #fff);
+    font-family:'Arial';
+">
+    🌿 <b>AI-Pedagogy Tools</b> by <span style="color:#7c3aed;">Nazerke Kairatkyzy</span> 🌿
+</div>
+
+</body>
+</html>

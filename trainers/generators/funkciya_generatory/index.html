@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Функция график генераторы</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#eef2ff;
+    padding:20px;
+}
+.container{
+    max-width:900px;
+    margin:auto;
+    background:white;
+    padding:28px;
+    border-radius:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.18);
+}
+h2{
+    text-align:center;
+    color:#3730a3;
+    font-size:28px;
+}
+
+.input-box{
+    margin-top:20px;
+    display:flex;
+    gap:10px;
+    justify-content:center;
+}
+input{
+    width:70%;
+    padding:12px;
+    font-size:18px;
+    border:2px solid #818cf8;
+    border-radius:10px;
+}
+button{
+    padding:12px 20px;
+    font-size:18px;
+    color:white;
+    background:#4f46e5;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
+button:hover{
+    background:#4338ca;
+}
+
+canvas{
+    margin-top:24px;
+    background:#fafafa;
+    border:2px solid #818cf8;
+    border-radius:12px;
+}
+
+.error{
+    margin-top:10px;
+    text-align:center;
+    font-size:18px;
+    color:#dc2626;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>📈 Функция график генераторы</h2>
+
+<div class="input-box">
+    <input id="funcInput" type="text" placeholder="Мысалы: sin(x), x**2-3*x+2, 1/(x-2)">
+    <button onclick="draw()">Салу</button>
+</div>
+
+<div id="error" class="error"></div>
+
+<canvas id="graph" width="800" height="500"></canvas>
+
+</div>
+
+<script>
+function draw(){
+    const expr = document.getElementById("funcInput").value;
+    const errorBox = document.getElementById("error");
+    errorBox.textContent="";
+
+    let f;
+    try{
+        f = new Function("x", "return " + expr);
+        f(0); // функцияны тексеру
+    }catch(e){
+        errorBox.textContent="Қате: функция дұрыс жазылмаған!";
+        return;
+    }
+
+    const c = document.getElementById("graph");
+    const ctx = c.getContext("2d");
+    ctx.clearRect(0,0,c.width,c.height);
+
+    // координат жүйесі параметрлері
+    const cx = c.width/2;
+    const cy = c.height/2;
+    const scale = 40; // 1 бірлік = 40 px
+
+    // Тор сызықтары
+    ctx.strokeStyle="#e5e7eb";
+    for(let x=0; x<c.width; x+=scale){
+        ctx.beginPath();
+        ctx.moveTo(x,0);
+        ctx.lineTo(x,c.height);
+        ctx.stroke();
+    }
+    for(let y=0; y<c.height; y+=scale){
+        ctx.beginPath();
+        ctx.moveTo(0,y);
+        ctx.lineTo(c.width,y);
+        ctx.stroke();
+    }
+
+    // Ох және Оу осьтері
+    ctx.strokeStyle="#111827";
+    ctx.lineWidth=2;
+
+    // Oy
+    ctx.beginPath();
+    ctx.moveTo(cx,0);
+    ctx.lineTo(cx,c.height);
+    ctx.stroke();
+
+    // Ox
+    ctx.beginPath();
+    ctx.moveTo(0,cy);
+    ctx.lineTo(c.width,cy);
+    ctx.stroke();
+
+    // Функция графигі
+    ctx.strokeStyle="#2563eb";
+    ctx.lineWidth=3;
+
+    ctx.beginPath();
+    let first = true;
+    for(let px=0; px<c.width; px++){
+        let x = (px - cx) / scale;
+        let y;
+        try{
+            y = f(x);
+        }catch{
+            continue;
+        }
+        if(typeof y !== "number" || !isFinite(y)) continue;
+
+        let py = cy - y*scale;
+
+        if(first){
+            ctx.moveTo(px,py);
+            first=false;
+        } else {
+            ctx.lineTo(px,py);
+        }
+    }
+    ctx.stroke();
+}
+</script>
+<div style="
+    margin-top:40px;
+    text-align:center;
+    font-size:18px;
+    padding:16px 0;
+    color:#4b5563;
+    border-top:4px solid #c084fc;
+    background: linear-gradient(to right, #fff, #faf5ff, #fff);
+    font-family:'Arial';
+">
+    🌿 <b>AI-Pedagogy Tools</b> by <span style="color:#7c3aed;">Nazerke Kairatkyzy</span> 🌿
+</div>
+
+</body>
+</html>

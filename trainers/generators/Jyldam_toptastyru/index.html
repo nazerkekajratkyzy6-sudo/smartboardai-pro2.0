@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Speed Classification PRO – Жылдам топтастыру</title>
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        font-family:system-ui,Arial;
+        background:#eef2ff;
+        display:flex;
+        justify-content:center;
+    }
+    .container{
+        max-width:800px;
+        width:100%;
+        background:white;
+        border-radius:16px;
+        padding:22px 26px 30px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.18);
+        box-sizing:border-box;
+    }
+    h1{
+        text-align:center;
+        font-size:26px;
+        color:#1e3a8a;
+        margin-bottom:14px;
+    }
+    textarea, input{
+        width:100%;
+        border-radius:12px;
+        border:1px solid #cbd5ff;
+        padding:10px;
+        font-size:14px;
+        margin-bottom:10px;
+    }
+    textarea{
+        height:130px;
+        resize:vertical;
+    }
+    button{
+        border:none;
+        border-radius:999px;
+        padding:10px 22px;
+        background:linear-gradient(135deg,#6366f1,#4f46e5);
+        color:white;
+        font-size:15px;
+        cursor:pointer;
+        margin-bottom:14px;
+        box-shadow:0 4px 12px rgba(79,70,229,0.35);
+    }
+
+    .big-word{
+        font-size:38px;
+        text-align:center;
+        margin:20px 0;
+        font-weight:700;
+        color:#111827;
+        min-height:48px;
+    }
+
+    .rules{
+        text-align:center;
+        font-size:16px;
+        color:#4b5563;
+    }
+
+    .timer{
+        text-align:center;
+        font-size:22px;
+        font-weight:700;
+        color:#1e40af;
+        margin-top:6px;
+    }
+
+    .btn-row{
+        text-align:center;
+        margin-top:16px;
+    }
+    .choice{
+        padding:14px 28px;
+        font-size:20px;
+        border-radius:12px;
+        border:none;
+        cursor:pointer;
+        margin:8px;
+        background:#e0e7ff;
+        color:#1e3a8a;
+        transition:0.15s;
+    }
+    .choice:hover{
+        transform:scale(1.05);
+        background:#c7d2fe;
+    }
+
+    .correct{
+        color:#22c55e;
+        font-size:20px;
+        text-align:center;
+        margin-top:10px;
+        height:26px;
+    }
+    .wrong{
+        color:#ef4444;
+        font-size:20px;
+        text-align:center;
+        margin-top:10px;
+        height:26px;
+    }
+
+    .finish{
+        margin-top:20px;
+        text-align:center;
+        font-size:22px;
+        font-weight:600;
+        color:#1e40af;
+    }
+
+    .author{
+        margin-top:26px;
+        text-align:center;
+        font-size:14px;
+        color:#777;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Speed Classification PRO – Жылдам топтастыру</h1>
+
+    <label>Ереже A:</label>
+    <input id="ruleA" value="Жуан дауысты сөздер">
+
+    <label>Ереже B:</label>
+    <input id="ruleB" value="Жіңішке дауысты сөздер">
+
+    <label>Элементтер (әр жол: сөз - A/B):</label>
+    <textarea id="dataArea">қала - A
+көрпе - B
+жол - A
+төре - B
+сабақ - A</textarea>
+
+    <button onclick="startGame()">Ойынды бастау</button>
+
+    <div id="gameBox"></div>
+
+    <div class="author">
+        © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+    </div>
+
+</div>
+
+<script>
+let items = [];
+let order = [];
+let index=0;
+let correct=0;
+let total=0;
+let timeLeft=10;
+let timer=null;
+
+function parseItems(){
+    const lines=document.getElementById("dataArea").value.trim().split(/\r?\n/);
+    const arr=[];
+    lines.forEach(l=>{
+        const p=l.split(/[-–—]/);
+        if(p.length>=2){
+            let w=p[0].trim();
+            let b=p[1].trim().toUpperCase();
+            if(b==="A"||b==="B"){
+                arr.push({word:w,bucket:b});
+            }
+        }
+    });
+    return arr;
+}
+
+function startGame(){
+    items=parseItems();
+    if(items.length===0){
+        alert("Кемінде бір элемент енгіз.");
+        return;
+    }
+    order=items.map((_,i)=>i);
+    shuffle(order);
+    index=0;
+    correct=0;
+    total=items.length;
+
+    renderGame();
+    startTimer();
+}
+
+function shuffle(a){
+    for(let i=a.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [a[i],a[j]]=[a[j],a[i]];
+    }
+}
+
+function startTimer(){
+    timeLeft=10;
+    if(timer) clearInterval(timer);
+    timer=setInterval(()=>{
+        timeLeft--;
+        updateTimer();
+        if(timeLeft<=0){
+            clearInterval(timer);
+            showFinish();
+        }
+    },1000);
+}
+
+function updateTimer(){
+    const t=document.getElementById("timerBox");
+    if(t) t.textContent="Уақыт: "+timeLeft+" с";
+}
+
+function renderGame(){
+    const Aname=document.getElementById("ruleA").value.trim();
+    const Bname=document.getElementById("ruleB").value.trim();
+    const box=document.getElementById("gameBox");
+
+    if(index>=order.length){
+        showFinish();
+        return;
+    }
+
+    const cur=items[order[index]];
+
+    box.innerHTML=`
+        <div class="rules">A: <b>${Aname}</b> | B: <b>${Bname}</b></div>
+        <div class="timer" id="timerBox">Уақыт: 10 с</div>
+
+        <div class="big-word">${cur.word}</div>
+
+        <div class="btn-row">
+            <button class="choice" onclick="choose('A')">A</button>
+            <button class="choice" onclick="choose('B')">B</button>
+        </div>
+
+        <div id="feedback"></div>
+    `;
+}
+
+function choose(choice){
+    const cur=items[order[index]];
+    const fb=document.getElementById("feedback");
+
+    if(choice===cur.bucket){
+        correct++;
+        fb.className="correct";
+        fb.textContent="Дұрыс!";
+    } else {
+        fb.className="wrong";
+        fb.textContent="Қате!";
+    }
+
+    index++;
+
+    setTimeout(()=>{
+        renderGame();
+    },600);
+}
+
+function showFinish(){
+    document.getElementById("gameBox").innerHTML=`
+        <div class="finish">
+            Ойын аяқталды!<br>
+            Дұрыс жауап: <b>${correct}</b> / ${total}
+        </div>
+    `;
+}
+</script>
+
+</body>
+</html>

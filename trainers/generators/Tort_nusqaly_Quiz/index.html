@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz (4 нұсқа)</title>
+    <style>
+        body{
+            margin:0;
+            padding:20px;
+            font-family:system-ui,Arial;
+            background:#eef2ff;
+            display:flex;
+            justify-content:center;
+        }
+        .container{
+            max-width:900px;
+            width:100%;
+            background:white;
+            border-radius:16px;
+            padding:20px 24px 32px;
+            box-shadow:0 10px 25px rgba(0,0,0,0.18);
+        }
+        h1{
+            text-align:center;
+            margin:0 0 16px;
+            color:#1e3a8a;
+            font-size:26px;
+        }
+        textarea{
+            width:100%;
+            height:200px;
+            margin-bottom:12px;
+            border-radius:14px;
+            border:1px solid #cbd5ff;
+            padding:10px;
+            resize:vertical;
+            font-size:14px;
+        }
+        button{
+            border:none;
+            border-radius:999px;
+            padding:10px 22px;
+            margin-top:6px;
+            background:linear-gradient(135deg,#6366f1,#4f46e5);
+            color:white;
+            font-size:15px;
+            cursor:pointer;
+            box-shadow:0 4px 12px rgba(79,70,229,0.35);
+        }
+        .question-box{
+            margin-top:24px;
+            background:#f8fafc;
+            padding:18px;
+            border-radius:14px;
+            border:1px solid #e2e8f0;
+        }
+        .option{
+            padding:12px 14px;
+            margin-top:8px;
+            border-radius:12px;
+            background:#eef2ff;
+            cursor:pointer;
+            transition:0.15s;
+            border:1px solid transparent;
+        }
+        .option:hover{
+            transform:scale(1.02);
+            border-color:#c7d2fe;
+        }
+        .correct{
+            background:#22c55e!important;
+            color:white;
+            border:none;
+        }
+        .wrong{
+            background:#ef4444!important;
+            color:white;
+            border:none;
+        }
+        .finish-box{
+            text-align:center;
+            font-size:22px;
+            margin-top:20px;
+            color:#1e3a8a;
+            font-weight:600;
+        }
+
+        /* Автор белгісі */
+        .author {
+            margin-top:30px;
+            text-align:center;
+            font-size:14px;
+            color:#777;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1>Төрт нұсқалы Quiz</h1>
+
+    <label>Сұрақтарды енгізіңіз:</label>
+    <textarea id="inputArea">Қазақстанның астанасы?
+Астана
+Алматы
+Шымкент
+Ақтау
+1
+
+Компьютерде ақпарат шығаратын құрылғы?
+Монитор
+Пернетақта
+Тінтуір
+Процессор
+1</textarea>
+
+    <div style="font-size:13px;color:#475569;margin-bottom:8px;">
+        Формат:<br>
+        1) Сұрақ<br>
+        2) 4 нұсқа<br>
+        3) Соңғы жол — дұрыс нұсқа нөмірі (1–4)<br>
+        Блоктар арасында бос жол болсын.
+    </div>
+
+    <button onclick="startQuiz()">Ойынды бастау</button>
+
+    <div id="quizBox"></div>
+
+    <div class="author">
+        © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+    </div>
+
+</div>
+
+<script>
+function parseQuestions(text){
+    let blocks = text.trim().split(/\n\s*\n/);
+    let result=[];
+    for(let b of blocks){
+        let lines = b.trim().split("\n");
+        if(lines.length<6) continue;
+        let q = lines[0];
+        let opts = lines.slice(1,5);
+        let correct = parseInt(lines[5].trim());
+        if(correct>=1 && correct<=4){
+            result.push({
+                question:q,
+                options:opts,
+                correct:correct-1
+            });
+        }
+    }
+    return result;
+}
+
+let questions=[];
+let index=0;
+let score=0;
+
+function startQuiz(){
+    let t=document.getElementById("inputArea").value;
+    questions=parseQuestions(t);
+    if(questions.length===0){
+        alert("Сұрақтар дұрыс енгізілмеген!");
+        return;
+    }
+
+    questions=questions.sort(()=>Math.random()-0.5)
+        .map(q=>{
+            let opts=q.options.map((o,i)=>({text:o,i:i}));
+            opts=opts.sort(()=>Math.random()-0.5);
+            let newCorrect = opts.findIndex(o=>o.i===q.correct);
+            return {
+                question:q.question,
+                options:opts.map(o=>o.text),
+                correct:newCorrect
+            };
+        });
+
+    index=0;
+    score=0;
+    showQuestion();
+}
+
+function showQuestion(){
+    let box=document.getElementById("quizBox");
+    box.innerHTML="";
+
+    if(index>=questions.length){
+        box.innerHTML=`
+            <div class='finish-box'>
+                Ойын аяқталды!<br>
+                Дұрыс жауаптар: <b>${score}</b> / ${questions.length}
+            </div>`;
+        return;
+    }
+
+    let q=questions[index];
+
+    let html=`<div class='question-box'>
+        <div style='font-weight:600;font-size:17px;'>${q.question}</div>
+        <div id='opts'></div>
+    </div>`;   
+
+    box.innerHTML=html;
+
+    let opts=document.getElementById("opts");
+
+    q.options.forEach((op,i)=>{
+        let d=document.createElement("div");
+        d.className="option";
+        d.textContent=op;
+        d.onclick=function(){
+            if(i===q.correct){
+                d.classList.add("correct");
+                score++;
+            } else {
+                d.classList.add("wrong");
+            }
+            setTimeout(()=>{
+                index++;
+                showQuestion();
+            },600);
+        }
+        opts.appendChild(d);
+    });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Anagram – Сөзді құрастыр</title>
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        font-family:system-ui,Arial;
+        background:#eef2ff;
+        display:flex;
+        justify-content:center;
+    }
+    .container{
+        max-width:700px;
+        width:100%;
+        background:white;
+        border-radius:16px;
+        padding:20px 24px 32px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.18);
+    }
+    h1{
+        text-align:center;
+        color:#1e3a8a;
+        font-size:26px;
+        margin:0 0 16px;
+    }
+    textarea{
+        width:100%;
+        height:140px;
+        border-radius:12px;
+        border:1px solid #cbd5ff;
+        padding:10px;
+        font-size:14px;
+        resize:vertical;
+        margin-bottom:8px;
+    }
+    button{
+        border:none;
+        border-radius:999px;
+        padding:10px 22px;
+        background:linear-gradient(135deg,#6366f1,#4f46e5);
+        color:white;
+        font-size:15px;
+        cursor:pointer;
+        margin-top:4px;
+        box-shadow:0 4px 12px rgba(79,70,229,0.35);
+    }
+    .box{
+        margin-top:22px;
+        background:#f8fafc;
+        padding:20px;
+        border-radius:14px;
+        border:1px solid #e2e8f0;
+        text-align:center;
+        min-height:160px;
+    }
+    .letters{
+        display:flex;
+        flex-wrap:wrap;
+        justify-content:center;
+        gap:10px;
+        margin-top:16px;
+    }
+    .letter{
+        padding:10px 18px;
+        background:#eef2ff;
+        font-size:20px;
+        border-radius:10px;
+        cursor:pointer;
+        transition:0.15s;
+        border:1px solid transparent;
+        user-select:none;
+    }
+    .letter:hover{
+        transform:scale(1.1);
+        border-color:#c7d2fe;
+    }
+    .output{
+        margin-top:14px;
+        font-size:22px;
+        font-weight:600;
+        color:#4f46e5;
+        min-height:32px;
+    }
+    .correctBox{
+        margin-top:14px;
+        font-size:18px;
+        color:#22c55e;
+        font-weight:600;
+    }
+    .finish{
+        text-align:center;
+        font-size:22px;
+        margin-top:20px;
+        color:#1e3a8a;
+        font-weight:600;
+    }
+    .author{
+        margin-top:30px;
+        text-align:center;
+        font-size:14px;
+        color:#777;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+
+    <h1>Anagram – Сөзді құрастыр</h1>
+
+    <label>Сөздер (әр жолға бір сөз):</label>
+    <textarea id="wordsArea">алгоритм
+монитор
+код
+клавиатура
+модель
+робот
+физика</textarea>
+
+    <button onclick="startGame()">Ойынды бастау</button>
+
+    <div id="gameBox" class="box"></div>
+
+    <div class="author">
+        © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+    </div>
+
+</div>
+
+<script>
+let words = [];
+let index = 0;
+let currentWord = "";
+let shuffled = [];
+let output = "";
+
+function shuffle(a){
+    for(let i = a.length-1; i>0; i--){
+        let j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+}
+
+function startGame(){
+    const txt = document.getElementById("wordsArea").value.trim();
+    words = txt.split(/\r?\n/).map(w=>w.trim().toUpperCase()).filter(w=>w.length>0);
+    if(words.length===0){
+        alert("Сөздер енгізілмеген!");
+        return;
+    }
+    index = 0;
+    output = "";
+    loadWord();
+}
+
+function loadWord(){
+    const box = document.getElementById("gameBox");
+    if(index>=words.length){
+        box.innerHTML = `<div class="finish">Барлық сөз құрастырылды! 🎉</div>`;
+        return;
+    }
+
+    currentWord = words[index];
+    shuffled = shuffle(currentWord.split(""));
+
+    box.innerHTML = `
+        <div style="font-size:18px; color:#1e3a8a;">Сөзді дұрыс құрастыр:</div>
+        <div class="letters" id="lettersBox"></div>
+        <div class="output" id="outputBox"></div>
+        <div class="correctBox" id="correctBox"></div>
+    `;
+
+    const lettersBox = document.getElementById("lettersBox");
+    shuffled.forEach((l,i)=>{
+        const span = document.createElement("div");
+        span.className = "letter";
+        span.textContent = l;
+        span.onclick = ()=>selectLetter(i);
+        span.dataset.index = i;
+        lettersBox.appendChild(span);
+    });
+}
+
+function selectLetter(i){
+    const letter = shuffled[i];
+    if(letter === "_") return;
+
+    output += letter;
+    shuffled[i] = "_";
+
+    document.getElementById("outputBox").textContent = output;
+
+    const el = document.querySelector(`.letter[data-index="${i}"]`);
+    if(el){
+        el.style.opacity = "0.3";
+        el.style.pointerEvents = "none";
+    }
+
+    if(output.length === currentWord.length){
+        checkWord();
+    }
+}
+
+function checkWord(){
+    const correctBox = document.getElementById("correctBox");
+    if(output === currentWord){
+        correctBox.textContent = "✔️ Дұрыс!";
+    }else{
+        correctBox.textContent = "❌ Қате, қайтадан!";
+        setTimeout(()=>{
+            output = "";
+            loadWord();
+        },900);
+        return;
+    }
+
+    setTimeout(()=>{
+        index++;
+        output="";
+        loadWord();
+    },1000);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Match Up PRO – Drag & Drop</title>
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        font-family:system-ui,Arial;
+        background:#eef2ff;
+        display:flex;
+        justify-content:center;
+    }
+    .container{
+        max-width:1000px;
+        width:100%;
+        background:white;
+        border-radius:16px;
+        padding:22px 26px 30px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.18);
+    }
+    h1{
+        text-align:center;
+        color:#1e3a8a;
+        margin:0 0 16px;
+        font-size:26px;
+    }
+    textarea{
+        width:100%;
+        height:160px;
+        border-radius:12px;
+        border:1px solid #cbd5ff;
+        padding:10px;
+        font-size:14px;
+        resize:vertical;
+        margin-bottom:10px;
+    }
+    button{
+        border:none;
+        border-radius:999px;
+        padding:10px 22px;
+        background:linear-gradient(135deg,#6366f1,#4f46e5);
+        color:white;
+        font-size:15px;
+        cursor:pointer;
+        box-shadow:0 4px 12px rgba(79,70,229,0.35);
+        margin-bottom:14px;
+    }
+
+    .game{
+        display:flex;
+        gap:24px;
+        margin-top:10px;
+    }
+    .col{
+        flex:1;
+        padding:12px;
+        background:#f8fafc;
+        border-radius:12px;
+        border:1px solid #e2e8f0;
+    }
+    .col h3{
+        text-align:center;
+        color:#334155;
+        margin:0 0 12px;
+    }
+    .item{
+        padding:12px 14px;
+        background:#eef2ff;
+        border-radius:10px;
+        margin-top:10px;
+        cursor:pointer;
+        border:1px solid transparent;
+        transition:0.15s;
+    }
+    .item:hover{
+        transform:scale(1.02);
+        border-color:#c7d2fe;
+    }
+
+    .drop{
+        min-height:50px;
+        padding:14px;
+        background:#ffffff;
+        border:2px dashed #cbd5ff;
+        border-radius:12px;
+        margin-top:12px;
+        transition:0.15s;
+    }
+    .drop.correct{
+        border-color:#22c55e;
+        background:#dcfce7;
+    }
+    .drop.wrong{
+        border-color:#ef4444;
+        background:#fee2e2;
+    }
+    .drop .dropped{
+        background:#dbeafe;
+        padding:8px 12px;
+        border-radius:10px;
+    }
+
+    .finish{
+        text-align:center;
+        font-size:22px;
+        margin-top:20px;
+        color:#1e3a8a;
+        font-weight:600;
+    }
+
+    .author{
+        margin-top:30px;
+        text-align:center;
+        font-size:14px;
+        color:#777;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Match Up PRO – Drag & Drop</h1>
+
+    <label>Жұптар (әр жолға: сөз - анықтама):</label>
+    <textarea id="pairsArea">алгоритм - әрекеттер тізбегі
+скрипт - компьютер орындайтын бұйрықтар
+монитор - ақпарат шығаратын құрылғы
+спрайт - экрандағы кейіпкер
+код - бағдарлама мәтіні
+функция - дайын команда жиынтығы</textarea>
+
+    <button onclick="startGame()">Ойынды бастау</button>
+
+    <div id="gameBox"></div>
+
+    <div class="author">
+        © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+    </div>
+</div>
+
+<script>
+let pairs = [];
+let score = 0;
+
+function startGame(){
+    const txt = document.getElementById("pairsArea").value.trim();
+    const lines = txt.split(/\r?\n/).filter(x=>x.trim().length>0);
+
+    pairs = [];
+    lines.forEach(l=>{
+        const parts = l.split(/[-–—]/);
+        if(parts.length>=2){
+            const left = parts[0].trim().toUpperCase();
+            const right = parts.slice(1).join("-").trim();
+            pairs.push({left,right});
+        }
+    });
+
+    if(pairs.length===0){
+        alert("Жұптар дұрыс енгізілмеген!");
+        return;
+    }
+
+    score = 0;
+    renderGame();
+}
+
+function renderGame(){
+    const game = document.getElementById("gameBox");
+
+    const leftItems = pairs.map(p=>p.left);
+    const rightItems = pairs.map(p=>p.right);
+
+    shuffle(leftItems);
+    shuffle(rightItems);
+
+    let html = `
+        <div class="game">
+            <div class="col">
+                <h3>Сөздер</h3>
+                ${leftItems.map((w,i)=>`<div class="item" draggable="true" ondragstart="drag(event)" data-value="${w}">${w}</div>`).join("")}
+            </div>
+
+            <div class="col">
+                <h3>Анықтамалар</h3>
+                ${rightItems.map((w,i)=>`<div class="drop" ondragover="allowDrop(event)" ondrop="dropItem(event)" data-value="${w}"></div>`).join("")}
+            </div>
+        </div>
+    `;
+
+    game.innerHTML = html;
+}
+
+function allowDrop(ev){ ev.preventDefault(); }
+
+let draggedValue = "";
+
+function drag(ev){
+    draggedValue = ev.target.dataset.value;
+}
+
+function dropItem(ev){
+    ev.preventDefault();
+    const dropZone = ev.target;
+
+    if(!dropZone.classList.contains("drop")) return;
+
+    const targetValue = dropZone.dataset.value;
+
+    // find correct pair:
+    const pair = pairs.find(p => p.right === targetValue);
+
+    if(!pair) return;
+
+    if(pair.left === draggedValue){
+        // ДҰРЫС
+        dropZone.classList.remove("wrong");
+        dropZone.classList.add("correct");
+        dropZone.innerHTML = `<div class="dropped">${draggedValue}</div>`;
+        score++;
+
+        // Disable this zone
+        dropZone.ondragover = null;
+        dropZone.ondrop = null;
+
+        // Disable dragged element
+        const items = document.querySelectorAll('.item');
+        items.forEach(i=>{
+            if(i.dataset.value === draggedValue){
+                i.style.opacity="0.3";
+                i.style.pointerEvents="none";
+            }
+        });
+
+        // Finish check
+        if(score === pairs.length){
+            document.getElementById("gameBox").innerHTML += `
+                <div class="finish">Барлық жұп дұрыс табылды! 🎉</div>
+            `;
+        }
+    }else{
+        // ҚАТЕ
+        dropZone.classList.add("wrong");
+        setTimeout(()=>dropZone.classList.remove("wrong"),600);
+    }
+}
+
+function shuffle(a){
+    for(let i=a.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [a[i],a[j]]=[a[j],a[i]];
+    }
+}
+</script>
+
+</body>
+</html>

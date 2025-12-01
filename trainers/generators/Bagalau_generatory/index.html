@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Бағалау Генераторы</title>
+<style>
+    body{
+        margin:0;
+        font-family:Arial, sans-serif;
+        background:#f7faff;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:100vh;
+        padding:20px;
+    }
+
+    .container{
+        background:white;
+        padding:25px;
+        width:95%;
+        max-width:420px;
+        border-radius:18px;
+        box-shadow:0 6px 20px rgba(0,0,0,0.2);
+        text-align:center;
+    }
+
+    h1{
+        margin-top:0;
+        font-size:28px;
+        color:#2a3d78;
+    }
+
+    .scale{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:14px;
+        margin-top:25px;
+    }
+
+    .btn{
+        font-size:22px;
+        padding:18px;
+        border:none;
+        border-radius:14px;
+        color:white;
+        cursor:pointer;
+        box-shadow:0 3px 8px rgba(0,0,0,0.22);
+        font-weight:bold;
+    }
+
+    .b5{ background:#4caf50; }
+    .b4{ background:#8bc34a; }
+    .b3{ background:#ffc107; }
+    .b2{ background:#ff7043; }
+
+    #output{
+        margin-top:30px;
+        font-size:32px;
+        font-weight:bold;
+        padding:20px;
+        min-height:70px;
+        border-radius:16px;
+        background:#eef2ff;
+        color:#2a2a2a;
+        box-shadow:inset 0 0 10px rgba(0,0,0,0.15);
+    }
+
+    /* анимация */
+    @keyframes pop {
+      0% { transform:scale(0.8); opacity:0.2; }
+      100% { transform:scale(1); opacity:1; }
+    }
+    .pop{
+      animation: pop 0.25s ease-out;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📊 Бағалау Генераторы</h1>
+
+    <label><b>Оқушы / Топ аты:</b></label>
+    <input id="student" type="text" placeholder="Мысалы: 8А – 2 топ" 
+           style="width:100%; padding:12px; border-radius:10px; border:1px solid #cdd3f1; margin-top:8px;">
+
+    <div class="scale">
+        <button class="btn b5" onclick="rate(5)">5 — Тамаша ⭐</button>
+        <button class="btn b4" onclick="rate(4)">4 — Жақсы ✔</button>
+        <button class="btn b3" onclick="rate(3)">3 — Тырысқан 🙂</button>
+        <button class="btn b2" onclick="rate(2)">2 — Толықтыр қажет ⚠️</button>
+    </div>
+
+    <div id="output">Баға осында шығады</div>
+</div>
+
+<script>
+function rate(score){
+    const out = document.getElementById("output");
+    const name = document.getElementById("student").value.trim() || "Оқушы";
+
+    let text = "";
+    let color = "";
+
+    if(score === 5){ text = "5 — Тамаша! 🔥"; color="#c8f7d4"; }
+    if(score === 4){ text = "4 — Жақсы! 🌿"; color="#e8f8c8"; }
+    if(score === 3){ text = "3 — Тырысқан 🙂"; color="#fff4c4"; }
+    if(score === 2){ text = "2 — Толықтыру қажет ⚠️"; color="#ffd4c4"; }
+
+    out.style.background = color;
+    out.classList.remove("pop");
+    void out.offsetWidth;
+    out.classList.add("pop");
+
+    out.textContent = name + ": " + text;
+}
+</script>
+<div style="
+    margin-top:40px;
+    text-align:center;
+    font-size:18px;
+    padding:16px 0;
+    color:#4b5563;
+    border-top:4px solid #c084fc;
+    background: linear-gradient(to right, #fff, #faf5ff, #fff);
+    font-family:'Arial';
+">
+    🌿 <b>AI-Pedagogy Tools</b> by <span style="color:#7c3aed;">Nazerke Kairatkyzy</span> 🌿
+</div>
+
+</body>
+</html>

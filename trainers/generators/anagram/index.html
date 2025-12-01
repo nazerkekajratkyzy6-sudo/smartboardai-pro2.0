@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Anagram Generator – SmartBoardAI</title>
+<style>
+    body{
+        margin:0;
+        padding:0;
+        font-family:system-ui, -apple-system, Arial;
+        background:linear-gradient(135deg,#e0f2fe,#f5f3ff);
+        display:flex;
+        justify-content:center;
+        align-items:flex-start;
+        min-height:100vh;
+    }
+    .container{
+        width:100%;
+        max-width:720px;
+        background:#ffffff;
+        margin:24px;
+        padding:26px;
+        border-radius:26px;
+        box-shadow:0 20px 45px rgba(15,23,42,0.18);
+    }
+    h1{
+        margin:0;
+        font-size:26px;
+        color:#1e3a8a;
+    }
+    .desc{
+        font-size:14px;
+        color:#64748b;
+        margin-top:4px;
+    }
+
+    textarea{
+        width:100%;
+        min-height:120px;
+        margin-top:16px;
+        border-radius:18px;
+        padding:12px;
+        border:1px solid #cbd5e1;
+        background:#f8fafc;
+        font-size:15px;
+        resize:vertical;
+    }
+    textarea:focus{
+        outline:none;
+        border-color:#2563eb;
+        box-shadow:0 0 0 2px rgba(37,99,235,0.25);
+    }
+
+    button{
+        margin-top:12px;
+        border:none;
+        padding:10px 20px;
+        border-radius:999px;
+        background:linear-gradient(to right,#2563eb,#7c3aed);
+        color:white;
+        font-weight:600;
+        font-size:14px;
+        cursor:pointer;
+        box-shadow:0 8px 22px rgba(37,99,235,0.45);
+        transition:all .15s ease;
+    }
+    button:active{
+        transform:translateY(1px);
+        box-shadow:0 4px 12px rgba(37,99,235,0.55);
+    }
+
+    .result-box{
+        margin-top:20px;
+        padding:14px;
+        background:#f1f5f9;
+        border-radius:20px;
+        border:1px solid #dbeafe;
+        font-size:17px;
+        text-align:center;
+        font-weight:600;
+        color:#0f172a;
+        min-height:50px;
+    }
+    .original{
+        margin-top:8px;
+        text-align:center;
+        font-size:14px;
+        color:#64748b;
+    }
+
+    .footer{
+        margin-top:26px;
+        padding:14px 0 6px;
+        text-align:center;
+        font-size:16px;
+        color:#4b5563;
+        border-top:4px solid #c084fc;
+        background:linear-gradient(to right,#fff,#faf5ff,#fff);
+    }
+    .footer span{
+        color:#7c3aed;
+        font-weight:600;
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h1>🔤 Anagram Generator</h1>
+    <div class="desc">Кез келген сөз немесе сөйлемді араластырыңыз — оқушыларға табу ойыны.</div>
+
+    <textarea id="input" placeholder="Мысалы:
+математика
+функция
+алгебра
+ойын"></textarea>
+
+    <button onclick="makeAnagram()">Анаграмма жасау</button>
+    <button onclick="shuffleAgain()">Қайта араластыру</button>
+
+    <div id="result" class="result-box">Анаграмма осы жерге шығады…</div>
+    <div id="original" class="original"></div>
+
+    <div class="footer">
+        🌿 <b>AI-Pedagogy Tools</b> by <span>Nazerke Kairatkyzy</span> 🌿
+    </div>
+</div>
+
+<script>
+let words = [];
+let currentIndex = 0;
+
+function makeAnagram(){
+    const raw = document.getElementById("input").value.trim();
+    const resultBox = document.getElementById("result");
+    const origBox = document.getElementById("original");
+
+    if(!raw){
+        resultBox.textContent = "Алдымен сөз енгіз.";
+        return;
+    }
+
+    // сөздерді бөлу
+    words = raw.split("\n").map(x => x.trim()).filter(x => x.length > 0);
+
+    currentIndex = 0;
+    showAnagram(words[currentIndex]);
+}
+
+function shuffleAgain(){
+    if(words.length === 0){
+        document.getElementById("result").textContent = "Әлі сөз енгізілген жоқ.";
+        return;
+    }
+    showAnagram(words[currentIndex]);
+}
+
+function showAnagram(word){
+    const chars = word.split("");
+
+    // Фишер-Йетс араластыру алгоритмі
+    for(let i = chars.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+
+    const ana = chars.join("");
+
+    document.getElementById("result").textContent = ana;
+    document.getElementById("original").textContent = "Бастапқы сөз: " + word;
+}
+</script>
+
+</body>
+</html>

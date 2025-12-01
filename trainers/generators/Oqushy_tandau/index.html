@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Оқушы таңдау генераторы</title>
+<style>
+    body{
+        font-family:Arial, sans-serif;
+        background:#fdf7e2;
+        padding:20px;
+        color:#3b2a15;
+    }
+    h1{
+        text-align:center;
+        background:#ffd98b;
+        padding:14px;
+        border-radius:14px;
+        box-shadow:0 3px 10px rgba(0,0,0,0.15);
+    }
+    textarea{
+        width:100%;
+        height:120px;
+        padding:10px;
+        border-radius:10px;
+        border:1px solid #d0a96a;
+        background:#fffdf6;
+        font-size:15px;
+        resize:vertical;
+    }
+    .btn{
+        padding:12px;
+        width:100%;
+        margin-top:10px;
+        background:#f5b754;
+        border:none;
+        cursor:pointer;
+        border-radius:12px;
+        font-size:18px;
+        font-weight:bold;
+        box-shadow:0 4px 10px rgba(0,0,0,0.25);
+    }
+    .btn:hover{background:#e4a645;}
+    #resultBox{
+        margin-top:22px;
+        padding:25px;
+        background:#fff8e6;
+        border-radius:16px;
+        text-align:center;
+        font-size:28px;
+        font-weight:bold;
+        border:2px dashed #d7af6e;
+        min-height:70px;
+    }
+
+    /* Айналмалы эффект */
+    @keyframes spin {
+      0% {transform:scale(1) rotate(0deg);}
+      50% {transform:scale(1.1) rotate(5deg);}
+      100% {transform:scale(1) rotate(-5deg);}
+    }
+    .spin{
+      animation:spin 0.15s infinite;
+    }
+</style>
+</head>
+<body>
+
+<h1>🎉 Оқушыны кездейсоқ таңдау генераторы</h1>
+
+<label><b>Оқушылар тізімін енгіз:</b></label>
+<textarea id="names" placeholder="Айдос
+Аружан
+Данияр
+Назерке
+Алина
+..."></textarea>
+
+<button class="btn" onclick="pickStudent()">Таңдау 🎯</button>
+<button class="btn" onclick="clearList()">Тазалау 🗑</button>
+
+<div id="resultBox">Оқушы осы жерде шығады</div>
+
+<script>
+let used = new Set();
+
+function pickStudent(){
+    const raw = document.getElementById("names").value.trim();
+    if(!raw){alert("Оқушы тізімін енгізіңдер!"); return;}
+
+    let list = raw.split(/\n+/).map(s => s.trim()).filter(s => s !== "");
+
+    // Қайталанбау режимі
+    let available = list.filter(n => !used.has(n));
+
+    // Егер барлық оқушы таңдалса – қайта бастаймыз
+    if(available.length === 0){
+        used.clear();
+        available = list;
+    }
+
+    let resultBox = document.getElementById("resultBox");
+    resultBox.classList.add("spin");
+    resultBox.innerHTML = "Жүктелуде...";
+
+    setTimeout(() => {
+        const chosen = available[Math.floor(Math.random()*available.length)];
+        resultBox.classList.remove("spin");
+        resultBox.innerHTML = "⭐ " + chosen + " ⭐";
+        used.add(chosen);
+    }, 800);
+}
+
+function clearList(){
+    document.getElementById("names").value="";
+    used.clear();
+    document.getElementById("resultBox").innerHTML="Оқушы осы жерде шығады";
+}
+</script>
+<div style="
+    margin-top:40px;
+    text-align:center;
+    font-size:18px;
+    padding:16px 0;
+    color:#4b5563;
+    border-top:4px solid #c084fc;
+    background: linear-gradient(to right, #fff, #faf5ff, #fff);
+    font-family:'Arial';
+">
+    🌿 <b>AI-Pedagogy Tools</b> by <span style="color:#7c3aed;">Nazerke Kairatkyzy</span> 🌿
+</div>
+
+</body>
+</html>

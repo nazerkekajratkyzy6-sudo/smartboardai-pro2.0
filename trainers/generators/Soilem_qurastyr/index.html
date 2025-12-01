@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Sentence Builder PRO – Сөйлем құрастыр</title>
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        font-family:system-ui,Arial;
+        background:#eef2ff;
+        display:flex;
+        justify-content:center;
+    }
+    .container{
+        max-width:900px;
+        width:100%;
+        background:white;
+        border-radius:16px;
+        padding:22px 26px 30px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.18);
+    }
+    h1{
+        text-align:center;
+        color:#1e3a8a;
+        font-size:26px;
+        margin-bottom:16px;
+    }
+    textarea{
+        width:100%;
+        height:150px;
+        border-radius:12px;
+        border:1px solid #cbd5ff;
+        padding:10px;
+        font-size:14px;
+        resize:vertical;
+        margin-bottom:10px;
+    }
+    button{
+        border:none;
+        border-radius:999px;
+        padding:10px 22px;
+        background:linear-gradient(135deg,#6366f1,#4f46e5);
+        color:white;
+        font-size:15px;
+        cursor:pointer;
+        margin-bottom:14px;
+        box-shadow:0 4px 12px rgba(79,70,229,0.35);
+    }
+
+    .gameBox{
+        background:#f8fafc;
+        padding:18px;
+        border-radius:14px;
+        border:1px solid #e2e8f0;
+        min-height:180px;
+    }
+
+    .words{
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        margin-top:10px;
+    }
+    .word{
+        background:#eef2ff;
+        padding:8px 14px;
+        font-size:18px;
+        border-radius:10px;
+        cursor:pointer;
+        border:1px solid transparent;
+        transition:0.15s;
+        user-select:none;
+    }
+    .word:hover{
+        transform:scale(1.05);
+        border-color:#c7d2fe;
+    }
+    .word.used{
+        opacity:0.4;
+        pointer-events:none;
+    }
+
+    .output{
+        min-height:50px;
+        padding:12px;
+        border-radius:10px;
+        border:2px dashed #cbd5ff;
+        margin-top:16px;
+        background:white;
+    }
+    .out-word{
+        display:inline-block;
+        background:#e0e7ff;
+        margin:4px;
+        padding:6px 10px;
+        border-radius:8px;
+        font-size:18px;
+    }
+
+    .correct-msg{
+        color:#22c55e;
+        font-size:20px;
+        font-weight:600;
+        margin-top:12px;
+        text-align:center;
+    }
+    .wrong-msg{
+        color:#ef4444;
+        font-size:20px;
+        font-weight:600;
+        margin-top:12px;
+        text-align:center;
+    }
+
+    .finish{
+        margin-top:20px;
+        font-size:22px;
+        text-align:center;
+        font-weight:600;
+        color:#1e3a8a;
+    }
+
+    .author{
+        margin-top:26px;
+        text-align:center;
+        font-size:14px;
+        color:#777;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Sentence Builder PRO – Сөйлем құрастыр</h1>
+
+    <label>Сөйлемдер (әр жолға бір сөйлем):</label>
+    <textarea id="dataArea">Мен мектепке бардым.
+Бүгін ауа райы тамаша.
+Мен робот жасай аламын.
+SmartBoardAI өте керемет құрал.</textarea>
+
+    <button onclick="startGame()">Ойынды бастау</button>
+
+    <div id="gameBox" class="gameBox"></div>
+
+    <div class="author">
+        © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+    </div>
+
+</div>
+
+<script>
+let sentences = [];
+let order = [];
+let index = 0;
+let correctCount = 0;
+let outputWords = [];
+
+function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr;
+}
+
+function startGame(){
+    const txt = document.getElementById("dataArea").value.trim();
+    sentences = txt.split(/\r?\n/).filter(x=>x.trim().length>0);
+
+    if(sentences.length===0){
+        alert("Кемінде бір сөйлем енгізіңіз!");
+        return;
+    }
+
+    order = sentences.map((_,i)=>i);
+    shuffle(order);
+
+    index = 0;
+    correctCount = 0;
+    loadSentence();
+}
+
+function loadSentence(){
+    const box = document.getElementById("gameBox");
+    if(index >= order.length){
+        box.innerHTML = `
+            <div class="finish">
+                Барлық сөйлем құрастырылды! 🎉<br>
+                Дұрыс: <b>${correctCount}</b> / ${sentences.length}
+            </div>
+        `;
+        return;
+    }
+
+    const sentence = sentences[order[index]];
+    const words = sentence.split(" ").filter(x=>x.length>0);
+    const shuffled = shuffle([...words]);
+
+    outputWords = [];
+
+    box.innerHTML = `
+        <div style="font-size:18px;color:#1e40af;text-align:center;margin-bottom:12px;">
+            Сөздерді дұрыс ретімен орналастыр:
+        </div>
+        <div class="words" id="wordsBox"></div>
+        <div class="output" id="outputBox"></div>
+        <div id="msg"></div>
+    `;
+
+    const wb = document.getElementById("wordsBox");
+    shuffled.forEach(w=>{
+        const span = document.createElement("div");
+        span.className = "word";
+        span.textContent = w;
+        span.onclick = ()=>selectWord(span, w, words, sentence);
+        wb.appendChild(span);
+    });
+}
+
+function selectWord(el, word, correctWords, fullSentence){
+    outputWords.push(word);
+
+    el.classList.add("used");
+
+    const outBox = document.getElementById("outputBox");
+    const o = document.createElement("span");
+    o.className = "out-word";
+    o.textContent = word;
+    outBox.appendChild(o);
+
+    const msg = document.getElementById("msg");
+
+    if(outputWords.length === correctWords.length){
+        if(outputWords.join(" ") === fullSentence){
+            msg.innerHTML = `<div class="correct-msg">✔ Дұрыс!</div>`;
+            correctCount++;
+        } else {
+            msg.innerHTML = `<div class="wrong-msg">✘ Қате. Қайта көреміз!</div>`;
+        }
+
+        setTimeout(()=>{
+            index++;
+            loadSentence();
+        },1000);
+    }
+}
+</script>
+
+</body>
+</html>

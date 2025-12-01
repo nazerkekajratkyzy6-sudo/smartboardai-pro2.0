@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title>Жұпты тап – қазақша Match Up генераторы</title>
+    <style>
+        body{
+            margin:0;
+            padding:20px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            background:#eef2ff;
+            display:flex;
+            justify-content:center;
+        }
+        .container{
+            max-width:1100px;
+            width:100%;
+            background:#ffffff;
+            border-radius:18px;
+            box-shadow:0 10px 25px rgba(15,23,42,0.18);
+            padding:20px 22px 26px;
+            display:flex;
+            gap:22px;
+            box-sizing:border-box;
+        }
+        h1{
+            margin:0 0 10px;
+            font-size:22px;
+            text-align:center;
+            color:#1e3a8a;
+        }
+        .left, .right{
+            flex:1;
+        }
+        label{
+            font-size:14px;
+            font-weight:600;
+            color:#4b5563;
+        }
+        textarea{
+            width:100%;
+            height:210px;
+            margin-top:6px;
+            margin-bottom:12px;
+            border-radius:12px;
+            border:1px solid #cbd5f5;
+            padding:10px;
+            resize:vertical;
+            font-size:14px;
+            box-sizing:border-box;
+        }
+        button{
+            border:none;
+            border-radius:999px;
+            padding:8px 18px;
+            font-size:14px;
+            cursor:pointer;
+            margin-top:8px;
+            margin-right:8px;
+            background:linear-gradient(135deg,#6366f1,#4f46e5);
+            color:white;
+            box-shadow:0 5px 15px rgba(79,70,229,0.35);
+        }
+        button.secondary{
+            background:#e5e7eb;
+            color:#111827;
+            box-shadow:none;
+        }
+        .status{
+            margin-top:8px;
+            font-size:14px;
+            min-height:20px;
+        }
+        .status.ok{color:#16a34a;}
+        .status.err{color:#dc2626;}
+        .game-area{
+            display:flex;
+            gap:16px;
+            margin-top:8px;
+        }
+        .col{
+            flex:1;
+            background:#f9fafb;
+            border-radius:14px;
+            padding:10px;
+            box-sizing:border-box;
+            border:1px solid #e5e7eb;
+        }
+        .col-title{
+            font-size:14px;
+            font-weight:600;
+            margin-bottom:8px;
+            color:#374151;
+            text-align:center;
+        }
+        .items{
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+        }
+        .item-btn{
+            width:100%;
+            text-align:left;
+            padding:10px 12px;
+            border-radius:999px;
+            border:none;
+            background:#eef2ff;
+            color:#111827;
+            font-size:14px;
+            cursor:pointer;
+            box-shadow:0 2px 5px rgba(148,163,184,0.4);
+            transition:transform 0.05s, box-shadow 0.05s, background 0.15s;
+        }
+        .item-btn:hover{
+            transform:scale(1.02);
+        }
+        .item-btn.selected{
+            background:#fde68a;
+        }
+        .item-btn.correct{
+            background:#22c55e;
+            color:#ffffff;
+            box-shadow:none;
+            cursor:default;
+        }
+        .item-btn.wrong{
+            background:#fecaca;
+        }
+        .info-bar{
+            margin-top:6px;
+            font-size:13px;
+            color:#4b5563;
+        }
+        @media (max-width:860px){
+            .container{
+                flex-direction:column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="left">
+        <h1>Жұпты тап – Match Up (генератор)</h1>
+
+        <label>Пайдаланылатын жұптар (әр жолға бір жұп):</label>
+        <textarea id="pairsInput">скрипт - бұйрықтар тізбегі
+спрайт - экрандағы кейіпкер
+жоба - дайындалатын ойын не бағдарлама
+көрініс - сахнадағы фон немесе орта
+алгоритм - қадамдар тізбегі
+монитор - ақпаратты көрсететін құрылғы</textarea>
+
+        <div style="font-size:12px; color:#6b7280; margin-bottom:4px;">
+            Пішім мысалы: <b>сөз - анықтама</b> немесе <b>термин — түсініктеме</b>.  
+            Қазақша әріптерге толық қолдау: ә, ө, ү, ұ, қ, ғ, ң, і.
+        </div>
+
+        <button id="buildBtn">Ойынды дайындау</button>
+        <button class="secondary" id="clearBtn">Таңдауды тазалау</button>
+
+        <div class="status" id="status"></div>
+
+        <div class="info-bar" id="infoBar"></div>
+    </div>
+
+    <div class="right">
+        <div class="game-area">
+            <div class="col">
+                <div class="col-title">Сөздер</div>
+                <div class="items" id="leftCol"></div>
+            </div>
+            <div class="col">
+                <div class="col-title">Жауаптар</div>
+                <div class="items" id="rightCol"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* -------- Көмекші функциялар -------- */
+function shuffle(array){
+    for(let i=array.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [array[i],array[j]] = [array[j],array[i]];
+    }
+    return array;
+}
+
+const statusEl = document.getElementById("status");
+const infoBarEl = document.getElementById("infoBar");
+const leftColEl = document.getElementById("leftCol");
+const rightColEl = document.getElementById("rightCol");
+
+let pairs = [];       // [{id, left, right, matched:false}, ...]
+let leftButtons = {}; // id -> button
+let rightButtons = {};
+let selectedLeft = null;
+let selectedRight = null;
+let matchedCount = 0;
+
+function setStatus(msg, type=""){
+    statusEl.textContent = msg || "";
+    statusEl.className = "status " + type;
+}
+function setInfo(msg){
+    infoBarEl.textContent = msg || "";
+}
+
+/* -------- Парсинг textarea -------- */
+function parsePairs(){
+    const text = document.getElementById("pairsInput").value;
+    const lines = text.split(/\r?\n/);
+    const result = [];
+
+    lines.forEach(line => {
+        const trimmed = line.trim();
+        if(!trimmed) return;
+        // делим по - или —
+        const parts = trimmed.split(/[-–—]/);
+        if(parts.length < 2) return;
+        const left = parts[0].trim();
+        const right = parts.slice(1).join("-").trim();
+        if(left && right){
+            result.push({left, right});
+        }
+    });
+    return result;
+}
+
+/* -------- Ойынды құру -------- */
+function buildGame(){
+    setStatus("");
+    setInfo("");
+
+    const rawPairs = parsePairs();
+    if(rawPairs.length === 0){
+        setStatus("Кемінде бір жұп енгізіңіз.", "err");
+        return;
+    }
+
+    pairs = rawPairs.map((p, idx)=>({
+        id: idx,
+        left: p.left.toUpperCase(),
+        right: p.right, // анықтаманы үлкен әріп қылмаймыз
+        matched:false
+    }));
+
+    // сол және оң бағандарды бөлек араластырамыз
+    const leftItems = shuffle(pairs.map(p => p.id));
+    const rightItems = shuffle(pairs.map(p => p.id));
+
+    leftColEl.innerHTML = "";
+    rightColEl.innerHTML = "";
+    leftButtons = {};
+    rightButtons = {};
+    selectedLeft = null;
+    selectedRight = null;
+    matchedCount = 0;
+
+    leftItems.forEach(id=>{
+        const pair = pairs.find(p=>p.id===id);
+        const btn = document.createElement("button");
+        btn.className = "item-btn";
+        btn.textContent = pair.left;
+        btn.dataset.id = id;
+        btn.addEventListener("click", ()=>onLeftClick(id));
+        leftColEl.appendChild(btn);
+        leftButtons[id] = btn;
+    });
+
+    rightItems.forEach(id=>{
+        const pair = pairs.find(p=>p.id===id);
+        const btn = document.createElement("button");
+        btn.className = "item-btn";
+        btn.textContent = pair.right;
+        btn.dataset.id = id;
+        btn.addEventListener("click", ()=>onRightClick(id));
+        rightColEl.appendChild(btn);
+        rightButtons[id] = btn;
+    });
+
+    setInfo("Жұптар саны: " + pairs.length + ". Табылғаны: 0.");
+    setStatus("Сол жақтан сөзді, оң жақтан сәйкес анықтаманы таңдаңыз.", "ok");
+}
+
+/* -------- Таңдауды тазалау -------- */
+function clearSelection(){
+    selectedLeft = null;
+    selectedRight = null;
+    Object.values(leftButtons).forEach(b => b.classList.remove("selected","wrong"));
+    Object.values(rightButtons).forEach(b => b.classList.remove("selected","wrong"));
+}
+
+/* -------- Сол/оң баған батырмалары -------- */
+function onLeftClick(id){
+    const pair = pairs.find(p=>p.id===id);
+    if(!pair || pair.matched) return;
+
+    if(selectedLeft === id){
+        // қайта басса – алып тастаймыз
+        selectedLeft = null;
+        leftButtons[id].classList.remove("selected");
+        return;
+    }
+
+    // жаңа таңдау
+    Object.values(leftButtons).forEach(b => b.classList.remove("selected","wrong"));
+    leftButtons[id].classList.add("selected");
+    selectedLeft = id;
+
+    if(selectedRight !== null){
+        checkMatch();
+    }
+}
+
+function onRightClick(id){
+    const pair = pairs.find(p=>p.id===id);
+    if(!pair || pair.matched) return;
+
+    if(selectedRight === id){
+        selectedRight = null;
+        rightButtons[id].classList.remove("selected");
+        return;
+    }
+
+    Object.values(rightButtons).forEach(b => b.classList.remove("selected","wrong"));
+    rightButtons[id].classList.add("selected");
+    selectedRight = id;
+
+    if(selectedLeft !== null){
+        checkMatch();
+    }
+}
+
+/* -------- Жұпты тексеру -------- */
+function checkMatch(){
+    if(selectedLeft === null || selectedRight === null) return;
+
+    const leftId = selectedLeft;
+    const rightId = selectedRight;
+
+    if(leftId === rightId){
+        // дұрыс жұп
+        pairs.find(p=>p.id===leftId).matched = true;
+        const lb = leftButtons[leftId];
+        const rb = rightButtons[rightId];
+        lb.classList.remove("selected");
+        rb.classList.remove("selected");
+        lb.classList.add("correct");
+        rb.classList.add("correct");
+        lb.disabled = true;
+        rb.disabled = true;
+
+        matchedCount++;
+        setStatus("Дұрыс! Жұп табылды ✅", "ok");
+        setInfo("Жұптар саны: " + pairs.length + ". Табылғаны: " + matchedCount + ".");
+
+        selectedLeft = null;
+        selectedRight = null;
+
+        if(matchedCount === pairs.length){
+            setStatus("Құттықтаймын! Барлық жұп табылды 🎉", "ok");
+        }
+    }else{
+        // қате жұп
+        const lb = leftButtons[leftId];
+        const rb = rightButtons[rightId];
+        lb.classList.add("wrong");
+        rb.classList.add("wrong");
+        setStatus("Әлі емес. Қайта көріңіз ❌", "err");
+
+        // аз уақыттан кейін тазалау
+        setTimeout(()=>{
+            if(lb) lb.classList.remove("selected","wrong");
+            if(rb) rb.classList.remove("selected","wrong");
+            selectedLeft = null;
+            selectedRight = null;
+        }, 550);
+    }
+}
+
+/* -------- Батырмалар -------- */
+document.getElementById("buildBtn").addEventListener("click", buildGame);
+document.getElementById("clearBtn").addEventListener("click", clearSelection);
+
+/* Бетті ашқанда автоматты түрде бір ойын жасаймыз */
+buildGame();
+</script>
+</body>
+</html>

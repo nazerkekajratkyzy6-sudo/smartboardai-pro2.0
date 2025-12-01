@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Tarsia Generator – SmartBoardAI</title>
+<style>
+    body{
+        margin:0;
+        padding:0;
+        font-family:system-ui, -apple-system, Arial;
+        background:linear-gradient(135deg,#e0f2fe,#f5f3ff);
+        display:flex;
+        justify-content:center;
+        align-items:flex-start;
+        min-height:100vh;
+    }
+    .container{
+        width:100%;
+        max-width:1100px;
+        background:white;
+        margin:24px;
+        padding:24px;
+        border-radius:26px;
+        box-shadow:0 20px 45px rgba(15,23,42,0.18);
+    }
+    h1{
+        margin:0;
+        font-size:28px;
+        color:#1e3a8a;
+    }
+    .desc{
+        color:#64748b;
+        margin-top:6px;
+        font-size:14px;
+    }
+
+    textarea{
+        width:100%;
+        min-height:150px;
+        border-radius:18px;
+        border:1px solid #cbd5e1;
+        padding:12px;
+        margin-top:16px;
+        font-size:15px;
+        background:#f8fafc;
+    }
+    textarea:focus{
+        outline:none;
+        box-shadow:0 0 0 2px rgba(37,99,235,0.25);
+        border-color:#2563eb;
+    }
+
+    .btn{
+        margin-top:14px;
+        display:inline-block;
+        padding:10px 18px;
+        border-radius:999px;
+        border:none;
+        background:linear-gradient(to right,#2563eb,#7c3aed);
+        color:white;
+        cursor:pointer;
+        font-weight:600;
+        font-size:14px;
+    }
+
+    .grid{
+        margin-top:24px;
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+        gap:14px;
+    }
+    .triangle{
+        width:0;
+        height:0;
+        border-left:90px solid transparent;
+        border-right:90px solid transparent;
+        border-bottom:160px solid #e0e7ff;
+        position:relative;
+        border-radius:6px;
+        box-shadow:0 6px 16px rgba(0,0,0,0.2);
+    }
+    .text{
+        position:absolute;
+        width:100px;
+        text-align:center;
+        font-size:13px;
+        font-weight:600;
+        color:#0f172a;
+    }
+    .top{
+        top:40px;
+        left:-50px;
+        transform:rotate(-60deg);
+    }
+    .left{
+        top:90px;
+        left:-140px;
+        transform:rotate(60deg);
+    }
+    .right{
+        top:90px;
+        left:40px;
+    }
+
+    .footer{
+        margin-top:32px;
+        padding:14px;
+        background:linear-gradient(to right,#fff,#faf5ff,#fff);
+        border-top:4px solid #c084fc;
+        font-size:16px;
+        text-align:center;
+        color:#4b5563;
+        border-radius:16px;
+    }
+    .footer span{
+        color:#7c3aed;
+        font-weight:600;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔺 Tarsia Generator</h1>
+    <div class="desc">
+        Математикалық пазл – Тарсия генераторы. 
+        Әр жолға “сұрақ = жауап” форматын жаз.
+        Мысалы: <b>2+5 = 7</b>
+    </div>
+
+    <textarea id="input" placeholder="Мысалы:
+3+5 = 8
+2x=10 = x=5
+√49 = 7
+5² = 25"></textarea>
+
+    <button class="btn" onclick="generateTarsia()">Генерациялау</button>
+
+    <div id="output" class="grid"></div>
+
+    <div class="footer">
+        🌿 <b>AI-Pedagogy Tools</b> by <span>Nazerke Kairatkyzy</span> 🌿
+    </div>
+</div>
+
+<script>
+function generateTarsia(){
+    const raw = document.getElementById("input").value.trim();
+    const out = document.getElementById("output");
+    out.innerHTML = "";
+
+    if(!raw){
+        out.textContent = "Ештеңе енгізілген жоқ.";
+        return;
+    }
+
+    const lines = raw.split("\n").map(l => l.trim()).filter(l => l.includes("="));
+
+    if(lines.length === 0){
+        out.textContent = "Формат дұрыс емес. Әр жол: сұрақ = жауап болуы керек.";
+        return;
+    }
+
+    // Триада бойынша: әр пазл үш бөліктен тұрады → сұрақ, жауап, сұрақ
+    const data = [];
+
+    lines.forEach((line, i) => {
+        const parts = line.split("=");
+        let left = parts[0].trim();
+        let right = parts[1].trim();
+
+        // келесі сұрақ
+        let next = lines[(i+1) % lines.length].split("=")[0].trim();
+
+        data.push({top:left, left:right, right:next});
+    });
+
+    data.forEach(tri => {
+        const t = document.createElement("div");
+        t.className = "triangle";
+
+        const top = document.createElement("div");
+        top.className = "text top";
+        top.textContent = tri.top;
+
+        const left = document.createElement("div");
+        left.className = "text left";
+        left.textContent = tri.left;
+
+        const right = document.createElement("div");
+        right.className = "text right";
+        right.textContent = tri.right;
+
+        t.appendChild(top);
+        t.appendChild(left);
+        t.appendChild(right);
+
+        out.appendChild(t);
+    });
+}
+</script>
+
+</body>
+</html>

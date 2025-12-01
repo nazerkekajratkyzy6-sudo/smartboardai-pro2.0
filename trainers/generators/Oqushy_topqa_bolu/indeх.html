@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сиқырлы қалам — Автор: Nazerke Kairatkyzy</title>
+<style>
+  body {
+    font-family: "Comic Sans MS", sans-serif;
+    background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+    text-align: center;
+    color: #222;
+    padding: 40px;
+    transition: background 1s;
+  }
+
+  h1 {
+    color: #004aad;
+    font-size: 2.2em;
+    margin-bottom: 20px;
+  }
+
+  .pen {
+    font-size: 70px;
+    animation: float 2s infinite ease-in-out;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .textarea-container {
+    margin: 20px auto;
+    max-width: 400px;
+  }
+
+  textarea {
+    width: 100%;
+    height: 120px;
+    border-radius: 10px;
+    padding: 10px;
+    border: 2px solid #004aad;
+    font-size: 1em;
+    resize: none;
+  }
+
+  .output {
+    font-size: 1.7em;
+    margin-top: 25px;
+    min-height: 60px;
+  }
+
+  button {
+    background-color: #004aad;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-size: 1em;
+  }
+
+  button:hover {
+    background-color: #0077ff;
+  }
+
+  .result {
+    margin-top: 25px;
+    font-size: 2em;
+    font-weight: bold;
+    color: #0c3;
+  }
+
+  .flash {
+    animation: flashBg 1s ease;
+  }
+
+  @keyframes flashBg {
+    0% { background: radial-gradient(circle, #fff8b5, #a1c4fd); }
+    50% { background: radial-gradient(circle, #ffd6f6, #c2e9fb); }
+    100% { background: linear-gradient(135deg, #a1c4fd, #c2e9fb); }
+  }
+
+  .author {
+    margin-top: 40px;
+    font-size: 1em;
+    color: #333;
+    opacity: 0.9;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>🖊️ Сиқырлы қалам</h1>
+<p>Оқушы аттарын төменге енгіз:</p>
+
+<div class="textarea-container">
+<textarea id="studentInput" placeholder="Әр оқушы атын жаңа жолға жазыңыз..."></textarea>
+</div>
+
+<button onclick="pickStudent()">🎲 Таңдау</button>
+
+<div id="output" class="output"></div>
+<div id="result" class="result"></div>
+
+<audio id="penSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_609b3a3c9a.mp3"></audio>
+<audio id="dingSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_2eac7d7e61.mp3"></audio>
+
+<p class="author">Автор: <b>Nazerke Kairatkyzy</b></p>
+
+<script>
+function pickStudent() {
+  const inputText = document.getElementById("studentInput").value.trim();
+  const output = document.getElementById("output");
+  const result = document.getElementById("result");
+  const pen = document.getElementById("penSound");
+  const ding = document.getElementById("dingSound");
+
+  if (!inputText) {
+    output.textContent = "Ешқандай ат енгізілмеді!";
+    return;
+  }
+
+  const students = inputText.split("\n").map(s => s.trim()).filter(s => s !== "");
+
+  const randomName = students[Math.floor(Math.random() * students.length)];
+
+  pen.play();
+
+  output.textContent = "Қалам ойланып жатыр... 🤔";
+  result.textContent = "";
+
+  setTimeout(() => {
+    output.textContent = "Бүгін жауап беретін оқушы...";
+    setTimeout(() => {
+      result.textContent = randomName + "!";
+      ding.play();
+
+      document.body.classList.add("flash");
+      setTimeout(() => document.body.classList.remove("flash"), 800);
+
+    }, 2000);
+  }, 2000);
+}
+</script>
+
+</body>
+</html>

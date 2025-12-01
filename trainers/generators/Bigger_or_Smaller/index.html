@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Bigger or Smaller PRO – Үлкен бе, кіші ме?</title>
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        background:#eef2ff;
+        font-family:system-ui,Arial;
+        display:flex;
+        justify-content:center;
+    }
+    .container{
+        max-width:800px;
+        width:100%;
+        background:white;
+        padding:26px 30px;
+        border-radius:18px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.15);
+    }
+    h1{
+        text-align:center;
+        color:#1d4ed8;
+        margin-bottom:18px;
+        font-size:26px;
+    }
+    textarea,input{
+        width:100%;
+        padding:10px;
+        border:1px solid #cbd5ff;
+        border-radius:12px;
+        font-size:15px;
+        margin-bottom:10px;
+    }
+    button{
+        border:none;
+        border-radius:999px;
+        padding:10px 22px;
+        background:linear-gradient(135deg,#6366f1,#4f46e5);
+        color:white;
+        cursor:pointer;
+        font-size:15px;
+        margin-bottom:14px;
+        box-shadow:0 4px 12px rgba(79,70,229,0.35);
+    }
+
+    .compare-box{
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        gap:40px;
+        margin-top:20px;
+    }
+    .item{
+        width:140px;
+        height:140px;
+        border:2px solid #cbd5ff;
+        border-radius:14px;
+        background:#f8fafc;
+        font-size:42px;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        cursor:pointer;
+        transition:0.12s;
+    }
+    .item:hover{
+        background:#eef2ff;
+        transform:scale(1.05);
+    }
+    .correct{
+        background:#22c55e !important;
+        color:white !important;
+        border-color:#22c55e !important;
+    }
+    .wrong{
+        background:#ef4444 !important;
+        color:white !important;
+        border-color:#ef4444 !important;
+    }
+
+    .status{
+        text-align:center;
+        margin-top:12px;
+        font-size:18px;
+        color:#1e40af;
+        font-weight:600;
+        min-height:24px;
+    }
+    .score{
+        margin-top:6px;
+        text-align:center;
+        font-size:18px;
+        color:#1d4ed8;
+        font-weight:600;
+    }
+
+    .author{
+        margin-top:24px;
+        text-align:center;
+        font-size:14px;
+        color:#777;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Bigger or Smaller PRO – Үлкен бе, кіші ме?</h1>
+
+<label>Салыстыру тапсырмалары (формат: A < B немесе A > B):</label>
+<textarea id="tasksArea">3 < 7
+110 < 42
+🍎 < 🍉
+10см < 14см
+20кг > 11кг</textarea>
+
+<label>Раундтағы тапсырмалар саны:</label>
+<input id="roundCount" value="10">
+
+<button onclick="startGame()">Ойынды бастау</button>
+
+<div id="gameBox"></div>
+<div class="status" id="statusBox"></div>
+<div class="score" id="scoreBox"></div>
+
+<div class="author">© Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b></div>
+
+</div>
+
+<script>
+let tasks=[];
+let current=null;
+let score=0;
+let total=0;
+
+function startGame(){
+    tasks = document.getElementById("tasksArea").value.trim().split(/\r?\n/);
+    score=0;
+    total = parseInt(document.getElementById("roundCount").value);
+
+    nextTask();
+}
+
+function nextTask(){
+    if(total<=0){
+        document.getElementById("statusBox").textContent="Ойын аяқталды!";
+        document.getElementById("scoreBox").textContent="Ұпай: "+score;
+        document.getElementById("gameBox").innerHTML="";
+        return;
+    }
+
+    total--;
+
+    const raw = tasks[Math.floor(Math.random()*tasks.length)];
+    const parts = raw.split(/>|</);
+
+    const left = parts[0].trim();
+    const right = parts[1].trim();
+
+    const operator = raw.includes(">") ? ">" : "<";
+
+    current = {left,right,operator};
+
+    document.getElementById("statusBox").textContent="Қайсысы үлкен?";
+    document.getElementById("scoreBox").textContent="Ұпай: "+score;
+
+    renderCompare(left,right);
+}
+
+function renderCompare(left,right){
+    document.getElementById("gameBox").innerHTML = `
+        <div class="compare-box">
+            <div class="item" onclick="choose('left', this)">${left}</div>
+            <div class="item" onclick="choose('right', this)">${right}</div>
+        </div>
+    `;
+}
+
+function choose(side, element){
+    const {left,right,operator} = current;
+
+    const isLeftCorrect = (operator===">" && left>right) || (operator===">" && parseFloat(left)>parseFloat(right));
+    const isRightCorrect = (operator===">" && right>left) || (operator===">" && parseFloat(right)>parseFloat(left));
+
+    const bigger = operator===">" ? "left" : "right"; // simple direction
+
+    let correctSide;
+    if(operator === ">"){
+        correctSide = "left";
+    } else {
+        correctSide = "right";
+    }
+
+    if(side === correctSide){
+        element.classList.add("correct");
+        score++;
+        document.getElementById("statusBox").textContent="Дұрыс!";
+    } else {
+        element.classList.add("wrong");
+        document.getElementById("statusBox").textContent="Қате!";
+    }
+
+    setTimeout(()=>{
+        document.querySelectorAll(".item").forEach(i=>i.classList.remove("correct","wrong"));
+        nextTask();
+    },600);
+}
+</script>
+
+</body>
+</html>

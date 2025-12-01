@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Memory Flash Grid PRO – Жад пен зейінді дамыту</title>
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        background:#eef2ff;
+        font-family:system-ui,Arial;
+        display:flex;
+        justify-content:center;
+    }
+    .container{
+        max-width:900px;
+        width:100%;
+        background:white;
+        padding:24px 30px;
+        border-radius:18px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.18);
+        box-sizing:border-box;
+    }
+    h1{
+        text-align:center;
+        color:#1e3a8a;
+        margin-bottom:16px;
+    }
+    textarea,input{
+        width:100%;
+        padding:10px;
+        border:1px solid #cbd5ff;
+        border-radius:12px;
+        font-size:15px;
+        margin-bottom:10px;
+    }
+    button{
+        border:none;
+        border-radius:999px;
+        padding:10px 22px;
+        background:linear-gradient(135deg,#6366f1,#4f46e5);
+        color:white;
+        cursor:pointer;
+        font-size:15px;
+        margin-bottom:14px;
+        box-shadow:0 4px 12px rgba(79,70,229,0.35);
+    }
+
+    .grid{
+        display:grid;
+        gap:6px;
+        margin-top:18px;
+    }
+    .cell{
+        width:80px;
+        height:80px;
+        background:white;
+        border-radius:12px;
+        border:1px solid #cbd5ff;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        font-size:30px;
+        cursor:pointer;
+        transition:0.12s;
+    }
+    .cell:hover{
+        background:#eef2ff;
+    }
+    .correct{
+        background:#22c55e !important;
+        color:white !important;
+    }
+    .wrong{
+        background:#ef4444 !important;
+        color:white !important;
+    }
+
+    .task{
+        text-align:center;
+        font-size:20px;
+        font-weight:600;
+        color:#1e40af;
+        min-height:32px;
+    }
+    .status{
+        margin-top:10px;
+        text-align:center;
+        font-size:16px;
+        color:#4b5563;
+        min-height:22px;
+    }
+
+    .author{
+        margin-top:24px;
+        text-align:center;
+        font-size:14px;
+        color:#777;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Memory Flash Grid PRO – Жад пен зейінді дамыту</h1>
+
+<label>Тор өлшемі (мысалы: 4):</label>
+<input id="gridSize" value="4">
+
+<label>Көрсетілетін объектілер:</label>
+<textarea id="objectsArea">🍎
+42
+△
+Күн
+🐫
+110
+✿
+жол</textarea>
+
+<label>Көрсету саны (неше ұяшық ашылады):</label>
+<input id="showCount" value="5">
+
+<label>Көрсету уақыты (секунд):</label>
+<input id="flashTime" value="2">
+
+<button onclick="startGame()">Ойынды бастау</button>
+
+<div class="task" id="taskBox"></div>
+<div id="gameBox"></div>
+<div class="status" id="statusBox"></div>
+
+<div class="author">
+    © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+</div>
+
+</div>
+
+<script>
+let size=4;
+let objects=[];
+let chosen=[];
+let correctIndex=-1;
+let flashTime=2;
+let showCount=3;
+
+function startGame(){
+    size=parseInt(document.getElementById("gridSize").value);
+    objects=document.getElementById("objectsArea").value.trim().split(/\r?\n/);
+    showCount=parseInt(document.getElementById("showCount").value);
+    flashTime=parseFloat(document.getElementById("flashTime").value);
+
+    renderGrid();
+    flashItems();
+}
+
+function renderGrid(){
+    const box=document.getElementById("gameBox");
+    box.innerHTML="";
+    box.style.textAlign="center";
+
+    let html=`<div class="grid" style="grid-template-columns:repeat(${size},80px);">`;
+    for(let i=0;i<size*size;i++){
+        html+=`<div class="cell" id="c${i}" onclick="check(${i})"></div>`;
+    }
+    html+="</div>";
+    box.innerHTML=html;
+
+    document.getElementById("taskBox").textContent="";
+    document.getElementById("statusBox").textContent="";
+}
+
+function flashItems(){
+    chosen = [];
+
+    let indices = [];
+    for(let i=0;i<size*size;i++) indices.push(i);
+
+    indices.sort(()=>Math.random()-0.5);
+    chosen = indices.slice(0, showCount);
+
+    chosen.forEach(idx=>{
+        const el=document.getElementById("c"+idx);
+        el.textContent = objects[Math.floor(Math.random()*objects.length)];
+    });
+
+    setTimeout(()=>{
+        chosen.forEach(idx=>{
+            const el=document.getElementById("c"+idx);
+            el.textContent = "";
+        });
+
+        const target = chosen[Math.floor(Math.random()*chosen.length)];
+        correctIndex = target;
+
+        document.getElementById("taskBox").textContent =
+            "Қай ұяшықта объект болды?";
+        document.getElementById("statusBox").textContent = "Таңда!";
+    }, flashTime*1000);
+}
+
+function check(idx){
+    const st=document.getElementById("statusBox");
+
+    if(correctIndex===-1) return;
+
+    const cell=document.getElementById("c"+idx);
+
+    if(idx===correctIndex){
+        cell.classList.add("correct");
+        st.textContent="Дұрыс! ✔";
+    } else {
+        cell.classList.add("wrong");
+        st.textContent="Қате! ❌";
+    }
+
+    setTimeout(()=>{
+        startGame();
+    }, 800);
+}
+
+</script>
+
+</body>
+</html>

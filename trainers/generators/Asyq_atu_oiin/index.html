@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>ASYQ PRO – 2 ойыншы, физика, дыбыс</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: linear-gradient(180deg, #ffe0b2, #ffcc80);
+    color: #4e342e;
+    text-align: center;
+    user-select: none;
+    touch-action: none;
+  }
+
+  h1 {
+    margin: 10px 0 4px;
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+    padding: 8px 10px 0;
+    flex-wrap: wrap;
+  }
+
+  .player-card {
+    background: #fff3e0;
+    border-radius: 14px;
+    padding: 6px 10px;
+    min-width: 120px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  }
+
+  .player-name {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .player-score {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .badge {
+    margin-top: 2px;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    display: inline-block;
+  }
+
+  .badge-active {
+    background: #c8e6c9;
+    color: #1b5e20;
+  }
+
+  .badge-wait {
+    background: #eeeeee;
+    color: #616161;
+  }
+
+  #gameArea {
+    margin: 8px auto;
+    width: 95vw;
+    max-width: 650px;
+    aspect-ratio: 1 / 1;
+    background: radial-gradient(circle at 30% 30%, #9ccc65, #2e7d32);
+    border-radius: 50%;
+    border: 8px solid #4e342e;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  }
+
+  .asyq {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ffe082, #f9a825);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  }
+
+  #shooter {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff9c4, #fdd835);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.7);
+    touch-action: none;
+  }
+
+  #info {
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+
+  #winner {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 4px 0;
+  }
+
+  .rules {
+    font-size: 12px;
+    padding: 0 10px 12px;
+    text-align: left;
+    max-width: 650px;
+    margin: 0 auto;
+  }
+
+  .rules li {
+    margin-left: 18px;
+    margin-bottom: 3px;
+  }
+</style>
+</head>
+<body>
+
+<h1>ASYQ PRO – асық ату симуляторы</h1>
+<div class="subtitle">Асықты саусақпен ұстап, тартып, жіберіп ат! Кім көп асық шығарады – сол жеңеді 🎯</div>
+
+<div class="top-bar">
+  <div class="player-card">
+    <div class="player-name">Ойыншы 1</div>
+    <div class="player-score" id="score1">0</div>
+    <div id="badge1" class="badge badge-active">Кезек осында</div>
+  </div>
+  <div class="player-card">
+    <div class="player-name">Ойыншы 2</div>
+    <div class="player-score" id="score2">0</div>
+    <div id="badge2" class="badge badge-wait">Күтіп тұр</div>
+  </div>
+</div>
+
+<div id="info">Асықты басып, тартып, жіберіп көр 🔥</div>
+<div id="winner"></div>
+
+<div id="gameArea">
+  <div id="shooter"></div>
+</div>
+
+<ul class="rules">
+  <li>Алаңдағы асықтар – ортада, шеңбер ішінде орналасқан.</li>
+  <li>Ойыншы кезекпен «ататын» асықты ұстап, сыртқа қарай тартып, жіберіп атады (drag → release).</li>
+  <li>Асықтар соқтығысып, секіріп қозғалады. Шеңберден толық шыққан асық – ұпай ретінде саналады.</li>
+  <li>Әр шыққан асық → сол жүріс жасаған ойыншыға +1 ұпай.</li>
+  <li>Барлық асықтар шыққан кезде, ұпайы көп ойыншы жеңеді.</li>
+  <li>Дыбыстар: ату, соғылу, асықтың шығуы – жеңіл эффект ретінде.</li>
+</ul>
+
+<script>
+/* ============ ЖАЛПЫ ПАРАМЕТРЛЕР ============ */
+const NUM_ASYQS = 12;          // асық саны (көп)
+const SHOOTER_RADIUS = 24;     // px (DOM-ға кейін масштабтаймыз)
+const ASYQ_RADIUS = 18;        // px
+const FRICTION = 0.985;        // үйкеліс коэффициенті
+const BOUNCE = 0.7;            // серпімділік (секіру)
+const OUT_THRESHOLD = 1.05;    // радиустан қаншаға шыққанда – "шықты"
+
+let game = document.getElementById("gameArea");
+let shooterEl = document.getElementById("shooter");
+let infoEl = document.getElementById("info");
+let winnerEl = document.getElementById("winner");
+let score1El = document.getElementById("score1");
+let score2El = document.getElementById("score2");
+let badge1 = document.getElementById("badge1");
+let badge2 = document.getElementById("badge2");
+
+let asyqs = [];
+let shooter = {x: 0, y: 0, vx: 0, vy: 0, r: SHOOTER_RADIUS, dragging: false};
+let center = {x: 0, y: 0, r: 0};
+let lastTime = null;
+let currentPlayer = 1;
+let scores = [0, 0, 0]; // 1,2 индекстер қолданылады
+let gameOver = false;
+
+/* ============ WEB AUDIO – ДЫБЫСТАР ============ */
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) {
+      console.log("AudioContext қолжетімсіз");
+    }
+  }
+}
+
+function playBeep(freq = 600, duration = 0.08, type = "sine") {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.frequency.value = freq;
+  osc.type = type;
+  gain.gain.value = 0.25;
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.stop(audioCtx.currentTime + duration + 0.02);
+}
+
+function soundShoot() { playBeep(700, 0.12, "triangle"); }
+function soundHit()   { playBeep(300, 0.06, "square"); }
+function soundOut()   { playBeep(900, 0.15, "sine"); }
+
+/* ============ ОРНАЛАСТЫРУ ============ */
+function updateCenter() {
+  const rect = game.getBoundingClientRect();
+  center.x = rect.width / 2;
+  center.y = rect.height / 2;
+  center.r = rect.width / 2 - 8; // шекарадан сәл ішкері
+}
+
+function placeShooter() {
+  shooter.x = center.x;
+  shooter.y = center.y + center.r * 0.7;
+  shooter.vx = shooter.vy = 0;
+  updateShooterEl();
+}
+
+function updateShooterEl() {
+  const d = SHOOTER_RADIUS * 2;
+  shooterEl.style.width = d + "px";
+  shooterEl.style.height = d + "px";
+  shooterEl.style.left = (shooter.x - SHOOTER_RADIUS) + "px";
+  shooterEl.style.top  = (shooter.y - SHOOTER_RADIUS) + "px";
+}
+
+/* Асық жасау */
+function createAsyqs() {
+  asyqs.forEach(a => a.el.remove());
+  asyqs = [];
+  for (let i = 0; i < NUM_ASYQS; i++) {
+    const el = document.createElement("div");
+    el.className = "asyq";
+    game.appendChild(el);
+
+    // радиус пен позиция
+    const r = ASYQ_RADIUS;
+    const dist = center.r * 0.1 + Math.random()*center.r*0.35;
+    const angle = Math.random() * Math.PI * 2;
+    const x = center.x + Math.cos(angle) * dist;
+    const y = center.y + Math.sin(angle) * dist;
+
+    el.style.width = (r * 2) + "px";
+    el.style.height = (r * 2) + "px";
+
+    asyqs.push({ el, x, y, vx: 0, vy: 0, r, alive: true });
+  }
+  updateAsyqEls();
+}
+
+function updateAsyqEls() {
+  asyqs.forEach(a => {
+    if (!a.alive) {
+      a.el.style.display = "none";
+      return;
+    }
+    a.el.style.left = (a.x - a.r) + "px";
+    a.el.style.top  = (a.y - a.r) + "px";
+  });
+}
+
+/* ============ DRAG → RELEASE ============ */
+let dragStartX = 0;
+let dragStartY = 0;
+let shooterStartX = 0;
+let shooterStartY = 0;
+
+function pointerDown(ev) {
+  if (gameOver) return;
+  initAudio();
+
+  const x = ev.touches ? ev.touches[0].clientX : ev.clientX;
+  const y = ev.touches ? ev.touches[0].clientY : ev.clientY;
+  const rect = game.getBoundingClientRect();
+  const gx = x - rect.left;
+  const gy = y - rect.top;
+
+  const dx = gx - shooter.x;
+  const dy = gy - shooter.y;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  if (dist > SHOOTER_RADIUS + 10) return; // shooter-ден басқа жерді басса – ештеңе
+
+  shooter.dragging = true;
+  dragStartX = x;
+  dragStartY = y;
+  shooterStartX = shooter.x;
+  shooterStartY = shooter.y;
+
+  shooterEl.style.transition = "none";
+  ev.preventDefault();
+}
+
+function pointerMove(ev) {
+  if (!shooter.dragging) return;
+  const x = ev.touches ? ev.touches[0].clientX : ev.clientX;
+  const y = ev.touches ? ev.touches[0].clientY : ev.clientY;
+  const dx = x - dragStartX;
+  const dy = y - dragStartY;
+  shooter.x = shooterStartX + dx;
+  shooter.y = shooterStartY + dy;
+  updateShooterEl();
+  ev.preventDefault();
+}
+
+function pointerUp(ev) {
+  if (!shooter.dragging) return;
+  shooter.dragging = false;
+  const x = ev.changedTouches ? ev.changedTouches[0].clientX : ev.clientX;
+  const y = ev.changedTouches ? ev.changedTouches[0].clientY : ev.clientY;
+  const dx = dragStartX - x;
+  const dy = dragStartY - y;
+
+  // drag → жылдамдық
+  shooter.vx = dx * 0.35;
+  shooter.vy = dy * 0.35;
+
+  soundShoot();
+  ev.preventDefault();
+}
+
+/* ============ ФИЗИКА + АНИМАЦИЯ ============ */
+function step(timestamp) {
+  if (!lastTime) lastTime = timestamp;
+  const dt = (timestamp - lastTime) / 16.67; // ~кадрға қатысты коэффициент
+  lastTime = timestamp;
+
+  updatePhysics(dt);
+  requestAnimationFrame(step);
+}
+
+function updatePhysics(dt) {
+  // shooter қозғалысы
+  if (!shooter.dragging) {
+    shooter.x += shooter.vx * dt;
+    shooter.y += shooter.vy * dt;
+    shooter.vx *= FRICTION;
+    shooter.vy *= FRICTION;
+    updateShooterEl();
+  }
+
+  // асықтардың қозғалысы
+  asyqs.forEach(a => {
+    if (!a.alive) return;
+    a.x += a.vx * dt;
+    a.y += a.vy * dt;
+    a.vx *= FRICTION;
+    a.vy *= FRICTION;
+  });
+
+  // shooter – асық соқтығысу
+  asyqs.forEach(a => {
+    if (!a.alive) return;
+    const dx = a.x - shooter.x;
+    const dy = a.y - shooter.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const minDist = a.r + shooter.r;
+    if (dist > 0 && dist < minDist) {
+      // қарапайым серпімділік: импульсті бөлісу
+      const nx = dx / dist;
+      const ny = dy / dist;
+      const overlap = (minDist - dist) + 1;
+      a.x += nx * overlap * 0.5;
+      a.y += ny * overlap * 0.5;
+      shooter.x -= nx * overlap * 0.5;
+      shooter.y -= ny * overlap * 0.5;
+
+      const relVx = shooter.vx - a.vx;
+      const relVy = shooter.vy - a.vy;
+      const relSpeed = relVx * nx + relVy * ny;
+      if (relSpeed > 0) {
+        const impulse = relSpeed * BOUNCE;
+        shooter.vx -= impulse * nx;
+        shooter.vy -= impulse * ny;
+        a.vx += impulse * nx;
+        a.vy += impulse * ny;
+      }
+      soundHit();
+    }
+  });
+
+  // асық–асық соқтығысу
+  for (let i = 0; i < asyqs.length; i++) {
+    for (let j = i+1; j < asyqs.length; j++) {
+      const a = asyqs[i], b = asyqs[j];
+      if (!a.alive || !b.alive) continue;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const minDist = a.r + b.r;
+      if (dist > 0 && dist < minDist) {
+        const nx = dx / dist;
+        const ny = dy / dist;
+        const overlap = (minDist - dist) + 1;
+        a.x -= nx * overlap * 0.5;
+        a.y -= ny * overlap * 0.5;
+        b.x += nx * overlap * 0.5;
+        b.y += ny * overlap * 0.5;
+
+        // тең масса – жылдамдықтарды проекция бойынша алмастыру
+        const av = a.vx * nx + a.vy * ny;
+        const bv = b.vx * nx + b.vy * ny;
+        const diff = (bv - av) * BOUNCE;
+        a.vx += diff * nx;
+        a.vy += diff * ny;
+        b.vx -= diff * nx;
+        b.vy -= diff * ny;
+        soundHit();
+      }
+    }
+  }
+
+  // шеңбер шекарасы және "шығу"
+  asyqs.forEach(a => {
+    if (!a.alive) return;
+    const dx = a.x - center.x;
+    const dy = a.y - center.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+
+    if (dist > center.r * OUT_THRESHOLD) {
+      // Шығып кетті → ұпай
+      a.alive = false;
+      a.el.style.display = "none";
+      scores[currentPlayer]++;
+      soundOut();
+      updateScores();
+      infoEl.textContent = "🔥 Ойыншы " + currentPlayer + ": асық ШЫҚТЫ!";
+
+      checkGameEnd();
+    } else if (dist > center.r - a.r) {
+      // Шекарадан серпілу
+      const nx = dx / dist;
+      const ny = dy / dist;
+      const overlap = dist - (center.r - a.r);
+      a.x -= nx * overlap;
+      a.y -= ny * overlap;
+      const vProj = a.vx * nx + a.vy * ny;
+      a.vx -= 2 * vProj * nx * BOUNCE;
+      a.vy -= 2 * vProj * ny * BOUNCE;
+    }
+  });
+
+  // shooter алаңнан тым алыс кетсе → reset + ходты ауыстыру
+  const sdx = shooter.x - center.x;
+  const sdy = shooter.y - center.y;
+  const sdist = Math.sqrt(sdx*sdx + sdy*sdy);
+  if (!shooter.dragging && (sdist > center.r * 1.4)) {
+    // ход бітті
+    nextPlayer();
+    placeShooter();
+  }
+
+  updateAsyqEls();
+}
+
+/* ============ ОЙЫН ЛОГИКАСЫ ============ */
+function updateScores() {
+  score1El.textContent = scores[1];
+  score2El.textContent = scores[2];
+}
+
+function setBadges() {
+  if (currentPlayer === 1) {
+    badge1.className = "badge badge-active";
+    badge1.textContent = "Кезек осында";
+    badge2.className = "badge badge-wait";
+    badge2.textContent = "Күтіп тұр";
+  } else {
+    badge2.className = "badge badge-active";
+    badge2.textContent = "Кезек осында";
+    badge1.className = "badge badge-wait";
+    badge1.textContent = "Күтіп тұр";
+  }
+}
+
+function nextPlayer() {
+  if (gameOver) return;
+  currentPlayer = currentPlayer === 1 ? 2 : 1;
+  setBadges();
+  infoEl.textContent = "Кезек: Ойыншы " + currentPlayer + ". Асықты тағы ат!";
+}
+
+function checkGameEnd() {
+  const remaining = asyqs.filter(a => a.alive).length;
+  if (remaining === 0) {
+    gameOver = true;
+    let message = "";
+    if (scores[1] > scores[2]) message = "🥳 ЖЕҢІМПАЗ: Ойыншы 1!";
+    else if (scores[2] > scores[1]) message = "🥳 ЖЕҢІМПАЗ: Ойыншы 2!";
+    else message = "⚖ ТЕҢ! Екі ойыншы да мықты болды!";
+    winnerEl.textContent = message;
+    infoEl.textContent = "Ойын аяқталды. Бастау үшін бетті қайта жаңарта аласың.";
+  }
+}
+
+/* ============ ИНИЦИАЛИЗАЦИЯ ============ */
+function initGame() {
+  updateCenter();
+  // shooter-дің DOM өлшемін логикалық радиусқа сәйкестендіреміз
+  shooter.r = SHOOTER_RADIUS;
+  shooterEl.style.width  = (SHOOTER_RADIUS*2) + "px";
+  shooterEl.style.height = (SHOOTER_RADIUS*2) + "px";
+
+  placeShooter();
+  createAsyqs();
+  updateScores();
+  setBadges();
+  winnerEl.textContent = "";
+  gameOver = false;
+  infoEl.textContent = "Асықты басып, сыртқа қарай тартып, жібер де ат!";
+}
+
+window.addEventListener("resize", () => {
+  updateCenter();
+  placeShooter(); // қарапайым түрде ортаны қайтадан орнатамыз
+  updateAsyqEls();
+});
+
+/* Pointer events */
+shooterEl.addEventListener("mousedown", pointerDown);
+shooterEl.addEventListener("touchstart", pointerDown, {passive:false});
+
+window.addEventListener("mousemove", pointerMove);
+window.addEventListener("touchmove", pointerMove, {passive:false});
+
+window.addEventListener("mouseup", pointerUp);
+window.addEventListener("touchend", pointerUp, {passive:false});
+
+/* Бастау */
+initGame();
+requestAnimationFrame(step);
+</script>
+
+</body>
+</html>
