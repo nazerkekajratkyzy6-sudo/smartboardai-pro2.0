@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Абсолютті жиілік – 7 сынып тренажері</title>
+<style>
+body{font-family:Arial;background:#ecfdf5;padding:20px;}
+.container{max-width:900px;margin:auto;background:white;padding:20px;
+    border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,0.2);}
+h1{text-align:center;color:#059669;margin-top:0;}
+.box{background:#f9fafb;border-radius:12px;padding:16px;margin-top:10px;}
+input{width:80px;padding:6px;border-radius:8px;border:1px solid #ccc;text-align:center;}
+.btn{
+    padding:8px 14px;border-radius:999px;border:none;cursor:pointer;
+    background:#059669;color:white;margin-right:6px;
+}
+.result{margin-top:10px;font-weight:bold;}
+.result.ok{color:#16a34a;}
+.result.bad{color:#dc2626;}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Абсолютті жиілік</h1>
+
+<p><b>Деректер:</b> <span id="data"></span></p>
+
+<div class="box" id="inputs"></div>
+
+<button class="btn" onclick="check()">Тексеру</button>
+<button class="btn" onclick="showCorrect()">Дұрыс жауап</button>
+
+<div id="result" class="result"></div>
+
+</div>
+
+<script>
+let arr = [3,3,5,6,6,6,8,8,9,3,5,6];
+document.getElementById("data").innerText = arr.join(", ");
+
+let values = [...new Set(arr)].sort((a,b)=>a-b);
+let freq = {};
+values.forEach(v=>{freq[v]=arr.filter(x=>x===v).length});
+
+let html="";
+values.forEach(v=>{
+    html += `${v} саны неше рет кездеседі? 
+    <input id="f_${v}" type="text"> рет<br><br>`;
+});
+document.getElementById("inputs").innerHTML = html;
+
+function check(){
+    const r = document.getElementById("result");
+    for(let v of values){
+        let user = Number(document.getElementById("f_"+v).value);
+        if(user !== freq[v]){
+            r.innerHTML = "Қате. Жиілікті қайта тексеріңіз.";
+            r.className="result bad";
+            return;
+        }
+    }
+    r.innerHTML = "Керемет! Барлық абсолютті жиіліктер дұрыс ✔";
+    r.className="result ok";
+}
+
+function showCorrect(){
+    values.forEach(v=>{
+        document.getElementById("f_"+v).value = freq[v];
+    });
+    const r = document.getElementById("result");
+    r.innerHTML = "Дұрыс жауап енгізілді.";
+    r.className="result ok";
+}
+</script>
+</body>
+</html>

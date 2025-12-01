@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>7-сынып – Көпмүшелер (Ықшамдау тренажёр)</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#eff6ff;
+    padding:20px;
+}
+.container{
+    max-width:900px;
+    margin:auto;
+    background:white;
+    padding:28px;
+    border-radius:20px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.18);
+}
+h2{
+    text-align:center;
+    color:#1d4ed8;
+    margin-top:0;
+    font-size:26px;
+}
+
+.question{
+    margin-top:20px;
+    background:#dbeafe;
+    padding:18px;
+    border-radius:14px;
+    text-align:center;
+    font-size:24px;
+    border-left:6px solid #3b82f6;
+}
+
+/* Жауап карточкалары */
+.options{
+    margin-top:24px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.option{
+    background:white;
+    padding:14px;
+    border-radius:12px;
+    border:2px solid #60a5fa;
+    cursor:pointer;
+    font-size:20px;
+    transition:0.2s;
+}
+.option:hover{
+    background:#bfdbfe;
+}
+
+.correct{
+    border-color:#16a34a !important;
+    background:#dcfce7 !important;
+}
+
+.wrong{
+    border-color:#dc2626 !important;
+    background:#fee2e2 !important;
+}
+
+/* Статус */
+.status{
+    margin-top:18px;
+    font-size:22px;
+    font-weight:bold;
+}
+.ok{color:#16a34a;}
+.err{color:#dc2626;}
+
+.expl{
+    background:#fef3c7;
+    padding:16px;
+    border-radius:12px;
+    border-left:6px solid #fbbf24;
+    margin-top:16px;
+    display:none;
+}
+
+.nextbtn{
+    margin-top:22px;
+    padding:12px 18px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+    cursor:pointer;
+}
+.nextbtn:hover{
+    background:#1e40af;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>📘 7-сынып – Көпмүшелер (Ықшамдау)</h2>
+
+<div id="question" class="question"></div>
+
+<div id="options" class="options"></div>
+
+<div id="status" class="status"></div>
+
+<div id="expl" class="expl"></div>
+
+<button onclick="nextQ()" class="nextbtn">Келесі</button>
+
+</div>
+
+<script>
+
+/* ---- Көпмүше тапсырмалары ---- */
+const qs = [
+{
+ q:"Ықшамда:  \\( 3x + 5x \\)",
+ choices:["8x", "15x", "3x^2 + 5x^2", "x"],
+ ans:"8x",
+ e:"3x + 5x = (3+5)x = 8x."
+},
+{
+ q:"Ықшамда:  \\( 2a - 5a \\)",
+ choices:["-3a", "7a", "3a", "a^2 - a^2"],
+ ans:"-3a",
+ e:"2a - 5a = (2 - 5)a = -3a."
+},
+{
+ q:"Ықшамда:  \\( x^2 + 4x^2 \\)",
+ choices:["5x^2", "x^4", "4x", "5x"],
+ ans:"5x^2",
+ e:"x² + 4x² = 5x² (дәрежелер бірдей болғандықтан)."
+},
+{
+ q:"Ықшамда:  \\( 7y - 2y + 3y \\)",
+ choices:["8y", "12y", "5y", "y^2"],
+ ans:"8y",
+ e:"7y - 2y + 3y = (7 - 2 + 3)y = 8y."
+},
+{
+ q:"Ықшамда:  \\( 6m + 2 - 4m \\)",
+ choices:["2m + 2", "10m - 2", "12m", "6m - 2m"],
+ ans:"2m + 2",
+ e:"6m - 4m = 2m, сонда 2m + 2."
+}
+];
+
+let cur;
+
+/* ---- Келесі сұрақ ---- */
+function nextQ(){
+    cur = qs[Math.floor(Math.random()*qs.length)];
+
+    document.getElementById("question").innerHTML = cur.q;
+
+    const optionsBox = document.getElementById("options");
+    optionsBox.innerHTML = "";
+
+    cur.choices.forEach(ch=>{
+        const div = document.createElement("div");
+        div.className = "option";
+        div.textContent = ch;
+        div.onclick = () => check(ch, div);
+        optionsBox.appendChild(div);
+    });
+
+    document.getElementById("status").textContent="";
+    document.getElementById("expl").style.display="none";
+
+    renderMath();
+}
+
+/* ---- KaTeX ---- */
+function renderMath(){
+    if(window.renderMathInElement){
+        renderMathInElement(document.body,{
+            delimiters:[
+               {left:"\\(", right:"\\)", display:false},
+               {left:"$$", right:"$$", display:true}
+           ]
+        });
+    }
+}
+
+/* ---- Тексеру ---- */
+function check(selected, box){
+    const status = document.getElementById("status");
+    const expl = document.getElementById("expl");
+
+    if(selected === cur.ans){
+        box.classList.add("correct");
+        status.textContent="✅ Дұрыс!";
+        status.className="status ok";
+        expl.style.display="block";
+        expl.innerHTML="Түсіндіру: " + cur.e;
+    } else {
+        box.classList.add("wrong");
+        status.textContent="❌ Қате!";
+        status.className="status err";
+        expl.style.display="block";
+        expl.innerHTML="Нұсқаулық: " + cur.e;
+    }
+}
+
+nextQ();
+</script>
+<div style="
+    margin-top:40px;
+    text-align:center;
+    font-size:18px;
+    padding:16px 0;
+    color:#4b5563;
+    border-top:4px solid #c084fc;
+    background: linear-gradient(to right, #fff, #faf5ff, #fff);
+    font-family:'Arial';
+">
+    🌿 <b>AI-Pedagogy Tools</b> by <span style="color:#7c3aed;">Nazerke Kairatkyzy</span> 🌿
+</div>
+
+</body>
+</html>

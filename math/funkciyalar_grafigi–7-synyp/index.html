@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <title>Функциялар графигі: y=ax², y=ax³, y=k/x – 8-сынып тренажері</title>
+  <style>
+    body{
+      margin:0;
+      padding:0;
+      font-family:Arial,sans-serif;
+      background:linear-gradient(135deg,#fef3c7,#e0f2fe);
+    }
+    .container{
+      max-width:1100px;
+      margin:24px auto 40px;
+      background:#fff;
+      border-radius:20px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.18);
+      padding:24px 28px 32px;
+    }
+    h1{
+      text-align:center;
+      color:#7c2d12;
+      margin:0 0 6px;
+    }
+    .subtitle{
+      text-align:center;
+      color:#4b5563;
+      font-size:14px;
+      margin-bottom:18px;
+    }
+    .topic-buttons{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      justify-content:center;
+      margin-bottom:16px;
+    }
+    .topic-btn{
+      border:none;
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:14px;
+      cursor:pointer;
+      background:#e5e7eb;
+      color:#111827;
+      transition:background 0.2s,box-shadow 0.1s,transform 0.1s;
+    }
+    .topic-btn.active{
+      background:linear-gradient(135deg,#f97316,#ea580c);
+      color:#fff;
+      box-shadow:0 6px 16px rgba(234,88,12,0.4);
+      transform:translateY(-1px);
+    }
+    .topic-btn:hover{
+      box-shadow:0 4px 10px rgba(0,0,0,0.15);
+      transform:translateY(-1px);
+    }
+    .card{
+      border-radius:18px;
+      border:1px solid #fee2e2;
+      background:#fff7ed;
+      padding:14px 18px;
+      margin-bottom:16px;
+      font-size:14px;
+      color:#374151;
+    }
+    .badge{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      background:#fee2e2;
+      color:#b91c1c;
+      font-size:12px;
+      margin-bottom:4px;
+    }
+    .task-box{
+      border-radius:18px;
+      border:1px solid #e5e7eb;
+      background:#f9fafb;
+      padding:18px 20px;
+      margin-bottom:16px;
+    }
+    .task-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:6px;
+    }
+    .equation{
+      font-size:16px;
+      color:#111827;
+      margin:8px 0 4px;
+    }
+    .input-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      margin-top:10px;
+      font-size:14px;
+      color:#374151;
+    }
+    .input-row input{
+      width:120px;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid #d1d5db;
+      font-size:14px;
+      outline:none;
+      text-align:center;
+    }
+    .input-row input:focus{
+      border-color:#f97316;
+      box-shadow:0 0 0 2px rgba(249,115,22,0.25);
+    }
+    .btn{
+      border:none;
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:14px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-top:10px;
+      margin-right:6px;
+      transition:background 0.2s,box-shadow 0.1s,transform 0.1s;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,#ef4444,#e11d48);
+      color:#fff;
+    }
+    .btn-secondary{
+      background:#e5e7eb;
+      color:#111827;
+    }
+    .btn:hover{
+      box-shadow:0 4px 12px rgba(0,0,0,0.18);
+      transform:translateY(-1px);
+    }
+    .top-controls{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+      font-size:13px;
+      color:#6b7280;
+    }
+    .result{
+      margin-top:10px;
+      font-size:14px;
+      font-weight:500;
+    }
+    .result.ok{color:#15803d;}
+    .result.bad{color:#b91c1c;}
+    details{
+      margin-top:8px;
+      font-size:13px;
+      color:#374151;
+    }
+    details summary{
+      cursor:pointer;
+      font-weight:500;
+    }
+    .explanation{
+      margin-top:4px;
+      padding:8px 10px;
+      border-radius:12px;
+      background:#f3f4f6;
+      line-height:1.5;
+    }
+    .canvas-wrapper{
+      border-radius:18px;
+      border:1px solid #e5e7eb;
+      overflow:hidden;
+      background:#ffffff;
+    }
+    canvas{
+      width:100%;
+      max-width:100%;
+      display:block;
+      background:#ffffff;
+    }
+    .footer{
+      margin-top:22px;
+      text-align:center;
+      font-size:13px;
+      color:#6b7280;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Функциялар графигі – 8-сынып</h1>
+  <div class="subtitle">y = ax² · y = ax³ · y = k/x функциялары бойынша тренажер</div>
+
+  <div class="topic-buttons">
+    <button class="topic-btn active" data-topic="quad">y = ax² (парабола)</button>
+    <button class="topic-btn" data-topic="cubic">y = ax³ (кубтық функция)</button>
+    <button class="topic-btn" data-topic="hyper">y = k/x (гипербола)</button>
+  </div>
+
+  <div class="card" id="topicInfo">
+    <b>Парабола (y = ax²):</b> a &gt; 0 болса – жоғары қарай ашылады, a &lt; 0 болса – төмен қарай ашылады.  
+    Нүкте координатасы (x₀; y₀) графикте жатады, егер y₀ = a·x₀² теңдігі орындалса.
+  </div>
+
+  <div class="task-box">
+    <div class="task-header">
+      <div>
+        <div class="badge">Тапсырма <span id="taskIndex"></span></div>
+        <div style="font-size:13px;color:#6b7280;" id="taskTitle"></div>
+      </div>
+      <button class="btn btn-secondary" id="btnNext">Келесі есеп</button>
+    </div>
+
+    <div class="equation" id="equationText"></div>
+    <div style="font-size:12px;color:#6b7280;">
+      Берілген x₀ үшін y₀ мәнін есептеп, енгізіңіз. Ондық бөлшек болса, нүкте немесе үтір қойсаңыз болады (мыс: 3.5 немесе 3,5).
+    </div>
+
+    <div class="input-row">
+      <label>Жауабыңыз: y₀ =</label>
+      <input id="answerInput" type="text" placeholder="мысалы: 4 немесе -2.5">
+    </div>
+
+    <div class="top-controls">
+      <div>
+        <button class="btn btn-primary" id="btnCheck">✓ Тексеру</button>
+        <button class="btn btn-secondary" id="btnShow">✔ Дұрыс жауапты көрсету</button>
+      </div>
+      <button class="btn btn-secondary" id="btnDraw">📈 Графикті салу</button>
+    </div>
+
+    <div class="result" id="resultBox"></div>
+
+    <details>
+      <summary>📘 Шешу жолы</summary>
+      <div class="explanation" id="solutionText"></div>
+    </details>
+  </div>
+
+  <div class="canvas-wrapper">
+    <canvas id="graphCanvas" width="900" height="420"></canvas>
+  </div>
+
+  <div class="footer">
+    🌿 <b>AI-Pedagogy Tools</b> by <span style="color:#7c3aed;">Nazerke Kairatkyzy</span> 🌿
+  </div>
+</div>
+
+<script>
+  const topics = {
+    quad: {
+      title: "Парабола: y = ax²",
+      info: "a > 0 ⇒ парабола жоғары қарай ашылған; a < 0 ⇒ төмен қарай. Төбесі (0;0). Нүкте графикке тиесілі, егер y = a·x².",
+      tasks: [
+        { text: "y = 1·x², x₀ = 2. y₀ табыңдар.", a: 1, x: 2, answer: 4,
+          sol: "y = x². x₀ = 2 ⇒ y₀ = 2² = 4." },
+        { text: "y = 2x², x₀ = -1. y₀ табыңдар.", a: 2, x: -1, answer: 2,
+          sol: "y = 2x². x₀ = -1 ⇒ y₀ = 2·(-1)² = 2·1 = 2." },
+        { text: "y = -x², x₀ = 3. y₀ табыңдар.", a: -1, x: 3, answer: -9,
+          sol: "y = -x². x₀ = 3 ⇒ y₀ = -3² = -9." },
+        { text: "y = 0.5x², x₀ = 4. y₀ табыңдар.", a: 0.5, x: 4, answer: 8,
+          sol: "y = 0.5x². x₀ = 4 ⇒ y₀ = 0.5·16 = 8." },
+        { text: "y = -2x², x₀ = -2. y₀ табыңдар.", a: -2, x: -2, answer: -8,
+          sol: "y = -2x². x₀ = -2 ⇒ y₀ = -2·4 = -8." },
+        { text: "y = 3x², x₀ = 1. y₀ табыңдар.", a: 3, x: 1, answer: 3,
+          sol: "y = 3x². x₀ = 1 ⇒ y₀ = 3·1² = 3." },
+        { text: "y = 0.25x², x₀ = -4. y₀ табыңдар.", a: 0.25, x: -4, answer: 4,
+          sol: "y = 0.25x². x₀ = -4 ⇒ y₀ = 0.25·16 = 4." },
+        { text: "y = -0.5x², x₀ = 2. y₀ табыңдар.", a: -0.5, x: 2, answer: -2,
+          sol: "y = -0.5x². x₀ = 2 ⇒ y₀ = -0.5·4 = -2." }
+      ]
+    },
+    cubic: {
+      title: "Кубтық функция: y = ax³",
+      info: "Кубтық функцияның графигі S-тәрізді. a > 0 ⇒ функция өседі, a < 0 ⇒ негізгі бағыт өзгерген.",
+      tasks: [
+        { text: "y = x³, x₀ = 2. y₀ табыңдар.", a: 1, x: 2, answer: 8,
+          sol: "y = x³. x₀ = 2 ⇒ y₀ = 2³ = 8." },
+        { text: "y = 2x³, x₀ = 1. y₀ табыңдар.", a: 2, x: 1, answer: 2,
+          sol: "y = 2x³. x₀ = 1 ⇒ y₀ = 2·1³ = 2." },
+        { text: "y = -x³, x₀ = -2. y₀ табыңдар.", a: -1, x: -2, answer: 8,
+          sol: "y = -x³. x₀ = -2 ⇒ y₀ = -(-2)³ = -(-8) = 8." },
+        { text: "y = 0.5x³, x₀ = 2. y₀ табыңдар.", a: 0.5, x: 2, answer: 4,
+          sol: "y = 0.5x³. x₀ = 2 ⇒ y₀ = 0.5·8 = 4." },
+        { text: "y = -2x³, x₀ = 1. y₀ табыңдар.", a: -2, x: 1, answer: -2,
+          sol: "y = -2x³. x₀ = 1 ⇒ y₀ = -2·1³ = -2." },
+        { text: "y = x³, x₀ = -3. y₀ табыңдар.", a: 1, x: -3, answer: -27,
+          sol: "y = x³. x₀ = -3 ⇒ y₀ = -3³ = -27." },
+        { text: "y = -0.5x³, x₀ = 2. y₀ табыңдар.", a: -0.5, x: 2, answer: -4,
+          sol: "y = -0.5x³. x₀ = 2 ⇒ y₀ = -0.5·8 = -4." },
+        { text: "y = 0.25x³, x₀ = -4. y₀ табыңдар.", a: 0.25, x: -4, answer: -16,
+          sol: "y = 0.25x³. x₀ = -4 ⇒ y₀ = 0.25·(-64) = -16." }
+      ]
+    },
+    hyper: {
+      title: "Гипербола: y = k/x",
+      info: "y = k/x графигі – екі тармақты гипербола. x ≠ 0. x оң болса – y таңбасы k-мен бірдей, x теріс болса – кері.",
+      tasks: [
+        { text: "y = 4/x, x₀ = 2. y₀ табыңдар.", k: 4, x: 2, answer: 2,
+          sol: "y = 4/x. x₀ = 2 ⇒ y₀ = 4/2 = 2." },
+        { text: "y = 4/x, x₀ = -2. y₀ табыңдар.", k: 4, x: -2, answer: -2,
+          sol: "y = 4/x. x₀ = -2 ⇒ y₀ = 4/(-2) = -2." },
+        { text: "y = -6/x, x₀ = 3. y₀ табыңдар.", k: -6, x: 3, answer: -2,
+          sol: "y = -6/x. x₀ = 3 ⇒ y₀ = -6/3 = -2." },
+        { text: "y = -6/x, x₀ = -2. y₀ табыңдар.", k: -6, x: -2, answer: 3,
+          sol: "y = -6/x. x₀ = -2 ⇒ y₀ = -6/(-2) = 3." },
+        { text: "y = 2/x, x₀ = 0.5. y₀ табыңдар.", k: 2, x: 0.5, answer: 4,
+          sol: "y = 2/x. x₀ = 0.5 ⇒ y₀ = 2/0.5 = 4." },
+        { text: "y = 8/x, x₀ = 4. y₀ табыңдар.", k: 8, x: 4, answer: 2,
+          sol: "y = 8/x. x₀ = 4 ⇒ y₀ = 8/4 = 2." },
+        { text: "y = -4/x, x₀ = -1. y₀ табыңдар.", k: -4, x: -1, answer: 4,
+          sol: "y = -4/x. x₀ = -1 ⇒ y₀ = -4/(-1) = 4." },
+        { text: "y = 10/x, x₀ = 2.5. y₀ табыңдар.", k: 10, x: 2.5, answer: 4,
+          sol: "y = 10/x. x₀ = 2.5 ⇒ y₀ = 10/2.5 = 4." }
+      ]
+    }
+  };
+
+  let currentTopic = "quad";
+  let currentIndex = 0;
+
+  const topicButtons = document.querySelectorAll(".topic-btn");
+  const topicInfo = document.getElementById("topicInfo");
+  const taskIndexSpan = document.getElementById("taskIndex");
+  const taskTitle = document.getElementById("taskTitle");
+  const equationText = document.getElementById("equationText");
+  const answerInput = document.getElementById("answerInput");
+  const resultBox = document.getElementById("resultBox");
+  const solutionText = document.getElementById("solutionText");
+  const btnNext = document.getElementById("btnNext");
+  const btnCheck = document.getElementById("btnCheck");
+  const btnShow = document.getElementById("btnShow");
+  const btnDraw = document.getElementById("btnDraw");
+
+  const canvas = document.getElementById("graphCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width;
+  const H = canvas.height;
+  const xmin = -5, xmax = 5, ymin = -10, ymax = 10;
+
+  function toCX(x){ return (x - xmin)/(xmax - xmin)*W; }
+  function toCY(y){ return H - (y - ymin)/(ymax - ymin)*H; }
+
+  function clearCanvas(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0,0,W,H);
+    drawAxes();
+  }
+
+  function drawAxes(){
+    ctx.strokeStyle = "#e5e7eb";
+    ctx.lineWidth = 1;
+    for(let x=Math.ceil(xmin); x<=xmax; x++){
+      const cx=toCX(x);
+      ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+    }
+    for(let y=Math.ceil(ymin); y<=ymax; y++){
+      const cy=toCY(y);
+      ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
+    }
+    const cy0=toCY(0), cx0=toCX(0);
+    ctx.strokeStyle="#9ca3af"; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(0,cy0); ctx.lineTo(W,cy0); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx0,0); ctx.lineTo(cx0,H); ctx.stroke();
+    ctx.fillStyle="#6b7280";
+    ctx.beginPath(); ctx.arc(cx0,cy0,3,0,Math.PI*2); ctx.fill();
+    ctx.font="11px Arial"; ctx.fillText("0",cx0+4,cy0-4);
+  }
+
+  function drawFunction(){
+    const tInfo = topics[currentTopic];
+    const t = tInfo.tasks[currentIndex];
+    clearCanvas();
+    ctx.strokeStyle = "#f97316";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    let first=true;
+    for(let x=xmin; x<=xmax; x+=0.02){
+      let y;
+      if(currentTopic==="quad") y = t.a * x*x;
+      else if(currentTopic==="cubic") y = t.a * x*x*x;
+      else { // hyper
+        if(Math.abs(x)<1e-3) continue;
+        y = t.k / x;
+      }
+      if(y<ymin-2 || y>ymax+2) continue;
+      const cx=toCX(x), cy=toCY(y);
+      if(first){ ctx.moveTo(cx,cy); first=false; }
+      else ctx.lineTo(cx,cy);
+    }
+    ctx.stroke();
+
+    // Нүкте
+    const x0 = t.x;
+    let y0;
+    if(currentTopic==="quad") y0 = t.a*x0*x0;
+    else if(currentTopic==="cubic") y0 = t.a*x0*x0*x0;
+    else y0 = t.k/x0;
+    if(y0>=ymin && y0<=ymax){
+      const cx0=toCX(x0), cy0=toCY(y0);
+      ctx.fillStyle="#ef4444";
+      ctx.beginPath(); ctx.arc(cx0,cy0,5,0,Math.PI*2); ctx.fill();
+      ctx.font="12px Arial";
+      ctx.fillText("(" + x0 + "; " + y0 + ")", cx0+6, cy0-6);
+    }
+  }
+
+  function setTopic(key){
+    currentTopic = key;
+    currentIndex = 0;
+    topicButtons.forEach(btn=>{
+      if(btn.dataset.topic===key) btn.classList.add("active");
+      else btn.classList.remove("active");
+    });
+    topicInfo.innerHTML = "<b>" + topics[key].title + ":</b> " + topics[key].info;
+    loadTask();
+  }
+
+  function loadTask(){
+    const tInfo = topics[currentTopic];
+    const t = tInfo.tasks[currentIndex];
+    taskIndexSpan.textContent = (currentIndex+1) + " / " + tInfo.tasks.length;
+    taskTitle.textContent = tInfo.title;
+    equationText.textContent = t.text;
+    solutionText.textContent = t.sol;
+    answerInput.value = "";
+    resultBox.textContent = "";
+    resultBox.className = "result";
+    clearCanvas();
+  }
+
+  function parseNum(s){
+    if(!s) return null;
+    const v = Number(s.replace(",","."));
+    return Number.isNaN(v)?null:v;
+  }
+
+  function check(){
+    const tInfo = topics[currentTopic];
+    const t = tInfo.tasks[currentIndex];
+    const user = parseNum(answerInput.value.trim());
+    if(user===null){
+      resultBox.textContent = "Алдымен сан енгізіңіз.";
+      resultBox.className = "result bad";
+      return;
+    }
+    if(Math.abs(user - t.answer) < 0.2){
+      resultBox.textContent = "Дұрыс! Нүкте графикте жатыр ✅";
+      resultBox.className = "result ok";
+    }else{
+      resultBox.textContent = "Дұрыс емес. Қайта есептеп көр.";
+      resultBox.className = "result bad";
+    }
+  }
+
+  function showAnswer(){
+    const tInfo = topics[currentTopic];
+    const t = tInfo.tasks[currentIndex];
+    answerInput.value = t.answer;
+    resultBox.textContent = "Дұрыс y₀ = " + t.answer;
+    resultBox.className = "result ok";
+  }
+
+  topicButtons.forEach(btn=>{
+    btn.addEventListener("click",()=> setTopic(btn.dataset.topic));
+  });
+  btnNext.addEventListener("click",()=>{
+    const tInfo = topics[currentTopic];
+    currentIndex = (currentIndex+1)%tInfo.tasks.length;
+    loadTask();
+  });
+  btnCheck.addEventListener("click",check);
+  btnShow.addEventListener("click",showAnswer);
+  btnDraw.addEventListener("click",drawFunction);
+  answerInput.addEventListener("keydown",e=>{ if(e.key==="Enter") check(); });
+
+  clearCanvas();
+  setTopic("quad");
+</script>
+</body>
+</html>

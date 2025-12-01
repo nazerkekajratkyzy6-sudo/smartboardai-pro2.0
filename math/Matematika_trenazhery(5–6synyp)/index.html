@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Математика тренажеры (5–6 сынып)</title>
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+<style>
+  body{
+    font-family:Arial,sans-serif;
+    background:#f1f5f9;
+    margin:0;
+    padding:20px;
+    color:#111827;
+  }
+  .container{
+    max-width:800px;
+    margin:0 auto;
+    background:#ffffff;
+    padding:20px 22px;
+    border-radius:16px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.15);
+  }
+  h1{text-align:center;margin:0 0 12px;}
+  select,input[type="text"]{
+    width:100%;padding:10px;margin-top:6px;
+    border-radius:10px;border:1px solid #cbd5f5;font-size:16px;
+  }
+  button{
+    padding:10px 16px;border-radius:10px;border:none;
+    background:#2563eb;color:white;font-weight:bold;
+    cursor:pointer;margin-top:10px;margin-right:6px;
+  }
+  button:hover{background:#1d4ed8;}
+  .question-box{
+    margin-top:14px;background:#e5edff;padding:14px;
+    font-size:17px;border-radius:12px;min-height:40px;
+  }
+  .status{margin-top:10px;font-weight:bold;}
+  .status.ok{color:#16a34a;}
+  .status.err{color:#dc2626;}
+  .score{margin-top:10px;padding:8px;background:#f9fafb;border-radius:10px;}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>📘 Математика тренажеры (5–6 сынып)</h1>
+
+  <label><b>Сыныпты таңда:</b></label>
+  <select id="grade" onchange="loadTopics()">
+    <option value="">— Таңдаңыз —</option>
+    <option value="5">5-сынып</option>
+    <option value="6">6-сынып</option>
+  </select>
+
+  <label style="margin-top:10px;"><b>Тақырыпты таңда:</b></label>
+  <select id="topic" onchange="resetTrainer()">
+    <option value="">Алдымен сынып таңда</option>
+  </select>
+
+  <div id="question" class="question-box">Тақырып таңдалмаған.</div>
+
+  <label><b>Жауап:</b></label>
+  <input type="text" id="answer" placeholder="Мысалы: 12, 3/4, 25">
+
+  <button onclick="checkAnswer()">Тексеру ✅</button>
+  <button onclick="nextQuestion()">Келесі тапсырма 🔄</button>
+
+  <div id="status" class="status"></div>
+  <div id="score" class="score">Дұрыс: 0 | Барлығы: 0</div>
+</div>
+
+<script>
+// Сынып → тақырыптар
+const topicsByGrade = {
+  5:["Натурал сандар","Қосу/азайту","Бөлшектер","Процент"],
+  6:["Теріс сандар","Бөлшектер және процент","Пропорция","Қарапайым теңдеу"]
+};
+
+// Сұрақтар (KaTeX формуламен)
+const questions = [
+  // 5 сынып
+  {grade:5, topic:"Натурал сандар",
+   q:"Есепте: \\(345 + 120\\)", a:"465"},
+  {grade:5, topic:"Қосу/азайту",
+   q:"Есепте: \\(700 - 245\\)", a:"455"},
+  {grade:5, topic:"Бөлшектер",
+   q:"Есепте: \\(\\frac{1}{2} + \\frac{1}{4}\\)", a:"3/4"},
+  {grade:5, topic:"Бөлшектер",
+   q:"Қысқарт: \\(\\frac{4}{8}\\)", a:"1/2"},
+  {grade:5, topic:"Процент",
+   q:"\\(100\\)-дің \\(25\\%\\)-ы", a:"25"},
+  {grade:5, topic:"Процент",
+   q:"\\(200\\)-дің \\(10\\%\\)-ы", a:"20"},
+
+  // 6 сынып
+  {grade:6, topic:"Теріс сандар",
+   q:"Есепте: \\(-5 + 12\\)", a:"7"},
+  {grade:6, topic:"Теріс сандар",
+   q:"Есепте: \\(-8 - 7\\)", a:"-15"},
+  {grade:6, topic:"Бөлшектер және процент",
+   q:"\\(\\frac{3}{5}\\)-ді процентке айналдыр", a:"60%"},
+  {grade:6, topic:"Бөлшектер және процент",
+   q:"\\(250\\)-дің \\(20\\%\\)-ы", a:"50"},
+  {grade:6, topic:"Пропорция",
+   q:"Пропорция: \\(2:5 = x:20\\). \\(x\\)-ті тап", a:"8"},
+  {grade:6, topic:"Қарапайым теңдеу",
+   q:"Теңдеуді шеш: \\(2x + 5 = 13\\)", a:"4"},
+  {grade:6, topic:"Қарапайым теңдеу",
+   q:"Теңдеуді шеш: \\(3x - 9 = 0\\)", a:"3"}
+];
+
+let current = null;
+let correct = 0;
+let total = 0;
+
+function renderMathIn(el){
+  if(window.renderMathInElement){
+    renderMathInElement(el, {
+      delimiters:[
+        {left:"$$", right:"$$", display:true},
+        {left:"\\(", right:"\\)", display:false}
+      ]
+    });
+  }
+}
+
+window.addEventListener("load", () => {
+  if(window.renderMathInElement){
+    renderMathIn(document.body);
+  }
+});
+
+function loadTopics(){
+  const grade = document.getElementById("grade").value;
+  const topicSel = document.getElementById("topic");
+  if(!grade){
+    topicSel.innerHTML = "<option>Алдымен сынып таңда</option>";
+    resetTrainer(true);
+    return;
+  }
+  const topics = topicsByGrade[grade];
+  topicSel.innerHTML = "<option value=''>— Тақырып таңда —</option>";
+  topics.forEach(t=>{
+    topicSel.innerHTML += `<option value="${t}">${t}</option>`;
+  });
+  resetTrainer(true);
+}
+
+function getFiltered(){
+  const g = document.getElementById("grade").value;
+  const t = document.getElementById("topic").value;
+  return questions.filter(q => q.grade == g && q.topic === t);
+}
+
+function nextQuestion(){
+  const list = getFiltered();
+  const qBox = document.getElementById("question");
+  if(list.length === 0){
+    qBox.textContent = "Бұл сынып/тақырып үшін сұрақ енгізілмеген.";
+    return;
+  }
+  current = list[Math.floor(Math.random()*list.length)];
+  qBox.innerHTML = current.q;
+  renderMathIn(qBox);
+  document.getElementById("status").textContent = "";
+  document.getElementById("status").className = "status";
+  document.getElementById("answer").value = "";
+}
+
+function norm(x){
+  return x.toString().trim().replace(",",".").toLowerCase();
+}
+
+function checkAnswer(){
+  if(!current){
+    document.getElementById("status").textContent = "Алдымен тапсырма таңда!";
+    return;
+  }
+  const u = norm(document.getElementById("answer").value);
+  const r = norm(current.a);
+  total++;
+  if(u === r){
+    correct++;
+    const st = document.getElementById("status");
+    st.textContent = "✅ Дұрыс!";
+    st.className = "status ok";
+  } else {
+    const st = document.getElementById("status");
+    st.textContent = "❌ Дұрыс жауап: " + current.a;
+    st.className = "status err";
+  }
+  document.getElementById("score").textContent = `Дұрыс: ${correct} | Барлығы: ${total}`;
+}
+
+function resetTrainer(soft){
+  current = null;
+  document.getElementById("question").textContent = "Тақырып таңдап, «Келесі тапсырма» батырмасын бас.";
+  document.getElementById("status").textContent = "";
+  document.getElementById("answer").value = "";
+  if(!soft){
+    correct = 0; total = 0;
+    document.getElementById("score").textContent = "Дұрыс: 0 | Барлығы: 0";
+  } else {
+    correct = 0; total = 0;
+    document.getElementById("score").textContent = "Дұрыс: 0 | Барлығы: 0";
+  }
+}
+</script>
+<div style="
+    margin-top:40px;
+    text-align:center;
+    font-size:18px;
+    padding:16px 0;
+    color:#4b5563;
+    border-top:4px solid #c084fc;
+    background: linear-gradient(to right, #fff, #faf5ff, #fff);
+    font-family:'Arial';
+">
+    🌿 <b>AI-Pedagogy Tools</b> by <span style="color:#7c3aed;">Nazerke Kairatkyzy</span> 🌿
+</div>
+
+</body>
+</html>

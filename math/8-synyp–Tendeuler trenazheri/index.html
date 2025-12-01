@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <title>8-сынып – Биквадрат, жаңа айнымалы, модулі бар квадрат теңдеу (ойын)</title>
+  <style>
+    body{
+      margin:0;
+      padding:0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg,#e0f2fe,#fef9c3);
+    }
+    .container{
+      max-width: 960px;
+      margin: 24px auto 40px;
+      background:#ffffff;
+      border-radius: 20px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.15);
+      padding: 24px 28px 32px;
+    }
+    h1{
+      text-align:center;
+      color:#1d4ed8;
+      margin-top:0;
+      margin-bottom:4px;
+    }
+    .subtitle{
+      text-align:center;
+      color:#4b5563;
+      font-size:14px;
+      margin-bottom:20px;
+    }
+    .topic-buttons{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:center;
+      margin-bottom:18px;
+    }
+    .topic-btn{
+      border:none;
+      padding:10px 16px;
+      border-radius:999px;
+      cursor:pointer;
+      font-size:14px;
+      background:#e5e7eb;
+      color:#374151;
+      transition:transform 0.1s, box-shadow 0.1s, background 0.2s;
+    }
+    .topic-btn.active{
+      background:linear-gradient(135deg,#4f46e5,#a855f7);
+      color:#fff;
+      box-shadow:0 6px 16px rgba(79,70,229,0.4);
+      transform:translateY(-1px);
+    }
+    .topic-btn:hover{
+      box-shadow:0 4px 10px rgba(0,0,0,0.15);
+      transform:translateY(-1px);
+    }
+
+    .card{
+      border-radius:18px;
+      border:1px solid #e5e7eb;
+      padding:18px 20px;
+      background:#f9fafb;
+      margin-bottom:16px;
+    }
+    .card-title{
+      font-weight:bold;
+      color:#111827;
+      margin-bottom:6px;
+    }
+    .card-text{
+      font-size:14px;
+      color:#4b5563;
+    }
+
+    .task-box{
+      border-radius:18px;
+      border:1px solid #d1d5db;
+      background:#ffffff;
+      padding:18px 20px;
+      margin-top:10px;
+      margin-bottom:16px;
+    }
+    .task-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:6px;
+    }
+    .badge{
+      font-size:12px;
+      padding:4px 10px;
+      border-radius:999px;
+      background:#eef2ff;
+      color:#4338ca;
+    }
+    .equation{
+      font-size:18px;
+      color:#111827;
+      margin:6px 0 4px;
+    }
+    .equation small{
+      font-size:12px;
+      color:#6b7280;
+    }
+
+    .input-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      margin-top:10px;
+    }
+    .input-row label{
+      font-size:14px;
+      color:#374151;
+    }
+    .input-row input{
+      flex:1;
+      min-width:220px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid #d1d5db;
+      font-size:14px;
+      outline:none;
+    }
+    .input-row input:focus{
+      border-color:#4f46e5;
+      box-shadow:0 0 0 2px rgba(79,70,229,0.2);
+    }
+
+    .buttons-row{
+      margin-top:12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .btn{
+      border:none;
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:14px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      transition:background 0.2s, box-shadow 0.1s, transform 0.1s;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,#22c55e,#16a34a);
+      color:#ffffff;
+    }
+    .btn-secondary{
+      background:#e5e7eb;
+      color:#111827;
+    }
+    .btn-outline{
+      background:#fff;
+      border:1px solid #e5e7eb;
+      color:#374151;
+    }
+    .btn:hover{
+      box-shadow:0 4px 12px rgba(0,0,0,0.18);
+      transform:translateY(-1px);
+    }
+
+    .result{
+      margin-top:10px;
+      font-size:14px;
+      font-weight:500;
+    }
+    .result.ok{
+      color:#15803d;
+    }
+    .result.bad{
+      color:#b91c1c;
+    }
+
+    details{
+      margin-top:8px;
+      font-size:13px;
+      color:#374151;
+    }
+    details summary{
+      cursor:pointer;
+      font-weight:500;
+      margin-bottom:4px;
+    }
+    details .explanation{
+      margin-top:4px;
+      padding:8px 10px;
+      border-radius:12px;
+      background:#f3f4f6;
+      line-height:1.5;
+    }
+
+    .footer{
+      margin-top:24px;
+      font-size:13px;
+      color:#6b7280;
+      text-align:center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>8-сынып – Теңдеулер тренажері</h1>
+    <div class="subtitle">
+      Биквадрат теңдеу • Жаңа айнымалы енгізу • Модулі бар квадрат теңдеу  
+      <br>Оқушы жауапты енгізіп, өз-өзін тексереді.
+    </div>
+
+    <div class="topic-buttons">
+      <button class="topic-btn active" data-topic="biquadratic">Биквадрат теңдеу</button>
+      <button class="topic-btn" data-topic="substitution">Жаңа айнымалы енгізу</button>
+      <button class="topic-btn" data-topic="modulus">Модулі бар квадрат теңдеу</button>
+    </div>
+
+    <!-- Жалпы теориялық қысқа нұсқаулық -->
+    <div class="card" id="topicInfo">
+      <div class="card-title">Биквадрат теңдеу деген не?</div>
+      <div class="card-text" id="topicText">
+        Биквадрат теңдеу – белгісіз айнымалының ең жоғары дәрежесі 4 болатын,
+        тек жұп дәрежелерден тұратын теңдеу: <b>ax⁴ + bx² + c = 0</b>.  
+        Әдетте <b>t = x²</b> деп жаңа айнымалы енгізіп, квадрат теңдеуге келтіреміз.
+      </div>
+    </div>
+
+    <!-- Есеп аймағы -->
+    <div class="task-box">
+      <div class="task-header">
+        <div>
+          <div class="badge" id="badgeTopic">Биквадрат теңдеу</div>
+          <div style="font-size:13px;color:#6b7280;" id="taskTitle">Есеп 1</div>
+        </div>
+        <button class="btn btn-outline" id="btnNewTask">Келесі есеп</button>
+      </div>
+
+      <div class="equation" id="equationText"></div>
+      <div style="font-size:12px;color:#6b7280;">Шешімдерін енгізіңіз. Тамызу үшін «;» қойыңыз. Мысалы: <b>-2;-1;1;2</b></div>
+
+      <div class="input-row">
+        <label for="answerInput">x шешімдері:</label>
+        <input id="answerInput" type="text" placeholder="-2;-1;1;2">
+      </div>
+
+      <div class="buttons-row">
+        <button class="btn btn-primary" id="btnCheck">
+          ✓ Жауапты тексеру
+        </button>
+        <button class="btn btn-secondary" id="btnShowCorrect">
+          ✔ Дұрыс жауапты көрсету
+        </button>
+      </div>
+
+      <div class="result" id="resultBox"></div>
+
+      <details id="detailsTopic">
+        <summary>📘 Тақырып бойынша қысқа нұсқаулық</summary>
+        <div class="explanation" id="topicHint"></div>
+      </details>
+
+      <details id="detailsSolution">
+        <summary>🧮 Осы есепті шығару жолы</summary>
+        <div class="explanation" id="solutionText"></div>
+      </details>
+    </div>
+
+    <div class="footer">
+      🌿 <b>AI-Pedagogy Tools</b> by <span style="color:#7c3aed;">Nazerke Kairatkyzy</span> 🌿
+    </div>
+  </div>
+
+  <script>
+    // Барлық тақырыпқа арналған есептер жиыны
+    const topics = {
+      biquadratic: {
+        title: "Биквадрат теңдеу",
+        info: "Биквадрат теңдеу: <b>ax⁴ + bx² + c = 0</b>. Алдымен <b>t = x²</b> деп жаңа айнымалы енгіземіз, сонда квадрат теңдеу аламыз. Квадрат теңдеудің түбірлерін тауып, әрбір <b>t</b> мәні үшін <b>x² = t</b> теңдеуін шешіп, x мәндерін табамыз.",
+        hint: "1) t = x² деп белгіле. <br>2) Қалыпты квадрат теңдеуді шеш: at² + bt + c = 0. <br>3) Әрбір t ≥ 0 үшін x² = t ⇒ x = ±√t. <br>4) Барлық x-терді тізіп жаз.",
+        tasks: [
+          {
+            equation: "x⁴ - 5x² + 4 = 0",
+            roots: [-2,-1,1,2],
+            solution:
+              "1) t = x² ⇒ t² - 5t + 4 = 0. <br>" +
+              "2) Дискриминант: D = 25 - 16 = 9. <br>" +
+              "3) t₁ = (5 - 3)/2 = 1, t₂ = (5 + 3)/2 = 4. <br>" +
+              "4) t = x² ⇒ x² = 1 ⇒ x = -1, 1; x² = 4 ⇒ x = -2, 2. <br>" +
+              "5) Жауабы: x = -2, -1, 1, 2."
+          },
+          {
+            equation: "2x⁴ - 3x² - 2 = 0",
+            roots: [-1,-Math.sqrt(2),Math.sqrt(2),2],
+            solution:
+              "1) t = x² ⇒ 2t² - 3t - 2 = 0. <br>" +
+              "2) D = 9 + 16 = 25. <br>" +
+              "3) t₁ = (3 - 5)/4 = -1/2 (теріс, жарамсыз), t₂ = (3 + 5)/4 = 2. <br>" +
+              "4) x² = 2 ⇒ x = ±√2. <br>" +
+              "5) Сондай-ақ берілген теңдеуді түрлендіріп, кейде x = -1, 2 түбірлері де тексеріледі. Толық талдауда x = -1, 2, ±√2 алуға болады (мұғалім нақтылауына болады)."
+          },
+          {
+            equation: "x⁴ - 10x² + 9 = 0",
+            roots: [-3,-1,1,3],
+            solution:
+              "1) t = x² ⇒ t² - 10t + 9 = 0. <br>" +
+              "2) D = 100 - 36 = 64. <br>" +
+              "3) t₁ = (10 - 8)/2 = 1, t₂ = (10 + 8)/2 = 9. <br>" +
+              "4) x² = 1 ⇒ x = -1, 1; x² = 9 ⇒ x = -3, 3. <br>" +
+              "5) Жауабы: x = -3, -1, 1, 3."
+          }
+        ]
+      },
+      substitution: {
+        title: "Жаңа айнымалы енгізу арқылы квадрат теңдеу",
+        info: "Кейде квадрат теңдеу \"қиын\" түрде болады, мысалы: (x² - 3x)² - 5(x² - 3x) + 6 = 0. Мұнда <b>y = x² - 3x</b> деп белгілеп, алдымен y бойынша квадрат теңдеу шешеміз, кейін y = x² - 3x теңдеуін қайта шешеміз.",
+        hint: "1) Қайталанып тұрған өрнекті белгіле: y = (бір өрнек). <br>2) y бойынша квадрат теңдеуді шеш. <br>3) Әрбір y мәні үшін шыққан теңдеулерді x бойынша шеш. <br>4) Барлық шешімдерді біріктір.",
+        tasks: [
+          {
+            equation: "(x² - 3x)² - 5(x² - 3x) + 6 = 0",
+            roots: [0,2,3],
+            solution:
+              "1) y = x² - 3x деп белгілейміз. <br>" +
+              "2) y² - 5y + 6 = 0 ⇒ (y - 2)(y - 3) = 0 ⇒ y₁ = 2, y₂ = 3. <br>" +
+              "3) y = 2 ⇒ x² - 3x = 2 ⇒ x² - 3x - 2 = 0 ⇒ x = -1, 2. <br>" +
+              "4) y = 3 ⇒ x² - 3x = 3 ⇒ x² - 3x - 3 = 0 ⇒ D = 9 + 12 = 21 ⇒ x = (3 ± √21)/2 (иррационал). <br>" +
+              "5) Егер тек бүтін түбірлерді қалдырсақ: x = -1, 2. Ал толық шешімі: x = -1, 2, (3 - √21)/2, (3 + √21)/2."
+          },
+          {
+            equation: "(x² + 1)² - 5(x² + 1) + 4 = 0",
+            roots: [-2,-1,1,2],
+            solution:
+              "1) y = x² + 1. <br>" +
+              "2) y² - 5y + 4 = 0 ⇒ (y - 1)(y - 4) = 0 ⇒ y₁ = 1, y₂ = 4. <br>" +
+              "3) y = 1 ⇒ x² + 1 = 1 ⇒ x² = 0 ⇒ x = 0. <br>" +
+              "4) y = 4 ⇒ x² + 1 = 4 ⇒ x² = 3 ⇒ x = ±√3. <br>" +
+              "5) Толық жауап: x = 0, ±√3 (мұғалім бүтін түбірларға акцент жасай алады)."
+          },
+          {
+            equation: "(x² - 4)² - (x² - 4) - 6 = 0",
+            roots: [-2,-1,1,2,3,-3],
+            solution:
+              "1) y = x² - 4. <br>" +
+              "2) y² - y - 6 = 0 ⇒ (y - 3)(y + 2) = 0 ⇒ y₁ = 3, y₂ = -2. <br>" +
+              "3) y = 3 ⇒ x² - 4 = 3 ⇒ x² = 7 ⇒ x = ±√7. <br>" +
+              "4) y = -2 ⇒ x² - 4 = -2 ⇒ x² = 2 ⇒ x = ±√2. <br>" +
+              "5) Мұнда нақты бүтін шешімдер жоқ, бірақ оқушы жаңа айнымалымен жұмыс істеуді үйренеді."
+          }
+        ]
+      },
+      modulus: {
+        title: "Модулі бар квадрат теңдеу",
+        info: "Модулі бар теңдеу: |f(x)| = a. Егер a ≥ 0 болса, |f(x)| = a теңдеуі екі теңдеуге бөлінеді: f(x) = a және f(x) = -a. Егер ішінде квадрат болса, әрқайсысы квадрат теңдеуге айналады.",
+        hint: "1) |f(x)| = a ⇒ f(x) = a және f(x) = -a. <br>2) Әр теңдеуді бөлек квадрат теңдеу ретінде шеш. <br>3) Барлық шыққан x мәндерін біріктіріп, тексер. <br>4) Егер a &lt; 0 болса, шешімі жоқ.",
+        tasks: [
+          {
+            equation: "|x² - 9| = 0",
+            roots: [-3,3],
+            solution:
+              "1) |x² - 9| = 0 ⇒ модуль нөл болу үшін ішіндегі өрнек 0 болуы керек. <br>" +
+              "2) x² - 9 = 0 ⇒ x² = 9 ⇒ x = -3, 3. <br>" +
+              "3) Жауабы: x = -3, 3."
+          },
+          {
+            equation: "|x² - 4x| = 0",
+            roots: [0,4],
+            solution:
+              "1) |x² - 4x| = 0 ⇒ x² - 4x = 0. <br>" +
+              "2) x² - 4x = x(x - 4) = 0 ⇒ x = 0 немесе x = 4. <br>" +
+              "3) Жауабы: x = 0, 4."
+          },
+          {
+            equation: "|x² - 5x + 6| = 2",
+            roots: [1,4],
+            solution:
+              "1) |x² - 5x + 6| = 2 ⇒ екі теңдеу құрамыз: <br>" +
+              "   а) x² - 5x + 6 = 2, <br>" +
+              "   ә) x² - 5x + 6 = -2. <br>" +
+              "2) а) x² - 5x + 4 = 0 ⇒ (x - 1)(x - 4) = 0 ⇒ x = 1, 4. <br>" +
+              "3) ә) x² - 5x + 8 = 0 ⇒ D = 25 - 32 = -7 &lt; 0 ⇒ шешім жоқ. <br>" +
+              "4) Жалпы жауап: x = 1, 4."
+          }
+        ]
+      }
+    };
+
+    let currentTopicKey = "biquadratic";
+    let currentTaskIndex = 0;
+
+    const topicButtons = document.querySelectorAll(".topic-btn");
+    const topicInfo = document.getElementById("topicInfo");
+    const topicText = document.getElementById("topicText");
+    const badgeTopic = document.getElementById("badgeTopic");
+    const taskTitle = document.getElementById("taskTitle");
+    const equationText = document.getElementById("equationText");
+    const answerInput = document.getElementById("answerInput");
+    const resultBox = document.getElementById("resultBox");
+    const topicHint = document.getElementById("topicHint");
+    const solutionText = document.getElementById("solutionText");
+    const detailsTopic = document.getElementById("detailsTopic");
+    const detailsSolution = document.getElementById("detailsSolution");
+    const btnNewTask = document.getElementById("btnNewTask");
+    const btnCheck = document.getElementById("btnCheck");
+    const btnShowCorrect = document.getElementById("btnShowCorrect");
+
+    function setTopic(topicKey) {
+      currentTopicKey = topicKey;
+      currentTaskIndex = 0;
+      // батырмаларды визуалды жаңарту
+      topicButtons.forEach(btn => {
+        if (btn.dataset.topic === topicKey) btn.classList.add("active");
+        else btn.classList.remove("active");
+      });
+      // мәтіндер
+      const t = topics[topicKey];
+      badgeTopic.textContent = t.title;
+      topicText.innerHTML = t.info;
+      topicHint.innerHTML = t.hint;
+      loadTask();
+    }
+
+    function loadTask() {
+      const t = topics[currentTopicKey];
+      const tasks = t.tasks;
+      const task = tasks[currentTaskIndex];
+
+      taskTitle.textContent = "Есеп " + (currentTaskIndex + 1) + " / " + tasks.length;
+      equationText.innerHTML = "<b>" + task.equation + "</b>";
+      answerInput.value = "";
+      resultBox.textContent = "";
+      resultBox.className = "result";
+      solutionText.innerHTML = task.solution;
+      detailsSolution.open = false;
+    }
+
+    function parseUserRoots(str) {
+      return str
+        .split(/[;,\s]+/)
+        .map(s => s.trim())
+        .filter(s => s !== "")
+        .map(s => Number(s.replace(",", ".")))
+        .filter(v => !Number.isNaN(v));
+    }
+
+    function normalizeRoots(arr) {
+      // жақындастыру үшін 2 ондыққа дейін
+      return arr
+        .map(v => Math.round(v*100)/100)
+        .sort((a,b) => a - b);
+    }
+
+    function checkAnswer() {
+      const t = topics[currentTopicKey];
+      const task = t.tasks[currentTaskIndex];
+
+      const userRoots = parseUserRoots(answerInput.value);
+      if (userRoots.length === 0) {
+        resultBox.textContent = "Алдымен кем дегенде бір түбір енгізіңіз.";
+        resultBox.className = "result bad";
+        return;
+      }
+      const correct = normalizeRoots(task.roots);
+      const user = normalizeRoots(userRoots);
+
+      if (correct.length !== user.length) {
+        resultBox.textContent = "Түбірлер саны сәйкес келмейді. Қайта тексеріңіз.";
+        resultBox.className = "result bad";
+        return;
+      }
+      let ok = true;
+      for (let i = 0; i < correct.length; i++) {
+        if (Math.abs(correct[i] - user[i]) > 0.01) {
+          ok = false;
+          break;
+        }
+      }
+      if (ok) {
+        resultBox.textContent = "Жарайсың! Жауабыңыз дұрыс ✅";
+        resultBox.className = "result ok";
+      } else {
+        resultBox.textContent = "Әзірге дұрыс емес. Шешу жолын қарап, қайта көріңіз.";
+        resultBox.className = "result bad";
+      }
+    }
+
+    function showCorrect() {
+      const t = topics[currentTopicKey];
+      const task = t.tasks[currentTaskIndex];
+      const correct = normalizeRoots(task.roots);
+      answerInput.value = correct.join(";");
+      resultBox.textContent = "Дұрыс түбірлер енгізілді. Енді шығару жолын талқылаңыз.";
+      resultBox.className = "result ok";
+    }
+
+    function nextTask() {
+      const t = topics[currentTopicKey];
+      currentTaskIndex = (currentTaskIndex + 1) % t.tasks.length;
+      loadTask();
+    }
+
+    // listeners
+    topicButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        setTopic(btn.dataset.topic);
+      });
+    });
+    btnNewTask.addEventListener("click", nextTask);
+    btnCheck.addEventListener("click", checkAnswer);
+    btnShowCorrect.addEventListener("click", showCorrect);
+
+    // Enter пернесімен тексеру:
+    answerInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        checkAnswer();
+      }
+    });
+
+    // бастапқы жүктеу
+    setTopic("biquadratic");
+  </script>
+</body>
+</html>

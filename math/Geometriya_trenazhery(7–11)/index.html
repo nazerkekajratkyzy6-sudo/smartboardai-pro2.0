@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Геометрия тренажеры (7–11 сынып)</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+<style>
+  body{
+    font-family:Arial,sans-serif;
+    background:#ecfdf3;
+    margin:0;padding:20px;color:#064e3b;
+  }
+  .container{
+    max-width:800px;margin:0 auto;
+    background:#fff;padding:20px 22px;
+    border-radius:16px;box-shadow:0 4px 14px rgba(0,0,0,0.15);
+  }
+  h1{text-align:center;margin:0 0 12px;}
+  select,input[type="text"]{
+    width:100%;padding:10px;margin-top:6px;
+    border-radius:10px;border:1px solid #a7f3d0;font-size:16px;
+  }
+  button{
+    padding:10px 16px;border-radius:10px;border:none;
+    background:#059669;color:white;font-weight:bold;
+    cursor:pointer;margin-top:10px;margin-right:6px;
+  }
+  button:hover{background:#047857;}
+  .question-box{
+    margin-top:14px;background:#ecfdf3;padding:14px;
+    font-size:17px;border-radius:12px;min-height:40px;
+  }
+  .status{margin-top:10px;font-weight:bold;}
+  .status.ok{color:#16a34a;}
+  .status.err{color:#dc2626;}
+  .score{margin-top:10px;padding:8px;background:#f0fdf4;border-radius:10px;}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>📐 Геометрия тренажеры (7–11)</h1>
+
+  <label><b>Сынып:</b></label>
+  <select id="grade" onchange="loadTopics()">
+    <option value="">— Таңдаңыз —</option>
+    <option value="7">7-сынып</option>
+    <option value="8">8-сынып</option>
+    <option value="9">9-сынып</option>
+    <option value="10">10-сынып</option>
+    <option value="11">11-сынып</option>
+  </select>
+
+  <label style="margin-top:10px;"><b>Тақырып:</b></label>
+  <select id="topic" onchange="resetTrainer()">
+    <option value="">Алдымен сынып таңда</option>
+  </select>
+
+  <div id="question" class="question-box">Тақырып таңдалмаған.</div>
+
+  <label><b>Жауап:</b></label>
+  <input type="text" id="answer" placeholder="Мысалы: 10, 25см, 36см², 3:2">
+
+  <button onclick="checkAnswer()">Тексеру ✅</button>
+  <button onclick="nextQuestion()">Келесі тапсырма 🔄</button>
+
+  <div id="status" class="status"></div>
+  <div id="score" class="score">Дұрыс: 0 | Барлығы: 0</div>
+</div>
+
+<script>
+// Сынып → тақырыптар
+const topicsByGrade = {
+  7:["Үшбұрыш","Төртбұрыш","Периметр"],
+  8:["Аудан","Пифагор теоремасы","Шеңбер"],
+  9:["Ұқсастық","Фигуралар ауданы","Пифагор және тригонометрия"],
+  10:["Синус, косинус","Шеңбер және дөңгелек","Кеңістіктегі фигуралар"],
+  11:["Кеңістік геометрия","Көлем","Тригонометриялық қатынастар"]
+};
+
+// Сұрақтар KaTeX-пен
+const questions = [
+  // 7 сынып
+  {grade:7, topic:"Үшбұрыш",
+   q:"Үшбұрыш қабырғалары: \\(3\\,\\text{см}, 4\\,\\text{см}, 5\\,\\text{см}\\). Периметрі?", a:"12"},
+  {grade:7, topic:"Үшбұрыш",
+   q:"Тең бүйірлі үшбұрышта табаны \\(6\\,\\text{см}\\), бүйір қабырғасы \\(5\\,\\text{см}\\). Периметрі?", a:"16"},
+  {grade:7, topic:"Төртбұрыш",
+   q:"Тік төртбұрыштың қабырғалары: \\(4\\,\\text{см}\\) және \\(7\\,\\text{см}\\). Периметрі?", a:"22"},
+  {grade:7, topic:"Периметр",
+   q:"Квадраттың қабырғасы \\(5\\,\\text{см}\\). Периметрі?", a:"20"},
+
+  // 8 сынып
+  {grade:8, topic:"Аудан",
+   q:"Тік төртбұрыштың ауданы: \\(a=4\\,\\text{см}, b=7\\,\\text{см}\\). \\(S = ?\\)", a:"28"},
+  {grade:8, topic:"Аудан",
+   q:"Үшбұрыш ауданы: \\(S = \\frac{1}{2}ah\\). \\(a=6\\,\\text{см}, h=4\\,\\text{см}\\). \\(S = ?\\)", a:"12"},
+  {grade:8, topic:"Пифагор теоремасы",
+   q:"Катеттері \\(6\\,\\text{см}\\) және \\(8\\,\\text{см}\\). Гипотенуза?", a:"10"},
+  {grade:8, topic:"Шеңбер",
+   q:"Шеңбер ұзындығы формуласы: \\(C = 2\\pi R\\). Егер \\(R = 5\\,\\text{см}\\), \\(C\\)-ны жуықтап тап (\\(\\pi \\approx 3{,}14\\))", a:"31.4"},
+
+  // 9 сынып
+  {grade:9, topic:"Ұқсастық",
+   q:"\\(\\triangle ABC \\sim \\triangle A'B'C'\\). \\(AB = 4\\,\\text{см}, A'B' = 10\\,\\text{см}\\). Ұқсастық коэффициенті?", a:"2.5"},
+  {grade:9, topic:"Ұқсастық",
+   q:"Кіші үшбұрыш қабырғасы \\(3\\,\\text{см}\\). Коэффициент \\(k=2\\). Үлкен үшбұрыштың сәйкес қабырғасы?", a:"6"},
+  {grade:9, topic:"Фигуралар ауданы",
+   q:"Квадрат ауданы \\(S=49\\,\\text{см}^2\\). Қабырғасын тап.", a:"7"},
+  {grade:9, topic:"Пифагор және тригонометрия",
+   q:"Катеті \\(5\\,\\text{см}\\), гипотенуза \\(13\\,\\text{см}\\). Екінші катет?", a:"12"},
+
+  // 10 сынып
+  {grade:10, topic:"Синус, косинус",
+   q:"Есепте: \\(\\sin 30^\\circ\\)", a:"1/2"},
+  {grade:10, topic:"Синус, косинус",
+   q:"Есепте: \\(\\cos 60^\\circ\\)", a:"1/2"},
+  {grade:10, topic:"Шеңбер және дөңгелек",
+   q:"Дөңгелек ауданы: \\(S = \\pi R^2\\). \\(R = 3\\,\\text{см}\\). \\(S\\)-ті жуықтап тап (\\(\\pi \\approx 3{,}14\\))", a:"28.26"},
+  {grade:10, topic:"Кеңістіктегі фигуралар",
+   q:"Кубтың қыры \\(a = 2\\,\\text{см}\\). Көлемі \\(V = a^3\\). \\(V = ?\\)", a:"8"},
+
+  // 11 сынып
+  {grade:11, topic:"Кеңістік геометрия",
+   q:"Тік төртбұрышты параллелепипед: \\(a=2, b=3, c=4\\). Көлемі \\(V=abc\\). \\(V = ?\\)", a:"24"},
+  {grade:11, topic:"Көлем",
+   q:"Цилиндр көлемі: \\(V = \\pi R^2 h\\). \\(R=2, h=5\\). \\(\\pi \\approx 3{,}14\\). \\(V\\) ≈ ?", a:"62.8"},
+  {grade:11, topic:"Тригонометриялық қатынастар",
+   q:"Егер \\(\\sin \\alpha = \\frac{3}{5}\\) болса, гипотенуза \\(5\\), қарсы катет \\(3\\). Жанама катет ұзындығы?", a:"4"}
+];
+
+let current = null;
+let correct = 0;
+let total = 0;
+
+function renderMathIn(el){
+  if(window.renderMathInElement){
+    renderMathInElement(el, {
+      delimiters:[
+        {left:"$$", right:"$$", display:true},
+        {left:"\\(", right:"\\)", display:false}
+      ]
+    });
+  }
+}
+
+window.addEventListener("load", ()=>{
+  if(window.renderMathInElement){
+    renderMathIn(document.body);
+  }
+});
+
+function loadTopics(){
+  const g = document.getElementById("grade").value;
+  const topicSel = document.getElementById("topic");
+  if(!g){
+    topicSel.innerHTML = "<option>Алдымен сынып таңда</option>";
+    resetTrainer(true);
+    return;
+  }
+  const list = topicsByGrade[g];
+  topicSel.innerHTML = "<option value=''>— Тақырып таңда —</option>";
+  list.forEach(t=>{
+    topicSel.innerHTML += `<option value="${t}">${t}</option>`;
+  });
+  resetTrainer(true);
+}
+
+function filtered(){
+  const g = document.getElementById("grade").value;
+  const t = document.getElementById("topic").value;
+  return questions.filter(q => q.grade==g && q.topic===t);
+}
+
+function nextQuestion(){
+  const list = filtered();
+  const box = document.getElementById("question");
+  if(list.length === 0){
+    box.textContent = "Бұл сынып/тақырып үшін сұрақ енгізілмеген.";
+    return;
+  }
+  current = list[Math.floor(Math.random()*list.length)];
+  box.innerHTML = current.q;
+  renderMathIn(box);
+  document.getElementById("status").textContent = "";
+  document.getElementById("status").className = "status";
+  document.getElementById("answer").value = "";
+}
+
+function norm(x){
+  return x.toString().trim().replace(",",".").toLowerCase();
+}
+
+function checkAnswer(){
+  if(!current){
+    document.getElementById("status").textContent = "Алдымен тапсырма таңда!";
+    return;
+  }
+  const u = norm(document.getElementById("answer").value);
+  const r = norm(current.a);
+  total++;
+  if(u === r){
+    correct++;
+    const st = document.getElementById("status");
+    st.textContent = "✅ Дұрыс!";
+    st.className = "status ok";
+  } else {
+    const st = document.getElementById("status");
+    st.textContent = "❌ Дұрыс жауап: " + current.a;
+    st.className = "status err";
+  }
+  document.getElementById("score").textContent = `Дұрыс: ${correct} | Барлығы: ${total}`;
+}
+
+function resetTrainer(soft){
+  current = null;
+  document.getElementById("question").textContent = "Тақырып таңдап, «Келесі тапсырма» батырмасын бас.";
+  document.getElementById("status").textContent = "";
+  document.getElementById("answer").value = "";
+  correct = 0; total = 0;
+  document.getElementById("score").textContent = "Дұрыс: 0 | Барлығы: 0";
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Көкке ұшқан көңіл-күй</title>
+<style>
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:#020617;
+    color:#fff;
+}
+.sky{
+    min-height:100vh;
+    background-image:url("cappadocia-bg.jpg"); /* ФОН СУРЕТІ */
+    background-size:cover;
+    background-position:center;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:20px;
+    box-sizing:border-box;
+}
+.main-text{
+    background:rgba(0,0,0,0.6);
+    padding:10px 16px;
+    border-radius:16px;
+    max-width:640px;
+    font-size:22px;
+}
+.balloons{
+    margin-top:24px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:18px;
+}
+.balloon{
+    width:170px;
+    height:170px;
+    border-radius:999px;
+    background:radial-gradient(circle at 30% 20%, #fff, #f97316);
+    position:relative;
+    cursor:pointer;
+    box-shadow:0 10px 30px rgba(15,23,42,0.8);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:18px;
+    box-sizing:border-box;
+    transition:transform 0.2s, box-shadow 0.2s;
+}
+.balloon:nth-child(2){background:radial-gradient(circle at 30% 20%, #fff,#22c55e);}
+.balloon:nth-child(3){background:radial-gradient(circle at 30% 20%, #fff,#3b82f6);}
+.balloon:nth-child(4){background:radial-gradient(circle at 30% 20%, #fff,#e11d48);}
+.balloon:hover{
+    transform:translateY(-10px);
+    box-shadow:0 16px 36px rgba(15,23,42,0.9);
+}
+.balloon-label{
+    font-weight:bold;
+    font-size:16px;
+}
+.balloon-count{
+    position:absolute;
+    bottom:-24px;
+    left:50%;
+    transform:translateX(-50%);
+    background:rgba(0,0,0,0.7);
+    padding:2px 8px;
+    border-radius:999px;
+    font-size:14px;
+}
+.bottom-info{
+    margin-top:28px;
+    background:rgba(0,0,0,0.7);
+    padding:10px 16px;
+    border-radius:16px;
+    font-size:16px;
+}
+.footer{
+    margin-top:8px;
+    text-align:center;
+    font-size:14px;
+    padding:8px 0;
+    background:linear-gradient(to right,#020617,#111827,#020617);
+}
+.footer span{color:#facc15;font-weight:bold;}
+</style>
+</head>
+<body>
+<div class="sky">
+    <div>
+        <div class="main-text">
+            Туууф, Каппадокияға барып қайтайықшы! 🎈<br>
+            <small>Өз көңіл-күйіңе сай шарды таңда.</small>
+        </div>
+
+        <div class="balloons">
+            <div class="balloon" data-id="1">
+                <div class="balloon-label">Өте керемет 😍</div>
+                <div class="balloon-count">0</div>
+            </div>
+            <div class="balloon" data-id="2">
+                <div class="balloon-label">Жақсы көңіл-күй 🙂</div>
+                <div class="balloon-count">0</div>
+            </div>
+            <div class="balloon" data-id="3">
+                <div class="balloon-label">Шаршап тұрмын 😌</div>
+                <div class="balloon-count">0</div>
+            </div>
+            <div class="balloon" data-id="4">
+                <div class="balloon-label">Мазасызданып тұрмын 😕</div>
+                <div class="balloon-count">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="bottom-info" id="moodResult">
+            Оқушылар бір-бірлеп шығып, өз көңіл-күйіне сәйкес шарды басады.
+        </div>
+        <div class="footer">
+            🌿 <b>AI-Pedagogy Tools</b> by <span>Nazerke Kairatkyzy</span> 🌿
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.balloon').forEach(b=>{
+    b.addEventListener('click',()=>{
+        const count = b.querySelector('.balloon-count');
+        let n = parseInt(count.textContent)||0;
+        n++;
+        count.textContent = n;
+
+        b.style.transform='translateY(-14px) scale(1.04)';
+        setTimeout(()=>b.style.transform='translateY(0) scale(1)',170);
+
+        const text = b.querySelector('.balloon-label').textContent;
+        document.getElementById('moodResult').textContent =
+            'Соңғы таңдау: "'+text+'" — бұл көңіл-күйді ' + n + ' оқушы таңдады.';
+    });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сабақ қалай өтті?</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Neue', cursive;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e0f7fa, #bbdefb);
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+            background-color: white;
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            border: 5px solid #ffcc80;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 2.8rem;
+            text-shadow: 2px 2px 0 #ffcc80;
+            letter-spacing: 1px;
+        }
+        
+        .game-area {
+            position: relative;
+            width: 100%;
+            height: 450px;
+            background: linear-gradient(to bottom, #87CEEB, #64b5f6);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            border: 5px solid #42a5f5;
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+        
+        .grass {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(to top, #388e3c, #7CFC00);
+            border-top: 5px solid #2e7d32;
+        }
+        
+        .sun {
+            position: absolute;
+            top: 25px;
+            right: 40px;
+            font-size: 65px;
+            filter: drop-shadow(0 0 10px rgba(255, 235, 59, 0.7));
+            animation: sun-glow 4s infinite alternate;
+            z-index: 10;
+        }
+        
+        @keyframes sun-glow {
+            from { transform: scale(1) rotate(0deg); }
+            to { transform: scale(1.1) rotate(5deg); }
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.3rem;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            min-width: 200px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.25);
+        }
+        
+        .btn-1 {
+            background: linear-gradient(to bottom, #66bb6a, #4CAF50);
+            color: white;
+            border: 3px solid #2e7d32;
+        }
+        
+        .btn-2 {
+            background: linear-gradient(to bottom, #ffd54f, #FFC107);
+            color: #333;
+            border: 3px solid #ff8f00;
+        }
+        
+        .btn-3 {
+            background: linear-gradient(to bottom, #ef5350, #F44336);
+            color: white;
+            border: 3px solid #c62828;
+        }
+        
+        .flower, .cloud, .raindrop {
+            position: absolute;
+            z-index: 5;
+        }
+
+        .flower {
+            bottom: 80px;
+            font-size: 45px;
+            animation: grow 1.5s ease-out;
+        }
+        
+        @keyframes grow {
+            0% { transform: scale(0) translateY(100px); opacity: 0; }
+            70% { transform: scale(1.2) translateY(-15px); }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        
+        .cloud {
+            font-size: 70px;
+            z-index: 4;
+            animation: cloud-float 8s ease-out forwards;
+        }
+        
+        @keyframes cloud-float {
+            0% { transform: translateX(-100px); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateX(var(--stop-position)); opacity: 1; }
+        }
+        
+        .raindrop {
+            font-size: 35px;
+            z-index: 3;
+            animation: rain-fall 2.5s ease-out forwards;
+        }
+        
+        @keyframes rain-fall {
+            0% { transform: translateY(-50px); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(var(--stop-position)); opacity: 1; }
+        }
+        
+        .counter {
+            margin-top: 20px;
+            font-size: 1.4rem;
+            color: #555;
+            background: #e3f2fd;
+            padding: 12px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            border: 2px solid #bbdefb;
+        }
+        
+        .counter span {
+            font-weight: bold;
+            color: #1565c0;
+        }
+
+        .instructions {
+            margin-top: 15px;
+            color: #666;
+            font-size: 1.1rem;
+            font-style: italic;
+        }
+
+        .footer {
+            margin-top: 15px;
+            color: #444;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Сабақ қалай өтті?</h1>
+        
+        <div class="game-area" id="gameArea">
+            <div class="sun">☀️</div>
+            <div class="grass"></div>
+        </div>
+        
+        <div class="buttons">
+            <button class="btn btn-1" id="btnUnderstand">Бәрін түсіндім! 🌸</button>
+            <button class="btn btn-2" id="btnQuestions">Сұрақтарым бар 💧</button>
+            <button class="btn btn-3" id="btnConfused">Түсінбедім ☁️</button>
+        </div>
+        
+        <div class="counter">
+            Гүлдер: <span id="flowerCount">0</span> |
+            Түнектер: <span id="cloudCount">0</span> |
+            Тамшылар: <span id="raindropCount">0</span>
+        </div>
+
+        <div class="instructions">Сабақ туралы көңіл-күйіңді көрсету үшін батырмаларды бас!</div>
+
+        <div class="footer">Nazerke Kairatkyzy</div>
+    </div>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        const btnUnderstand = document.getElementById('btnUnderstand');
+        const btnQuestions = document.getElementById('btnQuestions');
+        const btnConfused = document.getElementById('btnConfused');
+
+        const flowerCount = document.getElementById('flowerCount');
+        const cloudCount = document.getElementById('cloudCount');
+        const raindropCount = document.getElementById('raindropCount');
+
+        let flowers = 0, clouds = 0, raindrops = 0;
+
+        function createFlower() {
+            const flower = document.createElement('div');
+            flower.className = 'flower';
+            flower.innerHTML = '🌷';
+            flower.style.left = Math.random() * (gameArea.offsetWidth - 60) + 'px';
+            gameArea.appendChild(flower);
+            flowerCount.textContent = ++flowers;
+        }
+
+        function createCloud() {
+            const cloud = document.createElement('div');
+            cloud.className = 'cloud';
+            cloud.innerHTML = Math.random() > 0.5 ? '☁️' : '⛈️';
+            cloud.style.top = Math.random() * 150 + 30 + 'px';
+            cloud.style.setProperty('--stop-position', Math.random() * (gameArea.offsetWidth - 200) + 'px');
+            gameArea.appendChild(cloud);
+            cloudCount.textContent = ++clouds;
+        }
+
+        function createRaindrop() {
+            const drop = document.createElement('div');
+            drop.className = 'raindrop';
+            drop.innerHTML = '💧';
+            drop.style.left = Math.random() * (gameArea.offsetWidth - 40) + 'px';
+            drop.style.setProperty('--stop-position', Math.random() * 300 + 'px');
+            gameArea.appendChild(drop);
+            raindropCount.textContent = ++raindrops;
+        }
+
+        btnUnderstand.addEventListener('click', createFlower);
+        btnQuestions.addEventListener('click', createRaindrop);
+        btnConfused.addEventListener('click', createCloud);
+    </script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <title>Арифметикалық прогрессия — Тренажер</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#eef4ff; --card:#ffffff; --border:#e2e8f0;
+      --text:#0f172a; --muted:#64748b; --accent:#2563eb;
+      --accent-soft:#eff6ff; --good:#16a34a; --bad:#dc2626;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:radial-gradient(circle at top,#dbeafe,#f8fafc); color:var(--text);}
+    .wrap{max-width:1100px;margin:24px auto;padding:0 16px 28px;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:18px;
+      box-shadow:0 16px 40px rgba(15,23,42,.08);padding:18px;}
+    .header{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .title{font-weight:800;font-size:clamp(18px,2.6vw,22px)}
+    .subtitle{font-size:13px;color:var(--muted);max-width:640px}
+    .controls{display:flex;gap:8px;flex-wrap:wrap}
+    button{border-radius:999px;border:1px solid var(--border);background:var(--accent-soft);
+      color:var(--accent);padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer}
+    button.primary{background:var(--accent);color:#fff;border-color:var(--accent);
+      box-shadow:0 10px 20px rgba(37,99,235,.35)}
+    .layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,2fr);gap:14px;margin-top:12px}
+    @media(max-width:900px){.layout{grid-template-columns:1fr}}
+    .panel{background:#f9fafb;border:1px solid var(--border);border-radius:16px;padding:12px}
+    .info-row{display:flex;gap:8px;justify-content:space-between;margin-bottom:6px;font-size:13px}
+    .badge{background:#e5edff;color:#1d4ed8;border-radius:999px;padding:4px 8px;font-weight:700;font-size:12px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    @media(max-width:640px){.grid{grid-template-columns:1fr}}
+    label{font-size:13px;display:flex;flex-direction:column;gap:4px}
+    input[type="number"]{padding:7px 9px;border-radius:10px;border:1px solid var(--border);font-size:13px}
+    input[type="number"]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px rgba(37,99,235,.25)}
+    table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:12px;border:1px solid var(--border);background:#fff}
+    th,td{padding:8px 10px;border-bottom:1px solid var(--border);font-size:13px;text-align:center}
+    thead th{background:#f1f5f9;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+    .feedback{min-height:22px;font-weight:700;margin-top:8px}
+    .ok{color:var(--good)} .err{color:var(--bad)} .muted{color:var(--muted);font-size:12px}
+    .mini-seq{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+    .chip{background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px 10px;font-size:12px}
+    footer{text-align:center;font-size:12px;color:var(--muted);padding:12px 0 18px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="header">
+      <div>
+        <div class="title">Арифметикалық прогрессия — Аралас тренажер (C)</div>
+        <div class="subtitle">
+          Әр тапсырмада кездейсоқ <strong>a₁</strong>, <strong>d</strong>, <strong>n</strong> беріледі.
+          Сен aₙ, белгілі бірнеше мүшелер, және Sₙ мәндерін табасың. «Тексеру» басқанда баға шығады.
+        </div>
+      </div>
+      <div class="controls">
+        <button id="newBtn" class="primary">🆕 Жаңа тапсырма</button>
+        <button id="checkBtn">✅ Тексеру</button>
+        <button id="resetBtn">♻️ Тазалау</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <!-- Сол жақ: параметрлер, формулалар -->
+      <div class="panel">
+        <div class="info-row"><span>Берілген параметрлер:</span>
+          <span class="badge" id="paramBadge">a₁=?, d=?, n=?, k=?, m=?, r=?</span>
+        </div>
+        <div class="info-row">
+          <span>Жалпы формула:</span><span><strong>aₙ = a₁ + (n−1)·d</strong></span>
+        </div>
+        <div class="info-row">
+          <span>Қосынды формуласы:</span><span><strong>Sₙ = n·(2a₁ + (n−1)·d)/2</strong></span>
+        </div>
+
+        <div class="grid" style="margin-top:8px">
+          <label> aₙ (берілген n үшін):
+            <input type="number" id="anInput" step="1" />
+          </label>
+          <label> Sₙ (берілген n үшін):
+            <input type="number" id="snInput" step="1" />
+          </label>
+          <label> a<sub>k</sub> (берілген k үшін):
+            <input type="number" id="akInput" step="1" />
+          </label>
+          <label> a<sub>m</sub> (берілген m үшін):
+            <input type="number" id="amInput" step="1" />
+          </label>
+        </div>
+
+        <div class="feedback muted" id="fbMain">Тапсырмаларды толтыр да «Тексеру» бас.</div>
+        <div class="muted" id="scoreLine">Дұрыс жауаптар: <span id="okCount">0</span> / <span id="totalCount">0</span></div>
+      </div>
+
+      <!-- Оң жақ: кесте, мини-серия -->
+      <div class="panel">
+        <div class="info-row"><span>Кестені толтыр:</span><span id="tableTitle" class="muted">a₁..a_r</span></div>
+        <table>
+          <thead>
+            <tr id="headRow"></tr>
+          </thead>
+          <tbody>
+            <tr id="valRow"></tr>
+          </tbody>
+        </table>
+
+        <div class="mini-seq" id="miniSeq"></div>
+        <div class="feedback" id="fbDetails"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Created by <strong>Nazerke Kairatkyzy</strong>
+</footer>
+
+<script>
+(function(){
+  // Elements
+  const newBtn = document.getElementById('newBtn');
+  const checkBtn = document.getElementById('checkBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  const paramBadge = document.getElementById('paramBadge');
+  const tableTitle = document.getElementById('tableTitle');
+  const headRow = document.getElementById('headRow');
+  const valRow = document.getElementById('valRow');
+  const miniSeq = document.getElementById('miniSeq');
+
+  const anInput = document.getElementById('anInput');
+  const snInput = document.getElementById('snInput');
+  const akInput = document.getElementById('akInput');
+  const amInput = document.getElementById('amInput');
+
+  const fbMain = document.getElementById('fbMain');
+  const fbDetails = document.getElementById('fbDetails');
+  const okCountEl = document.getElementById('okCount');
+  const totalCountEl = document.getElementById('totalCount');
+
+  // State
+  let a1=3, d=2, n=5, k=3, m=7, r=6;
+  let ok=0, total=0;
+
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  function generateTask(){
+    // a1 ∈ [-10..10], d ∈ [-6..6]\{0}
+    a1 = randInt(-10,10);
+    d = 0;
+    while(d===0){ d = randInt(-6,6); }
+    // n, k, m (әртүрлі және 3..12)
+    const used = new Set();
+    function pickN(){ let t; do{ t=randInt(3,12);} while(used.has(t)); used.add(t); return t; }
+    n = pickN(); k = pickN(); m = pickN();
+    r = randInt(5,8); // кестедегі соңғы индекс
+
+    // UI fill
+    paramBadge.textContent = `a₁=${a1}, d=${d}, n=${n}, k=${k}, m=${m}, r=${r}`;
+    tableTitle.textContent = `a₁..a_${r} (алғашқы ${r} мүшесі)`;
+    buildTable(r);
+    buildMiniSeq(6);
+
+    // clear inputs & feedback
+    [anInput,snInput,akInput,amInput].forEach(i=>i.value='');
+    fbMain.textContent = 'Тапсырмаларды толтыр да «Тексеру» бас.';
+    fbMain.className = 'feedback muted';
+    fbDetails.textContent = '';
+    ok=0; total=0; okCountEl.textContent=ok; totalCountEl.textContent=total;
+  }
+
+  function an(idx){ return a1 + (idx-1)*d; }
+  function Sn(nn){ return nn*(2*a1+(nn-1)*d)/2; }
+
+  function buildTable(R){
+    headRow.innerHTML = ''; valRow.innerHTML='';
+
+    const th0 = document.createElement('th'); th0.textContent='n'; headRow.appendChild(th0);
+    for(let i=1;i<=R;i++){
+      const th = document.createElement('th'); th.textContent=i; headRow.appendChild(th);
+    }
+    const td0 = document.createElement('td'); td0.textContent='aₙ'; valRow.appendChild(td0);
+    for(let i=1;i<=R;i++){
+      const td = document.createElement('td');
+      const inp = document.createElement('input');
+      inp.type='number'; inp.step='1'; inp.style.width='90px'; inp.dataset.idx=i;
+      td.appendChild(inp); valRow.appendChild(td);
+    }
+  }
+
+  function buildMiniSeq(cnt){
+    miniSeq.innerHTML='';
+    const start = 1;
+    for(let i=start;i<start+cnt;i++){
+      const div = document.createElement('div');
+      div.className='chip';
+      div.textContent = `a${i} = ${an(i)}`;
+      miniSeq.appendChild(div);
+    }
+  }
+
+  function nearlyEqual(a,b,eps=1e-6){ return Math.abs(a-b)<eps; }
+
+  function check(){
+    let messages = [];
+    let localOk = 0, localTot = 0;
+
+    // 1) a_n for given n
+    localTot++;
+    const a_n_true = an(n);
+    const a_n_user = parseFloat((anInput.value||'').replace(',','.'));
+    if(!isNaN(a_n_user) && nearlyEqual(a_n_user, a_n_true)){
+      localOk++; messages.push(`✅ aₙ үшін n=${n}: дұрыс (${a_n_true})`);
+    }else{
+      messages.push(`❌ aₙ үшін n=${n}: дұрыс жауабы ${a_n_true}`);
+    }
+
+    // 2) S_n for given n
+    localTot++;
+    const S_n_true = Sn(n);
+    const S_n_user = parseFloat((snInput.value||'').replace(',','.'));
+    if(!isNaN(S_n_user) && nearlyEqual(S_n_user, S_n_true)){
+      localOk++; messages.push(`✅ Sₙ үшін n=${n}: дұрыс (${S_n_true})`);
+    }else{
+      messages.push(`❌ Sₙ үшін n=${n}: дұрыс жауабы ${S_n_true}`);
+    }
+
+    // 3) a_k
+    localTot++;
+    const a_k_true = an(k);
+    const a_k_user = parseFloat((akInput.value||'').replace(',','.'));
+    if(!isNaN(a_k_user) && nearlyEqual(a_k_user, a_k_true)){
+      localOk++; messages.push(`✅ aₖ (k=${k}): дұрыс (${a_k_true})`);
+    }else{
+      messages.push(`❌ aₖ (k=${k}): дұрыс жауабы ${a_k_true}`);
+    }
+
+    // 4) a_m
+    localTot++;
+    const a_m_true = an(m);
+    const a_m_user = parseFloat((amInput.value||'').replace(',','.'));
+    if(!isNaN(a_m_user) && nearlyEqual(a_m_user, a_m_true)){
+      localOk++; messages.push(`✅ aₘ (m=${m}): дұрыс (${a_m_true})`);
+    }else{
+      messages.push(`❌ aₘ (m=${m}): дұрыс жауабы ${a_m_true}`);
+    }
+
+    // 5) table first r values
+    for(let i=1;i<=r;i++){
+      localTot++;
+      const inp = valRow.querySelector(`input[data-idx="${i}"]`);
+      const user = parseFloat((inp.value||'').replace(',','.'));
+      const truth = an(i);
+      if(!isNaN(user) && nearlyEqual(user, truth)){
+        localOk++;
+        inp.style.borderColor = '#16a34a';
+        inp.style.background = '#f0fdf4';
+      }else{
+        inp.style.borderColor = '#dc2626';
+        inp.style.background = '#fef2f2';
+      }
+    }
+    messages.push(`Кесте: ${localOk - 4}/${localTot - 4} ұяшық дұрыс (жеке ұяшықтар түспен белгіленді).`);
+
+    ok += localOk; total += localTot;
+    okCountEl.textContent = ok; totalCountEl.textContent = total;
+
+    fbMain.textContent = (localOk===localTot) ? 'Керемет! Барлығы дұрыс ✅' : 'Жақсы, тағы да байқап көр! 🙂';
+    fbMain.className = 'feedback ' + ((localOk===localTot)?'ok':'err');
+    fbDetails.innerHTML = messages.map(m=>`<div>${m}</div>`).join('');
+  }
+
+  function resetInputs(){
+    [anInput,snInput,akInput,amInput].forEach(i=>{i.value=''; i.style.background=''; i.style.borderColor='var(--border)';});
+    valRow.querySelectorAll('input').forEach(inp=>{
+      inp.value=''; inp.style.background=''; inp.style.borderColor='var(--border)';
+    });
+    fbMain.textContent='Тапсырмаларды толтыр да «Тексеру» бас.';
+    fbMain.className='feedback muted';
+    fbDetails.textContent='';
+  }
+
+  newBtn.addEventListener('click', ()=>{ generateTask(); });
+  checkBtn.addEventListener('click', check);
+  resetBtn.addEventListener('click', resetInputs);
+
+  // init
+  generateTask();
+})();
+</script>
+</body>
+</html>

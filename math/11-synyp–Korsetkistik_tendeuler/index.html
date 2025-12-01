@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>11-сынып – Көрсеткіштік теңдеулер (Түрлендіру ойыны)</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#e0f2fe;
+    padding:22px;
+}
+.container{
+    max-width:950px;
+    margin:auto;
+    background:white;
+    padding:30px;
+    border-radius:22px;
+    box-shadow:0 14px 34px rgba(0,0,0,0.16);
+}
+
+h2{
+    text-align:center;
+    font-size:28px;
+    color:#075985;
+    margin-top:0;
+}
+
+/* Өрнек */
+.expr-box{
+    background:#bae6fd;
+    padding:18px;
+    border-radius:16px;
+    border-left:6px solid #0284c7;
+    font-size:26px;
+    text-align:center;
+    margin-top:20px;
+}
+
+/* Нұсқалар */
+.options{
+    margin-top:28px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.option{
+    padding:16px;
+    background:white;
+    border-radius:14px;
+    border:2px solid #7dd3fc;
+    font-size:22px;
+    cursor:pointer;
+    transition:0.2s;
+    text-align:center;
+}
+.option:hover{
+    background:#e0f7ff;
+}
+
+.correct{
+    background:#dcfce7 !important;
+    border-color:#16a34a !important;
+}
+.wrong{
+    background:#fee2e2 !important;
+    border-color:#dc2626 !important;
+}
+
+/* статус */
+.status{
+    font-size:24px;
+    margin-top:20px;
+    font-weight:bold;
+}
+.ok{color:#16a34a;}
+.err{color:#dc2626;}
+
+.expl{
+    display:none;
+    background:#fff7ed;
+    border-left:6px solid #fb923c;
+    padding:16px;
+    border-radius:12px;
+    font-size:19px;
+    margin-top:18px;
+}
+
+.nextbtn{
+    margin-top:24px;
+    padding:12px 20px;
+    background:#0284c7;
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+    cursor:pointer;
+}
+.nextbtn:hover{
+    background:#0369a1;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>📘 11-сынып – Көрсеткіштік теңдеулер (Түрлендіру ойыны)</h2>
+
+<div id="expr" class="expr-box"></div>
+
+<div id="opts" class="options"></div>
+
+<div id="status" class="status"></div>
+<div id="expl" class="expl"></div>
+
+<button onclick="nextQ()" class="nextbtn">Келесі</button>
+
+</div>
+
+<script>
+
+/* ---- Тапсырмалар ---- */
+const qs = [
+{
+ expr:"2^(x+1) = 16",
+ correct:"x = 3",
+ wrong:["x = 4","x = 2"],
+ e:"2^(x+1)=16 → 16 = 2⁴ → x+1=4 → x=3."
+},
+{
+ expr:"3^(2x) = 81",
+ correct:"x = 2",
+ wrong:["x = 4","x = 1"],
+ e:"81 = 3⁴ → 2x = 4 → x = 2."
+},
+{
+ expr:"5^(x-1) = 25",
+ correct:"x = 3",
+ wrong:["x = 2","x = 1"],
+ e:"25 = 5² → x-1 = 2 → x = 3."
+},
+{
+ expr:"4^x = 1/16",
+ correct:"x = -2",
+ wrong:["x = -4","x = 2"],
+ e:"1/16 = 4^(-2). Сондықтан x = -2."
+},
+{
+ expr:"7^(x+2) = 49",
+ correct:"x = 0",
+ wrong:["x = 1","x = -1"],
+ e:"49 = 7² → x+2 = 2 → x = 0."
+}
+];
+
+let cur;
+
+/* ---- Жаңа тапсырма ---- */
+function nextQ(){
+
+    cur = qs[Math.floor(Math.random()*qs.length)];
+
+    document.getElementById("expr").innerHTML = cur.expr;
+
+    document.getElementById("status").textContent="";
+    document.getElementById("expl").style.display="none";
+
+    const optDiv = document.getElementById("opts");
+    optDiv.innerHTML="";
+
+    let options=[cur.correct, ...cur.wrong];
+    options.sort(()=>Math.random()-0.5);
+
+    options.forEach(op=>{
+        const div=document.createElement("div");
+        div.className="option";
+        div.textContent=op;
+        div.onclick=()=> check(op, div);
+        optDiv.appendChild(div);
+    });
+}
+
+/* ---- Тексеру ---- */
+function check(sel, box){
+    const status=document.getElementById("status");
+    const expl=document.getElementById("expl");
+
+    if(sel === cur.correct){
+        box.classList.add("correct");
+        status.textContent="✅ Дұрыс!";
+        status.className="status ok";
+        expl.style.display="block";
+        expl.innerHTML="Түсіндіру: "+cur.e;
+    }
+    else{
+        box.classList.add("wrong");
+        status.textContent="❌ Қате!";
+        status.className="status err";
+        expl.style.display="block";
+        expl.innerHTML="Нұсқаулық: "+cur.e;
+    }
+}
+
+nextQ();
+
+</script>
+<div style="
+    margin-top:40px;
+    text-align:center;
+    font-size:18px;
+    padding:16px 0;
+    color:#4b5563;
+    border-top:4px solid #c084fc;
+    background: linear-gradient(to right, #fff, #faf5ff, #fff);
+    font-family:'Arial';
+">
+    🌿 <b>AI-Pedagogy Tools</b> by <span style="color:#7c3aed;">Nazerke Kairatkyzy</span> 🌿
+</div>
+
+</body>
+</html>

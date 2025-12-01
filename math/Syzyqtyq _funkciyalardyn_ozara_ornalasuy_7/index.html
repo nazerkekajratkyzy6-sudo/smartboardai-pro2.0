@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <title>8-сынып · Сызықтық функциялардың өзара орналасуы (шексіз есеп)</title>
+  <style>
+    body{
+      margin:0;
+      padding:0;
+      font-family:Arial, sans-serif;
+      background:linear-gradient(135deg,#e0f2fe,#fef9c3);
+    }
+    .container{
+      max-width:1100px;
+      margin:24px auto 40px;
+      background:#ffffff;
+      border-radius:20px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.18);
+      padding:24px 28px 32px;
+    }
+    h1{
+      text-align:center;
+      color:#1d4ed8;
+      margin:0 0 6px;
+    }
+    .subtitle{
+      text-align:center;
+      color:#4b5563;
+      font-size:14px;
+      margin-bottom:18px;
+    }
+    .card{
+      border-radius:18px;
+      border:1px solid #e5e7eb;
+      background:#f9fafb;
+      padding:14px 18px;
+      margin-bottom:16px;
+      font-size:14px;
+      color:#374151;
+    }
+    .card b{color:#111827;}
+
+    .badge{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      background:#eef2ff;
+      color:#4338ca;
+      font-size:12px;
+      margin-bottom:4px;
+    }
+    .task-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:6px;
+    }
+    .task-box{
+      border-radius:18px;
+      border:1px solid #d1d5db;
+      background:#ffffff;
+      padding:18px 20px;
+    }
+    .equation{
+      font-size:18px;
+      color:#111827;
+      margin:6px 0 8px;
+    }
+    .equation small{
+      font-size:13px;
+      color:#6b7280;
+    }
+
+    .options{
+      margin-top:4px;
+      font-size:14px;
+      color:#374151;
+    }
+    .options label{
+      margin-right:18px;
+      cursor:pointer;
+    }
+
+    .input-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      margin-top:10px;
+      font-size:14px;
+      color:#374151;
+    }
+    .input-row input{
+      width:80px;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid #d1d5db;
+      font-size:14px;
+      outline:none;
+      text-align:center;
+    }
+    .input-row input:focus{
+      border-color:#4f46e5;
+      box-shadow:0 0 0 2px rgba(79,70,229,0.2);
+    }
+
+    .btn{
+      border:none;
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:14px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-top:10px;
+      margin-right:6px;
+      transition:background 0.2s, box-shadow 0.1s, transform 0.1s;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,#22c55e,#16a34a);
+      color:#ffffff;
+    }
+    .btn-secondary{
+      background:#e5e7eb;
+      color:#111827;
+    }
+    .btn-outline{
+      background:#ffffff;
+      border:1px solid #e5e7eb;
+      color:#374151;
+    }
+    .btn:hover{
+      box-shadow:0 4px 12px rgba(0,0,0,0.18);
+      transform:translateY(-1px);
+    }
+
+    .result{
+      margin-top:10px;
+      font-size:14px;
+      font-weight:500;
+    }
+    .result.ok{color:#15803d;}
+    .result.bad{color:#b91c1c;}
+
+    details{
+      margin-top:8px;
+      font-size:13px;
+      color:#374151;
+    }
+    details summary{
+      cursor:pointer;
+      font-weight:500;
+    }
+    .explanation{
+      margin-top:4px;
+      padding:8px 10px;
+      border-radius:12px;
+      background:#f3f4f6;
+      line-height:1.5;
+    }
+
+    .canvas-wrapper{
+      margin-top:16px;
+      border-radius:18px;
+      border:1px solid #e5e7eb;
+      overflow:hidden;
+      background:#ffffff;
+    }
+    canvas{
+      width:100%;
+      max-width:100%;
+      display:block;
+      background:#ffffff;
+    }
+
+    .top-controls{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+      font-size:13px;
+      color:#6b7280;
+    }
+
+    .footer{
+      margin-top:22px;
+      text-align:center;
+      font-size:13px;
+      color:#6b7280;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Сызықтық функциялардың өзара орналасуы</h1>
+  <div class="subtitle">y = kx + b түріндегі екі түзу · Шексіз random есеп</div>
+
+  <div class="card">
+    <b>Ереже:</b><br>
+    • Екі түзу <b>параллель</b>, егер k₁ = k₂, бірақ b₁ ≠ b₂. <br>
+    • Екі түзу <b>беттеседі (бір түзу)</b>, егер k₁ = k₂ және b₁ = b₂. <br>
+    • Екі түзу <b>бір нүктеде қиылысады</b>, егер k₁ ≠ k₂. Бұл жағдайда:  
+    <span style="font-family:'Times New Roman',serif;">x = (b₂ - b₁)/(k₁ - k₂)</span>,  
+    <span style="font-family:'Times New Roman',serif;">y = k₁x + b₁</span>.
+  </div>
+
+  <div class="task-box">
+    <div class="task-header">
+      <div>
+        <div class="badge">Есеп <span id="taskIndex"></span></div>
+        <div style="font-size:13px;color:#6b7280;" id="taskInfo"></div>
+      </div>
+      <button class="btn btn-outline" id="btnNext">Келесі random есеп</button>
+    </div>
+
+    <div class="equation" id="equationText"></div>
+    <div style="font-size:12px;color:#6b7280;">
+      Сызықтардың өзара орналасуын таңдаңыз. Егер қиылысса – қиылысу нүктесінің координатасын да жазыңыз.
+    </div>
+
+    <div class="options">
+      <label>
+        <input type="radio" name="relation" value="intersect">
+        Бір нүктеде қиылысады
+      </label>
+      <label>
+        <input type="radio" name="relation" value="parallel">
+        Параллель
+      </label>
+      <label>
+        <input type="radio" name="relation" value="same">
+        Бір түзу (беттеседі)
+      </label>
+    </div>
+
+    <div class="input-row">
+      <span>Қиылысу нүктесі (егер бар болса):</span>
+      <span> x = </span>
+      <input id="xInput" type="text" placeholder="мыс: 1">
+      <span> y = </span>
+      <input id="yInput" type="text" placeholder="мыс: 3">
+      <span style="font-size:12px;color:#6b7280;">(ондыққа нүкте немесе үтір жаза аласыз)</span>
+    </div>
+
+    <div class="top-controls">
+      <div>
+        <button class="btn btn-primary" id="btnCheck">✓ Жауапты тексеру</button>
+        <button class="btn btn-secondary" id="btnShowAnswer">✔ Дұрыс жауапты көрсету</button>
+      </div>
+      <button class="btn btn-secondary" id="btnDraw">📈 Графикті көру</button>
+    </div>
+
+    <div class="result" id="resultBox"></div>
+
+    <details>
+      <summary>📘 Теориялық нұсқаулық</summary>
+      <div class="explanation">
+        1) Әуелі коэффициенттерді салыстырыңыз: k₁ мен k₂. <br>
+        • Егер k₁ ≠ k₂ ⇒ түзулер әрқашан бір нүктеде қиылысады. <br>
+        • Егер k₁ = k₂, бірақ b₁ ≠ b₂ ⇒ параллель. <br>
+        • Егер k₁ = k₂ және b₁ = b₂ ⇒ бір түзу. <br><br>
+        2) Қиылысу нүктесін табу үшін: <br>
+        k₁x + b₁ = k₂x + b₂ ⇒ (k₁ - k₂)x = b₂ - b₁ ⇒  
+        x = (b₂ - b₁)/(k₁ - k₂), y = k₁x + b₁.
+      </div>
+    </details>
+
+    <details>
+      <summary>🧮 Осы есептің шешуі</summary>
+      <div class="explanation" id="solutionText"></div>
+    </details>
+  </div>
+
+  <div class="canvas-wrapper">
+    <canvas id="graphCanvas" width="900" height="420"></canvas>
+  </div>
+
+  <div class="footer">
+    🌿 <b>AI-Pedagogy Tools</b> by <span style="color:#7c3aed;">Nazerke Kairatkyzy</span> 🌿
+  </div>
+</div>
+
+<script>
+  // --------- Кіші көмекші функциялар ----------
+
+  function randInt(min, max){
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function formatLine(k, b, name){
+    let str = name + ": y = ";
+    if (Math.abs(k) < 1e-9){
+      // y = b
+      str += b.toString();
+      return str;
+    }
+    if (Math.abs(k - 1) < 1e-9) str += "x";
+    else if (Math.abs(k + 1) < 1e-9) str += "-x";
+    else str += k + "x";
+
+    if (Math.abs(b) > 1e-9){
+      if (b > 0) str += " + " + b;
+      else str += " - " + Math.abs(b);
+    }
+    return str;
+  }
+
+  function parseNumber(str){
+    if (!str) return null;
+    const v = Number(str.replace(",", "."));
+    return Number.isNaN(v) ? null : v;
+  }
+
+  // ---------- Random есеп генераторы ----------
+
+  let currentTask = null;
+  let taskCounter = 0;
+
+  function generateRandomTask(){
+    // type: intersect / parallel / same
+    const types = ["intersect","parallel","same"];
+    const chosenType = types[randInt(0, types.length-1)];
+
+    let k1, b1, k2, b2, intersection = null, solution = "";
+
+    if (chosenType === "intersect"){
+      // қиылысатын болсын: k1 ≠ k2, қиылысу нүктесі бүтін
+      const x0 = randInt(-3,3);
+      const y0 = randInt(-3,3);
+      k1 = randInt(-3,3);
+      while (k1 === 0) k1 = randInt(-3,3);
+
+      k2 = randInt(-3,3);
+      while (k2 === 0 || k2 === k1) k2 = randInt(-3,3);
+
+      b1 = y0 - k1 * x0;
+      b2 = y0 - k2 * x0;
+
+      intersection = { x: x0, y: y0 };
+
+      solution =
+        "k₁ = " + k1 + ", k₂ = " + k2 + " ⇒ k₁ ≠ k₂, сондықтан түзулер бір нүктеде қиылысады.<br>" +
+        "Қиылысу нүктесі есеп бойынша арнайы таңдалған: x = " + x0 + ", y = " + y0 + ".<br>" +
+        "Яғни қиылысу нүктесі: (" + x0 + "; " + y0 + ").";
+    } else if (chosenType === "parallel"){
+      // параллель: k1 = k2, b1 ≠ b2
+      k1 = randInt(-3,3);
+      k2 = k1;
+      b1 = randInt(-5,5);
+      b2 = randInt(-5,5);
+      while (b2 === b1) b2 = randInt(-5,5);
+
+      solution =
+        "k₁ = k₂ = " + k1 + ", бірақ b₁ = " + b1 + ", b₂ = " + b2 + " (әртүрлі).<br>" +
+        "Сондықтан түзулер параллель, шексіздікке дейін қиылыспайды.";
+    } else {
+      // same: k1 = k2, b1 = b2
+      k1 = randInt(-3,3);
+      b1 = randInt(-4,4);
+      k2 = k1;
+      b2 = b1;
+
+      solution =
+        "k₁ = k₂ = " + k1 + " және b₁ = b₂ = " + b1 + ".<br>" +
+        "Сонымен екі функция да бірдей түзу, яғни беттеседі.";
+    }
+
+    return {
+      type: chosenType,
+      k1, b1, k2, b2,
+      intersection,
+      solution
+    };
+  }
+
+  // ---------- DOM элементтер ----------
+
+  const taskIndexSpan = document.getElementById("taskIndex");
+  const taskInfo = document.getElementById("taskInfo");
+  const equationText = document.getElementById("equationText");
+  const solutionText = document.getElementById("solutionText");
+  const resultBox = document.getElementById("resultBox");
+  const xInput = document.getElementById("xInput");
+  const yInput = document.getElementById("yInput");
+  const btnNext = document.getElementById("btnNext");
+  const btnCheck = document.getElementById("btnCheck");
+  const btnShowAnswer = document.getElementById("btnShowAnswer");
+  const btnDraw = document.getElementById("btnDraw");
+  const canvas = document.getElementById("graphCanvas");
+  const ctx = canvas.getContext("2d");
+
+  // ---------- Координат жүйесі ----------
+
+  const WIDTH = canvas.width;
+  const HEIGHT = canvas.height;
+  const xmin = -10, xmax = 10;
+  const ymin = -10, ymax = 10;
+
+  function toCanvasX(x){
+    return (x - xmin) / (xmax - xmin) * WIDTH;
+  }
+  function toCanvasY(y){
+    return HEIGHT - (y - ymin) / (ymax - ymin) * HEIGHT;
+  }
+
+  function clearCanvas(){
+    ctx.clearRect(0,0,WIDTH,HEIGHT);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0,0,WIDTH,HEIGHT);
+    drawAxes();
+  }
+
+  function drawAxes(){
+    ctx.strokeStyle = "#d1d5db";
+    ctx.lineWidth = 1;
+
+    // vertical grid
+    for (let x = Math.ceil(xmin); x <= xmax; x++){
+      const cx = toCanvasX(x);
+      ctx.beginPath();
+      ctx.moveTo(cx,0);
+      ctx.lineTo(cx,HEIGHT);
+      ctx.stroke();
+    }
+    // horizontal grid
+    for (let y = Math.ceil(ymin); y <= ymax; y++){
+      const cy = toCanvasY(y);
+      ctx.beginPath();
+      ctx.moveTo(0,cy);
+      ctx.lineTo(WIDTH,cy);
+      ctx.stroke();
+    }
+
+    // x-axis
+    ctx.strokeStyle = "#9ca3af";
+    ctx.lineWidth = 2;
+    const cy0 = toCanvasY(0);
+    ctx.beginPath();
+    ctx.moveTo(0,cy0);
+    ctx.lineTo(WIDTH,cy0);
+    ctx.stroke();
+
+    // y-axis
+    const cx0 = toCanvasX(0);
+    ctx.beginPath();
+    ctx.moveTo(cx0,0);
+    ctx.lineTo(cx0,HEIGHT);
+    ctx.stroke();
+
+    // origin point
+    ctx.fillStyle = "#6b7280";
+    ctx.beginPath();
+    ctx.arc(cx0,cy0,3,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.font = "11px Arial";
+    ctx.fillText("0", cx0+4, cy0-4);
+  }
+
+  function drawLine(k,b,color){
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    let first = true;
+    for (let x = xmin; x <= xmax; x += 0.05){
+      let y;
+      if (Math.abs(k) < 1e-9){
+        y = b;
+      } else {
+        y = k * x + b;
+      }
+      const cx = toCanvasX(x);
+      const cy = toCanvasY(y);
+      if (first){
+        ctx.moveTo(cx,cy);
+        first = false;
+      } else {
+        ctx.lineTo(cx,cy);
+      }
+    }
+    ctx.stroke();
+  }
+
+  function drawIntersection(point){
+    if (!point) return;
+    const cx = toCanvasX(point.x);
+    const cy = toCanvasY(point.y);
+    ctx.fillStyle = "#ef4444";
+    ctx.beginPath();
+    ctx.arc(cx,cy,5,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.font = "12px Arial";
+    ctx.fillStyle = "#ef4444";
+    const label = "(" + point.x.toFixed(2) + "; " + point.y.toFixed(2) + ")";
+    ctx.fillText(label, cx+6, cy-6);
+  }
+
+  function drawCurrent(){
+    if (!currentTask) return;
+    clearCanvas();
+    drawLine(currentTask.k1, currentTask.b1, "#4f46e5");
+    drawLine(currentTask.k2, currentTask.b2, "#f97316");
+    if (currentTask.intersection){
+      drawIntersection(currentTask.intersection);
+    }
+  }
+
+  // ---------- Есепті жүктеу / тексеру ----------
+
+  function loadTask(){
+    taskCounter++;
+    taskIndexSpan.textContent = taskCounter;
+    taskInfo.textContent = "Random есеп – коэффициенттер бүтін, график автоматты салынады.";
+
+    equationText.innerHTML =
+      formatLine(currentTask.k1, currentTask.b1, "1-түзу") + "<br>" +
+      formatLine(currentTask.k2, currentTask.b2, "2-түзу");
+
+    solutionText.innerHTML = currentTask.solution;
+    resultBox.textContent = "";
+    resultBox.className = "result";
+
+    xInput.value = "";
+    yInput.value = "";
+    document.querySelectorAll('input[name=\"relation\"]').forEach(r => r.checked = false);
+
+    clearCanvas();
+  }
+
+  function checkAnswer(){
+    if (!currentTask) return;
+    const selected = document.querySelector('input[name=\"relation\"]:checked');
+    if (!selected){
+      resultBox.textContent = "Алдымен түзулердің өзара орналасуын таңдаңыз.";
+      resultBox.className = "result bad";
+      return;
+    }
+    let okRelation = (selected.value === currentTask.type);
+
+    if (!okRelation){
+      resultBox.textContent = "Орналасу түрі дұрыс емес. k₁ мен k₂-ні тағы бір салыстырып көр.";
+      resultBox.className = "result bad";
+      return;
+    }
+
+    if (currentTask.type === "intersect" && currentTask.intersection){
+      const ux = parseNumber(xInput.value.trim());
+      const uy = parseNumber(yInput.value.trim());
+      if (ux === null || uy === null){
+        resultBox.textContent = "Орналасуы дұрыс. Енді қиылысу нүктесінің x және y мәндерін де енгіз.";
+        resultBox.className = "result bad";
+        return;
+      }
+      const dx = Math.abs(ux - currentTask.intersection.x);
+      const dy = Math.abs(uy - currentTask.intersection.y);
+      if (dx < 0.15 && dy < 0.15){
+        resultBox.textContent = "Керемет! Орналасуы да, қиылысу нүктесі де дұрыс ✅";
+        resultBox.className = "result ok";
+      } else {
+        resultBox.textContent = "Орналасуы дұрыс, бірақ қиылысу нүктесінің координатасында қателік бар.";
+        resultBox.className = "result bad";
+      }
+    } else {
+      // параллель немесе same
+      resultBox.textContent = "Дұрыс! Түзулердің өзара орналасуын дұрыс анықтадың ✅";
+      resultBox.className = "result ok";
+    }
+  }
+
+  function showAnswer(){
+    if (!currentTask) return;
+    document.querySelectorAll('input[name=\"relation\"]').forEach(r => {
+      if (r.value === currentTask.type) r.checked = true;
+    });
+
+    if (currentTask.type === "intersect" && currentTask.intersection){
+      xInput.value = currentTask.intersection.x.toFixed(2);
+      yInput.value = currentTask.intersection.y.toFixed(2);
+      resultBox.textContent =
+        "Қиылысу нүктесі шамамен: (" +
+        currentTask.intersection.x.toFixed(2) + "; " +
+        currentTask.intersection.y.toFixed(2) + ").";
+    } else if (currentTask.type === "parallel"){
+      xInput.value = "";
+      yInput.value = "";
+      resultBox.textContent = "Түзулер параллель ⇒ қиылысу нүктесі жоқ.";
+    } else {
+      xInput.value = "";
+      yInput.value = "";
+      resultBox.textContent = "Түзулер беттеседі ⇒ ортақ нүктелері шексіз көп.";
+    }
+    resultBox.className = "result ok";
+  }
+
+  // ---------- Оқиғалар ----------
+
+  btnNext.addEventListener("click", () => {
+    currentTask = generateRandomTask();
+    loadTask();
+  });
+
+  btnCheck.addEventListener("click", checkAnswer);
+  btnShowAnswer.addEventListener("click", showAnswer);
+  btnDraw.addEventListener("click", drawCurrent);
+
+  xInput.addEventListener("keydown", e => { if (e.key === "Enter") checkAnswer(); });
+  yInput.addEventListener("keydown", e => { if (e.key === "Enter") checkAnswer(); });
+
+  // Бастапқы random есеп
+  currentTask = generateRandomTask();
+  clearCanvas();
+  loadTask();
+</script>
+</body>
+</html>

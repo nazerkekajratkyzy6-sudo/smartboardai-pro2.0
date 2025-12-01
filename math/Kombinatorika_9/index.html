@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>9-сынып – Комбинаторика (Қанша тәсіл бар?)</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#ecfdf5;
+    padding:22px;
+}
+.container{
+    max-width:900px;
+    margin:auto;
+    background:white;
+    padding:30px;
+    border-radius:22px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.18);
+}
+h2{
+    text-align:center;
+    font-size:28px;
+    margin-top:0;
+    color:#065f46;
+}
+
+/* Сюжеттік мәтін */
+.story{
+    background:#d1fae5;
+    padding:18px;
+    border-radius:16px;
+    font-size:22px;
+    border-left:6px solid #10b981;
+    margin-top:20px;
+}
+
+/* Нұсқалар */
+.options{
+    margin-top:26px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+.option{
+    padding:14px;
+    background:white;
+    border-radius:14px;
+    border:2px solid #6ee7b7;
+    font-size:21px;
+    cursor:pointer;
+    transition:0.2s;
+}
+.option:hover{
+    background:#ccfbf1;
+}
+
+.correct{
+    background:#dcfce7 !important;
+    border-color:#16a34a !important;
+}
+.wrong{
+    background:#fee2e2 !important;
+    border-color:#dc2626 !important;
+}
+
+/* Статус */
+.status{
+    font-size:24px;
+    font-weight:bold;
+    margin-top:20px;
+}
+.ok{color:#16a34a;}
+.err{color:#dc2626;}
+
+.expl{
+    display:none;
+    margin-top:18px;
+    background:#fef9c3;
+    padding:16px;
+    border-left:6px solid #facc15;
+    border-radius:12px;
+    font-size:19px;
+}
+
+.nextbtn{
+    margin-top:22px;
+    padding:12px 20px;
+    font-size:18px;
+    color:white;
+    background:#059669;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+}
+.nextbtn:hover{background:#047857;}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h2>📘 9-сынып – Комбинаторика (Қанша тәсіл бар?)</h2>
+
+<div id="story" class="story"></div>
+
+<div id="opts" class="options"></div>
+
+<div id="status" class="status"></div>
+<div id="expl" class="expl"></div>
+
+<button onclick="nextQ()" class="nextbtn">Келесі есеп</button>
+
+</div>
+
+<script>
+
+/* ---- Комбинаторика есептері ---- */
+const qs = [
+{
+ story:"Мектептегі 5 оқушыдан 3-еуін кезекшілікке таңдау керек. Қанша тәсіл бар?",
+ ans:"10",
+ wrong:["60","20","6"],
+ e:"Комбинация: C(5,3)=10"
+},
+{
+ story:"3 әріпті реттілікпен (код) құрастыру керек: A, B, C, D әріптерінен. Қайталанбайды.",
+ ans:"24",
+ wrong:["12","6","64"],
+ e:"Перестановка: P(4,3)=4·3·2=24"
+},
+{
+ story:"6 оқушыдан 2-еуін орындары маңызды болатын жарысқа қою керек.",
+ ans:"30",
+ wrong:["12","15","720"],
+ e:"Вариация: A(6,2)=6·5=30"
+},
+{
+ story:"5 пәннің тәртібін анықтау (барлығы қолданылсын).",
+ ans:"120",
+ wrong:["25","20","60"],
+ e:"Перестановка: 5!=120"
+},
+{
+ story:"7 оқушыдан 4-еуін топқа таңдау керек. Реті маңызды емес.",
+ ans:"35",
+ wrong:["28","140","12"],
+ e:"C(7,4)=35"
+}
+];
+
+let cur;
+
+/* ---- Жаңа есеп ---- */
+function nextQ(){
+
+    cur = qs[Math.floor(Math.random()*qs.length)];
+
+    document.getElementById("story").textContent = cur.story;
+
+    document.getElementById("status").textContent = "";
+    document.getElementById("expl").style.display="none";
+
+    const optDiv = document.getElementById("opts");
+    optDiv.innerHTML="";
+
+    let options=[cur.ans, ...cur.wrong];
+    options.sort(()=>Math.random()-0.5);
+
+    options.forEach(op=>{
+        const div=document.createElement("div");
+        div.className="option";
+        div.textContent=op;
+        div.onclick=()=> check(op, div);
+        optDiv.appendChild(div);
+    });
+}
+
+/* ---- Тексеру ---- */
+function check(sel, box){
+    const status = document.getElementById("status");
+    const expl = document.getElementById("expl");
+
+    if(sel === cur.ans){
+        box.classList.add("correct");
+        status.textContent="✅ Дұрыс!";
+        status.className="status ok";
+        expl.style.display="block";
+        expl.innerHTML="Түсіндіру: "+cur.e;
+    } else {
+        box.classList.add("wrong");
+        status.textContent="❌ Қате!";
+        status.className="status err";
+        expl.style.display="block";
+        expl.innerHTML="Нұсқаулық: "+cur.e;
+    }
+}
+
+nextQ();
+</script>
+
+</body>
+</html>
