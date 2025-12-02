@@ -160,6 +160,13 @@ button {
   height: 140px;
 }
 
+/* кішкене helper – room-hint класын teacher.html-де қолдандың */
+.room-hint {
+  font-size: 12px;
+  margin-top: 8px;
+  text-align: center;
+}
+
 /* =========================================================
    PAGES (Multi-page)
 ========================================================= */
@@ -269,6 +276,7 @@ button {
   border-radius: 10px;
   min-height: 60px;
   font-size: 15px;
+  margin-bottom: 12px;
 }
 
 .answer-item {
@@ -290,6 +298,53 @@ button {
   background: #e0f2fe;
   border-radius: 999px;
   margin: 2px;
+}
+
+/* =========================================================
+   TRAINERS PANEL (оң жақтан ашылатын панель үшін жалпы стиль)
+   teacher.js → buildTrainerPanelDom() / toggleTrainerPanel()
+   ========================================================== */
+
+/* панель контейнерінің ID – trainerPanel
+   (қазір JS оны right-panel ішіне right-box ретінде жасайды,
+    сондықтан тек ішкі элементтерді сәндейміз) */
+
+.trainer-tab-btn {
+  flex: 1;
+  border: none;
+  background: #e5e7eb;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.trainer-tab-btn.active {
+  background: #c7d2fe;
+  font-weight: 600;
+}
+
+.trainer-list {
+  margin-top: 6px;
+}
+
+/* Тізімдегі тренажёр кнопкалары.
+   JS ішінде inline-style де бар, бірақ мұнда да әдемірек қыламыз. */
+
+.trainer-item-btn {
+  width: 100%;
+  background: #f3f4f6;
+  border: none;
+  padding: 8px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+}
+
+.trainer-item-btn:hover {
+  background: #e5e7eb;
 }
 
 /* =========================================================
