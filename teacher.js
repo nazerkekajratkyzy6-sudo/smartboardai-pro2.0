@@ -1,11 +1,12 @@
-// teacher.js — SmartBoardAI PRO (Phase 1 FINAL, NO i18n.js)
+// teacher.js — SmartBoardAI PRO (Phase 1 + Trainers Panel, NO i18n.js сыртқы файл)
 
-// Функциялар: 
+// Функциялар:
 // - Language switch (ішкі T объект арқылы)
 // - Modal UI (prompt орнына)
 // - Multi-page (pages[])
 // - QR + RoomID + Firebase (answers + emotions + wordcloud)
 // - AI → панель + тақтаға блок
+// - Trainers Panel: 3 категория (generators / math / reflection) → iframe блок
 
 import { db, ref, set, onValue } from "./firebaseConfig.js";
 
@@ -17,9 +18,124 @@ let currentLang = "kk";
 let pages = [{ id: "page_1", blocks: [] }];
 let currentPageIndex = 0;
 
-// ===============================
+// =====================================================
+// TRAINERS DATA
+// Папка аты (id) → URL: /trainers/<category>/<id>/index.html
+// Экрандағы атауы: id ішіндегі "_" → " "
+// =====================================================
+const TRAINERS = {
+  generators: [
+    "anagram",
+    "anagram–build_the_word",
+    "anagramma",
+    "Artyq_sozdi_tap",
+    "Asyq_atu_oiin",
+    "Bagalau_generatory",
+    "Bagytty_tanda",
+    "Bigger_or_Smaller",
+    "crossword",
+    "Erezhege_sai_toptastyr",
+    "Este_saktau_kartochkalary",
+    "funkciya_generatory",
+    "Ia_Joq",
+    "Jad_pen_zeyindi_damytu",
+    "Jasyryn_sozder_generatory",
+    "Joqalgan_aripti_tap",
+    "Jyldam_reakciya_oyny",
+    "Jyldam_toptastyru",
+    "Koordinattardy_tap",
+    "Logikalyq_keste",
+    "Magynasyna_qarai_bol",
+    "Match_Up",
+    "Oqushy_tandau",
+    "Oqushy_topqa_bolu",
+    "pisa_timss_generator",
+    "Qai_sym_qai_shamga_barady",
+    "Rettilik_qurastyr",
+    "Saikestendiru",
+    "San_syzygynda_belgele",
+    "Skanvord_generator",
+    "Soilem_qurastyr",
+    "solver",
+    "Sozdi_bir-birine_turlendir",
+    "Suraq_tandau",
+    "Syzyqpen_saikestendir",
+    "tarsia",
+    "timer",
+    "Togyzqumalaq_oiin",
+    "Top_ishindegi_rolderge_bolu",
+    "Topqa_bolu_generator",
+    "Tort_nusqaly_Quiz",
+    "Ulgini_jalgastyr",
+    "wordcloud",
+    "Wordsearch_KZ",
+  ],
+  math: [
+    "6-synyp–Proporciya",
+    "7-synyp–Birmusheler",
+    "7-synyp–Kopmusheler",
+    "8-synyp–Tendeuler trenazheri",
+    "8-synyp–Viet_teoremasy",
+    "9-synyp–Trigonomeriya",
+    "10-synyp–Trigonomeriyalyq_tendeuler",
+    "11-synyp–Korsetkistik_tendeuler",
+    "Absoliutti_jiilik_7",
+    "Algebra_trenazhery(7–11)",
+    "Arif_prog",
+    "Bir_ainymaly_tensizdikter_6",
+    "Bolshek_5_synyp",
+    "Dareze_7",
+    "Formula_5_synyp",
+    "funkciyalar_grafigi–7-synyp",
+    "Geom_progressiya",
+    "Geometriya_trenazhery(7–11)",
+    "Grafiktiq_tasilme_tendeuler_zhuiesin_sheshu_7",
+    "Grafiktiq_tasilmen_sheshu_7",
+    "Jiilik_kestesi_jane_jiilik_alqaby",
+    "Koleso_toptyq_zarys",
+    "Kombinatorika_9",
+    "Koordinata_zhaiyqtyq",
+    "Kvadrat_tendeu_8",
+    "Matematika_trenazhery(5–6synyp)",
+    "Negizgi_trigonometrialyq_tepe-tendikter_8",
+    "On_zhane_teris_sandar_6",
+    "Ondyq_bolshek_5",
+    "Paiz",
+    "Pifagor_teoremasy_8",
+    "qazmath_offline_lab",
+    "Salystrmaly_jiilik_7",
+    "Syzyqtyq _funkciyalardyn_ozara_ornalasuy_7",
+    "Syzyqtyq_funkciya",
+    "Tenbuyirli_ushburysh_7_geometriya",
+    "Tikburyshty_ushburyshtardy_sheshu_8",
+    "Toptyq_zarys_Ushburyshtar",
+    "Variaciialyq_qatar_quru7",
+  ],
+  reflection: [
+    "Asyq",
+    "Aua_raıy",
+    "Bagalau_juiesi",
+    "bagdarsham_refleksiya",
+    "batareya_refleksiya",
+    "dombyra_refleksiya",
+    "emoji_reflection",
+    "emotion_refleksiya",
+    "Kerі_baılanys",
+    "konil-kuı",
+    "konil-kuı/_shary",
+    "Osu_dengeıі",
+    "Poiyz_refleksiya",
+    "Qumsagat_kerі_baılanys",
+    "Qundylyq_refleksiya",
+    "Refleksiya_Kevin",
+    "Refleksiya_ufo",
+    "Universal_ref",
+  ],
+};
+
+// =====================================================
 // LANGUAGE TEXTS
-// ===============================
+// =====================================================
 const T = {
   kk: {
     topbar: "📘 SmartBoardAI PRO — Мұғалім",
@@ -42,6 +158,10 @@ const T = {
     noAnswers: "Әзірше жауап жоқ...",
     noEmo: "Әзірше эмоция жоқ...",
     noWords: "Әзірше сөздер жоқ...",
+    trainersTitle: "🕹 Тренажерлер",
+    catGenerators: "Генераторлар",
+    catMath: "Математика",
+    catReflection: "Рефлексия",
   },
   ru: {
     topbar: "📘 SmartBoardAI PRO — Учитель",
@@ -64,6 +184,10 @@ const T = {
     noAnswers: "Пока нет ответов...",
     noEmo: "Пока эмоций нет...",
     noWords: "Пока слов нет...",
+    trainersTitle: "🕹 Тренажёры",
+    catGenerators: "Генераторы",
+    catMath: "Математика",
+    catReflection: "Рефлексия",
   },
   en: {
     topbar: "📘 SmartBoardAI PRO — Teacher",
@@ -86,6 +210,10 @@ const T = {
     noAnswers: "No answers yet...",
     noEmo: "No emotions yet...",
     noWords: "No words yet...",
+    trainersTitle: "🕹 Trainers",
+    catGenerators: "Generators",
+    catMath: "Math",
+    catReflection: "Reflection",
   },
 };
 
@@ -123,6 +251,16 @@ function applyLang(lang) {
   if (aiPrompt) aiPrompt.placeholder = t.aiPrompt;
   if (addPageBtn) addPageBtn.textContent = "➕ " + t.addPage;
 
+  // Тренажёр панелінің тілдері
+  const trainersTitle = $("trainerPanelTitle");
+  const tabGen = $("trainerTabGenerators");
+  const tabMath = $("trainerTabMath");
+  const tabRefl = $("trainerTabReflection");
+  if (trainersTitle) trainersTitle.textContent = t.trainersTitle;
+  if (tabGen) tabGen.textContent = t.catGenerators;
+  if (tabMath) tabMath.textContent = t.catMath;
+  if (tabRefl) tabRefl.textContent = t.catReflection;
+
   renderBoard();
   renderPages();
 }
@@ -139,9 +277,9 @@ function setupLanguage() {
   applyLang("kk");
 }
 
-// ===============================
+// =====================================================
 // MODAL UI (prompt орнына)
-// ===============================
+// =====================================================
 let modalCallback = null;
 
 function openModal(title, placeholder, callback) {
@@ -182,9 +320,9 @@ function setupModalEvents() {
   }
 }
 
-// ===============================
+// =====================================================
 // LOGOUT
-// ===============================
+// =====================================================
 function setupLogout() {
   const btn = $("logout");
   if (!btn) return;
@@ -200,9 +338,9 @@ function setupLogout() {
   };
 }
 
-// ===============================
+// =====================================================
 // PAGE SYSTEM
-// ===============================
+// =====================================================
 function getCurrentBlocks() {
   return pages[currentPageIndex].blocks;
 }
@@ -242,9 +380,9 @@ function renderPages() {
   });
 }
 
-// ===============================
+// =====================================================
 // BOARD
-// ===============================
+// =====================================================
 function renderBoard() {
   const board = $("board");
   if (!board) return;
@@ -347,9 +485,9 @@ function addBlock(type, content) {
   renderBoard();
 }
 
-// ===============================
+// =====================================================
 // BLOCK BUTTONS (MODAL + FILE)
-// ===============================
+// =====================================================
 window.addTextBlock = () => {
   const title =
     currentLang === "ru"
@@ -438,20 +576,145 @@ window.addLink = () => {
   openModal(title, ph, (url) => addBlock("link", url.trim()));
 };
 
+// Бұрынғы "URL сұрайтын" addTrainer орнына → панельді ашу/жабу
 window.addTrainer = () => {
-  const title =
-    currentLang === "ru"
-      ? "URL тренажёра (iframe)"
-      : currentLang === "en"
-      ? "Trainer URL (iframe)"
-      : "Тренажер URL (iframe)";
-  const ph = "https://your-trainer-url...";
-  openModal(title, ph, (url) => addBlock("trainer", url.trim()));
+  toggleTrainerPanel();
 };
 
-// ===============================
+// =====================================================
+// TRAINER PANEL (оң жақта, студент жауаптарының үстінде)
+// =====================================================
+function buildTrainerPanelDom() {
+  const rightPanel = document.querySelector(".right-panel");
+  if (!rightPanel) return;
+
+  // Егер бұрын жасалған болса — қайталап жасамау
+  if ($("trainerPanel")) return;
+
+  const t = T[currentLang] || T.kk;
+
+  const panel = document.createElement("div");
+  panel.id = "trainerPanel";
+  panel.style.display = "none"; // әдепкіде жабық
+  panel.innerHTML = `
+    <div class="right-box" style="margin-bottom: 12px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <span id="trainerPanelTitle">${t.trainersTitle}</span>
+        <button id="trainerCloseBtn" style="border:none; background:#fee2e2; border-radius:6px; padding:2px 8px; cursor:pointer;">✕</button>
+      </div>
+      <div style="display:flex; gap:6px; margin-bottom:8px;">
+        <button id="trainerTabGenerators" class="trainer-tab-btn active">${t.catGenerators}</button>
+        <button id="trainerTabMath" class="trainer-tab-btn">${t.catMath}</button>
+        <button id="trainerTabReflection" class="trainer-tab-btn">${t.catReflection}</button>
+      </div>
+      <div id="trainerList" class="trainer-list"></div>
+    </div>
+  `;
+
+  // панельді студент жауаптарының алдына қойамыз
+  const firstChild = rightPanel.firstElementChild;
+  if (firstChild) {
+    rightPanel.insertBefore(panel, firstChild);
+  } else {
+    rightPanel.appendChild(panel);
+  }
+
+  // Табы бойынша ауыстыру
+  const tabGen = $("trainerTabGenerators");
+  const tabMath = $("trainerTabMath");
+  const tabRefl = $("trainerTabReflection");
+
+  const allTabs = [tabGen, tabMath, tabRefl];
+
+  function activateTab(tabEl, cat) {
+    allTabs.forEach((btn) => {
+      if (!btn) return;
+      btn.classList.remove("active");
+      btn.style.background = "#e5e7eb";
+    });
+    if (tabEl) {
+      tabEl.classList.add("active");
+      tabEl.style.background = "#c7d2fe";
+    }
+    renderTrainerList(cat);
+  }
+
+  if (tabGen)
+    tabGen.onclick = () => {
+      activateTab(tabGen, "generators");
+    };
+  if (tabMath)
+    tabMath.onclick = () => {
+      activateTab(tabMath, "math");
+    };
+  if (tabRefl)
+    tabRefl.onclick = () => {
+      activateTab(tabRefl, "reflection");
+    };
+
+  // Әдепкіде generators
+  activateTab(tabGen, "generators");
+
+  const closeBtn = $("trainerCloseBtn");
+  if (closeBtn) {
+    closeBtn.onclick = () => toggleTrainerPanel(false);
+  }
+}
+
+function renderTrainerList(category) {
+  const listEl = $("trainerList");
+  if (!listEl) return;
+
+  const items = TRAINERS[category] || [];
+  listEl.innerHTML = "";
+
+  items.forEach((id) => {
+    const btn = document.createElement("button");
+    btn.className = "trainer-item-btn";
+    btn.style.display = "block";
+    btn.style.width = "100%";
+    btn.style.textAlign = "left";
+    btn.style.padding = "6px 8px";
+    btn.style.marginBottom = "4px";
+    btn.style.borderRadius = "6px";
+    btn.style.border = "none";
+    btn.style.background = "#f3f4f6";
+    btn.style.cursor = "pointer";
+    btn.style.fontSize = "13px";
+
+    const label = id.replace(/_/g, " ");
+    btn.textContent = label;
+
+    btn.onclick = () => {
+      const url = `/trainers/${category}/${id}/index.html`;
+      addBlock("trainer", url);
+    };
+
+    listEl.appendChild(btn);
+  });
+
+  if (!items.length) {
+    listEl.textContent = "Папкада тренажер жоқ.";
+  }
+}
+
+function toggleTrainerPanel(forceValue) {
+  const panel = $("trainerPanel");
+  if (!panel) return;
+
+  let show;
+  if (typeof forceValue === "boolean") {
+    show = forceValue;
+  } else {
+    show = panel.style.display === "none" || panel.style.display === "";
+  }
+
+  panel.style.display = show ? "block" : "none";
+}
+
+// =====================================================
 // AI MODULE — Панель + тақтаға блок
-// ===============================
+// =====================================================
 window.generateAI = async function () {
   const promptArea = $("aiPrompt");
   const output = $("aiOutput");
@@ -508,9 +771,9 @@ window.generateAI = async function () {
   }
 };
 
-// ===============================
+// =====================================================
 // LIVEROOM + QR + Firebase streams
-// ===============================
+// =====================================================
 let currentRoom = null;
 
 function randomRoomID() {
@@ -633,9 +896,9 @@ function listenStudentStreams() {
   });
 }
 
-// ===============================
+// =====================================================
 // INIT
-// ===============================
+// =====================================================
 window.addEventListener("DOMContentLoaded", () => {
   setupLanguage();
   setupLogout();
@@ -644,4 +907,7 @@ window.addEventListener("DOMContentLoaded", () => {
   renderBoard();
   const addPageBtn = $("addPageBtn");
   if (addPageBtn) addPageBtn.onclick = addPage;
+
+  // Тренажер панелі DOM-ды құру
+  buildTrainerPanelDom();
 });
