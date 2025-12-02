@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <title>SmartBoardAI PRO – Мұғалім</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Premium UI -->
-  <link rel="stylesheet" href="main.css" />
+  <link rel="stylesheet" href="main.css">
 
   <!-- QR Generator -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -37,12 +37,12 @@
 
       <div class="section-title" id="blocksTitle">Блоктар</div>
 
-      <button class="tool-btn" id="btnText" onclick="addTextBlock()">📝 <span>Мәтін</span></button>
-      <button class="tool-btn" id="btnFormula" onclick="addFormula()">∑ <span>Формула</span></button>
-      <button class="tool-btn" id="btnImage" onclick="addImage()">🖼 <span>Фото</span></button>
-      <button class="tool-btn" id="btnVideo" onclick="addVideo()">🎬 <span>Видео</span></button>
-      <button class="tool-btn" id="btnLink" onclick="addLink()">🔗 <span>Сілтеме</span></button>
-      <button class="tool-btn" id="btnTrainer" onclick="addTrainer()">🕹 <span>Тренажер (iframe)</span></button>
+      <button class="tool-btn" onclick="addTextBlock()">📝 <span>Мәтін</span></button>
+      <button class="tool-btn" onclick="addFormula()">∑ <span>Формула</span></button>
+      <button class="tool-btn" onclick="addImage()">🖼 <span>Фото</span></button>
+      <button class="tool-btn" onclick="addVideo()">🎬 <span>Видео</span></button>
+      <button class="tool-btn" onclick="addLink()">🔗 <span>Сілтеме</span></button>
+      <button class="tool-btn" onclick="addTrainer()">🕹 <span>Тренажер</span></button>
 
       <!-- AI PANEL -->
       <div class="section-title" id="aiTitle">AI панелі</div>
@@ -62,13 +62,14 @@
 
         <div class="qr-box" id="qrContainer"></div>
 
-        <p id="roomHint" style="font-size: 12px; margin-top: 8px; text-align:center;">
-          Оқушылар <b>QR арқылы</b> қосылады
+        <p id="roomHint" class="room-hint">
+          Оқушылар <b>QR</b> арқылы қосылады
         </p>
       </div>
 
       <!-- PAGES -->
       <div class="section-title" id="pagesTitle">📄 Беттер</div>
+
       <div id="pagesWrap"></div>
       <button class="tool-btn" id="addPageBtn">➕ Бет қосу</button>
 
@@ -83,6 +84,10 @@
 
     <!-- RIGHT PANEL -->
     <aside class="right-panel">
+
+      <!-- ТРЕНАЖЕР ПАНЕЛІ — JS автомат салады -->
+      <!-- buildTrainerPanelDom() осы контейнерге үстіне панельді қояды -->
+
       <div class="right-title" id="answersTitle">📥 Оқушы жауаптары</div>
 
       <div class="right-box" id="studentAnswers">
@@ -105,12 +110,13 @@
   <!-- MODAL (prompt орнына) -->
   <div id="modal-bg" class="modal-bg">
     <div class="modal">
-        <h2 id="modal-title">Мәтін енгізіңіз</h2>
-        <input id="modal-input" type="text" />
-        <footer>
-            <button id="modal-cancel" class="modal-btn cancel">Болдырмау</button>
-            <button id="modal-ok" class="modal-btn ok">OK</button>
-        </footer>
+      <h2 id="modal-title">Мәтін енгізіңіз</h2>
+      <input id="modal-input" type="text">
+
+      <footer>
+        <button id="modal-cancel" class="modal-btn cancel">Болдырмау</button>
+        <button id="modal-ok" class="modal-btn ok">OK</button>
+      </footer>
     </div>
   </div>
 
