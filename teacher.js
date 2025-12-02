@@ -895,22 +895,6 @@ function listenStudentStreams() {
     box.innerHTML = words.map((w) => `<span class="wc-chip">${w}</span>`).join(" ");
   });
 }
-import { auth, onAuthStateChanged } from "./firebaseConfig.js";
-
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    // Логинге қайтару
-    location.href = "login.html";
-    return;
-  }
-
-  // ❗ Тек сенің email-ға рұқсат
-  if (user.email !== "naz-erke_k@mail.ru") {
-    alert("Бұл платформаға рұқсат тек авторға!");
-    location.href = "login.html";
-    return;
-  }
-});
 
 // =====================================================
 // INIT
@@ -927,5 +911,6 @@ window.addEventListener("DOMContentLoaded", () => {
   // Тренажер панелі DOM-ды құру
   buildTrainerPanelDom();
 });
+
 
 
