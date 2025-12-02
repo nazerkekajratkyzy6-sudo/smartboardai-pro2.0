@@ -7,6 +7,18 @@
 // - QR + RoomID + Firebase (answers + emotions + wordcloud)
 // - AI → панель + тақтаға блок
 // - Trainers Panel: 3 категория (generators / math / reflection) → iframe блок
+import { auth } from "./firebaseConfig.js";
+
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    location.href = "login.html";
+  } else {
+    if (user.email !== "naz-erke_k@mail.ru") {
+       alert("Бұл тақтаға рұқсат жоқ!");
+       location.href = "login.html";
+    }
+  }
+});
 
 import { db, ref, set, onValue } from "./firebaseConfig.js";
 
@@ -911,3 +923,4 @@ window.addEventListener("DOMContentLoaded", () => {
   // Тренажер панелі DOM-ды құру
   buildTrainerPanelDom();
 });
+
