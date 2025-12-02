@@ -7,18 +7,6 @@
 // - QR + RoomID + Firebase (answers + emotions + wordcloud)
 // - AI → панель + тақтаға блок
 // - Trainers Panel: 3 категория (generators / math / reflection) → iframe блок
-import { auth } from "./firebaseConfig.js";
-
-auth.onAuthStateChanged(user => {
-  if (!user) {
-    location.href = "login.html";
-  } else {
-    if (user.email !== "naz-erke_k@mail.ru") {
-       alert("Бұл тақтаға рұқсат жоқ!");
-       location.href = "login.html";
-    }
-  }
-});
 
 import { db, ref, set, onValue } from "./firebaseConfig.js";
 
@@ -907,6 +895,22 @@ function listenStudentStreams() {
     box.innerHTML = words.map((w) => `<span class="wc-chip">${w}</span>`).join(" ");
   });
 }
+import { auth, onAuthStateChanged } from "./firebaseConfig.js";
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    // Логинге қайтару
+    location.href = "login.html";
+    return;
+  }
+
+  // ❗ Тек сенің email-ға рұқсат
+  if (user.email !== "naz-erke_k@mail.ru") {
+    alert("Бұл платформаға рұқсат тек авторға!");
+    location.href = "login.html";
+    return;
+  }
+});
 
 // =====================================================
 // INIT
@@ -923,4 +927,5 @@ window.addEventListener("DOMContentLoaded", () => {
   // Тренажер панелі DOM-ды құру
   buildTrainerPanelDom();
 });
+
 
