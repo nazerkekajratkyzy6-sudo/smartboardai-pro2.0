@@ -2,74 +2,90 @@
 <html lang="kk">
 <head>
   <meta charset="UTF-8">
-  <title>SmartBoardAI PRO – Кіру</title>
+  <title>SmartBoardAI PRO — Кіру</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="main.css">
+</head>
+
+<body class="login-body">
+
+  <div class="login-card">
+
+    <h2 class="login-title">SmartBoardAI PRO</h2>
+    <p class="login-sub">Мұғалім аккаунтымен кіріңіз</p>
+
+    <input type="email" id="email" placeholder="Email" class="login-input">
+    <input type="password" id="password" placeholder="Құпия сөз" class="login-input">
+
+    <button id="loginBtn" class="login-btn">🔑 Кіру</button>
+    <button id="registerBtn" class="login-btn secondary">➕ Тіркелу</button>
+
+    <div class="or">немесе</div>
+
+    <button id="googleBtn" class="login-btn google">🔵 Google арқылы кіру</button>
+
+    <p class="login-footer">AI-Pedagogy Tools by Nazerke Kairatkyzy</p>
+  </div>
+
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider }
-      from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import {
+      auth,
+      googleProvider,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      signInWithPopup
+    } from "./firebaseConfig.js";
 
-    const firebaseConfig = {
-      apiKey: "...",
-      authDomain: "...",
-      projectId: "...",
-      storageBucket: "...",
-      messagingSenderId: "...",
-      appId: "..."
-    };
+    const MY_EMAIL = "naz-erke_k@mail.ru";
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-
-    // EMAIL LOGIN
-    window.loginEmail = async function () {
-      const email = document.getElementById("email").value.trim();
-      const pass = document.getElementById("password").value.trim();
+    // ---------- LOGIN ----------
+    document.getElementById("loginBtn").onclick = async () => {
+      const email = emailInput.value.trim();
+      const pass = password.value.trim();
 
       try {
-        const user = await signInWithEmailAndPassword(auth, email, pass);
+        const userCred = await signInWithEmailAndPassword(auth, email, pass);
+        if (userCred.user.email !== MY_EMAIL) {
+          alert("Бұл аккаунтқа рұқсат жоқ!");
+          return;
+        }
         location.href = "teacher.html";
-      } catch (e) {
-        alert("Қате: " + e.message);
+      } catch (err) {
+        alert("Қате: " + err.message);
       }
     };
 
-    // GOOGLE LOGIN
-    window.loginGoogle = async function () {
+    // ---------- REGISTER ----------
+    document.getElementById("registerBtn").onclick = async () => {
+      const email = emailInput.value.trim();
+      const pass = password.value.trim();
+
       try {
-        await signInWithPopup(auth, provider);
+        const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+        if (userCred.user.email !== MY_EMAIL) {
+          alert("Тек өз email-іңіз тіркеле алады!");
+          return;
+        }
         location.href = "teacher.html";
-      } catch (e) {
-        alert("Google кіру қатесі: " + e.message);
+      } catch (err) {
+        alert("Тіркелу қатесі: " + err.message);
+      }
+    };
+
+    // ---------- GOOGLE LOGIN ----------
+    document.getElementById("googleBtn").onclick = async () => {
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        if (result.user.email !== MY_EMAIL) {
+          alert("Рұқсат жоқ!");
+          return;
+        }
+        location.href = "teacher.html";
+      } catch (err) {
+        alert("Google арқылы кіру қатесі: " + err.message);
       }
     };
   </script>
-
-</head>
-<body class="index-body">
-
-<div class="index-wrapper">
-  <div class="index-card">
-
-    <div class="index-header">
-      <div class="index-logo-circle">AI</div>
-      <div>
-        <h1>SmartBoardAI PRO</h1>
-        <p>Мұғалім кіру парағы</p>
-      </div>
-    </div>
-
-    <input id="email" type="email" placeholder="Email" class="login-input">
-    <input id="password" type="password" placeholder="Құпия сөз" class="login-input">
-
-    <button class="index-btn-teacher" onclick="loginEmail()">Кіру</button>
-
-    <button class="index-btn-student" onclick="loginGoogle()">Google арқылы кіру</button>
-
-  </div>
-</div>
 
 </body>
 </html>
