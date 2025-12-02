@@ -5,7 +5,6 @@
   <title>SmartBoardAI PRO – Мұғалім</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Premium UI -->
   <link rel="stylesheet" href="main.css">
 
   <!-- QR Generator -->
@@ -14,7 +13,7 @@
 
 <body>
 
-  <!-- TOP BAR -->
+  <!-- =============== TOP BAR =============== -->
   <div class="topbar">
     <div class="topbar-title" id="topbarTitle">📘 SmartBoardAI PRO — Мұғалім</div>
 
@@ -22,15 +21,15 @@
       <button class="lang-btn" id="langKZ">KZ</button>
       <button class="lang-btn" id="langRU">RU</button>
       <button class="lang-btn" id="langEN">EN</button>
-
       <button class="logout-btn" id="logout">🔒 Шығу</button>
     </div>
   </div>
 
-  <!-- LAYOUT -->
+
+  <!-- =============== LAYOUT =============== -->
   <div class="container">
 
-    <!-- SIDEBAR -->
+    <!-- =============== SIDEBAR =============== -->
     <aside class="sidebar">
 
       <h2 id="toolsTitle">🧰 Құралдар</h2>
@@ -42,18 +41,21 @@
       <button class="tool-btn" onclick="addImage()">🖼 <span>Фото</span></button>
       <button class="tool-btn" onclick="addVideo()">🎬 <span>Видео</span></button>
       <button class="tool-btn" onclick="addLink()">🔗 <span>Сілтеме</span></button>
-      <button class="tool-btn" onclick="addTrainer()">🕹 <span>Тренажер</span></button>
 
-      <!-- AI PANEL -->
+      <!-- тренажер панелін ашатын КНОПКА -->
+      <button class="tool-btn" onclick="addTrainer()">🕹 <span>Тренажерлер</span></button>
+
+
+      <!-- ===== AI PANEL ===== -->
       <div class="section-title" id="aiTitle">AI панелі</div>
-
       <div class="ai-panel">
         <textarea id="aiPrompt" placeholder="Тапсырма немесе мәтін жазыңыз..."></textarea>
         <button class="ai-btn" onclick="generateAI()">⚡ Генерация</button>
         <div id="aiOutput"></div>
       </div>
 
-      <!-- LIVE ROOM -->
+
+      <!-- ===== LIVE ROOM ===== -->
       <div class="section-title" id="liveRoomTitle">LiveRoom</div>
 
       <div class="room-box">
@@ -63,54 +65,51 @@
         <div class="qr-box" id="qrContainer"></div>
 
         <p id="roomHint" class="room-hint">
-          Оқушылар <b>QR</b> арқылы қосылады
+          Оқушылар <b>QR арқылы</b> қосылады
         </p>
       </div>
 
-      <!-- PAGES -->
-      <div class="section-title" id="pagesTitle">📄 Беттер</div>
 
+      <!-- ===== PAGES ===== -->
+      <div class="section-title" id="pagesTitle">📄 Беттер</div>
       <div id="pagesWrap"></div>
       <button class="tool-btn" id="addPageBtn">➕ Бет қосу</button>
 
     </aside>
 
-    <!-- MAIN BOARD -->
+
+
+    <!-- =============== BOARD AREA =============== -->
     <main class="board-area" id="board">
       <h3 class="center-msg" id="boardEmpty">
         ✨ Сабақ құруды бастау үшін сол жақтан блок таңдаңыз
       </h3>
     </main>
 
-    <!-- RIGHT PANEL -->
+
+
+    <!-- =============== RIGHT PANEL =============== -->
     <aside class="right-panel">
 
-      <!-- ТРЕНАЖЕР ПАНЕЛІ — JS автомат салады -->
-      <!-- buildTrainerPanelDom() осы контейнерге үстіне панельді қояды -->
+      <!-- тренажёр панелі ОСЫ ЖЕРГЕ динамикалық түрде teacher.js жасап қосады -->
 
       <div class="right-title" id="answersTitle">📥 Оқушы жауаптары</div>
-
-      <div class="right-box" id="studentAnswers">
-        Әзірше жауап жоқ...
-      </div>
+      <div class="right-box" id="studentAnswers">Әзірше жауап жоқ...</div>
 
       <div class="section-title" id="emoTitle">Эмоциялар</div>
-      <div class="right-box" id="studentEmotions">
-        Әзірше эмоция жоқ...
-      </div>
+      <div class="right-box" id="studentEmotions">Әзірше эмоция жоқ...</div>
 
       <div class="section-title" id="wcTitle">Сөз бұлты</div>
-      <div class="right-box" id="studentWordCloud">
-        Әзірше сөздер жоқ...
-      </div>
+      <div class="right-box" id="studentWordCloud">Әзірше сөздер жоқ...</div>
     </aside>
-
   </div>
 
-  <!-- MODAL (prompt орнына) -->
+
+  <!-- =============== MODAL UI =============== -->
   <div id="modal-bg" class="modal-bg">
     <div class="modal">
       <h2 id="modal-title">Мәтін енгізіңіз</h2>
+
       <input id="modal-input" type="text">
 
       <footer>
@@ -120,7 +119,8 @@
     </div>
   </div>
 
-  <!-- SCRIPT -->
+
+  <!-- JS -->
   <script type="module" src="teacher.js"></script>
   <script type="module" src="firebaseConfig.js"></script>
 
