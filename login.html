@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <title>SmartBoardAI PRO – Кіру</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="main.css">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider }
+      from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "...",
+      authDomain: "...",
+      projectId: "...",
+      storageBucket: "...",
+      messagingSenderId: "...",
+      appId: "..."
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // EMAIL LOGIN
+    window.loginEmail = async function () {
+      const email = document.getElementById("email").value.trim();
+      const pass = document.getElementById("password").value.trim();
+
+      try {
+        const user = await signInWithEmailAndPassword(auth, email, pass);
+        location.href = "teacher.html";
+      } catch (e) {
+        alert("Қате: " + e.message);
+      }
+    };
+
+    // GOOGLE LOGIN
+    window.loginGoogle = async function () {
+      try {
+        await signInWithPopup(auth, provider);
+        location.href = "teacher.html";
+      } catch (e) {
+        alert("Google кіру қатесі: " + e.message);
+      }
+    };
+  </script>
+
+</head>
+<body class="index-body">
+
+<div class="index-wrapper">
+  <div class="index-card">
+
+    <div class="index-header">
+      <div class="index-logo-circle">AI</div>
+      <div>
+        <h1>SmartBoardAI PRO</h1>
+        <p>Мұғалім кіру парағы</p>
+      </div>
+    </div>
+
+    <input id="email" type="email" placeholder="Email" class="login-input">
+    <input id="password" type="password" placeholder="Құпия сөз" class="login-input">
+
+    <button class="index-btn-teacher" onclick="loginEmail()">Кіру</button>
+
+    <button class="index-btn-student" onclick="loginGoogle()">Google арқылы кіру</button>
+
+  </div>
+</div>
+
+</body>
+</html>
