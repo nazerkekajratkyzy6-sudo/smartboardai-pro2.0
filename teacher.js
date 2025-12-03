@@ -8,7 +8,15 @@
 // - AI → панель + тақтаға блок
 // - Trainers Panel: 3 категория (generators / math / reflection) → iframe блок
 
-import { db, ref, set, onValue } from "./firebaseConfig.js";
+import {
+  db,
+  ref,
+  set,
+  onValue,
+  auth,
+  onAuthStateChanged,
+  signOut
+} from "./firebaseConfig.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -901,15 +909,37 @@ function listenStudentStreams() {
 // =====================================================
 window.addEventListener("DOMContentLoaded", () => {
   setupLanguage();
-  setupLogout();
   setupModalEvents();
   renderPages();
   renderBoard();
+
   const addPageBtn = $("addPageBtn");
   if (addPageBtn) addPageBtn.onclick = addPage;
 
   // Тренажер панелі DOM-ды құру
   buildTrainerPanelDom();
+
+  // ================================
+  // 🔐 AUTH CHECK (ТЕК СЕНДІКІ)
+  // ================================
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // Егер кірмеген → login.html-ге қайтарады
+      location.href = "login.html";
+      return;
+    }
+
+    if (user.email !== "naz-erke_k@mail.ru") {
+      alert("Бұл панельге рұқсатыңыз жоқ!");
+      location.href = "login.html";
+      return;
+    }
+
+    console.log("Мұғалім авторизациядан өтті:", user.email);
+
+    // енді ғана logout жұмыс істейді
+    setupLogout();
+  });
 });
 
 
