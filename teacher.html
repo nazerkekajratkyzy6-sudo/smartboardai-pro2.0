@@ -24,6 +24,31 @@
       <button class="logout-btn" id="logout">🔒 Шығу</button>
     </div>
   </div>
+<!-- TEXT FORMAT TOOLBAR -->
+<div id="textToolbar" class="text-toolbar" style="display:none;">
+  <button onclick="execTextCmd('bold')"><b>B</b></button>
+  <button onclick="execTextCmd('italic')"><i>I</i></button>
+  <button onclick="execTextCmd('underline')"><u>U</u></button>
+
+  <select onchange="execTextCmd('fontSize', this.value)">
+    <option value="3">14px</option>
+    <option value="4">18px</option>
+    <option value="5">22px</option>
+    <option value="6">28px</option>
+  </select>
+
+  <input type="color" onchange="execTextCmd('foreColor', this.value)">
+
+  <button onclick="execTextCmd('justifyLeft')">↤</button>
+  <button onclick="execTextCmd('justifyCenter')">⦿</button>
+  <button onclick="execTextCmd('justifyRight')">↦</button>
+
+  <button onclick="closeTextEditor()" style="background:#ef4444; color:white;">Save</button>
+</div>
+
+<div id="textEditor" class="text-editor" style="display:none;">
+  <div id="textEditorContent" contenteditable="true" class="text-editor-area"></div>
+</div>
 
 
   <!-- =============== LAYOUT =============== -->
@@ -126,3 +151,4 @@
 
 </body>
 </html>
+
