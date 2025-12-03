@@ -942,5 +942,26 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// =====================
+// TEXT EDITOR TOOLBAR
+// =====================
+window.addRichText = () => {
+  $("textToolbar").style.display = "flex";
+  $("textEditor").style.display = "block";
+  $("textEditorContent").innerHTML = "";
+};
+
+function execTextCmd(cmd, value = null) {
+  document.execCommand(cmd, false, value);
+}
+
+window.closeTextEditor = () => {
+  const html = $("textEditorContent").innerHTML;
+  addBlock("text", html);
+
+  $("textToolbar").style.display = "none";
+  $("textEditor").style.display = "none";
+};
+
 
 
