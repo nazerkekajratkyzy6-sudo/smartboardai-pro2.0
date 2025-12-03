@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <title>SmartBoardAI PRO – Кіру</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px 26px;
+      width: 380px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+    }
+    .title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 18px;
+    }
+    label {
+      font-size: 13px;
+      color: #374151;
+      display: block;
+      margin-bottom: 4px;
+    }
+    input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    input:focus {
+      outline: 2px solid #6366f1;
+      border-color: transparent;
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .btn {
+      flex: 1;
+      border-radius: 999px;
+      border: none;
+      padding: 8px 0;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+    .btn-primary {
+      background: #4f46e5;
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: #4338ca;
+    }
+    .btn-outline {
+      background: #eef2ff;
+      color: #4338ca;
+    }
+    .btn-outline:hover {
+      background: #e0e7ff;
+    }
+    .btn-google {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      color: #111827;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .btn-google:hover {
+      background: #f3f4f6;
+    }
+    .divider {
+      text-align: center;
+      font-size: 12px;
+      color: #9ca3af;
+      margin: 4px 0 8px;
+    }
+    .footer {
+      margin-top: 8px;
+      font-size: 11px;
+      color: #9ca3af;
+      text-align: center;
+    }
+    .error-msg {
+      font-size: 12px;
+      color: #b91c1c;
+      margin-bottom: 8px;
+      min-height: 16px;
+    }
+    .ok-msg {
+      font-size: 12px;
+      color: #15803d;
+      margin-bottom: 8px;
+      min-height: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="title">SmartBoardAI PRO</div>
+    <div class="subtitle">Мұғалім аккаунтыңмен кіріңіз</div>
+
+    <label for="email">Email</label>
+    <input id="email" type="email" placeholder="naz-erke_k@mail.ru" />
+
+    <label for="password">Құпия сөз</label>
+    <input id="password" type="password" placeholder="••••••••" />
+
+    <div id="msg" class="error-msg"></div>
+
+    <div class="btn-row">
+      <button id="signInBtn" class="btn btn-primary">🔑 Кіру</button>
+      <button id="signUpBtn" class="btn btn-outline">➕ Тіркелу</button>
+    </div>
+
+    <div class="divider">немесе</div>
+
+    <button id="googleBtn" class="btn btn-google">
+      <span>🔵 Google арқылы кіру</span>
+    </button>
+
+    <div id="ok" class="ok-msg"></div>
+
+    <div class="footer">
+      AI-Pedagogy Tools by Nazerke Kairatkyzy
+    </div>
+  </div>
+
+  <script type="module">
+    import {
+      auth,
+      googleProvider,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      signInWithPopup
+    } from "./firebaseConfig.js";
+
+    const allowedEmail = "naz-erke_k@mail.ru";
+
+    const emailEl = document.getElementById("email");
+    const passEl = document.getElementById("password");
+    const signInBtn = document.getElementById("signInBtn");
+    const signUpBtn = document.getElementById("signUpBtn");
+    const googleBtn = document.getElementById("googleBtn");
+    const msgEl = document.getElementById("msg");
+    const okEl = document.getElementById("ok");
+
+    function showError(text) {
+      msgEl.textContent = text || "";
+      okEl.textContent = "";
+    }
+    function showOk(text) {
+      okEl.textContent = text || "";
+      msgEl.textContent = "";
+    }
+
+    function checkAllowed(email) {
+      if (email !== allowedEmail) {
+        showError("Бұл тақтаға тек автордың поштасына рұқсат бар.");
+        return false;
+      }
+      return true;
+    }
+
+    signInBtn.onclick = async () => {
+      const email = emailEl.value.trim();
+      const pass = passEl.value;
+      if (!email || !pass) {
+        showError("Email мен құпия сөзді енгізіңіз.");
+        return;
+      }
+      if (!checkAllowed(email)) return;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        showOk("Сәтті кірдіңіз.");
+        window.location.href = "teacher.html";
+      } catch (e) {
+        console.error(e);
+        showError("Кіру кезінде қате кетті: " + (e.code || e.message));
+      }
+    };
+
+    signUpBtn.onclick = async () => {
+      const email = emailEl.value.trim();
+      const pass = passEl.value;
+      if (!email || !pass) {
+        showError("Email мен құпия сөзді енгізіңіз.");
+        return;
+      }
+      if (!checkAllowed(email)) return;
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, pass);
+        showOk("Аккаунт сәтті тіркелді. Енді кіре аласыз.");
+      } catch (e) {
+        console.error(e);
+        showError("Тіркелу кезінде қате кетті: " + (e.code || e.message));
+      }
+    };
+
+    googleBtn.onclick = async () => {
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const email = result.user.email;
+        if (!checkAllowed(email)) {
+          // Басқа email болса – бірден шығарып жібереміз
+          await auth.signOut();
+          return;
+        }
+        window.location.href = "teacher.html";
+      } catch (e) {
+        console.error(e);
+        showError("Google арқылы кіру мүмкін болмады: " + (e.code || e.message));
+      }
+    };
+  </script>
+</body>
+</html>
