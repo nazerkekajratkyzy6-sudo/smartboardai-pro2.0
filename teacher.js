@@ -951,17 +951,25 @@ window.addRichText = () => {
   $("textEditorContent").innerHTML = "";
 };
 
-function execTextCmd(cmd, value = null) {
+// Глобальный, чтобы HTML onclick көре алсын
+window.execTextCmd = (cmd, value = null) => {
   document.execCommand(cmd, false, value);
-}
+  // Фокус қайта редакторға, чтобы форматирование дұрыс түссін
+  const ed = $("textEditorContent");
+  if (ed) ed.focus();
+};
+
 
 window.closeTextEditor = () => {
   const html = $("textEditorContent").innerHTML;
-  addBlock("text", html);
+  // Rich текстті бөлек типпен сақтаймыз
+  addBlock("rich", html);
 
   $("textToolbar").style.display = "none";
   $("textEditor").style.display = "none";
 };
+
+
 
 
 
