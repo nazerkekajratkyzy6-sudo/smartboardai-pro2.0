@@ -416,8 +416,17 @@ function renderBoard() {
 
     let contentHtml = "";
 
-    if (b.type === "text" || b.type === "ai") {
-      contentHtml = `<div class="board-text">${safe(b.content)}</div>`;
+   if (b.type === "text") {
+    // Қарапайым мәтін – escape
+    contentHtml = `<div class="board-text">${safe(b.content)}</div>`;
+}
+else if (b.type === "rich") {
+    // Rich-text → HTML толық рендерленеді
+    contentHtml = `<div class="board-text">${b.content}</div>`;
+}
+else if (b.type === "ai") {
+    contentHtml = `<div class="board-text">${safe(b.content)}</div>`;
+}
     } else if (b.type === "formula") {
       contentHtml = `<div class="math-block">${safe(b.content)}</div>`;
     } else if (b.type === "image") {
@@ -992,12 +1001,13 @@ window.closeTextEditor = function () {
 
   const html = content.innerHTML; // форматталған HTML
   if (html.trim()) {
-    addBlock("text", html);
+    addBlock("rich", html);
   }
 
   if (toolbar) toolbar.style.display = "none";
   if (editor) editor.style.display = "none";
 };
+
 
 
 
