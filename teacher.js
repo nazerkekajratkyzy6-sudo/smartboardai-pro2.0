@@ -945,31 +945,59 @@ window.addEventListener("DOMContentLoaded", () => {
 // =====================
 // TEXT EDITOR TOOLBAR
 // =====================
-window.addRichText = () => {
-  $("textToolbar").style.display = "flex";
-  $("textEditor").style.display = "block";
-  $("textEditorContent").innerHTML = "";
+
+// RichText терезесін ашу
+window.addRichText = function () {
+  const toolbar = $("textToolbar");
+  const editor = $("textEditor");
+  const content = $("textEditorContent");
+
+  if (!toolbar || !editor || !content) {
+    // Егер HTML әлі қойылмаса – жай мәтіндік блокқа түссін
+    const title =
+      currentLang === "ru"
+        ? "Введите текст"
+        : currentLang === "en"
+        ? "Enter text"
+        : "Мәтін енгізіңіз";
+    const ph =
+      currentLang === "ru"
+        ? "Текст..."
+        : currentLang === "en"
+        ? "Text..."
+        : "Мәтін...";
+
+    openModal(title, ph, (val) => addBlock("text", val));
+    return;
+  }
+
+  toolbar.style.display = "flex";
+  editor.style.display = "block";
+  content.innerHTML = "";
+  content.focus();
 };
 
-// Глобальный, чтобы HTML onclick көре алсын
-window.execTextCmd = (cmd, value = null) => {
+// Батырмалардан келген команда (B, I, U, т.б.)
+window.execTextCmd = function (cmd, value = null) {
+  // Қай жерде фокус тұр – сол contenteditable ішінде форматтайды
   document.execCommand(cmd, false, value);
-  // Фокус қайта редакторға, чтобы форматирование дұрыс түссін
-  const ed = $("textEditorContent");
-  if (ed) ed.focus();
 };
 
+// RichText терезесін жауып, тақтаға блок ретінде қосу
+window.closeTextEditor = function () {
+  const toolbar = $("textToolbar");
+  const editor = $("textEditor");
+  const content = $("textEditorContent");
+  if (!content) return;
 
-window.closeTextEditor = () => {
-  const html = $("textEditorContent").innerHTML;
-  // Rich текстті бөлек типпен сақтаймыз
-  addBlock("rich", html);
+  const html = content.innerHTML; // форматталған HTML
+  if (html.trim()) {
+    addBlock("text", html);
+  }
 
-  $("textToolbar").style.display = "none";
-  $("textEditor").style.display = "none";
+  if (toolbar) toolbar.style.display = "none";
+  if (editor) editor.style.display = "none";
 };
-
-
 
 
 
