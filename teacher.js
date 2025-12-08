@@ -922,6 +922,25 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // Тренажер панелі DOM-ды құру
   buildTrainerPanelDom();
+// =====================================================
+// FULLSCREEN MODE
+// =====================================================
+
+window.toggleFullscreen = () => {
+  const board = document.documentElement; // бүкіл экран
+
+  if (!document.fullscreenElement) {
+    // FULL ENTER
+    if (board.requestFullscreen) board.requestFullscreen();
+    else if (board.webkitRequestFullscreen) board.webkitRequestFullscreen();
+    else if (board.msRequestFullscreen) board.msRequestFullscreen();
+  } else {
+    // FULL EXIT
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    else if (document.msExitFullscreen) document.msExitFullscreen();
+  }
+};
 
   // ================================
   // 🔐 AUTH CHECK (ТЕК СЕНДІКІ)
@@ -1002,6 +1021,7 @@ window.closeTextEditor = function () {
   if (toolbar) toolbar.style.display = "none";
   if (editor) editor.style.display = "none";
 };
+
 
 
 
