@@ -413,20 +413,16 @@ function renderBoard() {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/\n/g, "<br>");
+     let contentHtml = "";
 
-    let contentHtml = "";
-
-   if (b.type === "text") {
-    // Қарапайым мәтін – escape
-    contentHtml = `<div class="board-text">${safe(b.content)}</div>`;
-}
-else if (b.type === "rich") {
-    // Rich-text → HTML толық рендерленеді
-    contentHtml = `<div class="board-text">${b.content}</div>`;
-}
-else if (b.type === "ai") {
-    contentHtml = `<div class="board-text">${safe(b.content)}</div>`;
-}
+    if (b.type === "text") {
+      // Қарапайым мәтін – escape
+      contentHtml = `<div class="board-text">${safe(b.content)}</div>`;
+    } else if (b.type === "rich") {
+      // Rich-text → HTML толық рендерленеді
+      contentHtml = `<div class="board-text">${b.content}</div>`;
+    } else if (b.type === "ai") {
+      contentHtml = `<div class="board-text">${safe(b.content)}</div>`;
     } else if (b.type === "formula") {
       contentHtml = `<div class="math-block">${safe(b.content)}</div>`;
     } else if (b.type === "image") {
@@ -439,7 +435,6 @@ else if (b.type === "ai") {
     } else if (b.type === "trainer") {
       contentHtml = `<iframe src="${b.content}" class="trainer-frame"></iframe>`;
     }
-
     const title =
       b.type === "text"
         ? currentLang === "ru"
@@ -1007,6 +1002,7 @@ window.closeTextEditor = function () {
   if (toolbar) toolbar.style.display = "none";
   if (editor) editor.style.display = "none";
 };
+
 
 
 
