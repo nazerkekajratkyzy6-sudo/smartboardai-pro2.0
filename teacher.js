@@ -435,6 +435,16 @@ function renderBoard() {
     } else if (b.type === "trainer") {
       contentHtml = `<iframe src="${b.content}" class="trainer-frame"></iframe>`;
     }
+    else if (b.type === "geogebra") {
+    contentHtml = `
+        <iframe 
+            src="${b.content}" 
+            class="geogebra-frame" 
+            allowfullscreen 
+            frameborder="0">
+        </iframe>`;
+}
+
     const title =
       b.type === "text"
         ? currentLang === "ru"
@@ -606,6 +616,16 @@ window.addLink = () => {
 // Бұрынғы "URL сұрайтын" addTrainer орнына → панельді ашу/жабу
 window.addTrainer = () => {
   toggleTrainerPanel();
+};
+window.addGeoGebra = () => {
+    const title =
+      currentLang === "ru" ? "Введите GeoGebra ссылку" :
+      currentLang === "en" ? "Enter GeoGebra URL" :
+      "GeoGebra сілтемесін енгізіңіз";
+
+    openModal(title, "https://www.geogebra.org/m/abcd1234", (url) => {
+        if (url) addBlock("geogebra", url);
+    });
 };
 
 // =====================================================
@@ -1052,6 +1072,7 @@ window.closeTextEditor = function () {
   if (toolbar) toolbar.style.display = "none";
   if (editor) editor.style.display = "none";
 };
+
 
 
 
