@@ -248,11 +248,12 @@ button {
 
 .board-video,
 .trainer-frame {
-  width: 100%;
-  height: 350px;
-  border-radius: 10px;
-  border: none;
+    width: 100%;
+    height: calc(100vh - 140px); /* Толық биіктікке созылады */
+    border-radius: 10px;
+    border: none;
 }
+
 
 /* =========================================================
    RIGHT PANEL
@@ -587,5 +588,6 @@ button {
 .fullscreen-btn:hover {
     background: #c7d2fe;
 }
+
 
 
