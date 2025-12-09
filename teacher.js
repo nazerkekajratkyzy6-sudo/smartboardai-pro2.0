@@ -922,6 +922,22 @@ function listenStudentStreams() {
     box.innerHTML = words.map((w) => `<span class="wc-chip">${w}</span>`).join(" ");
   });
 }
+// =========================
+// FULLSCREEN BLOCK
+// =========================
+
+function openFullscreenBlock(id) {
+    const el = document.getElementById("blk_" + id);
+    if (!el) return;
+
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else if (el.msRequestFullscreen) el.msRequestFullscreen();
+}
+
+document.addEventListener("fullscreenchange", () => {
+    // Қаласақ, fullscreen-нен шыққанда стилдерді түзетуге болады
+});
 
 // =====================================================
 // INIT
@@ -1036,6 +1052,7 @@ window.closeTextEditor = function () {
   if (toolbar) toolbar.style.display = "none";
   if (editor) editor.style.display = "none";
 };
+
 
 
 
