@@ -476,7 +476,14 @@ function renderBoard() {
       ${contentHtml}
   </div>
 `;
-
+// FULLSCREEN: батырмаға listener қосу
+const fsBtns = card.querySelectorAll(".fullscreen-btn");
+fsBtns.forEach(btn => {
+    btn.onclick = () => {
+        const blockId = btn.getAttribute("data-id");
+        openFullscreenBlock(blockId);
+    };
+});
     const delBtn = card.querySelector(".card-delete-btn");
     if (delBtn) {
       delBtn.onclick = () => {
@@ -492,14 +499,7 @@ function renderBoard() {
     board.appendChild(card);
   });
 }
-// FULLSCREEN: батырмаға listener қосу
-const fsBtns = card.querySelectorAll(".fullscreen-btn");
-fsBtns.forEach(btn => {
-    btn.onclick = () => {
-        const blockId = btn.getAttribute("data-id");
-        openFullscreenBlock(blockId);
-    };
-});
+
 
 function addBlock(type, content) {
   if (!content) return;
@@ -1052,6 +1052,7 @@ window.closeTextEditor = function () {
   if (toolbar) toolbar.style.display = "none";
   if (editor) editor.style.display = "none";
 };
+
 
 
 
