@@ -594,6 +594,24 @@ button {
 .fullscreen-btn:hover {
     background: #c7d2fe;
 }
+/* =========================
+   GEO GEBRA iframe (FULL SIZE)
+   ========================= */
+.geogebra-frame {
+    width: 100%;
+    min-height: 600px;
+    height: 600px;
+    border: none;
+    background: white;
+    border-radius: 10px;
+}
+
+/* Толық экран режиміне кіргенде iframe созылуы */
+:fullscreen .geogebra-frame {
+    width: 100%;
+    height: 100%;
+}
+
 
 
 
