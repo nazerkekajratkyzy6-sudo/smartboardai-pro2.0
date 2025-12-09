@@ -462,13 +462,20 @@ function renderBoard() {
         ? "AI"
         : "Block";
 
-    card.innerHTML = `
-      <div class="board-card-header">
-        <span>${title}</span>
-        <button class="card-delete-btn">✕</button>
+   card.innerHTML = `
+  <div class="board-card-header">
+      <span>${title}</span>
+
+      <div style="display:flex; gap:6px;">
+          <button class="fullscreen-btn" data-id="${b.id}">⛶</button>
+          <button class="card-delete-btn">✕</button>
       </div>
-      <div class="board-card-body">${contentHtml}</div>
-    `;
+  </div>
+
+  <div class="board-card-body" id="blk_${b.id}">
+      ${contentHtml}
+  </div>
+`;
 
     const delBtn = card.querySelector(".card-delete-btn");
     if (delBtn) {
@@ -485,6 +492,14 @@ function renderBoard() {
     board.appendChild(card);
   });
 }
+// FULLSCREEN: батырмаға listener қосу
+const fsBtns = card.querySelectorAll(".fullscreen-btn");
+fsBtns.forEach(btn => {
+    btn.onclick = () => {
+        const blockId = btn.getAttribute("data-id");
+        openFullscreenBlock(blockId);
+    };
+});
 
 function addBlock(type, content) {
   if (!content) return;
@@ -1021,6 +1036,7 @@ window.closeTextEditor = function () {
   if (toolbar) toolbar.style.display = "none";
   if (editor) editor.style.display = "none";
 };
+
 
 
 
