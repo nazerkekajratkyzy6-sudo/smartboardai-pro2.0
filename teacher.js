@@ -478,7 +478,6 @@ function renderBoard() {
 
       <div style="display:flex; gap:6px;">
           <button class="fullscreen-btn" data-id="${b.id}">⛶</button>
-          <button class="share-btn" data-id="${b.id}">👁</button>
           <button class="card-delete-btn">✕</button>
       </div>
   </div>
@@ -959,21 +958,7 @@ function openFullscreenBlock(id) {
 document.addEventListener("fullscreenchange", () => {
     // Қаласақ, fullscreen-нен шыққанда стилдерді түзетуге болады
 });
-// 👁 STUDENT-ке ЖІБЕРУ
-const shareBtn = card.querySelector(".share-btn");
-if (shareBtn) {
-    shareBtn.onclick = () => {
-        if (!currentRoom) {
-            alert("Алдымен LiveRoom ашыңыз!");
-            return;
-        }
 
-        const roomRef = ref(db, `rooms/${currentRoom}/teacher_share`);
-        // БЛОКТЫ JSON ретінде жібереміз
-        set(roomRef, b);
-        alert("Оқушыға көрсетілді 👁");
-    };
-}
 
 // =====================================================
 // INIT
@@ -1088,6 +1073,7 @@ window.closeTextEditor = function () {
   if (toolbar) toolbar.style.display = "none";
   if (editor) editor.style.display = "none";
 };
+
 
 
 
