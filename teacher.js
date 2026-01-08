@@ -532,14 +532,27 @@ if (shareBtn) {
 
 function addBlock(type, content) {
   if (!content) return;
+
   const arr = getCurrentBlocks();
   arr.push({
     id: "blk_" + Math.random().toString(36).slice(2, 9),
     type,
     content,
   });
+
   renderBoard();
+
+  // 👇 ОҚУШЫҒА ЖІБЕРУ
+  if (currentRoom) {
+    const blockRef = ref(db, `rooms/${currentRoom}/activeBlock`);
+    set(blockRef, {
+      type,
+      content,
+      time: Date.now(),
+    });
+  }
 }
+
 
 // =====================================================
 // BLOCK BUTTONS (MODAL + FILE)
@@ -1092,6 +1105,7 @@ window.closeTextEditor = function () {
   if (toolbar) toolbar.style.display = "none";
   if (editor) editor.style.display = "none";
 };
+
 
 
 
