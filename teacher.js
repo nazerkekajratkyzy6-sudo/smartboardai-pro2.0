@@ -478,6 +478,7 @@ function renderBoard() {
 
       <div style="display:flex; gap:6px;">
           <button class="fullscreen-btn" data-id="${b.id}">⛶</button>
+          <button class="share-btn" data-id="${b.id}">👁 Оқушыға</button>
           <button class="card-delete-btn">✕</button>
       </div>
   </div>
@@ -508,6 +509,24 @@ fsBtns.forEach(btn => {
 
     board.appendChild(card);
   });
+}
+const shareBtn = card.querySelector(".share-btn");
+if (shareBtn) {
+  shareBtn.onclick = () => {
+    if (!currentRoom) {
+      alert("Алдымен бөлме ашыңыз");
+      return;
+    }
+
+    set(
+      ref(db, `rooms/${currentRoom}/activeBlock`),
+      {
+        type: b.type,
+        content: b.content,
+        time: Date.now()
+      }
+    );
+  };
 }
 
 
@@ -1073,6 +1092,7 @@ window.closeTextEditor = function () {
   if (toolbar) toolbar.style.display = "none";
   if (editor) editor.style.display = "none";
 };
+
 
 
 
