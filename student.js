@@ -224,6 +224,29 @@ function applyLang(lang) {
   if (answerInput) answerInput.placeholder = t.ansPlaceholder;
   if (wcInput) wcInput.placeholder = t.wcPlaceholder;
 }
+// 👀 МҰҒАЛІМ БЛОГЫН ТЫҢДАУ
+function listenTeacherBlock() {
+  const roomId = getRoomId();
+  if (!roomId) return;
+
+  const blockRef = ref(db, `rooms/${roomId}/activeBlock`);
+
+  onValue(blockRef, (snap) => {
+    const data = snap.val();
+    const box = document.getElementById("teacherBlock");
+    if (!box || !data) return;
+
+    if (data.type === "text" || data.type === "ai") {
+      box.innerHTML = `<div>${data.content}</div>`;
+    }
+    else if (data.type === "trainer" || data.type === "video") {
+      box.innerHTML = `<iframe src="${data.content}"></iframe>`;
+    }
+    else {
+      box.innerHTML = `<div>${data.content}</div>`;
+    }
+  });
+}
 
 // ====== EVENTS ======
 function attachEvents() {
@@ -251,4 +274,6 @@ document.addEventListener("DOMContentLoaded", () => {
   detectRoomFromURL();
   applyLang("kz");
   attachEvents();
+  listenTeacherBlock();
 });
+
