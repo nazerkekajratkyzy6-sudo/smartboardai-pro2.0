@@ -129,4 +129,20 @@ button:hover {
 
 .lang-switch button:hover {
   background: #e2e8f0;
+
+}
+.teacher-block {
+  margin-top: 16px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 2px dashed #6366f1;
+  border-radius: 10px;
+  min-height: 120px;
+}
+
+.teacher-block iframe {
+  width: 100%;
+  height: 300px;
+  border-radius: 8px;
+  border: none;
 }
