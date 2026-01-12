@@ -506,10 +506,6 @@ fsBtns.forEach(btn => {
         }
       };
     }
-
-    board.appendChild(card);
-  });
-}
 const shareBtn = card.querySelector(".share-btn");
 if (shareBtn) {
   shareBtn.onclick = () => {
@@ -528,7 +524,9 @@ if (shareBtn) {
     );
   };
 }
-
+    board.appendChild(card);
+  });
+}
 
 function addBlock(type, content) {
   if (!content) return;
@@ -1105,6 +1103,7 @@ window.closeTextEditor = function () {
   if (toolbar) toolbar.style.display = "none";
   if (editor) editor.style.display = "none";
 };
+
 
 
 
