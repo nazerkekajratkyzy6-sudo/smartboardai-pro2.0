@@ -1,6 +1,6 @@
 // student.js — SmartBoardAI PRO (Answer + Emoji + WordCloud)
 
-import { db, ref, push } from "./firebaseConfig.js";
+import { db, ref, push, onValue } from "./firebaseConfig.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -276,4 +276,5 @@ document.addEventListener("DOMContentLoaded", () => {
   attachEvents();
   listenTeacherBlock();
 });
+
 
