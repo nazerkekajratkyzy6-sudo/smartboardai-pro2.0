@@ -1159,6 +1159,34 @@ function openRichEditorForBlock(blockId, html) {
   content.focus();
 }
 
+window.analyzePhoto = function () {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64 = reader.result;
+
+      // 1️⃣ Фотоны доскаға блок ретінде саламыз
+      addBlock("image", base64);
+
+      // 2️⃣ AI-ға жіберу (әзірге mock)
+      addBlock(
+        "ai",
+        "📸 Фото қабылданды.\n\n(Келесі қадамда AI есепті оқып, шешіп, қатесін табады.)"
+      );
+    };
+    reader.readAsDataURL(file);
+  };
+
+  input.click();
+};
+
 
 
 
