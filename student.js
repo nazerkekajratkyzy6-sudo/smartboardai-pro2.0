@@ -239,12 +239,23 @@ function listenTeacherBlock() {
     if (data.type === "text" || data.type === "ai") {
       box.innerHTML = `<div>${data.content}</div>`;
     }
+    if (window.MathJax) {
+  MathJax.typesetPromise();
+}
     else if (data.type === "trainer" || data.type === "video") {
       box.innerHTML = `<iframe src="${data.content}"></iframe>`;
     }
+      if (window.MathJax) {
+  MathJax.typesetPromise();
+}
+
     else {
       box.innerHTML = `<div>${data.content}</div>`;
     }
+    if (window.MathJax) {
+  MathJax.typesetPromise();
+}
+
   });
 }
 
@@ -276,5 +287,6 @@ document.addEventListener("DOMContentLoaded", () => {
   attachEvents();
   listenTeacherBlock();
 });
+
 
 
