@@ -81,13 +81,22 @@
       <button class="tool-btn" onclick="toggleFullscreen()">🖥️ <span>Толық экран</span></button>
       <button class="tool-btn" onclick="addGeoGebra()">📐 <span>GeoGebra</span></button>
 
-      <!-- ===== AI PANEL ===== -->
-      <div class="section-title" id="aiTitle">AI панелі</div>
       <div class="ai-panel">
-        <textarea id="aiPrompt" placeholder="Тапсырма немесе мәтін жазыңыз..."></textarea>
-        <button class="ai-btn" onclick="generateAI()">⚡ Генерация</button>
-        <div id="aiOutput"></div>
-      </div>
+  <textarea id="aiPrompt" placeholder="Тапсырма немесе мәтін жазыңыз..."></textarea>
+
+  <!-- 📷 Фото жүктеу -->
+  <input 
+    type="file" 
+    id="aiImageInput" 
+    accept="image/*"
+    style="margin:6px 0;"
+  />
+
+  <button class="ai-btn" onclick="generateAI()">⚡ Генерация</button>
+
+  <div id="aiOutput"></div>
+</div>
+
 
 
       <!-- ===== LIVE ROOM ===== -->
@@ -161,6 +170,7 @@
 
 </body>
 </html>
+
 
 
 
