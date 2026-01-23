@@ -425,7 +425,11 @@ function renderBoard() {
     } else if (b.type === "ai") {
       contentHtml = `<div class="board-text">${safe(b.content)}</div>`;
     } else if (b.type === "formula") {
-      contentHtml = `<div class="math-block">${safe(b.content)}</div>`;
+  contentHtml = `
+    <div class="math-block">
+      \\(${b.content}\\)
+    </div>
+  `;
     } else if (b.type === "image") {
       contentHtml = `<img src="${b.content}" class="board-image">`;
     } else if (b.type === "video") {
@@ -1149,5 +1153,6 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
 
 
