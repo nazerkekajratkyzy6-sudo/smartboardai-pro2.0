@@ -1155,7 +1155,7 @@ function openRichEditorForBlock(blockId, html) {
   content.focus();
 }
 
-window.analyzePhoto = function () {
+Ai () {
   const input = document.createElement("input");
   input.type = "file";
   input.accept = "image/*";
@@ -1164,44 +1164,47 @@ window.analyzePhoto = function () {
     const file = input.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = reader.result;
+    // 1️⃣ Фото → base64
+    const base64 = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(file);
+    });
 
-      // 1️⃣ Фотоны доскаға блок ретінде саламыз
-      addBlock("image", base64);
+    // 2️⃣ Фотоны тақтаға шығарамыз
+    addBlock("image", base64);
 
-      // 2️⃣ AI-ға жіберу (әзірге mock)
-     addBlock("ai", "🧠 Фото талданып жатыр...");
+    // 3️⃣ AI placeholder
+    addBlock("ai", "🧠 Фото талданып жатыр...");
+    renderBoard();
 
-const res = await fetch("https://api.smartboardai.kz/vision", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    image: base64,
-    task: "math_explain"
-  })
-});
+    try {
+      // 4️⃣ LOCAL AI backend
+      const res = await fetch("http://localhost:3000/vision", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          image: base64,
+          prompt: "Суреттегі есепті талда, шешімін түсіндір."
+        })
+      });
 
-const data = await res.json();
+      const data = await res.json();
 
-// соңғы AI блогын жаңарту
-const blocks = getCurrentBlocks();
-const lastAI = [...blocks].reverse().find(b => b.type === "ai");
-if (lastAI) lastAI.content = data.result;
+      // 5️⃣ Соңғы AI блокты жаңарту
+      const blocks = getCurrentBlocks();
+      const lastAI = [...blocks].reverse().find(b => b.type === "ai");
+      if (lastAI) lastAI.content = data.result || "AI жауап қайтара алмады";
 
-renderBoard();
+      renderBoard();
 
-    };
-    reader.readAsDataURL(file);
+    } catch (e) {
+      const blocks = getCurrentBlocks();
+      const lastAI = [...blocks].reverse().find(b => b.type === "ai");
+      if (lastAI) lastAI.content = "❌ AI серверіне қосыла алмады";
+      renderBoard();
+    }
   };
 
   input.click();
 };
-
-
-
-
-
-
-
