@@ -415,9 +415,6 @@ function renderBoard() {
         .replace(/>/g, "&gt;")
         .replace(/\n/g, "<br>");
      let contentHtml = "";
-if (window.MathJax) {
-  MathJax.typesetPromise();
-}
 
     if (b.type === "text") {
       // Қарапайым мәтін – escape
@@ -543,6 +540,11 @@ if (shareBtn) {
 }
     board.appendChild(card);
   });
+  // ✅ MathJax-ты DOM дайын болғаннан кейін іске қосу
+if (window.MathJax) {
+  MathJax.typesetPromise();
+}
+
 }
 
 function addBlock(type, content) {
@@ -1156,6 +1158,7 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
 
 
 
