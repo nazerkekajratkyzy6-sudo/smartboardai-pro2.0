@@ -235,27 +235,24 @@ function listenTeacherBlock() {
     const data = snap.val();
     const box = document.getElementById("teacherBlock");
     if (!box || !data) return;
-
-    if (data.type === "text" || data.type === "ai") {
-      box.innerHTML = `<div>${data.content}</div>`;
-    }
-    if (window.MathJax) {
-  MathJax.typesetPromise();
+if (data.type === "text" || data.type === "ai") {
+  box.innerHTML = `<div>${data.content}</div>`;
 }
-    else if (data.type === "trainer" || data.type === "video") {
-      box.innerHTML = `<iframe src="${data.content}"></iframe>`;
-    }
-      if (window.MathJax) {
-  MathJax.typesetPromise();
+else if (data.type === "formula") {
+  box.innerHTML = `<div class="math-block">\\(${data.content}\\)</div>`;
 }
-
-    else {
-      box.innerHTML = `<div>${data.content}</div>`;
-    }
-    if (window.MathJax) {
-  MathJax.typesetPromise();
+else if (data.type === "trainer" || data.type === "video") {
+  box.innerHTML = `<iframe src="${data.content}"></iframe>`;
+}
+else {
+  box.innerHTML = `<div>${data.content}</div>`;
 }
 
+// ⬇⬇⬇ МІНДЕТТІ ТҮРДЕ ТӨМЕНДЕ ТҰРУЫ КЕРЕК
+if (window.MathJax) {
+  MathJax.typesetPromise();
+}
+ 
   });
 }
 
@@ -287,6 +284,7 @@ document.addEventListener("DOMContentLoaded", () => {
   attachEvents();
   listenTeacherBlock();
 });
+
 
 
 
