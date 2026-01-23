@@ -547,6 +547,9 @@ function addBlock(type, content) {
     type,
     content,
   });
+if (window.MathJax) {
+  MathJax.typesetPromise();
+}
 
   renderBoard();
 
@@ -581,20 +584,15 @@ window.addTextBlock = () => {
   openModal(title, ph, (val) => addBlock("text", val));
 };
 
-window.addFormula = () => {
-  const title =
-    currentLang === "ru"
-      ? "Введите формулу"
-      : currentLang === "en"
-      ? "Enter formula"
-      : "Формуланы енгізіңіз";
-  const ph =
-    currentLang === "ru"
-      ? "Формула..."
-      : currentLang === "en"
-      ? "Formula..."
-      : "Формула...";
-  openModal(title, ph, (val) => addBlock("formula", val));
+window.addFormula = function () {
+  openModal(
+    "Формула (LaTeX)",
+    "\\frac{a}{b}",
+    (val) => {
+      if (!val) return;
+      addBlock("formula", val);
+    }
+  );
 };
 
 window.addImage = () => {
@@ -1151,4 +1149,5 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
 
