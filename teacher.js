@@ -415,6 +415,9 @@ function renderBoard() {
         .replace(/>/g, "&gt;")
         .replace(/\n/g, "<br>");
      let contentHtml = "";
+if (window.MathJax) {
+  MathJax.typesetPromise();
+}
 
     if (b.type === "text") {
       // Қарапайым мәтін – escape
@@ -1153,6 +1156,7 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
 
 
 
