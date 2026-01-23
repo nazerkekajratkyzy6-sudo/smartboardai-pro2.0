@@ -861,17 +861,6 @@ window.generateAI = async function () {
   if (imageInput) imageInput.value = "";
 };
 
-    // Тақтаға AI блок ретінде қосу
-    addBlock("ai", answer);
-  } catch (err) {
-    console.error("AI ERROR:", err);
-    if (output) {
-      const t = T[currentLang] || T.kk;
-      output.innerHTML = `<div class="ai-error">${t.aiError}</div>`;
-    }
-  }
-};
-
 // =====================================================
 // LIVEROOM + QR + Firebase streams
 // =====================================================
@@ -1209,6 +1198,7 @@ renderBoard();
 
   input.click();
 };
+
 
 
 
