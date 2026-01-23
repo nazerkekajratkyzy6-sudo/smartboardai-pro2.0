@@ -810,49 +810,56 @@ function toggleTrainerPanel(forceValue) {
 // AI MODULE — Панель + тақтаға блок
 // =====================================================
 window.generateAI = async function () {
-  const promptArea = $("aiPrompt");
-  const output = $("aiOutput");
-  const text = (promptArea?.value || "").trim();
+  const prompt = document.getElementById("aiPrompt")?.value || "";
+  const imageInput = document.getElementById("aiImageInput");
+  const file = imageInput?.files[0] || null;
 
-  if (!text) {
-    const msg =
-      currentLang === "ru"
-        ? "Сначала введите запрос!"
-        : currentLang === "en"
-        ? "Enter a prompt first!"
-        : "Алдымен сұрауды енгізіңіз!";
-    alert(msg);
+  if (!prompt && !file) {
+    alert("Мәтін жазыңыз немесе фото жүктеңіз");
     return;
   }
 
-  if (output) {
-    const t = T[currentLang] || T.kk;
-    output.innerHTML = `<div class="ai-loading">${t.aiLoading}</div>`;
-  }
+  // 1️⃣ AI placeholder блок
+  addBlock("ai", "🧠 AI талдау жасап жатыр...");
+  renderBoard();
 
-  try {
-    const res = await fetch("/api/ai", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        prompt: text,
-        lang: currentLang,
-      }),
+  let imageBase64 = null;
+
+  // 2️⃣ Егер фото бар болса → base64
+  if (file) {
+    imageBase64 = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(file);
     });
 
-    const data = await res.json();
-    const answer = data.answer || data.result || "AI жауап қайтара алмады.";
+    // Фотоны тақтаға да көрсетеміз (қаласаң алып тастауға болады)
+    addBlock("image", imageBase64);
+  }
 
-    if (output) {
-      output.innerHTML = `
-        <div class="ai-answer">
-          ${String(answer)
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/\n/g, "<br>")}
-        </div>
-      `;
-    }
+  // 3️⃣ AI Vision API
+  const res = await fetch("http://localhost:3000/vision", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      image: imageBase64,
+      prompt: prompt
+    })
+  });
+
+  const data = await res.json();
+
+  // 4️⃣ Соңғы AI блокты жаңарту
+  const blocks = getCurrentBlocks();
+  const lastAI = [...blocks].reverse().find(b => b.type === "ai");
+  if (lastAI) lastAI.content = data.result;
+
+  renderBoard();
+
+  // 5️⃣ тазалау
+  document.getElementById("aiPrompt").value = "";
+  if (imageInput) imageInput.value = "";
+};
 
     // Тақтаға AI блок ретінде қосу
     addBlock("ai", answer);
@@ -1176,16 +1183,33 @@ window.analyzePhoto = function () {
       addBlock("image", base64);
 
       // 2️⃣ AI-ға жіберу (әзірге mock)
-      addBlock(
-        "ai",
-        "📸 Фото қабылданды.\n\n(Келесі қадамда AI есепті оқып, шешіп, қатесін табады.)"
-      );
+     addBlock("ai", "🧠 Фото талданып жатыр...");
+
+const res = await fetch("https://api.smartboardai.kz/vision", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    image: base64,
+    task: "math_explain"
+  })
+});
+
+const data = await res.json();
+
+// соңғы AI блогын жаңарту
+const blocks = getCurrentBlocks();
+const lastAI = [...blocks].reverse().find(b => b.type === "ai");
+if (lastAI) lastAI.content = data.result;
+
+renderBoard();
+
     };
     reader.readAsDataURL(file);
   };
 
   input.click();
 };
+
 
 
 
