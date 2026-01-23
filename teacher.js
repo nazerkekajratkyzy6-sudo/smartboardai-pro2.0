@@ -21,6 +21,7 @@ import {
 const $ = (id) => document.getElementById(id);
 
 let currentLang = "kk";
+let editingBlockId = null;
 
 // Multi-page state
 let pages = [{ id: "page_1", blocks: [] }];
@@ -477,6 +478,7 @@ function renderBoard() {
       <span>${title}</span>
 
       <div style="display:flex; gap:6px;">
+          <button class="edit-btn" data-id="${b.id}">✏</button>
           <button class="fullscreen-btn" data-id="${b.id}">⛶</button>
           <button class="share-btn" data-id="${b.id}">👁 Оқушыға</button>
           <button class="card-delete-btn">✕</button>
@@ -487,6 +489,14 @@ function renderBoard() {
       ${contentHtml}
   </div>
 `;
+const editBtn = card.querySelector(".edit-btn");
+if (editBtn) {
+  editBtn.onclick = () => {
+    if (b.type !== "rich") return;
+    openRichEditorForBlock(b.id, b.content);
+  };
+}
+    
 // FULLSCREEN: батырмаға listener қосу
 const fsBtns = card.querySelectorAll(".fullscreen-btn");
 fsBtns.forEach(btn => {
@@ -1048,17 +1058,20 @@ window.toggleFullscreen = () => {
 });
 
 // =====================
-// TEXT EDITOR TOOLBAR
+// TEXT EDITOR TOOLBAR (FIXED)
 // =====================
 
-// RichText терезесін ашу
+// 1) Қай блокты өңдеп жатқанымызды сақтау
+let editingBlockId = null;
+
+// RichText терезесін ашу (Жаңа блок)
 window.addRichText = function () {
   const toolbar = $("textToolbar");
   const editor = $("textEditor");
   const content = $("textEditorContent");
 
   if (!toolbar || !editor || !content) {
-    // Егер HTML әлі қойылмаса – жай мәтіндік блокқа түссін
+    // fallback → жай мәтін
     const title =
       currentLang === "ru"
         ? "Введите текст"
@@ -1076,6 +1089,8 @@ window.addRichText = function () {
     return;
   }
 
+  editingBlockId = null; // жаңа блок
+
   toolbar.style.display = "flex";
   editor.style.display = "block";
   content.innerHTML = "";
@@ -1084,37 +1099,58 @@ window.addRichText = function () {
 
 // Батырмалардан келген команда (B, I, U, т.б.)
 window.execTextCmd = function (cmd, value = null) {
-  // Қай жерде фокус тұр – сол contenteditable ішінде форматтайды
   document.execCommand(cmd, false, value);
 };
 
-// RichText терезесін жауып, тақтаға блок ретінде қосу
+// RichText терезесін жабу: Жаңа блок қосу НЕМЕСЕ бар блокты жаңарту
 window.closeTextEditor = function () {
   const toolbar = $("textToolbar");
   const editor = $("textEditor");
   const content = $("textEditorContent");
   if (!content) return;
 
-  const html = content.innerHTML; // форматталған HTML
-  if (html.trim()) {
-    addBlock("rich", html);
+  const html = content.innerHTML.trim();
+  if (!html) {
+    if (toolbar) toolbar.style.display = "none";
+    if (editor) editor.style.display = "none";
+    return;
   }
+
+  const blocks = getCurrentBlocks();
+
+  if (editingBlockId) {
+    // ✏ Бар блокты жаңарту
+    const blk = blocks.find((b) => b.id === editingBlockId);
+    if (blk) blk.content = html;
+  } else {
+    // ➕ Жаңа блок
+    blocks.push({
+      id: "blk_" + Math.random().toString(36).slice(2, 9),
+      type: "rich",
+      content: html,
+    });
+  }
+
+  editingBlockId = null;
 
   if (toolbar) toolbar.style.display = "none";
   if (editor) editor.style.display = "none";
+  content.innerHTML = "";
+
+  renderBoard();
 };
 
+// ✏ Бар Rich блокты өңдеу үшін функция
+function openRichEditorForBlock(blockId, html) {
+  const toolbar = $("textToolbar");
+  const editor = $("textEditor");
+  const content = $("textEditorContent");
+  if (!toolbar || !editor || !content) return;
 
+  editingBlockId = blockId;
 
-
-
-
-
-
-
-
-
-
-
-
-
+  toolbar.style.display = "flex";
+  editor.style.display = "block";
+  content.innerHTML = html || "";
+  content.focus();
+}
