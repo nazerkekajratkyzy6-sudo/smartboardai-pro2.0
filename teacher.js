@@ -1061,9 +1061,6 @@ window.toggleFullscreen = () => {
 // TEXT EDITOR TOOLBAR (FIXED)
 // =====================
 
-// 1) Қай блокты өңдеп жатқанымызды сақтау
-let editingBlockId = null;
-
 // RichText терезесін ашу (Жаңа блок)
 window.addRichText = function () {
   const toolbar = $("textToolbar");
@@ -1154,3 +1151,4 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
