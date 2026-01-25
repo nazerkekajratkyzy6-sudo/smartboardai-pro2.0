@@ -838,7 +838,7 @@ window.generateAI = async function () {
   }
 
   // 3️⃣ AI Vision API
-  const res = await fetch("http://localhost:3000/vision", {
+  const res = await fetch("https://smartboardai-vision.onrender.com/vision", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -1154,3 +1154,4 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
