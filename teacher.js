@@ -838,27 +838,97 @@ window.generateAI = async function () {
   }
 
   // 3️⃣ AI Vision API
-  const res = await fetch("https://smartboardai-vision.onrender.com/vision", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      image: imageBase64,
-      prompt: prompt
-    })
-  });
+  try {
+  const res = await fetch(
+    "https://smartboardai-vision.onrender.com/vision",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        image: imageBase64,
+        prompt: prompt
+      })
+    }
+  );
 
   const data = await res.json();
 
-  // 4️⃣ Соңғы AI блокты жаңарту
   const blocks = getCurrentBlocks();
   const lastAI = [...blocks].reverse().find(b => b.type === "ai");
-  if (lastAI) lastAI.content = data.result;
+  if (lastAI) lastAI.content = data.result || "AI жауап бере алмады";
 
-  renderBoard();
+} catch (e) {
+  const blocks = getCurrentBlocks();
+  const lastAI = [...blocks].reverse().find(b => b.type === "ai");
+  if (lastAI) lastAI.content = "❌ AI сервер қатесі";
+}
+
+renderBoard();
+
 
   // 5️⃣ тазалау
   document.getElementById("aiPrompt").value = "";
   if (imageInput) imageInput.value = "";
+};
+// ================================
+// 🧠 Фото талдау (AI image analyze)
+// ================================
+window.analyzePhoto = async function () {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+
+    // 1️⃣ Фото → base64
+    const imageBase64 = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(file);
+    });
+
+    // 2️⃣ Фотоны тақтаға шығару
+    addBlock("image", imageBase64);
+
+    // 3️⃣ AI placeholder
+    addBlock("ai", "🧠 Фото талданып жатыр...");
+    renderBoard();
+
+    try {
+      // 4️⃣ AI серверге сұраныс
+      const res = await fetch(
+        "https://smartboardai-vision.onrender.com/vision",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            image: imageBase64,
+            prompt: "Суреттегі есепті талда, шешу жолын түсіндір."
+          })
+        }
+      );
+
+      const data = await res.json();
+
+      // 5️⃣ Соңғы AI блокты жаңарту
+      const blocks = getCurrentBlocks();
+      const lastAI = [...blocks].reverse().find(b => b.type === "ai");
+      if (lastAI) {
+        lastAI.content = data.result || "AI жауап бере алмады";
+      }
+
+    } catch (e) {
+      const blocks = getCurrentBlocks();
+      const lastAI = [...blocks].reverse().find(b => b.type === "ai");
+      if (lastAI) lastAI.content = "❌ AI сервер қатесі";
+    }
+
+    renderBoard();
+  };
+
+  input.click();
 };
 
 // =====================================================
@@ -1154,4 +1224,5 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
 
