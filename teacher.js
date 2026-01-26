@@ -974,6 +974,7 @@ function randomRoomID() {
 
 window.createRoom = function () {
   currentRoom = randomRoomID();
+localStorage.setItem("teacherRoomId", currentRoom);
 
   const roomIdEl = $("roomId");
   if (roomIdEl) roomIdEl.textContent = currentRoom;
@@ -1296,6 +1297,7 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
 
 
 
