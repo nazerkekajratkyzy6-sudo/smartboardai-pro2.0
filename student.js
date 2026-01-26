@@ -1,6 +1,12 @@
 // student.js — SmartBoardAI PRO (Answer + Emoji + WordCloud)
 
 import { db, ref, push, onValue } from "./firebaseConfig.js";
+import {
+  getStorage,
+  ref as sRef,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -11,6 +17,9 @@ const nameInput = $("studentName");
 const answerInput = $("studentAnswer");
 const sendBtn = $("sendBtn");
 const statusBox = $("status");
+const studentPhotoInput = $("studentPhotoInput");
+const sendPhotoBtn = $("sendPhotoBtn");
+const storage = getStorage();
 
 const titleEl = $("title");
 const roomLbl = $("roomLbl");
@@ -116,6 +125,41 @@ function sendAnswer() {
 
   if (answerInput) answerInput.value = "";
   showStatus("✔ Жауап жіберілді!");
+}
+// ====== SEND PHOTO (Student -> Teacher) ======
+async function sendStudentPhoto() {
+  const roomId = getRoomId();
+  const name = nameInput?.value.trim() || "";
+  const avatar = avatarSelect?.value || "🙂";
+  const file = studentPhotoInput?.files?.[0];
+
+  if (!roomId) return showStatus("❗ Бөлме коды жоқ.");
+  if (!name) return showStatus("❗ Есіміңізді жазыңыз.");
+  if (!file) return showStatus("❗ Фото таңдаңыз.");
+
+  try {
+    showStatus("📤 Фото жіберіліп жатыр...");
+
+    const path = `studentUploads/${roomId}/${Date.now()}_${file.name}`;
+    const fileRef = sRef(storage, path);
+
+    await uploadBytes(fileRef, file);
+    const url = await getDownloadURL(fileRef);
+
+    const photosRef = ref(db, `rooms/${roomId}/studentPhotos`);
+    await push(photosRef, {
+      name,
+      avatar,
+      url,
+      time: Date.now(),
+    });
+
+    if (studentPhotoInput) studentPhotoInput.value = "";
+    showStatus("✅ Фото жіберілді!");
+  } catch (e) {
+    console.error(e);
+    showStatus("❌ Фото жіберілмеді.");
+  }
 }
 
 // ====== SEND EMOJI ======
@@ -259,6 +303,7 @@ if (window.MathJax) {
 // ====== EVENTS ======
 function attachEvents() {
   if (sendBtn) sendBtn.addEventListener("click", sendAnswer);
+  if (sendPhotoBtn) sendPhotoBtn.addEventListener("click", sendStudentPhoto);
 
   if (emojiContainer) {
     emojiContainer.querySelectorAll(".emoji-btn").forEach((btn) => {
@@ -284,6 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
   attachEvents();
   listenTeacherBlock();
 });
+
 
 
 
