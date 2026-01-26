@@ -432,7 +432,17 @@ function renderBoard() {
   `;
     } else if (b.type === "image") {
       contentHtml = `<img src="${b.content}" class="board-image">`;
-    } else if (b.type === "video") {
+    }else if (b.type === "studentPhoto") {
+  const url = b.content?.url || "";
+  const name = b.content?.name || "Оқушы";
+  const avatar = b.content?.avatar || "🙂";
+
+  contentHtml = `
+    <div class="student-photo-meta"><b>${avatar} ${name}</b></div>
+    <img src="${url}" class="board-image">
+    <button class="download-btn">⬇ Жүктеу</button>
+  `;
+}    else if (b.type === "video") {
       contentHtml = `<iframe src="${b.content}" class="board-video" allowfullscreen></iframe>`;
     } else if (b.type === "link") {
       const safeUrl = String(b.content || "").replace(/"/g, "&quot;");
@@ -509,6 +519,23 @@ fsBtns.forEach(btn => {
         openFullscreenBlock(blockId);
     };
 });
+    // DOWNLOAD (studentPhoto)
+const dlBtn = card.querySelector(".download-btn");
+if (dlBtn && b.type === "studentPhoto") {
+  dlBtn.onclick = () => {
+    const url = b.content?.url;
+    const name = b.content?.name || "student";
+    if (!url) return;
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${name}_photo.jpg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+}
+
     const delBtn = card.querySelector(".card-delete-btn");
     if (delBtn) {
       delBtn.onclick = () => {
@@ -1054,6 +1081,51 @@ function listenStudentStreams() {
 
     box.innerHTML = words.map((w) => `<span class="wc-chip">${w}</span>`).join(" ");
   });
+    // STUDENT PHOTOS
+  const photosRef = ref(db, `rooms/${currentRoom}/studentPhotos`);
+  onValue(photosRef, (snap) => {
+    const box = $("studentPhotos");
+    const t = T[currentLang] || T.kk;
+
+    const data = snap.val();
+    if (!data) {
+      if (box) box.innerHTML = "Әзірше фото жоқ...";
+      return;
+    }
+
+    const list = Object.values(data).sort((a, b) => (a.time || 0) - (b.time || 0));
+
+    // Right panel preview
+    if (box) {
+      box.innerHTML = list
+        .slice(-10)
+        .reverse()
+        .map((p) => {
+          const name = p.name || "Оқушы";
+          const avatar = p.avatar || "🙂";
+          const url = p.url || "";
+          return `
+            <div style="margin-bottom:10px;">
+              <b>${avatar} ${name}</b><br>
+              <img src="${url}" style="width:100%; border-radius:10px; margin-top:6px;">
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    // Add last photo to board as a new block (only newest)
+    const last = list[list.length - 1];
+    if (last?.url) {
+      const arr = getCurrentBlocks();
+      arr.push({
+        id: "blk_" + Math.random().toString(36).slice(2, 9),
+        type: "studentPhoto",
+        content: { url: last.url, name: last.name, avatar: last.avatar },
+      });
+      renderBoard();
+    }
+  });
 }
 // =========================
 // FULLSCREEN BLOCK
@@ -1224,5 +1296,6 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
 
 
