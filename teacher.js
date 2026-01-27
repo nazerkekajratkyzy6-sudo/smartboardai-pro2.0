@@ -962,6 +962,7 @@ window.analyzePhoto = async function () {
 // LIVEROOM + QR + Firebase streams
 // =====================================================
 let currentRoom = null;
+let lastStudentPhotoKey = null;
 
 function randomRoomID() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -1115,17 +1116,24 @@ function listenStudentStreams() {
         .join("");
     }
 
-    // Add last photo to board as a new block (only newest)
-    const last = list[list.length - 1];
-    if (last?.url) {
-      const arr = getCurrentBlocks();
-      arr.push({
-        id: "blk_" + Math.random().toString(36).slice(2, 9),
-        type: "studentPhoto",
-        content: { url: last.url, name: last.name, avatar: last.avatar },
-      });
-      renderBoard();
-    }
+   // ✅ Add newest photo to board ONLY ONCE (no duplicates)
+const entries = Object.entries(data).sort(
+  (a, b) => (a[1].ts || a[1].time || 0) - (b[1].ts || b[1].time || 0)
+);
+
+const [newestKey, newest] = entries[entries.length - 1] || [];
+if (newestKey && newest?.url && newestKey !== lastStudentPhotoKey) {
+  lastStudentPhotoKey = newestKey;
+
+  const arr = getCurrentBlocks();
+  arr.push({
+    id: "blk_" + Math.random().toString(36).slice(2, 9),
+    type: "studentPhoto",
+    content: { url: newest.url, name: newest.name, avatar: newest.avatar },
+  });
+  renderBoard();
+}
+
   });
 }
 // =========================
@@ -1309,6 +1317,7 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
 
 
 
