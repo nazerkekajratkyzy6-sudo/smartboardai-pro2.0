@@ -132,6 +132,10 @@ async function sendStudentPhoto() {
   const name = nameInput?.value.trim() || "";
   const avatar = avatarSelect?.value || "🙂";
   const file = studentPhotoInput?.files?.[0];
+  // iPhone: слишком большие фото могут "падать" по памяти/сети
+  if (file && file.size > 6 * 1024 * 1024) {
+    return showStatus("❗ Фото тым үлкен. 6MB-тан кіші фото таңдаңыз.");
+  }
 
   if (!roomId) return showStatus("❗ Бөлме коды жоқ.");
   if (!name) return showStatus("❗ Есіміңізді жазыңыз.");
@@ -329,6 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
   attachEvents();
   listenTeacherBlock();
 });
+
 
 
 
