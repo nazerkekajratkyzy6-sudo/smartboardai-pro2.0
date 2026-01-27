@@ -1155,6 +1155,18 @@ window.addEventListener("DOMContentLoaded", () => {
   renderPages();
   renderBoard();
 
+  const savedRoom = localStorage.getItem("teacherRoomId");
+if (savedRoom) {
+  currentRoom = savedRoom;
+
+  const roomIdEl = $("roomId");
+  if (roomIdEl) roomIdEl.textContent = currentRoom;
+
+  console.log("🔁 Қалпына келтірілген бөлме:", currentRoom);
+  generateQR();
+  listenStudentStreams();
+}
+
   const addPageBtn = $("addPageBtn");
   if (addPageBtn) addPageBtn.onclick = addPage;
 
@@ -1297,6 +1309,7 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
 
 
 
