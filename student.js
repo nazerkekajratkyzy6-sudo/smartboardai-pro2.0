@@ -151,6 +151,7 @@ async function sendStudentPhoto() {
     const url = await getDownloadURL(fileRef);
 
     const photosRef = ref(db, `rooms/${roomId}/studentPhotos`);
+    console.log("📤 Student sending photo to room:", currentRoom);
     await push(photosRef, {
       name,
       avatar,
@@ -333,6 +334,7 @@ document.addEventListener("DOMContentLoaded", () => {
   attachEvents();
   listenTeacherBlock();
 });
+
 
 
 
