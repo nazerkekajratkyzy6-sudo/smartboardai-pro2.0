@@ -1084,8 +1084,10 @@ function listenStudentStreams() {
     box.innerHTML = words.map((w) => `<span class="wc-chip">${w}</span>`).join(" ");
   });
     // STUDENT PHOTOS
+  console.log("👂 Teacher listening photos in room:", currentRoom);
   const photosRef = ref(db, `rooms/${currentRoom}/studentPhotos`);
   onValue(photosRef, (snap) => {
+   console.log("📸 PHOTO STREAM TRIGGERED");
     const box = $("studentPhotos");
     const t = T[currentLang] || T.kk;
 
@@ -1317,6 +1319,7 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
 
 
 
