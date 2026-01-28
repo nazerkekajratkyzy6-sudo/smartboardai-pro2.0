@@ -444,10 +444,30 @@ function renderBoard() {
   `;
 }    else if (b.type === "video") {
       contentHtml = `<iframe src="${b.content}" class="board-video" allowfullscreen></iframe>`;
-    } else if (b.type === "link") {
-      const safeUrl = String(b.content || "").replace(/"/g, "&quot;");
-      contentHtml = `<a href="${safeUrl}" target="_blank">${safeUrl}</a>`;
-    } else if (b.type === "trainer") {
+   } else if (b.type === "link") {
+  const safeUrl = String(b.content || "").replace(/"/g, "&quot;");
+
+  contentHtml = `
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <div style="word-break:break-all; opacity:.9;">${safeUrl}</div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="open-overlay-btn" data-url="${safeUrl}" style="
+          border:none; background:#2563eb; color:#fff; border-radius:12px;
+          padding:10px 12px; font-weight:700; cursor:pointer;
+        ">▶ Открыть на доске</button>
+
+        <a href="${safeUrl}" target="_blank" rel="noopener" style="
+          display:inline-flex; align-items:center; gap:6px;
+          padding:10px 12px; border-radius:12px;
+          background:#f1f5f9; border:1px solid #cbd5e1;
+          text-decoration:none; color:#0f172a; font-weight:700;
+        ">↗ В новой вкладке</a>
+      </div>
+    </div>
+  `;
+}
+    else if (b.type === "trainer") {
       contentHtml = `<iframe src="${b.content}" class="trainer-frame"></iframe>`;
     }
     else if (b.type === "geogebra") {
@@ -518,6 +538,15 @@ fsBtns.forEach(btn => {
         const blockId = btn.getAttribute("data-id");
         openFullscreenBlock(blockId);
     };
+  // OPEN LINK IN OVERLAY (for link blocks)
+const ovBtn = card.querySelector(".open-overlay-btn");
+if (ovBtn) {
+  ovBtn.onclick = () => {
+    const url = ovBtn.getAttribute("data-url");
+    sbOpenOverlay(url, title);
+  };
+}
+
 });
     // DOWNLOAD (studentPhoto)
 const dlBtn = card.querySelector(".download-btn");
@@ -1150,6 +1179,99 @@ function openFullscreenBlock(id) {
     else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
     else if (el.msRequestFullscreen) el.msRequestFullscreen();
 }
+// =========================
+// LINK OVERLAY (opens any URL over the board)
+// =========================
+let sbOverlayEl = null;
+
+function sbEnsureOverlay() {
+  if (sbOverlayEl) return sbOverlayEl;
+
+  const wrap = document.createElement("div");
+  wrap.id = "sbOverlay";
+  wrap.style.cssText = `
+    position: fixed; inset: 0; z-index: 999999;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.55); padding: 14px;
+  `;
+
+  wrap.innerHTML = `
+    <div style="
+      width: min(1200px, 96vw);
+      height: min(760px, 92vh);
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+      display:flex; flex-direction:column;
+    ">
+      <div style="
+        display:flex; align-items:center; justify-content:space-between;
+        padding: 10px 12px; background:#0f172a; color:#fff; gap:10px;
+      ">
+        <div id="sbOverlayTitle" style="font-weight:700; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+          Link
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <a id="sbOverlayOpenTab" href="#" target="_blank" rel="noopener"
+             style="color:#fff; text-decoration:underline; font-size:13px;">
+             ↗ Открыть в новой вкладке
+          </a>
+          <button id="sbOverlayClose" style="
+            border:none; background:#ef4444; color:#fff; border-radius:10px;
+            padding:8px 10px; font-weight:700; cursor:pointer;
+          ">✕</button>
+        </div>
+      </div>
+
+      <div style="flex:1; background:#111827;">
+        <iframe id="sbOverlayFrame"
+          src="about:blank"
+          style="width:100%; height:100%; border:0; background:#fff;"
+          allow="fullscreen; microphone; camera; clipboard-read; clipboard-write"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </div>
+  `;
+
+  // close on dark background click
+  wrap.addEventListener("click", (e) => {
+    if (e.target === wrap) sbCloseOverlay();
+  });
+
+  // close on ESC
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") sbCloseOverlay();
+  });
+
+  document.body.appendChild(wrap);
+
+  wrap.querySelector("#sbOverlayClose").onclick = sbCloseOverlay;
+
+  sbOverlayEl = wrap;
+  return sbOverlayEl;
+}
+
+function sbOpenOverlay(url, titleText = "Link") {
+  const wrap = sbEnsureOverlay();
+  const frame = wrap.querySelector("#sbOverlayFrame");
+  const title = wrap.querySelector("#sbOverlayTitle");
+  const openTab = wrap.querySelector("#sbOverlayOpenTab");
+
+  if (title) title.textContent = titleText;
+  if (openTab) openTab.href = url || "#";
+  if (frame) frame.src = url || "about:blank";
+
+  wrap.style.display = "flex";
+}
+
+function sbCloseOverlay() {
+  if (!sbOverlayEl) return;
+  const frame = sbOverlayEl.querySelector("#sbOverlayFrame");
+  if (frame) frame.src = "about:blank";
+  sbOverlayEl.style.display = "none";
+}
 
 document.addEventListener("fullscreenchange", () => {
     // Қаласақ, fullscreen-нен шыққанда стилдерді түзетуге болады
@@ -1319,6 +1441,7 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
 
 
 
