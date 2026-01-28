@@ -148,8 +148,8 @@ async function sendStudentPhoto() {
     const fileRef = sRef(storage, path);
 
     await uploadBytes(fileRef, file);
+    console.log("UPLOAD OK");
     const url = await getDownloadURL(fileRef);
-
     const photosRef = ref(db, `rooms/${roomId}/studentPhotos`);
     
     await push(photosRef, {
@@ -334,6 +334,7 @@ document.addEventListener("DOMContentLoaded", () => {
   attachEvents();
   listenTeacherBlock();
 });
+
 
 
 
