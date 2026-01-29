@@ -424,9 +424,12 @@ function renderBoard() {
       // Қарапайым мәтін – escape
       contentHtml = `<div class="board-text">${safe(b.content)}</div>`;
     } else if (b.type === "rich") {
-      // Rich-text → HTML толық рендерленеді
-      contentHtml = `<div class="board-text">${b.content}</div>`;
-    } else if (b.type === "ai") {
+  contentHtml = `
+    <div class="board-text math-rich">
+      ${b.content}
+    </div>
+  `;
+}    else if (b.type === "ai") {
       contentHtml = `<div class="board-text">${safe(b.content)}</div>`;
     } else if (b.type === "formula") {
   contentHtml = `
@@ -1445,6 +1448,7 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
 
 
 
