@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Құндылықтар ойыны</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*{font-family:'Nunito',sans-serif}
+.value-card{cursor:pointer;transition:.3s}
+.value-card:hover{transform:scale(1.08)}
+.zone{min-height:100px}
+.spark{position:fixed;pointer-events:none;font-size:22px;transition:1s}
+</style>
+</head>
+
+<body class="bg-gradient-to-br from-indigo-200 via-purple-200 to-pink-200 p-4">
+
+<div class="max-w-5xl mx-auto">
+
+<h1 class="text-3xl font-extrabold text-center text-indigo-800 mb-2">Сынып құндылықтары</h1>
+<p class="text-center text-indigo-600 mb-6">Карточканы бас — ол сыныптың ортақ пікіріне қосылады</p>
+
+<div id="pool" class="flex flex-wrap gap-3 justify-center mb-8"></div>
+
+<div class="zone bg-white/80 backdrop-blur rounded-xl p-6 text-center shadow-xl" id="zone"></div>
+
+<div class="text-center mt-6">
+<button onclick="showFinalMessage()" class="px-6 py-3 bg-indigo-600 text-white rounded-xl shadow-lg hover:scale-105 transition">Қорытынды пікірді көрсету</button>
+</div>
+
+<div id="finalMessage" class="hidden mt-6 p-5 bg-white rounded-xl shadow-xl text-lg font-bold text-indigo-800 text-center"></div>
+
+</div>
+
+<script>
+const values=[
+{ id:1,text:'Құрмет',emoji:'🙏'},
+{ id:2,text:'Сүйіспеншілік',emoji:'💖'},
+{ id:3,text:'Достық',emoji:'🤝'},
+{ id:4,text:'Білім',emoji:'📚'},
+{ id:5,text:'Еңбек',emoji:'💪'},
+{ id:6,text:'Шығармашылық',emoji:'🎨'},
+{ id:7,text:'Қуаныш',emoji:'😊'},
+{ id:8,text:'Төзімділік',emoji:'🧘'},
+{ id:9,text:'Табыс',emoji:'🏆'},
+{ id:10,text:'Арман',emoji:'🌈'}
+];
+
+let selected=[];
+
+const pool=document.getElementById('pool');
+const zone=document.getElementById('zone');
+
+values.forEach(v=>{
+let card=document.createElement('div');
+card.className='value-card bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-2 rounded-xl shadow-lg font-bold flex gap-2';
+card.innerHTML=`<span>${v.emoji}</span><span>${v.text}</span>`;
+card.onclick=()=>sendCard(card,v);
+pool.appendChild(card);
+});
+
+function sendCard(card,value){
+const start=card.getBoundingClientRect();
+const end=zone.getBoundingClientRect();
+
+let clone=card.cloneNode(true);
+clone.style.position='fixed';
+clone.style.left=start.left+'px';
+clone.style.top=start.top+'px';
+clone.style.width=start.width+'px';
+clone.style.zIndex=9999;
+clone.style.transition='all .7s cubic-bezier(.2,.8,.2,1)';
+document.body.appendChild(clone);
+
+requestAnimationFrame(()=>{
+clone.style.left=end.left+end.width/2-start.width/2+'px';
+clone.style.top=end.top+20+'px';
+clone.style.opacity='0';
+clone.style.transform='scale(.5)';
+});
+
+setTimeout(()=>{
+clone.remove();
+if(!selected.includes(value.text)){
+selected.push(value.text);
+zone.innerHTML+=`<span class="inline-block m-1 px-3 py-1 bg-indigo-600 text-white rounded-full">${value.text}</span>`;
+bigEffect();
+}
+},700);
+}
+
+function bigEffect(){
+for(let i=0;i<20;i++){
+let s=document.createElement('div');
+s.className='spark';
+s.innerHTML='✨';
+s.style.left=window.innerWidth/2+'px';
+s.style.top=window.innerHeight/2+'px';
+document.body.appendChild(s);
+setTimeout(()=>{
+s.style.left=(window.innerWidth/2+(Math.random()-0.5)*500)+'px';
+s.style.top=(window.innerHeight/2+(Math.random()-0.5)*400)+'px';
+s.style.opacity='0';
+},10);
+setTimeout(()=>s.remove(),1000);
+}
+}
+
+function showFinalMessage(){
+if(selected.length===0)return;
+const msg=`Біздің сынып ${selected.join(', ')} құндылықтарын таңдайды. Біз бірге дамимыз және бір-бірімізді қолдаймыз!`;
+const box=document.getElementById('finalMessage');
+box.textContent=msg;
+box.classList.remove('hidden');
+}
+</script>
+
+</body>
+</html>
