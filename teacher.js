@@ -119,6 +119,10 @@ const TRAINERS = {
     "Tikburyshty_ushburyshtardy_sheshu_8",
     "Toptyq_zarys_Ushburyshtar",
     "Variaciialyq_qatar_quru7",
+    "psihonastroy",
+    "refleksia",
+    "topbolu",
+    "quadratic-generator",
   ],
   reflection: [
     "Asyq",
@@ -1441,6 +1445,7 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
 
 
 
