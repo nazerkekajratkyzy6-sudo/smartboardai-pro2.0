@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Квадраттық функция генераторы</title>
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI, sans-serif;
+  background:linear-gradient(135deg,#eef2ff,#dbeafe);
+  color:#1e293b;
+}
+h1{text-align:center;margin:15px 0}
+.container{
+  display:grid;
+  grid-template-columns:320px 1fr;
+  gap:20px;
+  padding:20px;
+}
+.panel{
+  background:white;
+  padding:15px;
+  border-radius:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+.slider{width:100%}
+.label{font-weight:bold;margin-top:10px}
+.value{float:right;color:#6366f1;font-weight:bold}
+.formula{
+  text-align:center;
+  font-size:26px;
+  margin:10px 0;
+  font-weight:bold;
+}
+.graph{
+  background:white;
+  border-radius:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+  padding:10px;
+}
+.info-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:10px;
+}
+.info{
+  background:white;
+  padding:10px;
+  border-radius:10px;
+  text-align:center;
+  box-shadow:0 4px 10px rgba(0,0,0,0.06);
+}
+button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#6366f1;
+  color:white;
+  font-weight:bold;
+  margin-top:10px;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<h1>Квадраттық функция генераторы</h1>
+<div class="formula" id="formula">y = x²</div>
+
+<div class="container">
+
+<div class="panel">
+  <div class="label">a коэффициенті <span class="value" id="aVal">1</span></div>
+  <input type="range" min="-5" max="5" step="0.1" value="1" id="a" class="slider">
+
+  <div class="label">b коэффициенті <span class="value" id="bVal">0</span></div>
+  <input type="range" min="-10" max="10" step="0.5" value="0" id="b" class="slider">
+
+  <div class="label">c коэффициенті <span class="value" id="cVal">0</span></div>
+  <input type="range" min="-10" max="10" step="0.5" value="0" id="c" class="slider">
+
+  <button onclick="resetGraph()">🔄 Қалпына келтіру</button>
+</div>
+
+<div>
+  <div class="graph">
+    <svg viewBox="-12 -12 24 24" width="100%" height="450">
+
+<defs>
+  <pattern id="smallGrid" width="1" height="1" patternUnits="userSpaceOnUse">
+    <path d="M 1 0 L 0 0 0 1" fill="none" stroke="#e5e7eb" stroke-width="0.04"/>
+  </pattern>
+  <pattern id="grid" width="5" height="5" patternUnits="userSpaceOnUse">
+    <rect width="5" height="5" fill="url(#smallGrid)"/>
+    <path d="M 5 0 L 0 0 0 5" fill="none" stroke="#9ca3af" stroke-width="0.08"/>
+  </pattern>
+</defs>
+
+<rect x="-12" y="-12" width="24" height="24" fill="url(#grid)"/>
+
+<line x1="-12" y1="0" x2="12" y2="0" stroke="#111827" stroke-width="0.15"/>
+<line x1="0" y1="-12" x2="0" y2="12" stroke="#111827" stroke-width="0.15"/>
+
+<text x="11" y="-0.8" font-size="1.2" fill="#111827">X</text>
+<text x="0.6" y="-11" font-size="1.2" fill="#111827">Y</text>
+
+<g fill="#111827" font-size="0.9" font-weight="bold">
+  <text x="-10" y="1.2" text-anchor="middle">-10</text>
+  <text x="-5" y="1.2" text-anchor="middle">-5</text>
+  <text x="5" y="1.2" text-anchor="middle">5</text>
+  <text x="10" y="1.2" text-anchor="middle">10</text>
+
+  <text x="-1.2" y="-10" text-anchor="end">10</text>
+  <text x="-1.2" y="-5" text-anchor="end">5</text>
+  <text x="-1.2" y="5" text-anchor="end">-5</text>
+  <text x="-1.2" y="10" text-anchor="end">-10</text>
+</g>
+
+<path id="curve" fill="none" stroke="#6366f1" stroke-width="0.2"/>
+<circle id="vertex" r="0.4" fill="#fbbf24"/>
+
+</svg>
+
+  </div>
+
+  <div class="info-grid">
+    <div class="info">Төбе<br><b id="vertexTxt">(0,0)</b></div>
+    <div class="info">Ось симметриясы<br><b id="axisTxt">x = 0</b></div>
+    <div class="info">Бағыт<br><b id="dirTxt">↑</b></div>
+    <div class="info">Y қиылысуы<br><b id="yTxt">0</b></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const aS = document.getElementById("a");
+const bS = document.getElementById("b");
+const cS = document.getElementById("c");
+
+[aS,bS,cS].forEach(s=>s.addEventListener("input",update));
+
+function format(n){return Math.abs(n)<0.01?0:parseFloat(n.toFixed(2));}
+
+function update(){
+  let a=+aS.value, b=+bS.value, c=+cS.value;
+  document.getElementById("aVal").innerText=format(a);
+  document.getElementById("bVal").innerText=format(b);
+  document.getElementById("cVal").innerText=format(c);
+
+  document.getElementById("formula").innerText=
+    "y = "+(a===1?"":a===-1?"-":a)+"x²"+(b? (b>0?" + ":" - ")+Math.abs(b)+"x":"")+(c? (c>0?" + ":" - ")+Math.abs(c):"");
+
+  let path="";
+  for(let x=-12;x<=12;x+=0.1){
+    let y=a*x*x+b*x+c;
+    if(y>=-12&&y<=12){
+      path+=(path?" L ":"M ")+x+" "+(-y);
+    }
+  }
+  document.getElementById("curve").setAttribute("d",path);
+
+  let vx=-b/(2*a);
+  let vy=a*vx*vx+b*vx+c;
+  document.getElementById("vertex").setAttribute("cx",vx);
+  document.getElementById("vertex").setAttribute("cy",-vy);
+
+  document.getElementById("vertexTxt").innerText="("+format(vx)+","+format(vy)+")";
+  document.getElementById("axisTxt").innerText="x = "+format(vx);
+  document.getElementById("dirTxt").innerText=a>0?"↑":"↓";
+  document.getElementById("yTxt").innerText=format(c);
+}
+
+function resetGraph(){
+  aS.value=1;bS.value=0;cS.value=0;update();
+}
+update();
+</script>
+
+</body>
+</html>

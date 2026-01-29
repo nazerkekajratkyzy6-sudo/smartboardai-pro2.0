@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Рефлексия — Квадраттық функция</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{font-family:Inter,sans-serif;background:linear-gradient(135deg,#eef2ff,#f0f9ff);}
+.concept-card{cursor:pointer;transition:.2s}
+.concept-card:hover{transform:scale(1.05)}
+.drop-zone{min-height:180px;transition:.3s}
+.report-box{white-space:pre-line;background:#f8fafc;padding:12px;border-radius:12px}
+</style>
+</head>
+<body class="p-6">
+
+<h1 class="text-2xl font-bold mb-4 text-center">8-сынып — Квадраттық функция рефлексиясы</h1>
+
+<div id="cardsArea" class="flex flex-wrap gap-3 justify-center mb-6"></div>
+
+<div class="grid md:grid-cols-3 gap-4 mb-6">
+  <div id="greenZone" class="drop-zone bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+    <h2 class="font-bold text-emerald-700 mb-2">🟢 Түсіндім</h2>
+    <div class="dropped-cards flex flex-wrap gap-2"></div>
+  </div>
+  <div id="yellowZone" class="drop-zone bg-amber-50 p-4 rounded-xl border border-amber-200">
+    <h2 class="font-bold text-amber-700 mb-2">🟡 Қиын болды</h2>
+    <div class="dropped-cards flex flex-wrap gap-2"></div>
+  </div>
+  <div id="blueZone" class="drop-zone bg-blue-50 p-4 rounded-xl border border-blue-200">
+    <h2 class="font-bold text-blue-700 mb-2">🔵 Сұрақ қалды</h2>
+    <div class="dropped-cards flex flex-wrap gap-2"></div>
+  </div>
+</div>
+
+<button onclick="generateReport()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">AI-Есеп шығару</button>
+
+<div id="report" class="mt-6 report-box hidden"></div>
+
+<audio id="soundDrop" src="https://assets.mixkit.co/sfx/preview/mixkit-game-ball-tap-2073.mp3"></audio>
+<audio id="soundSpark" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3"></audio>
+
+<script>
+const concepts=[
+{id:'a',text:'a коэффициенті',icon:'📐'},
+{id:'b',text:'b коэффициенті',icon:'📊'},
+{id:'c',text:'c коэффициенті',icon:'📈'},
+{id:'vertex',text:'Төбе',icon:'📍'},
+{id:'direction',text:'Бағыт',icon:'↗️'},
+{id:'shift',text:'Ығысу',icon:'↔️'}
+];
+
+let counts={};
+concepts.forEach(c=>counts[c.id]={green:0,yellow:0,blue:0});
+
+function createCard(concept){
+const card=document.createElement('div');
+card.className="concept-card bg-white px-4 py-2 rounded-xl shadow flex gap-2";
+card.innerHTML=`<span>${concept.icon}</span>${concept.text}`;
+card.onclick=()=>openChoice(card,concept);
+return card;
+}
+
+function openChoice(card,concept){
+const modal=document.createElement('div');
+modal.className="fixed inset-0 bg-black/40 flex items-center justify-center z-50";
+modal.innerHTML=`
+<div class="bg-white rounded-xl p-5 w-72 text-center">
+<h3 class="font-bold mb-3">${concept.text}</h3>
+<button class="w-full bg-emerald-500 text-white py-2 rounded mb-2" onclick="send('${concept.id}','greenZone','green')">🟢</button>
+<button class="w-full bg-amber-500 text-white py-2 rounded mb-2" onclick="send('${concept.id}','yellowZone','yellow')">🟡</button>
+<button class="w-full bg-blue-500 text-white py-2 rounded" onclick="send('${concept.id}','blueZone','blue')">🔵</button>
+</div>`;
+document.body.appendChild(modal);
+}
+
+function send(id,zoneId,type){
+document.querySelector('.fixed').remove();
+let card=document.querySelector(`[data-id='${id}']`);
+if(card) card.remove();
+let zone=document.querySelector(`#${zoneId} .dropped-cards`);
+let concept=concepts.find(c=>c.id==id);
+zone.appendChild(createCard(concept));
+counts[id][type]++;
+document.getElementById('soundDrop').play();
+spark();
+}
+
+function spark(){
+document.getElementById('soundSpark').play();
+}
+
+function generateReport(){
+let text="📊 Рефлексия нәтижесі:\n\n";
+concepts.forEach(c=>{
+let d=counts[c.id];
+text+=`${c.text}: 🟢${d.green} 🟡${d.yellow} 🔵${d.blue}\n`;
+});
+text+="\nҰсыным: қиын және сұрақ аймақтарын келесі сабақта қайта түсіндіру.";
+const box=document.getElementById('report');
+box.textContent=text;
+box.classList.remove('hidden');
+}
+
+const area=document.getElementById('cardsArea');
+concepts.forEach(c=>{
+let card=createCard(c);
+card.dataset.id=c.id;
+area.appendChild(card);
+});
+</script>
+</body>
+</html>
