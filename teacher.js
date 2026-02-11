@@ -80,6 +80,12 @@ const TRAINERS = {
     "Wordsearch_KZ",
   ],
   math: [
+    "10butin",
+    "10logarifm",
+    "10parametr",
+    "10planimetria",
+    "10Stereometria",
+    "10trig",
     "6-synyp–Proporciya",
     "7-synyp–Birmusheler",
     "7-synyp–Kopmusheler",
@@ -1448,6 +1454,7 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
 
 
 
