@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LOGIC LAB PRO — Логарифмдік теңсіздіктер (10 есеп) · офлайн</title>
+  <style>
+    :root{
+      --bg:#f7f9ff;
+      --card:#ffffff;
+      --ink:#172048;
+      --muted:#55618a;
+      --line:rgba(23,32,72,.12);
+      --shadow:0 16px 40px rgba(22,28,60,.10);
+      --ok:#10b981;
+      --bad:#ef476f;
+      --warn:#f59e0b;
+      --accent:#6366f1;
+      --seg:#dbe3ff;
+      --segOn:#a7f3d0;
+      --segOn2:#fde68a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      color:var(--ink);
+      background:
+        radial-gradient(900px 650px at 12% 10%, rgba(99,102,241,.18), transparent 60%),
+        radial-gradient(900px 650px at 88% 14%, rgba(16,185,129,.14), transparent 60%),
+        radial-gradient(900px 650px at 50% 92%, rgba(245,158,11,.12), transparent 60%),
+        var(--bg);
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      background:rgba(247,249,255,.82);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+    .top{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;padding:14px 0}
+    h1{margin:0;font-size:18px}
+    .sub{margin-top:6px;color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:1.25fr .75fr;gap:14px;padding:14px 0 28px}
+    @media(max-width:980px){.grid{grid-template-columns:1fr}}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.92));
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      box-shadow:var(--shadow);
+    }
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    label{font-size:12px;color:var(--muted)}
+    input, select, textarea{
+      width:100%;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(23,32,72,.16);
+      background:#fff;
+      color:var(--ink);
+      outline:none;
+    }
+    textarea{min-height:90px;resize:vertical}
+    .btn{
+      cursor:pointer; user-select:none;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(23,32,72,.14);
+      background:linear-gradient(180deg,#fff,#eef2ff);
+      color:var(--ink);
+      transition:transform .12s ease, filter .12s ease;
+    }
+    .btn:hover{transform:translateY(-1px);filter:brightness(1.02)}
+    .btn:active{transform:translateY(0);filter:brightness(.99)}
+    .btn.ok{border-color:rgba(16,185,129,.40)}
+    .btn.bad{border-color:rgba(239,71,111,.40)}
+    .btn.warn{border-color:rgba(245,158,11,.45)}
+    .pill{
+      font-size:12px;
+      border:1px solid rgba(23,32,72,.14);
+      padding:6px 10px;
+      border-radius:999px;
+      color:var(--muted);
+      background:#fff;
+    }
+    .pill.ok{border-color:rgba(16,185,129,.45); color:rgba(16,185,129,.95)}
+    .pill.bad{border-color:rgba(239,71,111,.45); color:rgba(239,71,111,.95)}
+    .sep{height:1px;background:var(--line);margin:12px 0}
+    .muted{color:var(--muted);font-size:13px}
+    .small{color:var(--muted);font-size:12px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    @media(max-width:720px){.kpi{grid-template-columns:repeat(2,1fr)}}
+    .kpi .box{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}
+    .kpi .n{font-weight:900;font-size:18px}
+    .kpi .t{font-size:12px;color:var(--muted)}
+    .toast{
+      position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
+      background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);
+      padding:10px 12px;border-radius:999px;font-size:13px;display:none;z-index:99;
+    }
+
+    /* Number line */
+    .nl{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+      padding:12px;
+    }
+    .cuts{
+      display:grid;
+      grid-auto-flow:column;
+      grid-auto-columns:1fr;
+      gap:8px;
+      align-items:stretch;
+    }
+    .seg{
+      position:relative;
+      height:54px;
+      border-radius:12px;
+      background:linear-gradient(180deg, #ffffff, var(--seg));
+      border:1px solid rgba(23,32,72,.12);
+      cursor:pointer;
+      overflow:hidden;
+      display:flex;align-items:flex-end;justify-content:center;
+      padding:6px;
+      transition:transform .12s ease, filter .12s ease;
+    }
+    .seg:hover{transform:translateY(-1px);filter:brightness(1.01)}
+    .seg.on{
+      background:linear-gradient(180deg, #ffffff, var(--segOn));
+      border-color:rgba(16,185,129,.45);
+    }
+    .seg.on.alt{
+      background:linear-gradient(180deg, #ffffff, var(--segOn2));
+      border-color:rgba(245,158,11,.45);
+    }
+    .seg .lab{font-size:11px;color:rgba(23,32,72,.78);text-align:center;line-height:1.05}
+    .tickRow{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      margin-top:8px;
+      flex-wrap:wrap;
+    }
+    .tick{
+      display:flex;gap:8px;align-items:center;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:8px 10px;
+      background:#fff;
+      font-size:12px;
+      color:var(--muted);
+      min-width:140px;
+    }
+    .tick input{width:auto}
+    details{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff}
+    summary{cursor:pointer}
+
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      border:1px solid var(--line);border-radius:999px;
+      padding:6px 10px;background:#fff;color:var(--muted);font-size:12px;
+    }
+    .dot{width:10px;height:10px;border-radius:999px;border:1px solid rgba(23,32,72,.22);display:inline-block}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap top">
+    <div>
+      <h1>LOGIC LAB PRO — Логарифмдік теңсіздіктер (10 есеп)</h1>
+      <div class="sub">Мүлде басқа стиль: интервалды “құрастыру” · ОДЗ/шекара нүктелері · қате/көмек/уақыт талдауы · офлайн 1 файл</div>
+    </div>
+    <div class="row" style="align-items:center">
+      <span class="badge"><span class="dot" style="background:rgba(16,185,129,.55)"></span>Дұрыс интервал</span>
+      <span class="badge"><span class="dot" style="background:rgba(245,158,11,.55)"></span>2-интервал</span>
+      <span class="badge"><span class="dot" style="background:rgba(239,71,111,.55)"></span>Қате/ОДЗ</span>
+    </div>
+  </div>
+</header>
+
+<div class="toast" id="toast"></div>
+
+<div class="wrap grid">
+  <section class="card">
+    <div class="row">
+      <div style="flex:1;min-width:220px">
+        <label>Оқушының аты-жөні</label>
+        <input id="studentName" placeholder="Мысалы: Айару" />
+      </div>
+      <div style="width:140px">
+        <label>Сынып</label>
+        <input id="studentClass" placeholder="10A" />
+      </div>
+      <div style="width:260px">
+        <label>Есеп</label>
+        <select id="taskSelect"></select>
+      </div>
+      <div class="row">
+        <span class="pill" id="timerPill">⏱ 00:00</span>
+        <span class="pill" id="statusPill">Әлі тексерілмеді</span>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="mono" id="ineqText" style="font-size:18px;line-height:1.35;white-space:pre-wrap"></div>
+    <div class="small" id="domainText" style="margin-top:10px"></div>
+
+    <div class="sep"></div>
+
+    <div class="nl">
+      <b>Сан сәулесі — интервалды таңда</b>
+      <div class="small" style="margin-top:6px">
+        Әр сегментті басып қос/өшір. Егер жауапта шекара нүктесі <b>кіреді</b> (жабық) болса — төмендегі “Нүктені қосу” белгісін қой.
+      </div>
+
+      <div class="sep"></div>
+
+      <div id="segments" class="cuts"></div>
+
+      <div class="sep"></div>
+
+      <b class="small">Нүктені қосу (жабық шекаралар үшін ғана):</b>
+      <div id="pointToggles" class="tickRow"></div>
+
+      <div class="sep"></div>
+
+      <div class="row">
+        <button class="btn ok" id="checkBtn">✔ Тексеру</button>
+        <button class="btn" id="clearBtn">↺ Таңдауды тазарту</button>
+        <button class="btn" id="hint1Btn">💡 Көмек 1</button>
+        <button class="btn" id="hint2Btn">💡 Көмек 2</button>
+        <button class="btn bad" id="revealBtn">👁 Жауапты көрсету</button>
+      </div>
+
+      <details id="hintBox1" style="display:none;margin-top:10px">
+        <summary>Көмек 1</summary>
+        <div class="small" id="hint1Text"></div>
+      </details>
+      <details id="hintBox2" style="display:none;margin-top:10px">
+        <summary>Көмек 2</summary>
+        <div class="small" id="hint2Text"></div>
+      </details>
+      <details id="solBox" style="display:none;margin-top:10px">
+        <summary>Дұрыс жауап (кілт)</summary>
+        <div class="small mono" id="solText" style="white-space:pre-wrap"></div>
+      </details>
+    </div>
+
+    <div class="sep"></div>
+    <div class="small" id="taskMeta"></div>
+
+    <div class="sep"></div>
+    <div class="row" style="justify-content:space-between">
+      <button class="btn" id="finishBtn">📊 Соңғы талдау</button>
+      <button class="btn" id="copyReportBtn">🧾 Есепті көшіру</button>
+      <button class="btn" id="resetAllBtn">🗑 Барлығын тазарту</button>
+    </div>
+  </section>
+
+  <aside class="card">
+    <b>PRO-талдау панелі</b>
+    <div class="sep"></div>
+
+    <div class="kpi">
+      <div class="box"><div class="n" id="kpiDone">0</div><div class="t">Дұрыс (есеп саны)</div></div>
+      <div class="box"><div class="n" id="kpiWrong">0</div><div class="t">Қате әрекет</div></div>
+      <div class="box"><div class="n" id="kpiHints">0</div><div class="t">Көмек саны</div></div>
+      <div class="box"><div class="n" id="kpiTime">00:00</div><div class="t">Жалпы уақыт</div></div>
+    </div>
+
+    <div class="sep"></div>
+
+    <b>Қиын болған есептер</b>
+    <div class="small" id="hotTasks" style="margin-top:8px"></div>
+
+    <div class="sep"></div>
+
+    <b>Ереже-шпаргалка</b>
+    <div class="small" style="margin-top:8px;line-height:1.45">
+      • <b>ОДЗ</b>: аргумент &gt; 0, негіз &gt; 0, негіз ≠ 1<br>
+      • Егер <b>0&lt;a&lt;1</b>, онда логарифм <b>кемімелі</b> → теңсіздік бағыты ауысады<br>
+      • Интервалды құрастыру: <b>сыни нүктелер</b> арқылы бөліп тексер
+    </div>
+  </aside>
+</div>
+
+<script>
+/* =========================================================
+   LOGIC LAB PRO — 10 есеп (кілттері есептелген)
+   Интервалды сегмент арқылы таңдау + жабық нүкте тоггл
+   ========================================================= */
+
+const $ = (id)=>document.getElementById(id);
+
+function toast(msg){
+  const el = $("toast");
+  el.textContent = msg;
+  el.style.display = "block";
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=> el.style.display="none", 2200);
+}
+
+function fmtTime(sec){
+  const m = String(Math.floor(sec/60)).padStart(2,"0");
+  const s = String(Math.floor(sec%60)).padStart(2,"0");
+  return `${m}:${s}`;
+}
+
+/**
+ * cuts: array of cut labels in order, including "-∞" and "+∞" if needed.
+ * segments are between cuts[i]..cuts[i+1]
+ *
+ * answerSegments: array of segment indices that are ON
+ * answerClosedPoints: array of cut labels that must be INCLUDED (closed boundary)
+ *
+ * NOTE: This PRO version uses symbolic labels where needed (√2, √5, log3 10, 1-log2 3, T, ...).
+ * Students don't type numbers; they build interval structure.
+ */
+const TASKS = [
+  // 1
+  {
+    id: 1,
+    ineq: "1)  log\u2092\u2093\u2093(x²) < 1   (негіз: 2x+3)",
+    domain: "ОДЗ: x≠0, 2x+3>0 (x>-3/2), 2x+3≠1 (x≠-1)",
+    hint1: "2x+3 > 1 және 0 < 2x+3 < 1 жағдайларын бөлек қарастыр.",
+    hint2: "a>1 болса: log_a b < 1 ⇔ b < a.  0<a<1 болса: log_a b < 1 ⇔ b > a.",
+    solText: "Жауап: (-3/2, -1) ∪ (-1, 0) ∪ (0, 3)",
+    cuts: ["-∞","-3/2","-1","0","3","+∞"],
+    answerSegments: [1,2,3], // (-3/2,-1), (-1,0), (0,3)
+    answerClosedPoints: []
+  },
+  // 2
+  {
+    id: 2,
+    ineq: "2)  log\u2091\u2044\u2093( (5/2)x − 1 ) ≥ −2   (негіз: 1/x)",
+    domain: "ОДЗ: x>0, x≠1, (5/2)x−1>0 (x>2/5)",
+    hint1: "0<x<1 болса негіз>1, x>1 болса негіз 0<a<1.",
+    hint2: "a>1: t ≥ a^{-2}=x².  0<a<1: t ≤ x².",
+    solText: "Жауап: [1/2, 1) ∪ [2, +∞)",
+    cuts: ["-∞","2/5","1/2","1","2","+∞"],
+    answerSegments: [2,4], // [1/2,1) is segment 2..3, [2,∞) is segment 4..5
+    answerClosedPoints: ["1/2","2"]
+  },
+  // 3
+  {
+    id: 3,
+    ineq: "3)  log\u2093( log\u2089(3\u02e3 − 9) ) < 1",
+    domain: "ОДЗ: x>0, x≠1; 3^x−9>0 (x>2); log₉(3^x−9)>0 (3^x>10 ⇒ x>log₃10)",
+    hint1: "Алдымен ішкі логарифмнің ОДЗ-ын толық жап.",
+    hint2: "x>1 болғанда log_x(u)<1 ⇔ u<x. Бұл теңсіздік доменде автомат орындалады.",
+    solText: "Жауап: (log₃10, +∞)",
+    cuts: ["-∞","log₃10","+∞"],
+    answerSegments: [1],
+    answerClosedPoints: []
+  },
+  // 4
+  {
+    id: 4,
+    ineq: "4)  log\u2080.\u2081(x² + x − 2) > log\u2080.\u2081(x + 3)",
+    domain: "ОДЗ: x+3>0 (x>-3); x²+x−2>0 ⇒ (x+2)(x−1)>0 ⇒ x<-2 немесе x>1",
+    hint1: "Негіз 0.1<1 → логарифм кемімелі → теңсіздік бағыты ауысады.",
+    hint2: "x²+x−2 < x+3 ⇔ x²−5<0 ⇔ −√5 < x < √5.",
+    solText: "Жауап: (−√5, −2) ∪ (1, √5)",
+    cuts: ["-∞","-3","-√5","-2","1","√5","+∞"],
+    answerSegments: [2,4], // (-√5,-2) is seg 2..3, (1,√5) is seg 4..5
+    answerClosedPoints: []
+  },
+  // 5
+  {
+    id: 5,
+    ineq: "5)  ( log\u2082(3·2\u02e3\u207b\u00b9 − 1) ) / x  ≥ 1",
+    domain: "ОДЗ: x≠0; 3·2^{x−1}−1>0 ⇒ x > 1−log₂3",
+    hint1: "x>0 және x<0 жағдайларын бөлек қарастыр (бөлшек!).",
+    hint2: "2^x=t ауыстыру: log₂((3t−2)/2)=log₂(3t−2)−1, x=log₂t.",
+    solText: "Жауап: (1−log₂3, 0) ∪ [1, +∞)",
+    cuts: ["-∞","1−log₂3","0","1","+∞"],
+    answerSegments: [1,3], // (1-log₂3,0) is seg 1..2, [1,∞) is seg 3..4
+    answerClosedPoints: ["1"]
+  },
+  // 6
+  {
+    id: 6,
+    ineq: "6)  (x² − 4) / log\u2091\u2044\u2082(x² − 1) < 0",
+    domain: "ОДЗ: x²−1>0 ⇒ |x|>1; log_{1/2}(x²−1)≠0 ⇒ x²≠2; сондай-ақ x≠±2 (қатаң <0)",
+    hint1: "Бөлшек <0 ⇒ алым мен бөлім таңбалары қарама-қарсы.",
+    hint2: "log_{1/2}(u): u∈(0,1) болса >0, u>1 болса <0.",
+    solText: "Жауап: (−∞, −2) ∪ (−√2, −1) ∪ (1, √2) ∪ (2, +∞)",
+    cuts: ["-∞","-2","-√2","-1","1","√2","2","+∞"],
+    answerSegments: [0,2,4,6], // (-∞,-2), (-√2,-1), (1,√2), (2,∞)
+    answerClosedPoints: []
+  },
+  // 7
+  {
+    id: 7,
+    ineq: "7)  log\u2091\u2044\u2082 x + log\u2083 x > 1",
+    domain: "ОДЗ: x>0",
+    hint1: "log_{1/2}x = −log₂x екенін пайдалан.",
+    hint2: "ln x ·(1/ln3 − 1/ln2) > 1. Коэффициент теріс → теңсіздік бағыты ауысады.",
+    solText: "Жауап: (0, T), мұнда T = 2^{−log_{3/2}3} (тұрақты сан)",
+    cuts: ["0","T","+∞"],
+    answerSegments: [0], // (0,T)
+    answerClosedPoints: []
+  },
+  // 8
+  {
+    id: 8,
+    ineq: "8)  (1/2)^{log\u2082(x² − 1)} > 1",
+    domain: "ОДЗ: x²−1>0 ⇒ |x|>1",
+    hint1: "(1/2)^{log₂A} = 2^{−log₂A} = 1/A.",
+    hint2: "1/(x²−1) > 1 ⇒ x² < 2 және |x|>1.",
+    solText: "Жауап: (−√2, −1) ∪ (1, √2)",
+    cuts: ["-∞","-√2","-1","1","√2","+∞"],
+    answerSegments: [1,3],
+    answerClosedPoints: []
+  },
+  // 9
+  {
+    id: 9,
+    ineq: "9)  log_{x+4}(5x+20) ≤ log_{x+4}(x+4)²",
+    domain: "ОДЗ: x+4>0 (x>-4), x+4≠1 (x≠-3); 5x+20>0 (x>-4)",
+    hint1: "a=x+4 деп ал: log_a(5a) ≤ log_a(a²).",
+    hint2: "a>1 болса (x>-3): 5a ≤ a² ⇒ a≥5 ⇒ x≥1.  0<a<1 болса (−4<x<−3): теңсіздік кері және автомат орындалады.",
+    solText: "Жауап: (−4, −3) ∪ [1, +∞)",
+    cuts: ["-∞","-4","-3","1","+∞"],
+    answerSegments: [1,3],
+    answerClosedPoints: ["1"]
+  },
+  // 10
+  {
+    id: 10,
+    ineq: "10)  log_{x/6}( log\u2093( √(6−x) ) ) > 0",
+    domain: "ОДЗ: 0<x<6, x≠1; √(6−x)>0; ішкі log_x(√(6−x))>0; сыртқы негіз x/6∈(0,1)",
+    hint1: "x/6∈(0,1) болғандықтан log_{x/6}(b)>0 ⇔ 0<b<1.",
+    hint2: "x>1 аймағын қара: b=log_x(y).  b>0 ⇒ y>1, b<1 ⇒ y<x.  y=√(6−x).",
+    solText: "Жауап: (2, 5)",
+    cuts: ["0","1","2","5","6"],
+    answerSegments: [2], // (2,5)
+    answerClosedPoints: []
+  },
+];
+
+/* =========================================================
+   State / analytics
+   ========================================================= */
+const state = {
+  current: 0,
+  per: TASKS.map(()=>({
+    startedAt:null,
+    elapsed:0,
+    attempts:0,
+    wrong:0,
+    correct:0,
+    hints:0,
+    usedHint1:false,
+    usedHint2:false,
+    revealed:false,
+    // selections
+    selectedSegs: new Set(),
+    selectedPoints: new Set(),
+    lastCheck:null,
+  }))
+};
+
+let timer=null;
+
+function startTimer(){
+  stopTimer();
+  timer=setInterval(()=>{
+    const t=state.per[state.current];
+    if(!t.startedAt) t.startedAt=Date.now();
+    t.elapsed = Math.floor((Date.now()-t.startedAt)/1000);
+    $("timerPill").textContent = `⏱ ${fmtTime(t.elapsed)}`;
+    renderMeta();
+    renderKPIs();
+  }, 250);
+}
+function stopTimer(){ if(timer) clearInterval(timer); timer=null; }
+
+function setStatus(kind, text){
+  const el=$("statusPill");
+  if(kind==="ok"){ el.className="pill ok"; el.textContent=text; }
+  else if(kind==="bad"){ el.className="pill bad"; el.textContent=text; }
+  else { el.className="pill"; el.textContent=text; }
+}
+
+/* =========================================================
+   UI render
+   ========================================================= */
+function initSelect(){
+  const sel=$("taskSelect");
+  sel.innerHTML="";
+  TASKS.forEach((t,i)=>{
+    const o=document.createElement("option");
+    o.value=String(i);
+    o.textContent = `${t.id}) Есеп ${t.id}`;
+    sel.appendChild(o);
+  });
+}
+
+function segLabel(a,b){
+  // show open by default; closed handled via point toggles
+  return `(${a}, ${b})`;
+}
+
+function renderTask(){
+  const idx=state.current;
+  const task=TASKS[idx];
+  const st=state.per[idx];
+
+  $("ineqText").textContent = task.ineq;
+  $("domainText").innerHTML = `<b>ОДЗ:</b> ${task.domain}`;
+
+  // reset hint boxes visibility (keep used flags)
+  $("hintBox1").style.display = st.usedHint1 ? "block" : "none";
+  $("hintBox2").style.display = st.usedHint2 ? "block" : "none";
+  $("solBox").style.display  = st.revealed ? "block" : "none";
+
+  $("hint1Text").textContent = task.hint1;
+  $("hint2Text").textContent = task.hint2;
+  $("solText").textContent = task.solText;
+
+  // segments
+  const segWrap=$("segments");
+  segWrap.innerHTML="";
+  const cuts = task.cuts;
+  const segCount = cuts.length - 1;
+
+  for(let i=0;i<segCount;i++){
+    const a=cuts[i], b=cuts[i+1];
+    const div=document.createElement("div");
+    div.className="seg";
+    if(st.selectedSegs.has(i)){
+      div.classList.add("on");
+      // alternate highlight for variety if multiple segments
+      if([...st.selectedSegs].indexOf(i)%2===1) div.classList.add("alt");
+    }
+    div.dataset.seg = String(i);
+    div.innerHTML = `<div class="lab">${segLabel(a,b)}</div>`;
+    div.addEventListener("click", ()=>{
+      // toggle
+      st.attempts++; // selection counts as an action in PRO
+      if(st.selectedSegs.has(i)) st.selectedSegs.delete(i);
+      else st.selectedSegs.add(i);
+      toast("Интервал өзгертілді");
+      renderTask();
+      renderMeta();
+      renderKPIs();
+      // Do not mark wrong on selection; wrong only on check.
+    });
+    segWrap.appendChild(div);
+  }
+
+  // point toggles (only finite internal points, not -∞/+∞; also not domain-forbidden unless student wants)
+  const ptsWrap=$("pointToggles");
+  ptsWrap.innerHTML="";
+  const points = cuts.filter(x=>x!=="-∞" && x!=="+∞");
+
+  if(points.length===0){
+    ptsWrap.innerHTML = `<div class="small">Бұл есепте жабық нүкте жоқ.</div>`;
+  } else {
+    points.forEach(p=>{
+      const box=document.createElement("div");
+      box.className="tick";
+      const id="pt_"+idx+"_"+String(p).replaceAll(" ","").replaceAll("−","-").replaceAll("/","_").replaceAll("√","sqrt");
+      const checked = st.selectedPoints.has(p);
+      box.innerHTML = `
+        <label style="display:flex;gap:10px;align-items:center;cursor:pointer;margin:0">
+          <input type="checkbox" ${checked?"checked":""} id="${id}">
+          <span>Нүкте кіреді: <b class="mono">${p}</b></span>
+        </label>`;
+      box.querySelector("input").addEventListener("change",(e)=>{
+        st.attempts++;
+        if(e.target.checked) st.selectedPoints.add(p);
+        else st.selectedPoints.delete(p);
+        toast("Нүкте белгісі өзгертілді");
+        renderMeta(); renderKPIs();
+      });
+      ptsWrap.appendChild(box);
+    });
+  }
+
+  // status
+  if(st.lastCheck===null) setStatus("idle","Әлі тексерілмеді");
+  else if(st.lastCheck===true) setStatus("ok","✔ Дұрыс");
+  else setStatus("bad","✖ Қате");
+
+  startTimer();
+  renderMeta();
+  renderKPIs();
+}
+
+function renderMeta(){
+  const st=state.per[state.current];
+  $("taskMeta").innerHTML =
+    `Әрекет: <b>${st.attempts}</b> · Қате: <b>${st.wrong}</b> · Көмек: <b>${st.hints}</b> · Шешім ашылды: <b>${st.revealed?"Иә":"Жоқ"}</b>`;
+}
+
+function renderKPIs(){
+  let done=0, wrong=0, hints=0, total=0;
+  state.per.forEach(s=>{
+    done += (s.correct>0)?1:0;
+    wrong += s.wrong;
+    hints += s.hints;
+    total += s.elapsed||0;
+  });
+  $("kpiDone").textContent = done;
+  $("kpiWrong").textContent = wrong;
+  $("kpiHints").textContent = hints;
+  $("kpiTime").textContent = fmtTime(total);
+
+  // hot tasks
+  const hot = state.per
+    .map((s,i)=>({i, score: s.wrong + (s.revealed?1:0) + (s.hints*0.5)}))
+    .sort((a,b)=>b.score-a.score)
+    .slice(0,4)
+    .filter(x=>x.score>0);
+
+  $("hotTasks").innerHTML = hot.length
+    ? hot.map(h=>`Есеп ${h.i+1}: қиындық индексі <b>${h.score.toFixed(1)}</b>`).join("<br>")
+    : "Әзірше қиын есеп байқалмады.";
+}
+
+/* =========================================================
+   Check logic
+   ========================================================= */
+function setEquals(aSet, bArr){
+  if(aSet.size !== bArr.length) return false;
+  for(const v of bArr) if(!aSet.has(v)) return false;
+  return true;
+}
+function setEqualsStr(aSet, bArr){
+  if(aSet.size !== bArr.length) return false;
+  for(const v of bArr) if(!aSet.has(v)) return false;
+  return true;
+}
+
+function checkCurrent(){
+  const idx=state.current;
+  const task=TASKS[idx];
+  const st=state.per[idx];
+
+  // attempts counted when pressing check too
+  st.attempts++;
+
+  const segsOK = setEquals(st.selectedSegs, task.answerSegments);
+  const ptsOK  = setEqualsStr(st.selectedPoints, task.answerClosedPoints);
+
+  const ok = segsOK && ptsOK;
+
+  st.lastCheck = ok;
+
+  if(ok){
+    st.correct = 1;
+    toast("Дұрыс ✅");
+  } else {
+    st.wrong++;
+    toast("Қате ❌");
+  }
+  renderTask();
+}
+
+function clearSelection(){
+  const st=state.per[state.current];
+  st.selectedSegs.clear();
+  st.selectedPoints.clear();
+  st.lastCheck=null;
+  toast("Таңдау тазартылды");
+  renderTask();
+}
+
+function showHint(which){
+  const idx=state.current;
+  const task=TASKS[idx];
+  const st=state.per[idx];
+
+  st.hints++;
+  if(which===1){
+    st.usedHint1=true;
+    $("hintBox1").style.display="block";
+    $("hintBox1").open=true;
+    $("hint1Text").textContent=task.hint1;
+    toast("Көмек 1 ашылды");
+  } else {
+    st.usedHint2=true;
+    $("hintBox2").style.display="block";
+    $("hintBox2").open=true;
+    $("hint2Text").textContent=task.hint2;
+    toast("Көмек 2 ашылды");
+  }
+  renderMeta();
+  renderKPIs();
+}
+
+function reveal(){
+  const st=state.per[state.current];
+  st.revealed=true;
+  $("solBox").style.display="block";
+  $("solBox").open=true;
+  toast("Жауап көрсетілді");
+  renderMeta();
+  renderKPIs();
+}
+
+/* =========================================================
+   Report
+   ========================================================= */
+function buildReport(){
+  const name=$("studentName").value.trim()||"Аты жоқ";
+  const cls=$("studentClass").value.trim()||"—";
+  let done=0, wrong=0, hints=0, total=0;
+
+  const lines=[];
+  lines.push("LOGIC LAB PRO — Есеп беру (логарифмдік теңсіздіктер)");
+  lines.push(`Оқушы: ${name} | Сынып: ${cls}`);
+  lines.push("");
+
+  state.per.forEach((s,i)=>{
+    done += (s.correct>0)?1:0;
+    wrong += s.wrong;
+    hints += s.hints;
+    total += s.elapsed||0;
+    lines.push(`Есеп ${i+1}: ${s.correct>0?"✔ Дұрыс":"—"} | әрекет=${s.attempts} | қате=${s.wrong} | көмек=${s.hints} | шешім=${s.revealed?"ашты":"ашпады"} | уақыт=${fmtTime(s.elapsed)}`);
+  });
+
+  lines.push("");
+  lines.push(`Қорытынды: дұрыс=${done}/10 | қате әрекет=${wrong} | көмек=${hints} | жалпы уақыт=${fmtTime(total)}`);
+
+  // heuristic feedback
+  const hard = state.per
+    .map((s,i)=>({i, score:s.wrong + (s.revealed?1:0) + (s.hints*0.5)}))
+    .sort((a,b)=>b.score-a.score)
+    .slice(0,3);
+
+  lines.push(`Қиын болған есептер: ${hard.map(x=>x.i+1).join(", ")}`);
+  lines.push("Ұсыныс: ОДЗ-ды толық жабу (негіз>0, негіз≠1, аргумент>0), 0<a<1 болса теңсіздік бағыты ауысатынын ұмытпау, сыни нүктелер арқылы интервалдық талдау.");
+  return lines.join("\n");
+}
+
+/* =========================================================
+   Wiring
+   ========================================================= */
+(function init(){
+  initSelect();
+
+  $("taskSelect").addEventListener("change", ()=>{
+    state.current = Number($("taskSelect").value);
+    renderTask();
+  });
+
+  $("checkBtn").addEventListener("click", checkCurrent);
+  $("clearBtn").addEventListener("click", clearSelection);
+  $("hint1Btn").addEventListener("click", ()=>showHint(1));
+  $("hint2Btn").addEventListener("click", ()=>showHint(2));
+  $("revealBtn").addEventListener("click", reveal);
+
+  $("finishBtn").addEventListener("click", ()=>{
+    stopTimer();
+    alert(buildReport());
+    startTimer();
+  });
+
+  $("copyReportBtn").addEventListener("click", async ()=>{
+    const rep=buildReport();
+    try{
+      await navigator.clipboard.writeText(rep);
+      toast("Есеп беру көшірілді");
+    }catch(e){
+      const ta=document.createElement("textarea");
+      ta.value=rep; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy");
+      document.body.removeChild(ta);
+      toast("Есеп беру көшірілді");
+    }
+  });
+
+  $("resetAllBtn").addEventListener("click", ()=>{
+    if(!confirm("Барлығын тазартасың ба?")) return;
+    state.per = TASKS.map(()=>({
+      startedAt:null, elapsed:0,
+      attempts:0, wrong:0, correct:0, hints:0,
+      usedHint1:false, usedHint2:false, revealed:false,
+      selectedSegs:new Set(), selectedPoints:new Set(),
+      lastCheck:null
+    }));
+    state.current=0;
+    $("taskSelect").value="0";
+    toast("Барлығы тазартылды");
+    renderTask();
+  });
+
+  // first render
+  $("taskSelect").value="0";
+  renderTask();
+})();
+</script>
+</body>
+</html>

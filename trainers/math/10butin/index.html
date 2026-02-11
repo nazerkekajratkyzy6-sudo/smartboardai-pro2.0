@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Бүтін сандар зертханасы</title>
+<style>
+body{font-family:Arial;background:#eef2ff;padding:20px}
+.card{background:white;padding:20px;border-radius:12px;max-width:1000px;margin:auto}
+button{margin:5px;padding:8px 12px;border-radius:8px;border:none;background:#dde5ff;cursor:pointer}
+.step{margin-top:10px;padding:10px;background:#f4f7ff;border-radius:6px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<div class="card">
+<h2>🧠 Бүтін сандар. Дәлелдеу интерактиві</h2>
+
+<select id="taskSelect" onchange="loadTask()">
+<option value="1">1) n²+3n+5 121-ге бөлінбейді</option>
+<option value="2">2) 0–9 цифрлары бар 11-ге бөлінетін сан</option>
+<option value="3">3) 2^x − 1 = y²</option>
+<option value="4">4) x(y+1)² = 243y</option>
+<option value="5">5) 1…2010 цифрлар есебі</option>
+<option value="6">6) Жиын A (ЕКОЕ 210)</option>
+<option value="7">7) 2010! бөлінгіштік</option>
+<option value="8">8) n және m есебі</option>
+<option value="9">9) Цифра өшіргенде квадрат</option>
+<option value="10">10) 1+2^k+2^{2k+1}=n²</option>
+</select>
+
+<div id="content"></div>
+</div>
+
+<script>
+function loadTask(){
+let t=taskSelect.value;
+content.innerHTML="";
+
+if(t=="1"){
+content.innerHTML=`
+<h3>n²+3n+5 саны 121-ге бөлінбейтінін дәлелде</h3>
+<button onclick="step1()">1-қадам</button>
+<div id="s1" class="step hidden">121 = 11². mod 11 бойынша қарастырамыз.</div>
+<button onclick="step2()">2-қадам</button>
+<div id="s2" class="step hidden">n²+3n+5 ≡ n²+3n+5 (mod 11)</div>
+<button onclick="step3()">3-қадам</button>
+<div id="s3" class="step hidden">Барлық n=0..10 қойғанда қалдық 0 шықпайды → бөлінбейді</div>`;
+}
+
+if(t=="2"){
+content.innerHTML=`
+<h3>0–9 цифрлары бар 11-ге бөлінетін сан бар ма?</h3>
+<button onclick="step1()">1-қадам</button>
+<div id="s1" class="step hidden">11-ге бөліну ережесі: тақ және жұп орын қосынды айырмасы</div>
+<button onclick="step2()">2-қадам</button>
+<div id="s2" class="step hidden">0–9 цифрлары қосындысы 45</div>
+<button onclick="step3()">3-қадам</button>
+<div id="s3" class="step hidden">Айырма 11-ге еселік болмайды → мұндай сан жоқ</div>`;
+}
+
+if(t=="3"){
+content.innerHTML=`
+<h3>2^x − 1 = y² бүтін шешім</h3>
+<button onclick="step1()">1-қадам</button>
+<div id="s1" class="step hidden">Кіші x мәндерін тексереміз</div>
+<button onclick="step2()">2-қадам</button>
+<div id="s2" class="step hidden">2³−1=7 (квадрат емес)</div>
+<button onclick="step3()">3-қадам</button>
+<div id="s3" class="step hidden">Тек x=3 емес, x=1 → y=1</div>`;
+}
+
+if(t=="10"){
+content.innerHTML=`
+<h3>1+2^k+2^{2k+1}=n²</h3>
+<button onclick="step1()">1-қадам</button>
+<div id="s1" class="step hidden">Ортақ көбейткіш шығарамыз</div>
+<button onclick="step2()">2-қадам</button>
+<div id="s2" class="step hidden">= (2^k+1)²</div>
+<button onclick="step3()">3-қадам</button>
+<div id="s3" class="step hidden">n=2^k+1</div>`;
+}
+
+}
+
+function step1(){document.getElementById("s1").classList.remove("hidden")}
+function step2(){document.getElementById("s2").classList.remove("hidden")}
+function step3(){document.getElementById("s3").classList.remove("hidden")}
+
+loadTask();
+</script>
+
+</body>
+</html>

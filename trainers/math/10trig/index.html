@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Trig Lab KZ (Light) — 10 есеп + талдау</title>
+  <style>
+    :root{
+      --bg:#f6f8ff;
+      --card:#ffffff;
+      --ink:#172048;
+      --muted:#55618a;
+      --line:rgba(23,32,72,.12);
+      --ok:#13b981;
+      --bad:#ef476f;
+      --warn:#f59e0b;
+      --btn:#eef2ff;
+      --shadow: 0 14px 34px rgba(22,28,60,.10);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      color:var(--ink);
+      background:
+        radial-gradient(900px 600px at 12% 8%, rgba(99,102,241,.18), transparent 60%),
+        radial-gradient(900px 600px at 88% 14%, rgba(34,197,94,.16), transparent 60%),
+        radial-gradient(900px 600px at 50% 92%, rgba(245,158,11,.14), transparent 60%),
+        var(--bg);
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      background:rgba(246,248,255,.78);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    .wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+    .top{padding:14px 0; display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap}
+    h1{margin:0;font-size:18px}
+    .sub{color:var(--muted); font-size:13px; margin-top:6px}
+    .grid{display:grid; grid-template-columns: 1.2fr .8fr; gap:14px; padding:14px 0 28px}
+    @media(max-width:950px){.grid{grid-template-columns:1fr}}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.92));
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      box-shadow: var(--shadow);
+    }
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    label{font-size:12px;color:var(--muted)}
+    input, select, textarea{
+      width:100%;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(23,32,72,.16);
+      background:#fff;
+      color:var(--ink);
+      outline:none;
+    }
+    textarea{min-height:90px;resize:vertical}
+    .btn{
+      cursor:pointer; user-select:none;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(23,32,72,.14);
+      background: linear-gradient(180deg, #ffffff, var(--btn));
+      color:var(--ink);
+      transition: transform .12s ease, filter .12s ease;
+    }
+    .btn:hover{transform: translateY(-1px); filter:brightness(1.02)}
+    .btn:active{transform: translateY(0px); filter:brightness(.99)}
+    .btn.ok{border-color:rgba(19,185,129,.40)}
+    .btn.bad{border-color:rgba(239,71,111,.40)}
+    .pill{
+      font-size:12px;
+      border:1px solid rgba(23,32,72,.14);
+      padding:6px 10px;
+      border-radius:999px;
+      color:var(--muted);
+      background:#fff;
+    }
+    .pill.ok{border-color:rgba(19,185,129,.45); color:rgba(19,185,129,.98)}
+    .pill.bad{border-color:rgba(239,71,111,.45); color:rgba(239,71,111,.98)}
+    .sep{height:1px;background:var(--line); margin:12px 0}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+    .muted{color:var(--muted); font-size:13px}
+    .small{font-size:12px;color:var(--muted)}
+    .kpi{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+    @media(max-width:720px){.kpi{grid-template-columns:repeat(2,1fr)}}
+    .kpi .box{border:1px solid var(--line); border-radius:14px; padding:10px; background:#fff}
+    .kpi .n{font-weight:900; font-size:18px; color:var(--ink)}
+    .kpi .t{font-size:12px; color:var(--muted)}
+    .progress{
+      height:10px; border-radius:999px;
+      background: rgba(23,32,72,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+    }
+    .bar{height:100%; width:0%; background:linear-gradient(90deg, rgba(19,185,129,.92), rgba(245,158,11,.92))}
+    details{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px;
+      background:#fff;
+    }
+    summary{cursor:pointer}
+    .toast{
+      position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+      background:#fff; border:1px solid var(--line); box-shadow: var(--shadow);
+      padding:10px 12px; border-radius:999px; font-size:13px; color:var(--ink);
+      display:none; z-index:99;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap top">
+    <div>
+      <h1>Trig Lab — Тригонометриялық теңдеулер жүйесі (10 есеп)</h1>
+      <div class="sub">Қазақша · Ашық фон · Офлайн 1 файл · Соңында толық талдау (қате/көмек/уақыт/әрекет)</div>
+    </div>
+    <div style="min-width:240px; width:320px">
+      <div class="muted">Прогресс</div>
+      <div class="progress"><div class="bar" id="progressBar"></div></div>
+      <div class="small" id="progressText" style="margin-top:6px">0/10</div>
+    </div>
+  </div>
+</header>
+
+<div class="toast" id="toast"></div>
+
+<div class="wrap grid">
+  <section class="card">
+    <div class="row">
+      <div style="flex:1;min-width:220px">
+        <label>Оқушының аты-жөні</label>
+        <input id="studentName" placeholder="Мысалы: Айару" />
+      </div>
+      <div style="width:140px">
+        <label>Сынып</label>
+        <input id="studentClass" placeholder="10A" />
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="row" style="justify-content:space-between;align-items:flex-end">
+      <div style="flex:1;min-width:260px">
+        <label>Есеп таңда</label>
+        <select id="taskSelect"></select>
+      </div>
+      <div class="row">
+        <button class="btn" id="prevBtn">◀</button>
+        <button class="btn" id="nextBtn">▶</button>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="card" style="background:#fff">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div><b id="taskTitle">Есеп</b></div>
+        <div class="row">
+          <span class="pill" id="timerPill">⏱ 00:00</span>
+          <span class="pill" id="statusPill">Әлі тексерілмеді</span>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <div id="taskBody" class="mono" style="white-space:pre-wrap; font-size:14px; line-height:1.45"></div>
+
+      <div class="sep"></div>
+
+      <div class="row">
+        <div style="flex:1;min-width:220px">
+          <label>Стратегия</label>
+          <select id="strategy">
+            <option value="swap">🔁 Ауыстыру</option>
+            <option value="identity">📐 Тождество/формула</option>
+            <option value="algebra">⚖ Алгебралық түрлендіру</option>
+            <option value="graph">📊 Графиктік ойлау</option>
+            <option value="domain">🧩 ОДЗ/шектеу</option>
+          </select>
+        </div>
+        <div style="flex:1;min-width:260px">
+          <label>Жауабың (мыс: x=..., y=...)</label>
+          <input id="answerInput" placeholder="Мысалы: x=-pi/3+2pi n, y=3" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <button class="btn ok" id="checkBtn">✔ Тексеру</button>
+        <button class="btn" id="hint1Btn">💡 Көмек 1</button>
+        <button class="btn" id="hint2Btn">💡 Көмек 2</button>
+        <button class="btn bad" id="revealBtn">👁 Шешімді ашу</button>
+        <button class="btn" id="resetTaskBtn">↺ Осы есепті қайта бастау</button>
+      </div>
+
+      <div class="sep"></div>
+
+      <details id="hintBox1" style="display:none">
+        <summary>Көмек 1</summary>
+        <div class="small" id="hint1Text"></div>
+      </details>
+
+      <details id="hintBox2" style="display:none;margin-top:10px">
+        <summary>Көмек 2</summary>
+        <div class="small" id="hint2Text"></div>
+      </details>
+
+      <details id="solutionBox" style="display:none;margin-top:10px">
+        <summary>Дұрыс жауап (кілт)</summary>
+        <div class="small mono" id="solutionText" style="white-space:pre-wrap"></div>
+      </details>
+
+      <div class="sep"></div>
+      <div class="small" id="taskMeta"></div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="row" style="justify-content:space-between">
+      <button class="btn" id="finishBtn">📊 Сабақты аяқтау · Талдау</button>
+      <button class="btn" id="copyReportBtn">🧾 Есепті көшіру</button>
+      <button class="btn" id="clearAllBtn">🗑 Барлығын тазарту</button>
+    </div>
+  </section>
+
+  <aside class="card">
+    <b>Қысқа талдау</b>
+    <div class="sep"></div>
+    <div class="kpi">
+      <div class="box"><div class="n" id="kpiCorrect">0</div><div class="t">Дұрыс (есеп саны)</div></div>
+      <div class="box"><div class="n" id="kpiWrong">0</div><div class="t">Қате (әрекет)</div></div>
+      <div class="box"><div class="n" id="kpiHints">0</div><div class="t">Көмек саны</div></div>
+      <div class="box"><div class="n" id="kpiReveal">0</div><div class="t">Шешім ашылды</div></div>
+    </div>
+
+    <div class="sep"></div>
+
+    <b>Стратегия жиілігі</b>
+    <div class="small" id="strategyStats" style="margin-top:8px"></div>
+
+    <div class="sep"></div>
+
+    <b>Жиі қате болған есептер</b>
+    <div class="small" id="hotTasks" style="margin-top:8px"></div>
+
+    <div class="sep"></div>
+
+    <b>Енгізу үлгілері</b>
+    <div class="small mono" style="white-space:pre-wrap;margin-top:8px">
+x=-pi/3+2pi n, y=3
+x=2pi n, y=3
+x=-pi/2+2pi m, y=2
+x=3*sqrt(3), y=pi/3+pi n
+    </div>
+  </aside>
+</div>
+
+<script>
+/* =========================
+   0) 10 Есеп + көмек мәтіндері
+   ========================= */
+const TASKS = [
+  {
+    id: 1,
+    title: "Есеп 1",
+    body:
+`Теңдеулер жүйесін шеш:
+{ 16^{cosx} − 10·4^{cosx} + 16 = 0
+  √y + 2sinx = 0 }`,
+    hint1: "16^{cosx}=(4^{cosx})^2. t=4^{cosx} ауыстыруын қолдан.",
+    hint2: "t^2−10t+16=0 → t. Сосын cosx және √y≥0 шартын ұмытпа.",
+    sol:  "x=-pi/3+2pi n; y=3",
+  },
+  {
+    id: 2,
+    title: "Есеп 2",
+    body:
+`Теңдеулер жүйесін шеш:
+{ sinx = y − 3
+  cosx = y − 2 }`,
+    hint1: "sin²x+cos²x=1 тождествосын қолдан.",
+    hint2: "(y−3)²+(y−2)²=1 → y табасың, сосын x.",
+    sol:  "1) x=2pi n; y=3  ||  2) x=-pi/2+2pi m; y=2",
+  },
+  {
+    id: 3,
+    title: "Есеп 3",
+    body:
+`Теңдеулер жүйесін шеш:
+{ 2^x = siny
+  2^{−x} = 2siny + 1 }`,
+    hint1: "t=2^x>0, 2^{−x}=1/t деп жаз.",
+    hint2: "t=siny, 1/t=2t+1 → t. Соңында siny=t.",
+    sol:  "x=-1; y=(-1)^n*pi/6 + pi n",
+  },
+  {
+    id: 4,
+    title: "Есеп 4",
+    body:
+`Теңдеулер жүйесін шеш:
+{ 2sin^2y + 3siny − 2 = 0
+  √(x^2 − x + 4cosy) = 0 }`,
+    hint1: "t=siny: 2t^2+3t−2=0.",
+    hint2: "√A=0 ⇒ A=0: x^2−x+4cosy=0.",
+    sol:  "1) x=-3; y=5pi/6+2pi n  ||  2) x=4; y=5pi/6+2pi m",
+  },
+  {
+    id: 5,
+    title: "Есеп 5",
+    body:
+`Теңдеулер жүйесін шеш:
+{ 3^y + 2cosx = 0
+  2sin^2x − 3sinx − 2 = 0 }`,
+    hint1: "t=sinx арқылы квадрат теңдеу.",
+    hint2: "3^y>0 ⇒ cosx<0 шартын міндетті тексер.",
+    sol:  "x=-5pi/6+2pi n; y=1/2",
+  },
+  {
+    id: 6,
+    title: "Есеп 6",
+    body:
+`Теңдеулер жүйесін шеш:
+{ x^2 = 8siny + 1
+  x + 1 = 2siny }`,
+    hint1: "siny=(x+1)/2.",
+    hint2: "Оны x^2=8siny+1 теңдеуіне қой.",
+    sol:  "x=-1; y=n*pi",
+  },
+  {
+    id: 7,
+    title: "Есеп 7",
+    body:
+`Теңдеулер жүйесін шеш:
+{ cosy·√(sinx) = 0
+  2sin^2x = 2cos^2x + 1 }`,
+    hint1: "cosy=0 немесе sinx=0 (және sinx≥0).",
+    hint2: "2(sin²x−cos²x)=1 ⇒ −2cos2x=1.",
+    sol:  "x=(-1)^n*pi/3 + n*pi; y=pi/2 + pi k",
+  },
+  {
+    id: 8,
+    title: "Есеп 8",
+    body:
+`Теңдеулер жүйесін шеш:
+{ 4cos^2x − 4cosx − 3 = 0
+  √(y^2 − y − 3) + 2cosx = 0 }`,
+    hint1: "t=cosx арқылы 4t^2−4t−3=0.",
+    hint2: "√(...)≥0 ⇒ −2cosx≥0 ⇒ cosx≤0.",
+    sol:  "1) x=-2pi/3+2pi n; y=3  ||  2) x=-2pi/3+2pi m; y=-2",
+  },
+  {
+    id: 9,
+    title: "Есеп 9",
+    body:
+`Теңдеулер жүйесін шеш:
+{ cos2y = cosy
+  √(x^2 − 2x) = 2siny }`,
+    hint1: "cos2y−cosy=0 → формула/жіктеу.",
+    hint2: "√(...)≥0 ⇒ siny≥0 және x(x−2)≥0 шарттарын ұмытпа.",
+    sol:
+`4 шешім жұбы:
+1) x=0,  y=2pi n
+2) x=2,  y=2pi m
+3) x=3,  y=2pi/3 + 2pi k
+4) x=-1, y=2pi/3 + 2pi l`,
+  },
+  {
+    id: 10,
+    title: "Есеп 10",
+    body:
+`Теңдеулер жүйесін шеш:
+{ x·tg y = 9
+  x·ctg y = 3 }`,
+    hint1: "Көбейту: x²·tg y·ctg y=27.",
+    hint2: "tg·ctg=1 ⇒ x=±3√3, tg y=9/x.",
+    sol:  "1) x=3*sqrt(3); y=pi/3+pi n  ||  2) x=-3*sqrt(3); y=-pi/3+pi m",
+  },
+];
+
+/* =========================
+   1) Жауап кілті: X және Y бөлек тексеріледі (көп шешім болса — кез келгенін қабылдайды)
+   ЕНГІЗУ: x=..., y=... (кез келген ретпен болады)
+   ========================= */
+const ANSWER_KEYS = [
+  // 1
+  { sets: [
+      { x: /x=-(pi|π)\/3\+2(pi|π)n/, y: /y=3/ }
+    ] },
+  // 2
+  { sets: [
+      { x: /x=2(pi|π)n/, y: /y=3/ },
+      { x: /x=-(pi|π)\/2\+2(pi|π)m/, y: /y=2/ }
+    ] },
+  // 3
+  { sets: [
+      { x: /x=-1/, y: /y=\(\-?1\)\^n\*(pi|π)\/6\+(pi|π)n|y=\(\-1\)\^n\*(pi|π)\/6\+(pi|π)n|y=\(\-1\)\^n\*(pi|π)\/6\+(pi|π)n/ }
+    ] },
+  // 4
+  { sets: [
+      { x: /x=-3/, y: /y=5(pi|π)\/6\+2(pi|π)n/ },
+      { x: /x=4/,  y: /y=5(pi|π)\/6\+2(pi|π)m/ }
+    ] },
+  // 5
+  { sets: [
+      { x: /x=-5(pi|π)\/6\+2(pi|π)n/, y: /y=1\/2|y=0\.5/ }
+    ] },
+  // 6
+  { sets: [
+      { x: /x=-1/, y: /y=(pi|π)n|y=n\*(pi|π)/ }
+    ] },
+  // 7
+  { sets: [
+      { x: /x=\(\-1\)\^n\*(pi|π)\/3\+n\*(pi|π)|x=\(\-1\)\^n\*(pi|π)\/3\+n(pi|π)|x=\(\-1\)\^n(pi|π)\/3\+n(pi|π)/,
+        y: /y=(pi|π)\/2\+(pi|π)k|y=(pi|π)\/2\+k\*(pi|π)/ }
+    ] },
+  // 8
+  { sets: [
+      { x: /x=-2(pi|π)\/3\+2(pi|π)n/, y: /y=3/ },
+      { x: /x=-2(pi|π)\/3\+2(pi|π)m/, y: /y=-2/ }
+    ] },
+  // 9 (4 жұптың кез келгені)
+  { sets: [
+      { x: /x=0/,  y: /y=2(pi|π)n/ },
+      { x: /x=2/,  y: /y=2(pi|π)m/ },
+      { x: /x=3/,  y: /y=2(pi|π)\/3\+2(pi|π)k/ },
+      { x: /x=-1/, y: /y=2(pi|π)\/3\+2(pi|π)l/ }
+    ] },
+  // 10
+  { sets: [
+      { x: /x=3\*sqrt\(3\)|x=3sqrt\(3\)|x=3√3/, y: /y=(pi|π)\/3\+(pi|π)n|y=(pi|π)\/3\+n\*(pi|π)/ },
+      { x: /x=-3\*sqrt\(3\)|x=-3sqrt\(3\)|x=-3√3/, y: /y=-(pi|π)\/3\+(pi|π)m|y=-(pi|π)\/3\+m\*(pi|π)/ }
+    ] },
+];
+
+/* =========================
+   2) Нормализация және тексеру
+   ========================= */
+function normalize(s){
+  return (s||"")
+    .toLowerCase()
+    .replaceAll(" ", "")
+    .replaceAll("−","-")
+    .replaceAll("×","*")
+    .replaceAll("·","*")
+    .replaceAll("tg","tan")
+    .replaceAll("ctg","cot")
+    .replaceAll("pi", "pi") // just keep
+    ;
+}
+
+function extractXY(text){
+  const t = normalize(text);
+  // x=... және y=... кез келген ретпен
+  const mx = t.match(/x=([^,;]+)/);
+  const my = t.match(/y=([^,;]+)/);
+  return {t, x: mx ? "x="+mx[1] : "", y: my ? "y="+my[1] : ""};
+}
+
+function checkAnswer(taskIndex, userText){
+  const key = ANSWER_KEYS[taskIndex];
+  const {t, x, y} = extractXY(userText);
+
+  if(!x || !y){
+    return {ok:false, msg:"Жауапты осылай енгіз: x=..., y=... (үтір арқылы)."};
+  }
+  // кез келген шешім жиынын қабылдайды
+  for(const s of key.sets){
+    if(s.x.test(x) && s.y.test(y)) return {ok:true, msg:"Дұрыс! ✅"};
+    // кейде оқушы x/y орнын ауыстырып жазуы мүмкін — қауіпсіздік үшін толық мәтіннен де тексереміз
+    if(s.x.test(t) && s.y.test(t)) return {ok:true, msg:"Дұрыс! ✅"};
+  }
+  return {ok:false, msg:"Қате. Форманы және n,m,k,l параметрін дұрыс жазғаныңды тексер."};
+}
+
+/* =========================
+   3) Прогресс/логика
+   ========================= */
+const state = {
+  current: 0,
+  perTask: TASKS.map(()=>({
+    startedAt: null,
+    elapsed: 0,
+    attempts: 0,
+    wrong: 0,
+    correct: 0,
+    usedHint1: false,
+    usedHint2: false,
+    revealed: false,
+    strategyCounts: {swap:0, identity:0, algebra:0, graph:0, domain:0},
+    lastCheck: null,
+  })),
+};
+
+let timer = null;
+const $ = (id)=>document.getElementById(id);
+
+function toast(msg){
+  const el = $("toast");
+  el.textContent = msg;
+  el.style.display = "block";
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=> el.style.display="none", 2200);
+}
+
+function fmtTime(sec){
+  const m = String(Math.floor(sec/60)).padStart(2,"0");
+  const s = String(Math.floor(sec%60)).padStart(2,"0");
+  return `${m}:${s}`;
+}
+
+function startTimer(){
+  stopTimer();
+  timer = setInterval(()=>{
+    const t = state.perTask[state.current];
+    if(!t.startedAt) t.startedAt = Date.now();
+    t.elapsed = Math.floor((Date.now() - t.startedAt)/1000);
+    $("timerPill").textContent = `⏱ ${fmtTime(t.elapsed)}`;
+  }, 250);
+}
+function stopTimer(){ if(timer) clearInterval(timer); timer=null; }
+
+function loadTask(i){
+  state.current = i;
+  const task = TASKS[i];
+
+  $("taskTitle").textContent = `${task.title}`;
+  $("taskBody").textContent = task.body;
+
+  $("hintBox1").style.display = "none";
+  $("hintBox2").style.display = "none";
+  $("solutionBox").style.display = "none";
+
+  $("hint1Text").textContent = task.hint1;
+  $("hint2Text").textContent = task.hint2;
+  $("solutionText").textContent = task.sol;
+
+  $("answerInput").value = "";
+
+  const t = state.perTask[i];
+  if(!t.startedAt) t.startedAt = Date.now();
+
+  startTimer();
+  renderMeta();
+  renderSidebar();
+}
+
+function renderMeta(){
+  const t = state.perTask[state.current];
+  $("taskMeta").innerHTML =
+    `Әрекет: <b>${t.attempts}</b> · Қате: <b>${t.wrong}</b> · Көмек: <b>${(t.usedHint1?1:0)+(t.usedHint2?1:0)}</b> · Шешім ашылды: <b>${t.revealed?"Иә":"Жоқ"}</b>`;
+}
+
+function calcTotals(){
+  let correct=0, wrong=0, hints=0, reveals=0;
+  const strategyCounts = {swap:0, identity:0, algebra:0, graph:0, domain:0};
+  state.perTask.forEach(t=>{
+    correct += (t.correct>0)?1:0;
+    wrong += t.wrong;
+    hints += (t.usedHint1?1:0) + (t.usedHint2?1:0);
+    reveals += (t.revealed?1:0);
+    for(const k in strategyCounts) strategyCounts[k]+=t.strategyCounts[k]||0;
+  });
+  return {correct, wrong, hints, reveals, strategyCounts};
+}
+
+function renderSidebar(){
+  const totals = calcTotals();
+  $("kpiCorrect").textContent = totals.correct;
+  $("kpiWrong").textContent = totals.wrong;
+  $("kpiHints").textContent = totals.hints;
+  $("kpiReveal").textContent = totals.reveals;
+
+  $("progressBar").style.width = `${(totals.correct/10)*100}%`;
+  $("progressText").textContent = `${totals.correct}/10`;
+
+  const map = {
+    swap:"🔁 Ауыстыру",
+    identity:"📐 Тождество",
+    algebra:"⚖ Алгебра",
+    graph:"📊 График",
+    domain:"🧩 ОДЗ",
+  };
+  $("strategyStats").innerHTML =
+    Object.keys(totals.strategyCounts).map(k=>`${map[k]}: <b>${totals.strategyCounts[k]}</b>`).join("<br>");
+
+  const hot = state.perTask
+    .map((t,idx)=>({idx, wrong:t.wrong, attempts:t.attempts}))
+    .sort((a,b)=>b.wrong-a.wrong)
+    .slice(0,3)
+    .filter(x=>x.wrong>0);
+
+  $("hotTasks").innerHTML = hot.length
+    ? hot.map(h=>`Есеп ${h.idx+1}: қате <b>${h.wrong}</b> (әрекет ${h.attempts})`).join("<br>")
+    : "Әзірше қате жоқ.";
+
+  // status pill
+  const cur = state.perTask[state.current];
+  if(cur.lastCheck && cur.lastCheck.ok===true){
+    $("statusPill").className = "pill ok";
+    $("statusPill").textContent = "✔ Дұрыс";
+  } else if(cur.lastCheck && cur.lastCheck.ok===false){
+    $("statusPill").className = "pill bad";
+    $("statusPill").textContent = "✖ Қате";
+  } else {
+    $("statusPill").className = "pill";
+    $("statusPill").textContent = "Әлі тексерілмеді";
+  }
+}
+
+function buildReport(){
+  const name = $("studentName").value.trim() || "Аты жоқ";
+  const cls = $("studentClass").value.trim() || "—";
+  const totals = calcTotals();
+  const lines = [];
+  lines.push(`Trig Lab есебі`);
+  lines.push(`Оқушы: ${name} | Сынып: ${cls}`);
+  lines.push(`Дұрыс аяқталған есептер: ${totals.correct}/10`);
+  lines.push(`Жалпы қате саны: ${totals.wrong}`);
+  lines.push(`Көмек қолдану: ${totals.hints}`);
+  lines.push(`Шешім ашылған: ${totals.reveals}`);
+  lines.push(``);
+  lines.push(`Есептер бойынша:`);
+  state.perTask.forEach((t,idx)=>{
+    const done = t.correct>0 ? "✔" : "—";
+    const h = (t.usedHint1?1:0)+(t.usedHint2?1:0);
+    lines.push(`- Есеп ${idx+1}: ${done} | әрекет=${t.attempts} | қате=${t.wrong} | көмек=${h} | шешім=${t.revealed?"иә":"жоқ"} | уақыт=${fmtTime(t.elapsed)}`);
+  });
+
+  // Эвристика: қиын есептер
+  const hardest = state.perTask
+    .map((t,i)=>({i, score:t.wrong + (t.revealed?1:0) + ((t.usedHint1?1:0)+(t.usedHint2?1:0))*0.5}))
+    .sort((a,b)=>b.score-a.score)
+    .slice(0,3);
+
+  lines.push(``);
+  lines.push(`ИИ-қорытынды (эвристика):`);
+  if(totals.correct>=8) lines.push(`- Деңгей: Жоғары.`);
+  else if(totals.correct>=5) lines.push(`- Деңгей: Орта.`);
+  else lines.push(`- Деңгей: Бастапқы.`);
+
+  lines.push(`- Қиын болған есептер: ${hardest.map(x=>x.i+1).join(", ")}`);
+  lines.push(`- Ұсыныс: тождестволарды жүйелеу, ОДЗ шарттары, параметрлік (n,m,k,l) жазылымын нақтылау.`);
+  return lines.join("\n");
+}
+
+/* =========================
+   4) UI wiring
+   ========================= */
+(function init(){
+  const sel = $("taskSelect");
+  TASKS.forEach((t,i)=>{
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = `${t.id}) ${t.title}`;
+    sel.appendChild(opt);
+  });
+
+  sel.addEventListener("change", ()=> loadTask(Number(sel.value)));
+  $("prevBtn").addEventListener("click", ()=> loadTask((state.current+TASKS.length-1)%TASKS.length));
+  $("nextBtn").addEventListener("click", ()=> loadTask((state.current+1)%TASKS.length));
+
+  $("hint1Btn").addEventListener("click", ()=>{
+    const t = state.perTask[state.current];
+    t.usedHint1 = true;
+    $("hintBox1").style.display = "block";
+    $("hintBox1").open = true;
+    toast("Көмек 1 ашылды");
+    renderMeta(); renderSidebar();
+  });
+  $("hint2Btn").addEventListener("click", ()=>{
+    const t = state.perTask[state.current];
+    t.usedHint2 = true;
+    $("hintBox2").style.display = "block";
+    $("hintBox2").open = true;
+    toast("Көмек 2 ашылды");
+    renderMeta(); renderSidebar();
+  });
+  $("revealBtn").addEventListener("click", ()=>{
+    const t = state.perTask[state.current];
+    t.revealed = true;
+    $("solutionBox").style.display = "block";
+    $("solutionBox").open = true;
+    toast("Дұрыс жауап ашылды");
+    renderMeta(); renderSidebar();
+  });
+
+  $("checkBtn").addEventListener("click", ()=>{
+    const t = state.perTask[state.current];
+    const strat = $("strategy").value;
+    t.strategyCounts[strat] = (t.strategyCounts[strat]||0)+1;
+
+    t.attempts++;
+    const ans = $("answerInput").value.trim();
+    const res = checkAnswer(state.current, ans);
+    t.lastCheck = res;
+
+    if(res.ok === true){
+      t.correct = 1;
+      toast("Дұрыс ✅");
+    } else {
+      t.wrong++;
+      toast("Қате ❌");
+    }
+    renderMeta(); renderSidebar();
+  });
+
+  $("resetTaskBtn").addEventListener("click", ()=>{
+    const idx = state.current;
+    state.perTask[idx] = {
+      startedAt: Date.now(),
+      elapsed: 0,
+      attempts: 0,
+      wrong: 0,
+      correct: 0,
+      usedHint1: false,
+      usedHint2: false,
+      revealed: false,
+      strategyCounts: {swap:0, identity:0, algebra:0, graph:0, domain:0},
+      lastCheck: null,
+    };
+    loadTask(idx);
+    toast("Осы есеп қайта басталды");
+  });
+
+  $("finishBtn").addEventListener("click", ()=>{
+    stopTimer();
+    alert(buildReport());
+  });
+
+  $("copyReportBtn").addEventListener("click", async ()=>{
+    const rep = buildReport();
+    try{
+      await navigator.clipboard.writeText(rep);
+      toast("Есеп көшірілді");
+    }catch(e){
+      const ta = document.createElement("textarea");
+      ta.value = rep; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy");
+      document.body.removeChild(ta);
+      toast("Есеп көшірілді");
+    }
+  });
+
+  $("clearAllBtn").addEventListener("click", ()=>{
+    if(!confirm("Барлық нәтижені тазартасың ба?")) return;
+    state.perTask = TASKS.map(()=>({
+      startedAt: null, elapsed: 0, attempts: 0, wrong: 0, correct: 0,
+      usedHint1:false, usedHint2:false, revealed:false,
+      strategyCounts:{swap:0, identity:0, algebra:0, graph:0, domain:0},
+      lastCheck:null
+    }));
+    loadTask(0);
+    toast("Барлығы тазартылды");
+  });
+
+  loadTask(0);
+})();
+</script>
+</body>
+</html>

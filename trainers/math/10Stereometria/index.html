@@ -1,0 +1,1188 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>3D Geometry Mission (KZ) — Стереометрия интерактив (офлайн)</title>
+  <style>
+    :root{
+      --bg:#f7f9ff;
+      --ink:#172048;
+      --muted:#5a668f;
+      --card:#ffffff;
+      --line:rgba(23,32,72,.12);
+      --shadow: 0 16px 40px rgba(22,28,60,.10);
+      --ok:#10b981;
+      --bad:#ef476f;
+      --warn:#f59e0b;
+      --accent:#6366f1;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      color:var(--ink);
+      background:
+        radial-gradient(900px 650px at 12% 10%, rgba(99,102,241,.18), transparent 60%),
+        radial-gradient(900px 650px at 88% 14%, rgba(16,185,129,.14), transparent 60%),
+        radial-gradient(900px 650px at 50% 92%, rgba(245,158,11,.12), transparent 60%),
+        var(--bg);
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      background:rgba(247,249,255,.82);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+    .top{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;padding:14px 0}
+    h1{margin:0;font-size:18px}
+    .sub{margin-top:6px;color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:1.25fr .75fr;gap:14px;padding:14px 0 28px}
+    @media(max-width:980px){.grid{grid-template-columns:1fr}}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.92));
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      box-shadow: var(--shadow);
+    }
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    label{font-size:12px;color:var(--muted)}
+    input, select, textarea{
+      width:100%;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(23,32,72,.16);
+      background:#fff;
+      color:var(--ink);
+      outline:none;
+    }
+    textarea{min-height:90px;resize:vertical}
+    .btn{
+      cursor:pointer; user-select:none;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(23,32,72,.14);
+      background:linear-gradient(180deg,#fff,#eef2ff);
+      color:var(--ink);
+      transition:transform .12s ease, filter .12s ease;
+    }
+    .btn:hover{transform:translateY(-1px);filter:brightness(1.02)}
+    .btn:active{transform:translateY(0);filter:brightness(.99)}
+    .btn.ok{border-color:rgba(16,185,129,.40)}
+    .btn.bad{border-color:rgba(239,71,111,.40)}
+    .btn.warn{border-color:rgba(245,158,11,.45)}
+    .pill{
+      font-size:12px;
+      border:1px solid rgba(23,32,72,.14);
+      padding:6px 10px;
+      border-radius:999px;
+      color:var(--muted);
+      background:#fff;
+    }
+    .pill.ok{border-color:rgba(16,185,129,.45); color:rgba(16,185,129,.95)}
+    .pill.bad{border-color:rgba(239,71,111,.45); color:rgba(239,71,111,.95)}
+    .sep{height:1px;background:var(--line);margin:12px 0}
+    .muted{color:var(--muted);font-size:13px}
+    .small{color:var(--muted);font-size:12px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    @media(max-width:720px){.kpi{grid-template-columns:repeat(2,1fr)}}
+    .kpi .box{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}
+    .kpi .n{font-weight:900;font-size:18px}
+    .kpi .t{font-size:12px;color:var(--muted)}
+    canvas{width:100%;height:420px;border-radius:14px;border:1px solid var(--line);background:#ffffff}
+    @media(max-width:980px){canvas{height:360px}}
+    .hint{border:1px dashed rgba(99,102,241,.35); background:rgba(99,102,241,.05); padding:10px;border-radius:14px}
+    details{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff}
+    summary{cursor:pointer}
+    .toast{
+      position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
+      background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);
+      padding:10px 12px;border-radius:999px;font-size:13px;display:none;z-index:99;
+    }
+    .tag{display:inline-flex;gap:8px;align-items:center;font-size:12px;border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:#fff;color:var(--muted)}
+    .legend{display:flex;gap:8px;flex-wrap:wrap}
+    .dot{width:10px;height:10px;border-radius:999px;display:inline-block;border:1px solid rgba(23,32,72,.22)}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap top">
+    <div>
+      <h1>3D Geometry Mission — Стереометрия (10–11 сынып стилі) · Офлайн HTML</h1>
+      <div class="sub">Ашық фон · 3D айналдыру (drag) · Түзу/жазықтық таңдау · Бұрыш/қашықтық өлшеу · Соңында талдау</div>
+    </div>
+    <div class="row" style="align-items:center">
+      <span class="tag"><span class="dot" style="background:rgba(99,102,241,.55)"></span>Нүкте</span>
+      <span class="tag"><span class="dot" style="background:rgba(16,185,129,.55)"></span>Таңдалған</span>
+      <span class="tag"><span class="dot" style="background:rgba(245,158,11,.55)"></span>Өлшем</span>
+    </div>
+  </div>
+</header>
+
+<div class="toast" id="toast"></div>
+
+<div class="wrap grid">
+  <section class="card">
+    <div class="row">
+      <div style="flex:1;min-width:220px">
+        <label>Оқушының аты-жөні</label>
+        <input id="studentName" placeholder="Мысалы: Айару" />
+      </div>
+      <div style="width:140px">
+        <label>Сынып</label>
+        <input id="studentClass" placeholder="10A" />
+      </div>
+      <div style="width:220px">
+        <label>Миссия (есеп)</label>
+        <select id="missionSelect"></select>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <canvas id="view" aria-label="3D view"></canvas>
+
+    <div class="sep"></div>
+
+    <div class="row" style="justify-content:space-between;align-items:flex-end">
+      <div style="flex:1;min-width:260px">
+        <label>Нысан (фигура)</label>
+        <select id="sceneSelect"></select>
+      </div>
+      <div class="row">
+        <button class="btn" id="resetViewBtn">↺ Көріністі қалпына келтіру</button>
+        <button class="btn warn" id="clearSelectionBtn">✳ Таңдауды тазарту</button>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="row">
+      <div style="flex:1;min-width:220px">
+        <label>Өлшеу режимі</label>
+        <select id="measureMode">
+          <option value="angleLines">∠ Түзу–түзу бұрышы (2 вектор)</option>
+          <option value="angleLinePlane">∠ Түзу–жазықтық бұрышы (вектор + жазықтық)</option>
+          <option value="distSkew">d Айқас түзулер арақашықтығы (2 түзу)</option>
+        </select>
+      </div>
+      <div style="flex:1;min-width:260px">
+        <label>Жауап (өз шешімің)</label>
+        <input id="answerInput" placeholder="Мысалы: cos=1/3 немесе tan=... немесе d=..." />
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <button class="btn ok" id="computeBtn">📏 Есептеу/өлшеу</button>
+      <button class="btn" id="hint1Btn">💡 Көмек 1</button>
+      <button class="btn" id="hint2Btn">💡 Көмек 2</button>
+      <button class="btn bad" id="revealBtn">👁 Бағыт/идея</button>
+      <button class="btn" id="finishBtn">📊 Соңғы талдау</button>
+    </div>
+
+    <div class="sep"></div>
+
+    <details id="hintBox1" style="display:none">
+      <summary>Көмек 1</summary>
+      <div class="small" id="hint1Text"></div>
+    </details>
+    <details id="hintBox2" style="display:none;margin-top:10px">
+      <summary>Көмек 2</summary>
+      <div class="small" id="hint2Text"></div>
+    </details>
+    <details id="revealBox" style="display:none;margin-top:10px">
+      <summary>Бағыт/идея (толық емес)</summary>
+      <div class="small mono" id="revealText" style="white-space:pre-wrap"></div>
+    </details>
+
+    <div class="sep"></div>
+
+    <div class="hint">
+      <b>Қалай ойнайсың:</b>
+      <div class="small" style="margin-top:6px">
+        1) Фигураны mouse/touch-пен сүйреп айналдыр.<br>
+        2) Нүктелерді басып таңда (жасыл болып жанады).<br>
+        3) Өлшеу режимін таңда да <span class="mono">Есептеу/өлшеу</span> бас.<br>
+        4) Әр миссияда сенің: әрекет, қате, көмек, уақыт есептеледі.
+      </div>
+    </div>
+
+    <div class="sep"></div>
+    <div class="small" id="taskMeta"></div>
+  </section>
+
+  <aside class="card">
+    <b>Нәтиже панелі</b>
+    <div class="sep"></div>
+
+    <div class="kpi">
+      <div class="box"><div class="n" id="kpiDone">0</div><div class="t">Аяқталған миссия</div></div>
+      <div class="box"><div class="n" id="kpiWrong">0</div><div class="t">Қате әрекет</div></div>
+      <div class="box"><div class="n" id="kpiHints">0</div><div class="t">Көмек саны</div></div>
+      <div class="box"><div class="n" id="kpiTime">00:00</div><div class="t">Жалпы уақыт</div></div>
+    </div>
+
+    <div class="sep"></div>
+
+    <b>Өлшеу нәтижесі</b>
+    <div class="small mono" id="measureOut" style="white-space:pre-wrap;margin-top:8px">
+Таңдау жаса да есепте.
+    </div>
+
+    <div class="sep"></div>
+
+    <b>Миссия мәтіні</b>
+    <div class="small mono" id="missionText" style="white-space:pre-wrap;margin-top:8px"></div>
+
+    <div class="sep"></div>
+
+    <b>Есеп беру</b>
+    <div class="row">
+      <button class="btn" id="copyReportBtn">🧾 Көшіру</button>
+      <button class="btn" id="clearAllBtn">🗑 Тазарту</button>
+    </div>
+  </aside>
+</div>
+
+<script>
+/* =========================
+   0) Миссиялар (12 есеп) — стиль/мәтін
+   ========================= */
+const MISSIONS = [
+  {
+    id: 1,
+    title: "1) Үшбұрышты призма: ∠(AB, A₁C)",
+    scene: "triPrism",
+    text:
+`ABC A₁B₁C₁ дұрыс үшбұрышты призманың барлық қырлары 1-ге тең.
+AB және A₁C түзулерінің арасындағы бұрыштың cos мәнін тап.`,
+    hint1: "Екі түзу арасындағы бұрыш: бағыттаушы векторлар арасындағы бұрыш.",
+    hint2: "AB векторы мен A₁C векторын координаталық модельге келтіріп, скаляр көбейтіндіні қолдан.",
+    reveal: "Ой: координата қой (A(0,0,0), B(1,0,0) ...), A₁ — биіктік бойынша. Сосын cos = (u·v)/(|u||v|)."
+  },
+  {
+    id: 2,
+    title: "2) Цилиндр: жазықтықтар бұрышы (tan)",
+    scene: "cylSketch",
+    text:
+`Цилиндр табанының диаметрі 20, жасаушысы 28.
+Жазықтық цилиндрді: табанында ұзындығы 12, жасаушысында 16 хорда бойынша қиып өтеді.
+Цилиндр табаны жазықтығы мен осы жазықтық арасындағы бұрыштың тангенсін тап.`,
+    hint1: "Бұл — “қиып өтетін жазықтық” бұрышы: тік қимада тікбұрышты үшбұрыш пайда болады.",
+    hint2: "Табандағы хорда мен жасаушыдағы кесіндіге сәйкес биіктік/проекцияларды салыстыр.",
+    reveal: "Бұл миссияда 3D емес, схемалық ойлау: проекция, тік қима, tan = қарсы катет / жанама катет."
+  },
+  {
+    id: 3,
+    title: "3) Тік төртбұрышты призма: айқас түзулер арақашықтығы",
+    scene: "rectPrism",
+    text:
+`ABCDA₁B₁C₁D₁ төртбұрышты призмасының табаны — тіктөртбұрыш.
+AB=12, AD=√31. AC және B₁D₁ түзулерінің арақашықтығы 5.
+AD қабырғасының ортасы арқылы B₁D₁-ға перпендикуляр жүргізілген жазықтық пен призма табаны арасындағы бұрыштың cos мәнін тап.`,
+    hint1: "Айқас түзулер арақашықтығы: d = |(w·(u×v))|/|u×v|.",
+    hint2: "Жазықтықтар бұрышы: нормаль векторлар арасындағы бұрыш.",
+    reveal: "Ой: 3D координата қойып, u=AC, v=B₁D₁, w=AB₁ сияқты векторлармен d шартын қолдан."
+  },
+  {
+    id: 4,
+    title: "4) Куб: ∠(AA₁, BC₁D) тангенсі",
+    scene: "cube",
+    text:
+`ABCDA₁B₁C₁D₁ кубында AA₁ түзуі мен BC₁D жазықтығы арасындағы бұрыштың tan мәнін тап.`,
+    hint1: "Түзу–жазықтық бұрышы = 90° − (түзу бағыты мен жазықтық нормалы бұрышы).",
+    hint2: "Жазықтық нормалын екі бағыттаушы вектордың векторлық көбейтіндісімен тап.",
+    reveal: "Ой: кубты координатамен белгіле (A(0,0,0), ...). AA₁ бағыты (0,0,1). Жазықтықтың нормалын тап → бұрыш."
+  },
+  {
+    id: 5,
+    title: "5) Куб: ∠(AC₁, BCC₁) тангенсі",
+    scene: "cube",
+    text:
+`ABCDA₁B₁C₁D₁ кубында AC₁ түзуі мен BCC₁ жазықтығы арасындағы бұрыштың tan мәнін тап.`,
+    hint1: "BCC₁ жазықтығы — кубтың бір қабырғасы (x=1 сияқты).",
+    hint2: "Түзу бағыты: AC₁ векторы. Жазықтық нормалы белгілі (мысалы (1,0,0)).",
+    reveal: "Ой: координатада BCC₁ жазықтығы нормалы оңай. Бұрышты нормаль арқылы тап."
+  },
+  {
+    id: 6,
+    title: "6) Дұрыс төртбұрышты пирамида: cos ∠(AB, SAD)",
+    scene: "sqPyramid",
+    text:
+`SABCD дұрыс төртбұрышты пирамидасының барлық қырлары 1-ге тең.
+AB түзуі мен SAD жазықтығы арасындағы бұрыштың cos мәнін тап.`,
+    hint1: "Түзу–жазықтық: AB бағыты және SAD жазықтығы нормалы керек.",
+    hint2: "SAD жазықтығын S,A,D арқылы беріп, нормальді (SA×SD) арқылы ал.",
+    reveal: "Ой: табанды xy жазықтығына қой, S төбесін ортаның үстіне көтер."
+  },
+  {
+    id: 7,
+    title: "7) Дұрыс алтыбұрышты пирамида: cos ∠(AC, SAF)",
+    scene: "hexPyramid",
+    text:
+`SABCDEF дұрыс алтыбұрышты пирамидасында бүйір қырлары 2, табан қабырғасы 1.
+AC түзуі мен SAF жазықтығы арасындағы бұрыштың cos мәнін тап.`,
+    hint1: "Алтыбұрыштың координатасын шеңбер бойына қойсаң ыңғайлы.",
+    hint2: "SAF жазықтығы нормалы: (SA×SF). AC бағыты: C−A.",
+    reveal: "Ой: дұрыс алтыбұрышта радиус=қабырға. S биіктігі бүйір қыр арқылы табылады."
+  },
+  {
+    id: 8,
+    title: "8) Дұрыс төртбұрышты пирамида: cos ∠(ABC, SBC)",
+    scene: "sqPyramid",
+    text:
+`SABCD дұрыс төртбұрышты пирамидасында барлық қырлары 1.
+ABC жазықтығы мен SBC жазықтығы арасындағы бұрыштың cos мәнін тап.`,
+    hint1: "Екі жазықтық бұрышы: нормальдар арасындағы бұрыш.",
+    hint2: "n1 = (AB×AC), n2 = (SB×SC) немесе (SB×BC).",
+    reveal: "Ой: табан нормалы оңай, бүйір бет нормалын векторлық көбейтіндімен тап."
+  },
+  {
+    id: 9,
+    title: "9) Дұрыс алтыбұрышты призма: ∠(AB₁, BE₁) табу",
+    scene: "hexPrism",
+    text:
+`ABCDEF A₁B₁C₁D₁E₁F₁ дұрыс алтыбұрышты призманың барлық қырлары 1.
+AB₁ және BE₁ түзулерінің арасындағы бұрышты тап.`,
+    hint1: "Екі түзу бұрышы — олардың бағыттаушы векторлары бұрышы.",
+    hint2: "AB₁ = B₁−A, BE₁ = E₁−B. Координатада есепте.",
+    reveal: "Ой: алтыбұрышты xy жазықтығына, биіктікті z-ке қой."
+  },
+  {
+    id: 10,
+    title: "10) Пирамида: ∠(AD, BC) табу (қосымша шарт)",
+    scene: "rectPyrSketch",
+    text:
+`ABCD пирамидасында AD=24, BC=10.
+BD және AC қабырғаларының орталарының арақашықтығы 13.
+AD және BC түзулерінің арасындағы бұрышты тап.`,
+    hint1: "Екі түзудің бұрышы үшін бағыттаушы векторлар жеткілікті.",
+    hint2: "Орта нүктелер арасы — векторлық байланыс береді (параллелограмм идеясы).",
+    reveal: "Бұл миссия — кеңістік векторлық қатынасқа құрылған: орта нүкте векторлары арқылы AD,BC арасын шығар."
+  },
+  {
+    id: 11,
+    title: "11) Шар: кесу міндетті ме?",
+    scene: "sphereSketch",
+    text:
+`Диаметрі 20 см шар (қарбыз). Өзара перпендикуляр екі жазық кесу жасалады.
+h — сегмент биіктігі.
+a) h=17 см болса, міндетті түрде кемінде 2 бөлікке бөлінеді ме?
+b) h=18 см болса ше?`,
+    hint1: "Шар сегменті геометриясы: радиус, h, қима шеңбер радиусы байланысады.",
+    hint2: "Екі перпендикуляр жазықтықтың қималары шар ішінде қалай қиылысатынын ойла.",
+    reveal: "Бұл — дәл 3D есеп емес, логикалық-геометриялық талдау: қима шеңберлерінің қиылысуы/қиылыспауы."
+  },
+  {
+    id: 12,
+    title: "12) Призма: екі қиюдан шыққан үшбұрыштар (мүмкін бе?)",
+    scene: "prismSketch",
+    text:
+`Үшбұрышты призма тәріздес денеден екі жағынан да “жазық” қию жасалды.
+Кесілген бөліктер табанына да, бір-біріне де тимейді.
+a) Кесілген бөліктер ұқсас, бірақ тең емес үшбұрыш болуы мүмкін бе?
+b) Бірі қабырғасы 1 тең қабырғалы, екіншісі қабырғасы 2 тең қабырғалы болуы мүмкін бе?`,
+    hint1: "Қию жазықтықтары параллель/параллель емес жағдайын қарастыр.",
+    hint2: "Ұқсастық пен масштаб — қималардың арақашықтығына тәуелді.",
+    reveal: "Бұл миссия — теориялық дәлел/қарсы мысал стилі: “болуы мүмкін/мүмкін емес” логикасы."
+  },
+];
+
+/* =========================
+   1) 3D Мини-движок (внеш. кітапхана жоқ)
+   ========================= */
+const canvas = document.getElementById("view");
+const ctx = canvas.getContext("2d");
+
+function fitCanvas(){
+  const r = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.floor(r.width * dpr);
+  canvas.height = Math.floor(r.height * dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener("resize", fitCanvas);
+fitCanvas();
+
+const V = (x,y,z)=>({x,y,z});
+const add=(a,b)=>V(a.x+b.x,a.y+b.y,a.z+b.z);
+const sub=(a,b)=>V(a.x-b.x,a.y-b.y,a.z-b.z);
+const mul=(a,k)=>V(a.x*k,a.y*k,a.z*k);
+const dot=(a,b)=>a.x*b.x+a.y*b.y+a.z*b.z;
+const cross=(a,b)=>V(a.y*b.z-a.z*b.y, a.z*b.x-a.x*b.z, a.x*b.y-a.y*b.x);
+const norm=(a)=>Math.sqrt(dot(a,a));
+const unit=(a)=>{const n=norm(a)||1; return V(a.x/n,a.y/n,a.z/n);};
+
+function rotY(p, ang){
+  const c=Math.cos(ang), s=Math.sin(ang);
+  return V(p.x*c + p.z*s, p.y, -p.x*s + p.z*c);
+}
+function rotX(p, ang){
+  const c=Math.cos(ang), s=Math.sin(ang);
+  return V(p.x, p.y*c - p.z*s, p.y*s + p.z*c);
+}
+function project(p){
+  // simple perspective
+  const z = p.z + 4.0; // camera distance
+  const f = 1.15 / z;
+  return {x: p.x*f, y: p.y*f, z: p.z};
+}
+
+/* =========================
+   2) Сценалар: нүктелер/қырлар/жазықтықтар
+   (көрнекі, өлшеуге жеткілікті модель)
+   ========================= */
+function buildCube(){
+  // unit cube
+  const pts = {
+    A: V(0,0,0), B: V(1,0,0), C: V(1,1,0), D: V(0,1,0),
+    A1: V(0,0,1), B1: V(1,0,1), C1: V(1,1,1), D1: V(0,1,1),
+  };
+  const edges = [
+    ["A","B"],["B","C"],["C","D"],["D","A"],
+    ["A1","B1"],["B1","C1"],["C1","D1"],["D1","A1"],
+    ["A","A1"],["B","B1"],["C","C1"],["D","D1"],
+    ["B","C1"],["D","C1"],["A","C1"], // diagonals for missions
+  ];
+  const planes = {
+    // plane name -> 3 points defining it
+    "BCC1": ["B","C","C1"],
+    "BC1D": ["B","C1","D"],
+    "SAD": null,
+  };
+  return {name:"Куб", pts, edges, planes};
+}
+
+function buildRectPrism(){
+  const a=2.2, b=1.2, h=1.4;
+  const pts = {
+    A:V(0,0,0), B:V(a,0,0), C:V(a,b,0), D:V(0,b,0),
+    A1:V(0,0,h), B1:V(a,0,h), C1:V(a,b,h), D1:V(0,b,h),
+  };
+  const edges = [
+    ["A","B"],["B","C"],["C","D"],["D","A"],
+    ["A1","B1"],["B1","C1"],["C1","D1"],["D1","A1"],
+    ["A","A1"],["B","B1"],["C","C1"],["D","D1"],
+    ["A","C"],["B1","D1"],["A","B1"],["D","B1"]
+  ];
+  const planes = {
+    "Base": ["A","B","C"],
+    "PerpToB1D1_throughMidAD": ["A","D","B1"], // just illustrative
+  };
+  return {name:"Тік төртбұрышты призма", pts, edges, planes};
+}
+
+function buildTriPrism(){
+  // equilateral triangle base, height 1
+  const A=V(0,0,0), B=V(1,0,0), C=V(0.5,Math.sqrt(3)/2,0);
+  const h=1;
+  const pts = {A,B,C, A1:add(A,V(0,0,h)), B1:add(B,V(0,0,h)), C1:add(C,V(0,0,h))};
+  const edges = [
+    ["A","B"],["B","C"],["C","A"],
+    ["A1","B1"],["B1","C1"],["C1","A1"],
+    ["A","A1"],["B","B1"],["C","C1"],
+    ["A1","C"],["A","C1"]
+  ];
+  const planes = { "A1BC": ["A1","B","C"] };
+  return {name:"Үшбұрышты призма", pts, edges, planes};
+}
+
+function buildSqPyramid(){
+  // square base side 1 centered at origin, apex above center
+  const s=1;
+  const A=V(-s/2,-s/2,0), B=V(s/2,-s/2,0), C=V(s/2,s/2,0), D=V(-s/2,s/2,0);
+  // make all edges ~1 by choosing height
+  // distance from center to vertex = s/√2 = 0.707..., need apex so that SA=1 => h = sqrt(1 - (s/√2)^2)
+  const h=Math.sqrt(Math.max(0, 1 - (s*s/2)));
+  const S=V(0,0,h);
+  const pts={S,A,B,C,D};
+  const edges=[["A","B"],["B","C"],["C","D"],["D","A"],["S","A"],["S","B"],["S","C"],["S","D"],["A","C"],["B","D"]];
+  const planes={
+    "SAD":["S","A","D"],
+    "ABC":["A","B","C"],
+    "SBC":["S","B","C"]
+  };
+  return {name:"Дұрыс төртбұрышты пирамида", pts, edges, planes};
+}
+
+function buildHexPrism(){
+  // regular hexagon radius 1, height 1
+  const R=1, h=1;
+  const names=["A","B","C","D","E","F"];
+  const pts={};
+  for(let i=0;i<6;i++){
+    const ang = Math.PI/3*i;
+    pts[names[i]] = V(R*Math.cos(ang), R*Math.sin(ang), 0);
+    pts[names[i]+"1"] = V(R*Math.cos(ang), R*Math.sin(ang), h);
+  }
+  const edges=[];
+  for(let i=0;i<6;i++){
+    const n=names[i], n2=names[(i+1)%6];
+    edges.push([n,n2],[n+"1",n2+"1"],[n,n+"1"]);
+  }
+  edges.push(["A","B1"],["B","E1"]); // for mission 9
+  const planes={ "SAF": null };
+  return {name:"Дұрыс алтыбұрышты призма", pts, edges, planes};
+}
+
+function buildHexPyramid(){
+  // hex base radius 1, side 1, apex with lateral edge ~2
+  const R=1;
+  const names=["A","B","C","D","E","F"];
+  const pts={};
+  for(let i=0;i<6;i++){
+    const ang=Math.PI/3*i;
+    pts[names[i]]=V(R*Math.cos(ang), R*Math.sin(ang), 0);
+  }
+  // apex height so that SA=2 (A on radius 1): h = sqrt(4-1)=sqrt3
+  pts["S"]=V(0,0,Math.sqrt(3));
+  const edges=[];
+  for(let i=0;i<6;i++){
+    edges.push([names[i], names[(i+1)%6]]);
+    edges.push(["S", names[i]]);
+  }
+  edges.push(["A","C"],["S","F"],["S","A"]);
+  const planes={ "SAF":["S","A","F"] };
+  return {name:"Дұрыс алтыбұрышты пирамида", pts, edges, planes};
+}
+
+// sketches (2D-only scenes)
+function buildSketch(name){
+  return {name, pts:{}, edges:[], planes:{}};
+}
+
+const SCENES = {
+  cube: buildCube,
+  rectPrism: buildRectPrism,
+  triPrism: buildTriPrism,
+  sqPyramid: buildSqPyramid,
+  hexPrism: buildHexPrism,
+  hexPyramid: buildHexPyramid,
+  cylSketch: ()=>buildSketch("Цилиндр (схема)"),
+  sphereSketch: ()=>buildSketch("Шар (схема)"),
+  prismSketch: ()=>buildSketch("Призма (логика)"),
+  rectPyrSketch: ()=>buildSketch("Пирамида (схема)"),
+};
+
+let sceneKey = "cube";
+let scene = SCENES[sceneKey]();
+
+/* =========================
+   3) Таңдау және өлшеу
+   ========================= */
+let yaw = 0.6, pitch = -0.45;
+let dragging=false, lastX=0, lastY=0;
+
+const state = {
+  missionIndex: 0,
+  perMission: MISSIONS.map(()=>({
+    startedAt:null, elapsed:0,
+    attempts:0, wrong:0, done:0,
+    usedHint1:false, usedHint2:false, revealed:false,
+    modeCounts:{angleLines:0, angleLinePlane:0, distSkew:0},
+    selectionOps:0,
+  })),
+};
+
+let timer=null;
+
+const selection = {
+  points: [],  // selected point names
+  plane: null, // selected plane name
+};
+
+function toast(msg){
+  const el=document.getElementById("toast");
+  el.textContent=msg;
+  el.style.display="block";
+  clearTimeout(toast._t);
+  toast._t=setTimeout(()=>el.style.display="none", 2200);
+}
+
+function fmt(sec){
+  const m=String(Math.floor(sec/60)).padStart(2,"0");
+  const s=String(Math.floor(sec%60)).padStart(2,"0");
+  return `${m}:${s}`;
+}
+
+function startTimer(){
+  stopTimer();
+  timer=setInterval(()=>{
+    const m=state.perMission[state.missionIndex];
+    if(!m.startedAt) m.startedAt=Date.now();
+    m.elapsed=Math.floor((Date.now()-m.startedAt)/1000);
+    renderMeta();
+    renderKPIs();
+  }, 250);
+}
+function stopTimer(){ if(timer) clearInterval(timer); timer=null; }
+
+function normalizeAns(s){
+  return (s||"").toLowerCase().replaceAll(" ","").replaceAll("−","-");
+}
+
+/* =========================
+   4) Рендер
+   ========================= */
+function worldToScreen(p){
+  let q=rotY(p, yaw);
+  q=rotX(q, pitch);
+  const pr=project(q);
+  // scale and center
+  const w = canvas.getBoundingClientRect().width;
+  const h = canvas.getBoundingClientRect().height;
+  const scale = Math.min(w,h) * 0.38;
+  return {x: w/2 + pr.x*scale, y: h/2 - pr.y*scale, z: pr.z};
+}
+
+function draw(){
+  const w = canvas.getBoundingClientRect().width;
+  const h = canvas.getBoundingClientRect().height;
+  ctx.clearRect(0,0,w,h);
+
+  // background grid
+  ctx.save();
+  ctx.strokeStyle="rgba(99,102,241,.08)";
+  ctx.lineWidth=1;
+  for(let x=0;x<w;x+=28){
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke();
+  }
+  for(let y=0;y<h;y+=28){
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
+  }
+  ctx.restore();
+
+  if(Object.keys(scene.pts).length===0){
+    // sketch mode
+    ctx.save();
+    ctx.fillStyle="rgba(23,32,72,.8)";
+    ctx.font="600 16px system-ui";
+    ctx.fillText(scene.name, 18, 28);
+    ctx.fillStyle="rgba(90,102,143,.95)";
+    ctx.font="13px system-ui";
+    ctx.fillText("Бұл миссия схемалық/логикалық. 3D өлшеу емес: көмек пен бағытты қолдан.", 18, 52);
+    ctx.restore();
+    requestAnimationFrame(draw);
+    return;
+  }
+
+  // compute screen positions
+  const sp={};
+  for(const k in scene.pts) sp[k]=worldToScreen(scene.pts[k]);
+
+  // edges sorted by depth (simple)
+  const edges = scene.edges.map(e=>{
+    const a=sp[e[0]], b=sp[e[1]];
+    return {a:e[0],b:e[1], z:(a.z+b.z)/2};
+  }).sort((x,y)=>x.z-y.z);
+
+  // edges
+  ctx.save();
+  ctx.lineCap="round";
+  edges.forEach(ed=>{
+    const A=sp[ed.a], B=sp[ed.b];
+    ctx.lineWidth=2;
+    ctx.strokeStyle="rgba(23,32,72,.22)";
+    // highlight if edge endpoints are selected for measurement
+    const selA = selection.points.includes(ed.a);
+    const selB = selection.points.includes(ed.b);
+    if(selA && selB) ctx.strokeStyle="rgba(245,158,11,.80)";
+    ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.stroke();
+  });
+  ctx.restore();
+
+  // points (clickable)
+  const ptsSorted = Object.keys(sp).map(k=>({k, z:sp[k].z})).sort((a,b)=>a.z-b.z);
+  ptsSorted.forEach(({k})=>{
+    const p=sp[k];
+    const selected = selection.points.includes(k);
+    ctx.save();
+    ctx.fillStyle = selected ? "rgba(16,185,129,.95)" : "rgba(99,102,241,.72)";
+    ctx.strokeStyle = "rgba(23,32,72,.22)";
+    ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(p.x,p.y, 6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle="rgba(23,32,72,.86)";
+    ctx.font="12px system-ui";
+    ctx.fillText(k, p.x+8, p.y-8);
+    ctx.restore();
+  });
+
+  // overlay help
+  ctx.save();
+  ctx.fillStyle="rgba(23,32,72,.75)";
+  ctx.font="12px system-ui";
+  ctx.fillText("Drag: айналдыру · Нүктені бас: таңдау · 4 нүкте = 2 түзу", 16, h-16);
+  ctx.restore();
+
+  requestAnimationFrame(draw);
+}
+
+/* =========================
+   5) Таңдауды өңдеу (hit test)
+   ========================= */
+function hitPoint(x,y){
+  if(Object.keys(scene.pts).length===0) return null;
+  const sp={};
+  for(const k in scene.pts) sp[k]=worldToScreen(scene.pts[k]);
+  let best=null, bestD=1e9;
+  for(const k in sp){
+    const p=sp[k];
+    const d=Math.hypot(p.x-x,p.y-y);
+    if(d<14 && d<bestD){ best=k; bestD=d; }
+  }
+  return best;
+}
+
+canvas.addEventListener("pointerdown",(e)=>{
+  const r=canvas.getBoundingClientRect();
+  const x=e.clientX-r.left, y=e.clientY-r.top;
+  const hp=hitPoint(x,y);
+  if(hp){
+    togglePoint(hp);
+    return;
+  }
+  dragging=true;
+  lastX=e.clientX; lastY=e.clientY;
+  canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener("pointermove",(e)=>{
+  if(!dragging) return;
+  const dx=(e.clientX-lastX)/240;
+  const dy=(e.clientY-lastY)/240;
+  yaw += dx;
+  pitch += dy;
+  pitch = Math.max(-1.2, Math.min(1.2, pitch));
+  lastX=e.clientX; lastY=e.clientY;
+});
+canvas.addEventListener("pointerup",(e)=>{
+  dragging=false;
+  try{ canvas.releasePointerCapture(e.pointerId); }catch(_){}
+});
+
+function togglePoint(name){
+  const m=state.perMission[state.missionIndex];
+  m.selectionOps++;
+
+  const idx=selection.points.indexOf(name);
+  if(idx>=0) selection.points.splice(idx,1);
+  else{
+    selection.points.push(name);
+    // keep max 4 points
+    if(selection.points.length>4) selection.points.shift();
+  }
+  toast(`Таңдалды: ${selection.points.join(", ")}`);
+}
+
+/* =========================
+   6) Өлшеу математикасы
+   ========================= */
+function lineFrom2Points(p1,p2){
+  const a=scene.pts[p1], b=scene.pts[p2];
+  return {p:a, d:sub(b,a)};
+}
+
+function planeFrom3Points(p1,p2,p3){
+  const A=scene.pts[p1], B=scene.pts[p2], C=scene.pts[p3];
+  const n = cross(sub(B,A), sub(C,A));
+  return {p:A, n};
+}
+
+function angleBetween(u,v){
+  const nu=norm(u), nv=norm(v);
+  if(nu===0||nv===0) return null;
+  let c = dot(u,v)/(nu*nv);
+  c = Math.max(-1, Math.min(1,c));
+  return Math.acos(c); // radians
+}
+
+function angleLinePlane(lineDir, planeNormal){
+  // angle between line and plane = 90 - angle(line, normal)
+  const a = angleBetween(lineDir, planeNormal);
+  if(a===null) return null;
+  const theta = Math.PI/2 - a;
+  return Math.max(0, theta);
+}
+
+function distSkewLines(L1, L2){
+  // d = |( (p2-p1) · (d1×d2) )| / |d1×d2|
+  const p1=L1.p, d1=L1.d, p2=L2.p, d2=L2.d;
+  const n = cross(d1,d2);
+  const nn = norm(n);
+  if(nn===0) return null; // parallel or coincident
+  const w = sub(p2,p1);
+  return Math.abs(dot(w,n))/nn;
+}
+
+function radToDeg(r){ return r*180/Math.PI; }
+
+/* =========================
+   7) UI: миссия/сцена жүктеу
+   ========================= */
+const $ = (id)=>document.getElementById(id);
+
+function setScene(key){
+  sceneKey=key;
+  scene=SCENES[sceneKey]();
+  clearSelection();
+  renderSceneSelect();
+}
+
+function clearSelection(){
+  selection.points.length=0;
+  selection.plane=null;
+  $("measureOut").textContent="Таңдау жаса да есепте.";
+}
+
+function renderSceneSelect(){
+  // scenes list tied to mission but allow override
+  const sel=$("sceneSelect");
+  sel.innerHTML="";
+  const opts = [
+    ["cube","Куб"],
+    ["rectPrism","Тік төртбұрышты призма"],
+    ["triPrism","Үшбұрышты призма"],
+    ["sqPyramid","Дұрыс төртбұрышты пирамида"],
+    ["hexPyramid","Дұрыс алтыбұрышты пирамида"],
+    ["hexPrism","Дұрыс алтыбұрышты призма"],
+    ["cylSketch","Цилиндр (схема)"],
+    ["sphereSketch","Шар (схема)"],
+    ["rectPyrSketch","Пирамида (схема)"],
+    ["prismSketch","Призма (логика)"],
+  ];
+  opts.forEach(([k,name])=>{
+    const o=document.createElement("option");
+    o.value=k; o.textContent=name;
+    if(k===sceneKey) o.selected=true;
+    sel.appendChild(o);
+  });
+}
+
+function renderMissions(){
+  const sel=$("missionSelect");
+  sel.innerHTML="";
+  MISSIONS.forEach((m,idx)=>{
+    const o=document.createElement("option");
+    o.value=String(idx);
+    o.textContent=m.title;
+    sel.appendChild(o);
+  });
+}
+
+function loadMission(idx){
+  state.missionIndex=idx;
+  const m=MISSIONS[idx];
+
+  // mission -> scene default
+  setScene(m.scene);
+
+  $("missionText").textContent = m.text;
+  $("hint1Text").textContent = m.hint1;
+  $("hint2Text").textContent = m.hint2;
+  $("revealText").textContent = m.reveal;
+
+  $("hintBox1").style.display="none";
+  $("hintBox2").style.display="none";
+  $("revealBox").style.display="none";
+
+  $("answerInput").value="";
+  startTimer();
+  renderMeta();
+  renderKPIs();
+  toast(`Миссия: ${m.title}`);
+}
+
+function renderMeta(){
+  const m=state.perMission[state.missionIndex];
+  const name=$("studentName").value.trim()||"—";
+  const cls=$("studentClass").value.trim()||"—";
+  $("taskMeta").innerHTML =
+    `Оқушы: <b>${name}</b> · Сынып: <b>${cls}</b> · Уақыт: <b>${fmt(m.elapsed)}</b> · Әрекет: <b>${m.attempts}</b> · Қате: <b>${m.wrong}</b> · Көмек: <b>${(m.usedHint1?1:0)+(m.usedHint2?1:0)}</b> · Бағыт: <b>${m.revealed?"Иә":"Жоқ"}</b> · Таңдау: <b>${m.selectionOps}</b>`;
+}
+
+function renderKPIs(){
+  let done=0, wrong=0, hints=0, totalSec=0;
+  state.perMission.forEach(x=>{
+    done += x.done?1:0;
+    wrong += x.wrong;
+    hints += (x.usedHint1?1:0)+(x.usedHint2?1:0);
+    totalSec += x.elapsed||0;
+  });
+  $("kpiDone").textContent=done;
+  $("kpiWrong").textContent=wrong;
+  $("kpiHints").textContent=hints;
+  $("kpiTime").textContent=fmt(totalSec);
+}
+
+/* =========================
+   8) Есептеу батырмасы
+   ========================= */
+function compute(){
+  const mode=$("measureMode").value;
+  const mstate=state.perMission[state.missionIndex];
+  mstate.modeCounts[mode]=(mstate.modeCounts[mode]||0)+1;
+  mstate.attempts++;
+
+  // sketch scenes: no geometry
+  if(Object.keys(scene.pts).length===0){
+    $("measureOut").textContent =
+`[Схема режимі]
+Бұл миссияда нақты 3D өлшеу жасалмайды.
+Көмек/бағыт арқылы шешім жолын жаз.
+(Есеп беру: әрекет/көмек/уақыт бәрібір саналады.)`;
+    toast("Схема миссия: 3D өлшеу жоқ");
+    renderMeta(); renderKPIs();
+    return;
+  }
+
+  if(mode==="angleLines"){
+    if(selection.points.length<4){
+      $("measureOut").textContent="Түзу–түзу бұрышы үшін 4 нүкте таңда: (P1,P2) және (P3,P4).";
+      mstate.wrong++;
+      toast("4 нүкте керек");
+      renderMeta(); renderKPIs();
+      return;
+    }
+    const [p1,p2,p3,p4]=selection.points.slice(-4);
+    const L1=lineFrom2Points(p1,p2);
+    const L2=lineFrom2Points(p3,p4);
+    const ang=angleBetween(L1.d,L2.d);
+    if(ang===null){ mstate.wrong++; $("measureOut").textContent="Бір түзу нөл вектор болды."; }
+    else{
+      const deg=radToDeg(ang);
+      $("measureOut").textContent =
+`[Түзу–түзу]
+L1: ${p1}${p2}  бағыты: (${L1.d.x.toFixed(3)}, ${L1.d.y.toFixed(3)}, ${L1.d.z.toFixed(3)})
+L2: ${p3}${p4}  бағыты: (${L2.d.x.toFixed(3)}, ${L2.d.y.toFixed(3)}, ${L2.d.z.toFixed(3)})
+Бұрыш ≈ ${deg.toFixed(2)}°`;
+      mstate.done=1;
+      toast("Өлшенді");
+    }
+  }
+
+  if(mode==="angleLinePlane"){
+    if(selection.points.length<2){
+      $("measureOut").textContent="Түзу–жазықтық үшін кемі 2 нүкте (түзу) таңда.";
+      mstate.wrong++;
+      toast("2 нүкте керек");
+      renderMeta(); renderKPIs();
+      return;
+    }
+    // choose plane depending on mission/scene defaults:
+    // cube missions: use predefined planes; pyramid: SAD etc.
+    const mission = MISSIONS[state.missionIndex];
+    let planeName=null;
+    if(mission.id===4) planeName="BC1D";
+    if(mission.id===5) planeName="BCC1";
+    if(mission.id===6) planeName="SAD";
+    if(mission.id===7) planeName="SAF";
+    // fallback: base plane if exists
+    if(!planeName){
+      planeName = Object.keys(scene.planes)[0] || null;
+    }
+
+    // build plane by 3 points
+    let pl=null;
+    if(planeName && scene.planes[planeName]){
+      const [a,b,c]=scene.planes[planeName];
+      pl=planeFrom3Points(a,b,c);
+    } else {
+      // if plane not defined (e.g. SAF in hexPyramid)
+      if(planeName==="SAF" && scene.pts["S"] && scene.pts["A"] && scene.pts["F"]){
+        pl=planeFrom3Points("S","A","F");
+      } else if(planeName==="SAD" && scene.pts["S"] && scene.pts["A"] && scene.pts["D"]){
+        pl=planeFrom3Points("S","A","D");
+      }
+    }
+
+    if(!pl){
+      $("measureOut").textContent="Бұл сценада жазықтық анықталмаған (Plane missing).";
+      mstate.wrong++;
+      toast("Жазықтық жоқ");
+      renderMeta(); renderKPIs();
+      return;
+    }
+
+    const [p1,p2]=selection.points.slice(-2);
+    const L=lineFrom2Points(p1,p2);
+    const theta=angleLinePlane(L.d, pl.n);
+    const deg=radToDeg(theta);
+    const n=unit(pl.n);
+
+    $("measureOut").textContent =
+`[Түзу–жазықтық]
+Түзу: ${p1}${p2}  бағыты: (${L.d.x.toFixed(3)}, ${L.d.y.toFixed(3)}, ${L.d.z.toFixed(3)})
+Жазықтық: ${planeName}  нормаль (бірлік): (${n.x.toFixed(3)}, ${n.y.toFixed(3)}, ${n.z.toFixed(3)})
+Бұрыш ≈ ${deg.toFixed(2)}°`;
+    mstate.done=1;
+    toast("Өлшенді");
+  }
+
+  if(mode==="distSkew"){
+    if(selection.points.length<4){
+      $("measureOut").textContent="Айқас түзулер арақашықтығы үшін 4 нүкте таңда: (P1,P2) және (P3,P4).";
+      mstate.wrong++;
+      toast("4 нүкте керек");
+      renderMeta(); renderKPIs();
+      return;
+    }
+    const [p1,p2,p3,p4]=selection.points.slice(-4);
+    const L1=lineFrom2Points(p1,p2);
+    const L2=lineFrom2Points(p3,p4);
+    const d=distSkewLines(L1,L2);
+    if(d===null){
+      $("measureOut").textContent="Түзулер параллель немесе беттес (айқас емес). Басқа нүкте таңда.";
+      mstate.wrong++;
+      toast("Айқас емес");
+    } else {
+      $("measureOut").textContent =
+`[Айқас түзулер арақашықтығы]
+L1: ${p1}${p2}
+L2: ${p3}${p4}
+d ≈ ${d.toFixed(4)} (модель бірлігінде)`;
+      mstate.done=1;
+      toast("Есептелді");
+    }
+  }
+
+  renderMeta();
+  renderKPIs();
+}
+
+/* =========================
+   9) Есеп беру
+   ========================= */
+function buildReport(){
+  const name=$("studentName").value.trim()||"Аты жоқ";
+  const cls=$("studentClass").value.trim()||"—";
+  let done=0, wrong=0, hints=0, totalSec=0;
+
+  const lines=[];
+  lines.push("3D Geometry Mission — Есеп беру");
+  lines.push(`Оқушы: ${name} | Сынып: ${cls}`);
+  lines.push("");
+
+  state.perMission.forEach((m,idx)=>{
+    totalSec += m.elapsed||0;
+    done += m.done?1:0;
+    wrong += m.wrong;
+    hints += (m.usedHint1?1:0)+(m.usedHint2?1:0);
+    lines.push(`- ${MISSIONS[idx].title}`);
+    lines.push(`  уақыт=${fmt(m.elapsed)} | әрекет=${m.attempts} | қате=${m.wrong} | көмек=${(m.usedHint1?1:0)+(m.usedHint2?1:0)} | бағыт=${m.revealed?"иә":"жоқ"} | аяқталды=${m.done?"иә":"жоқ"}`);
+  });
+
+  lines.push("");
+  lines.push(`Қорытынды: аяқталған=${done}/${MISSIONS.length} | қате=${wrong} | көмек=${hints} | жалпы уақыт=${fmt(totalSec)}`);
+
+  // heuristic focus areas
+  const hard = state.perMission
+    .map((m,i)=>({i, score:m.wrong + (m.revealed?1:0) + ((m.usedHint1?1:0)+(m.usedHint2?1:0))*0.5}))
+    .sort((a,b)=>b.score-a.score)
+    .slice(0,3)
+    .map(x=>x.i+1);
+
+  lines.push(`Қиын болған миссиялар: ${hard.join(", ")||"—"}`);
+  lines.push("Ұсыныс: түзулер бұрышы үшін бағыттаушы вектор; жазықтық үшін нормаль; айқас түзулер үшін u×v формуласы; проекция/қима идеясы.");
+  return lines.join("\n");
+}
+
+/* =========================
+   10) UI wiring
+   ========================= */
+(function init(){
+  renderMissions();
+  renderSceneSelect();
+
+  // also allow scene override
+  $("sceneSelect").addEventListener("change", ()=> setScene($("sceneSelect").value));
+
+  $("missionSelect").addEventListener("change", ()=>{
+    const idx=Number($("missionSelect").value);
+    loadMission(idx);
+  });
+
+  $("resetViewBtn").addEventListener("click", ()=>{
+    yaw=0.6; pitch=-0.45;
+    toast("Көрініс қалпына келді");
+  });
+
+  $("clearSelectionBtn").addEventListener("click", ()=>{
+    clearSelection();
+    const ms=state.perMission[state.missionIndex];
+    ms.selectionOps++;
+    toast("Таңдау тазартылды");
+  });
+
+  $("computeBtn").addEventListener("click", compute);
+
+  $("hint1Btn").addEventListener("click", ()=>{
+    const m=state.perMission[state.missionIndex];
+    m.usedHint1=true;
+    $("hintBox1").style.display="block";
+    $("hintBox1").open=true;
+    toast("Көмек 1 ашылды");
+    renderMeta(); renderKPIs();
+  });
+
+  $("hint2Btn").addEventListener("click", ()=>{
+    const m=state.perMission[state.missionIndex];
+    m.usedHint2=true;
+    $("hintBox2").style.display="block";
+    $("hintBox2").open=true;
+    toast("Көмек 2 ашылды");
+    renderMeta(); renderKPIs();
+  });
+
+  $("revealBtn").addEventListener("click", ()=>{
+    const m=state.perMission[state.missionIndex];
+    m.revealed=true;
+    $("revealBox").style.display="block";
+    $("revealBox").open=true;
+    toast("Бағыт/идея ашылды");
+    renderMeta(); renderKPIs();
+  });
+
+  $("finishBtn").addEventListener("click", ()=>{
+    stopTimer();
+    alert(buildReport());
+    startTimer();
+  });
+
+  $("copyReportBtn").addEventListener("click", async ()=>{
+    const rep=buildReport();
+    try{
+      await navigator.clipboard.writeText(rep);
+      toast("Есеп беру көшірілді");
+    }catch(e){
+      const ta=document.createElement("textarea");
+      ta.value=rep; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy");
+      document.body.removeChild(ta);
+      toast("Есеп беру көшірілді");
+    }
+  });
+
+  $("clearAllBtn").addEventListener("click", ()=>{
+    if(!confirm("Барлық нәтижені тазартасың ба?")) return;
+    state.perMission = MISSIONS.map(()=>({
+      startedAt:null, elapsed:0,
+      attempts:0, wrong:0, done:0,
+      usedHint1:false, usedHint2:false, revealed:false,
+      modeCounts:{angleLines:0, angleLinePlane:0, distSkew:0},
+      selectionOps:0,
+    }));
+    clearSelection();
+    loadMission(0);
+    toast("Барлығы тазартылды");
+  });
+
+  // start first mission
+  $("missionSelect").value="0";
+  loadMission(0);
+
+  draw();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Parametric Function Lab — 10 есеп</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body{font-family:Arial;background:#eef2ff;padding:20px}
+.card{background:white;padding:20px;border-radius:12px;max-width:1100px;margin:auto}
+h2{margin-top:0}
+input,select{width:100%}
+.info{background:#f1f5ff;padding:10px;border-radius:8px;margin-top:10px}
+</style>
+</head>
+<body>
+
+<div class="card">
+<h2>🧠 Parametric Function Lab — 10 есеп</h2>
+
+<select id="taskSelect">
+<option value="1">1) |2x| − |x²| = x − a</option>
+<option value="2">2) |2x| − a|x| = x + a</option>
+<option value="3">3) f(x)=x² − ax + 1 (максимум аймағы)</option>
+<option value="4">4) x² − 2x ≤ a − 1</option>
+<option value="5">5) x² − 4 ≤ a</option>
+<option value="6">6) (x−a)(ax−2a−3)=0</option>
+<option value="7">7) f(x)=x³ − ax</option>
+<option value="8">8) ax + 3a − 1 > 0</option>
+<option value="9">9) x² + ax + 1 = 0</option>
+<option value="10">10) x² − a = 0</option>
+</select>
+
+<label>a = <span id="aval">0</span></label>
+<input type="range" min="-5" max="5" step="0.1" value="0" id="slider">
+
+<canvas id="graph"></canvas>
+
+<div class="info" id="analysis"></div>
+</div>
+
+<script>
+const ctx=document.getElementById('graph');
+const chart=new Chart(ctx,{
+type:'line',
+data:{labels:[],datasets:[
+{label:'f(x)',data:[],borderColor:'blue'},
+{label:'g(x)',data:[],borderColor:'red'}
+]},
+options:{responsive:true,animation:false}
+});
+
+function f(x,a,t){
+switch(t){
+case "1": return Math.abs(2*x)-Math.abs(x*x);
+case "2": return Math.abs(2*x)-a*Math.abs(x);
+case "3": return x*x-a*x+1;
+case "4": return x*x-2*x;
+case "5": return x*x-4;
+case "6": return (x-a)*(a*x-2*a-3);
+case "7": return x*x*x-a*x;
+case "8": return a*x+3*a-1;
+case "9": return x*x+a*x+1;
+case "10": return x*x-a;
+}
+}
+
+function g(x,a,t){
+if(t=="1") return x-a;
+if(t=="2") return x+a;
+return 0;
+}
+
+function roots(a,t){
+let c=0;
+for(let i=-10;i<10;i+=0.01){
+if((f(i,a,t)-g(i,a,t))*(f(i+0.01,a,t)-g(i+0.01,a,t))<0) c++;
+}
+return c;
+}
+
+function update(){
+let a=parseFloat(slider.value);
+aval.innerText=a;
+let t=taskSelect.value;
+let x=[],y1=[],y2=[];
+for(let i=-5;i<=5;i+=0.1){
+x.push(i.toFixed(1));
+y1.push(f(i,a,t));
+y2.push(g(i,a,t));
+}
+chart.data.labels=x;
+chart.data.datasets[0].data=y1;
+chart.data.datasets[1].data=y2;
+chart.update();
+
+let r=roots(a,t);
+analysis.innerHTML="Түбірлер саны: <b>"+r+"</b>";
+}
+
+slider.oninput=update;
+taskSelect.onchange=update;
+update();
+</script>
+
+</body>
+</html>
