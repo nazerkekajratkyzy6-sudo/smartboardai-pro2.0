@@ -7,6 +7,13 @@ import {
   uploadBytes,
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+// ROOM параметрін URL-ден оқу
+const params = new URLSearchParams(window.location.search);
+const roomId = params.get("room");
+
+if (!roomId) {
+  alert("Room табылмады. QR дұрыс емес.");
+}
 
 const $ = (id) => document.getElementById(id);
 
@@ -334,6 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
   attachEvents();
   listenTeacherBlock();
 });
+
 
 
 
