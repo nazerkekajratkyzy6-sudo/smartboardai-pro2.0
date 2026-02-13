@@ -1047,6 +1047,25 @@ function generateQR() {
 
 function listenStudentStreams() {
   if (!currentRoom) return;
+// STUDENTS LISTENER
+const studentsRef = ref(db, `rooms/${currentRoom}/students`);
+onValue(studentsRef, (snap) => {
+  const data = snap.val();
+  const box = document.getElementById("studentsList");
+
+  if (!data) {
+    if (box) box.innerHTML = "Оқушылар жоқ";
+    return;
+  }
+
+  const list = Object.values(data);
+
+  if (box) {
+    box.innerHTML = list
+      .map((s) => `<div>🟢 ${s.name}</div>`)
+      .join("");
+  }
+});
 
   // ANSWERS
   const answersRef = ref(db, `rooms/${currentRoom}/answers`);
@@ -1454,6 +1473,7 @@ function openRichEditorForBlock(blockId, html) {
   content.innerHTML = html || "";
   content.focus();
 }
+
 
 
 
