@@ -133,6 +133,20 @@ function sendAnswer() {
   if (answerInput) answerInput.value = "";
   showStatus("✔ Жауап жіберілді!");
 }
+// Оқушы ID
+const studentId = "std_" + Math.random().toString(36).slice(2, 9);
+
+// Уақытша аты (егер input жоқ болса)
+const studentName = localStorage.getItem("studentName") || "Оқушы";
+
+// Firebase-ке жазу
+if (roomId) {
+  set(ref(db, `rooms/${roomId}/students/${studentId}`), {
+    name: studentName,
+    time: Date.now()
+  });
+}
+
 // ====== SEND PHOTO (Student -> Teacher) ======
 async function sendStudentPhoto() {
   const roomId = getRoomId();
@@ -341,6 +355,7 @@ document.addEventListener("DOMContentLoaded", () => {
   attachEvents();
   listenTeacherBlock();
 });
+
 
 
 
