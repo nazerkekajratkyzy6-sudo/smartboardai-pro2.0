@@ -7,6 +7,7 @@ import {
   uploadBytes,
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
 // ROOM параметрін URL-ден оқу
 const params = new URLSearchParams(window.location.search);
 const urlRoom = params.get("room");
@@ -27,6 +28,8 @@ const statusBox = $("status");
 const studentPhotoInput = $("studentPhotoInput");
 const sendPhotoBtn = $("sendPhotoBtn");
 const storage = getStorage();
+const roomSection = $("roomSection");
+const roomAutoHint = $("roomAutoHint");
 
 const titleEl = $("title");
 const roomLbl = $("roomLbl");
@@ -93,13 +96,13 @@ function createExtraUI() {
 
 // ====== ROOM DETECT (URL → input) ======
 function detectRoomFromURL() {
-  try {
-    const urlRoom = new URL(window.location.href).searchParams.get("room");
-    if (urlRoom && roomInput) {
-      roomInput.value = urlRoom;
-    }
-  } catch (e) {
-    // ештеңе
+  if (!urlRoom || !roomInput) return;
+
+  roomInput.value = urlRoom;
+  roomInput.readOnly = true;
+
+  if (roomAutoHint) {
+    roomAutoHint.classList.remove("hidden");
   }
 }
 
@@ -135,25 +138,7 @@ function sendAnswer() {
   if (answerInput) answerInput.value = "";
   showStatus("✔ Жауап жіберілді!");
 }
-// ====== STUDENT ONLINE PRESENCE ======
-const studentId = localStorage.getItem("studentId") || ("std_" + Math.random().toString(36).slice(2, 9));
-localStorage.setItem("studentId", studentId);
 
-async function saveStudentPresence() {
-  const roomId = getRoomId();
-  const name = nameInput?.value.trim() || "";
-  const avatar = avatarSelect?.value || "🙂";
-
-  if (!roomId || !name) return;
-
-  localStorage.setItem("studentName", name);
-
-  await set(ref(db, `rooms/${roomId}/students/${studentId}`), {
-    name,
-    avatar,
-    time: Date.now()
-  });
-}
 
 // ====== SEND PHOTO (Student -> Teacher) ======
 async function sendStudentPhoto() {
@@ -179,16 +164,16 @@ async function sendStudentPhoto() {
     await uploadBytes(fileRef, file);
     console.log("UPLOAD OK");
     const url = await getDownloadURL(fileRef);
-    const photosRef = ref(db, `rooms/${roomId}/studentPhotos`);
-    
-    await saveStudentPresence();
-    await push(photosRef, {
-      name,
-      avatar,
-      url,
-      time: Date.now(),
-    });
+   const photosRef = ref(db, `rooms/${roomId}/studentPhotos`);
 
+   await saveStudentPresence();
+
+   await push(photosRef, {
+   name,
+   avatar,
+   url,
+   time: Date.now(),
+  });
     if (studentPhotoInput) studentPhotoInput.value = "";
     showStatus("✅ Фото жіберілді!");
   } catch (e) {
@@ -340,14 +325,6 @@ function attachEvents() {
   if (sendBtn) sendBtn.addEventListener("click", sendAnswer);
   if (sendPhotoBtn) sendPhotoBtn.addEventListener("click", sendStudentPhoto);
 
-  if (emojiContainer) {
-    emojiContainer.querySelectorAll(".emoji-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const em = btn.dataset.emoji;
-        if (em) sendEmoji(em);
-      });
-    });
-  }
   if (nameInput) {
     nameInput.addEventListener("change", () => {
       saveStudentPresence();
@@ -359,13 +336,22 @@ function attachEvents() {
       saveStudentPresence();
     });
   }
-  if (wcBtn) wcBtn.addEventListener("click", sendWord);
+
+  if (emojiContainer) {
+    emojiContainer.querySelectorAll(".emoji-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const em = btn.dataset.emoji;
+        if (em) sendEmoji(em);
+      });
+    });
+  }
+
+  if (wcBtn) wcBtn.addEventListener("click", sendWordCloud);
 
   if (btnKZ) btnKZ.addEventListener("click", () => applyLang("kz"));
   if (btnRU) btnRU.addEventListener("click", () => applyLang("ru"));
   if (btnEN) btnEN.addEventListener("click", () => applyLang("en"));
 }
-
 // ====== INIT ======
 document.addEventListener("DOMContentLoaded", () => {
   createExtraUI();
