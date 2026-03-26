@@ -9,10 +9,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 // ROOM параметрін URL-ден оқу
 const params = new URLSearchParams(window.location.search);
-const roomId = params.get("room");
+const urlRoom = params.get("room");
 
-if (!roomId) {
-  alert("Room табылмады. QR дұрыс емес.");
+if (urlRoom && roomInput) {
+  roomInput.value = urlRoom;
 }
 
 const $ = (id) => document.getElementById(id);
