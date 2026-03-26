@@ -370,6 +370,7 @@ function attachEvents() {
     });
   }
 
+  
   if (wcBtn) wcBtn.addEventListener("click", sendWord);
 
   if (btnKZ) btnKZ.addEventListener("click", () => applyLang("kz"));
