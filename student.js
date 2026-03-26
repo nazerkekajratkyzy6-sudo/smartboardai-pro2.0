@@ -1,6 +1,6 @@
 // student.js — SmartBoardAI PRO (Answer + Emoji + WordCloud)
 
-import { db, ref, push, onValue } from "./firebaseConfig.js";
+import { db, ref, push, onValue, set } from "./firebaseConfig.js";
 import {
   getStorage,
   ref as sRef,
@@ -122,6 +122,8 @@ function sendAnswer() {
   if (!name) return showStatus("❗ Есіміңізді жазыңыз.");
   if (!text) return showStatus("❗ Жауабыңызды жазыңыз.");
 
+  saveStudentPresence();
+
   const ansRef = ref(db, `rooms/${roomId}/answers`);
   push(ansRef, {
     name,
@@ -133,16 +135,22 @@ function sendAnswer() {
   if (answerInput) answerInput.value = "";
   showStatus("✔ Жауап жіберілді!");
 }
-// Оқушы ID
-const studentId = "std_" + Math.random().toString(36).slice(2, 9);
+// ====== STUDENT ONLINE PRESENCE ======
+const studentId = localStorage.getItem("studentId") || ("std_" + Math.random().toString(36).slice(2, 9));
+localStorage.setItem("studentId", studentId);
 
-// Уақытша аты (егер input жоқ болса)
-const studentName = localStorage.getItem("studentName") || "Оқушы";
+async function saveStudentPresence() {
+  const roomId = getRoomId();
+  const name = nameInput?.value.trim() || "";
+  const avatar = avatarSelect?.value || "🙂";
 
-// Firebase-ке жазу
-if (roomId) {
-  set(ref(db, `rooms/${roomId}/students/${studentId}`), {
-    name: studentName,
+  if (!roomId || !name) return;
+
+  localStorage.setItem("studentName", name);
+
+  await set(ref(db, `rooms/${roomId}/students/${studentId}`), {
+    name,
+    avatar,
     time: Date.now()
   });
 }
@@ -173,6 +181,7 @@ async function sendStudentPhoto() {
     const url = await getDownloadURL(fileRef);
     const photosRef = ref(db, `rooms/${roomId}/studentPhotos`);
     
+    await saveStudentPresence();
     await push(photosRef, {
       name,
       avatar,
@@ -339,7 +348,17 @@ function attachEvents() {
       });
     });
   }
+  if (nameInput) {
+    nameInput.addEventListener("change", () => {
+      saveStudentPresence();
+    });
+  }
 
+  if (avatarSelect) {
+    avatarSelect.addEventListener("change", () => {
+      saveStudentPresence();
+    });
+  }
   if (wcBtn) wcBtn.addEventListener("click", sendWord);
 
   if (btnKZ) btnKZ.addEventListener("click", () => applyLang("kz"));
