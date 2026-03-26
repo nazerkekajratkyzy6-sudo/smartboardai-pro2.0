@@ -5,76 +5,117 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SmartBoardAI — Student</title>
   <link rel="stylesheet" href="student.css" />
-<script>
-  window.MathJax = {
-    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
-    svg: { fontCache: 'global' }
-  };
-</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 
 <body>
+  <div class="student-shell">
+    <div class="container">
 
-  <div class="container">
+      <!-- Language -->
+      <div class="lang-switch">
+        <button id="stKZ" type="button">KZ</button>
+        <button id="stRU" type="button">RU</button>
+        <button id="stEN" type="button">EN</button>
+      </div>
 
-    <!-- Language -->
-    <div class="lang-switch">
-      <button id="stKZ">KZ</button>
-      <button id="stRU">RU</button>
-      <button id="stEN">EN</button>
+      <!-- Main Card -->
+      <div class="card">
+
+        <div class="student-header">
+          <div class="student-badge">🎓</div>
+          <div>
+            <h2 id="title">Оқушы панелі</h2>
+            <p class="student-subtitle">SmartBoardAI PRO</p>
+          </div>
+        </div>
+
+        <!-- Room section -->
+        <div class="section-card" id="roomSection">
+          <div class="section-title-row">
+            <span>🔗</span>
+            <span id="roomSectionTitle">Қосылу</span>
+          </div>
+
+          <label id="roomLbl" for="roomInput">Бөлме коды:</label>
+          <input id="roomInput" type="text" placeholder="ROOM ID" />
+
+          <div id="roomAutoHint" class="room-auto-hint hidden">
+            ✅ QR арқылы бөлме автоматты түрде анықталды
+          </div>
+        </div>
+
+        <!-- Profile -->
+        <div class="section-card">
+          <div class="section-title-row">
+            <span>👤</span>
+            <span id="profileTitle">Профиль</span>
+          </div>
+
+          <label id="avLbl" for="avatar">Аватар:</label>
+          <select id="avatar">
+            <option>🙂</option>
+            <option>😎</option>
+            <option>🤓</option>
+            <option>🤩</option>
+            <option>😺</option>
+            <option>🐼</option>
+          </select>
+
+          <label id="nameLbl" for="studentName">Есіміңіз:</label>
+          <input id="studentName" type="text" placeholder="Атыңыз" />
+        </div>
+
+        <!-- Answer -->
+        <div class="section-card">
+          <div class="section-title-row">
+            <span>✍️</span>
+            <span id="answerSectionTitle">Жауап жіберу</span>
+          </div>
+
+          <label id="ansLbl" for="studentAnswer">Жауап:</label>
+          <textarea id="studentAnswer" placeholder="Жауабыңызды жазыңыз."></textarea>
+
+          <button id="sendBtn" type="button">Жіберу</button>
+        </div>
+
+        <!-- Photo -->
+        <div class="section-card">
+          <div class="section-title-row">
+            <span>📷</span>
+            <span id="photoSectionTitle">Фото жіберу</span>
+          </div>
+
+          <label id="photoLbl" for="studentPhotoInput">Фото:</label>
+          <input id="studentPhotoInput" type="file" accept="image/*" />
+          <button id="sendPhotoBtn" type="button">📤 Фото жіберу</button>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <!-- Teacher block -->
+        <div class="section-card teacher-section">
+          <div class="section-title-row">
+            <span>📚</span>
+            <span id="teacherSectionTitle">Мұғалімнен тапсырма</span>
+          </div>
+
+          <div id="teacherBlock" class="teacher-block">
+            <p>Мұғалім блок жібергенде осында шығады</p>
+          </div>
+        </div>
+
+      </div>
     </div>
-
-    <!-- Card -->
-    <div class="card">
-   
-      <h2 id="title">Оқушы панелі</h2>
-
-      <!-- Room Field -->
-      <label id="roomLbl">Бөлме коды:</label>
-      <input id="roomInput" type="text" placeholder="ROOM ID" />
-
-      <!-- Avatar -->
-      <label id="avLbl">Аватар:</label>
-      <select id="avatar">
-        <option>🙂</option>
-        <option>😎</option>
-        <option>🤓</option>
-        <option>🤩</option>
-        <option>😺</option>
-        <option>🐼</option>
-      </select>
-
-      <!-- Name -->
-      <label id="nameLbl">Есіміңіз:</label>
-      <input id="studentName" type="text" placeholder="Атыңыз" />
-
-      <!-- Answer -->
-      <label id="ansLbl">Жауап:</label>
-      <textarea id="studentAnswer" placeholder="Жауабыңызды жазыңыз..."></textarea>
-
-      <button id="sendBtn">Жіберу</button>
-<!-- 📷 Фото жіберу -->
-<label id="photoLbl">Фото:</label>
-<input id="studentPhotoInput" type="file" accept="image/*" />
-<button id="sendPhotoBtn">📤 Фото жіберу</button>
-
-      <div id="status" class="status"></div>
-
-    <!-- 👀 Мұғалім көрсеткен блок -->
-    <div id="teacherBlock" class="teacher-block">
-      <p>Мұғалім блок жібергенде осында шығады</p>
-    </div>
-
   </div>
-</div>
-<script type="module" src="student.js"></script>
+
+  <script type="module" src="student.js"></script>
 </body>
 </html>
-
-
-
-
-
-
