@@ -1,4 +1,4 @@
-// student.js — SmartBoardAI PRO (Answer + Emoji + WordCloud)
+// student.js — SmartBoardAI PRO
 
 import { db, ref, push, onValue, set } from "./firebaseConfig.js";
 import {
@@ -8,15 +8,11 @@ import {
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-// ROOM параметрін URL-ден оқу
+const $ = (id) => document.getElementById(id);
+
+// ====== URL PARAMS ======
 const params = new URLSearchParams(window.location.search);
 const urlRoom = params.get("room");
-
-if (urlRoom && roomInput) {
-  roomInput.value = urlRoom;
-}
-
-const $ = (id) => document.getElementById(id);
 
 // ====== ELEMENTS ======
 const roomInput = $("roomInput");
@@ -27,9 +23,7 @@ const sendBtn = $("sendBtn");
 const statusBox = $("status");
 const studentPhotoInput = $("studentPhotoInput");
 const sendPhotoBtn = $("sendPhotoBtn");
-const storage = getStorage();
-const roomSection = $("roomSection");
-const roomAutoHint = $("roomAutoHint");
+const teacherBlock = $("teacherBlock");
 
 const titleEl = $("title");
 const roomLbl = $("roomLbl");
@@ -41,15 +35,63 @@ const btnKZ = $("stKZ");
 const btnRU = $("stRU");
 const btnEN = $("stEN");
 
-// Кейін UI қосу үшін
+const storage = getStorage();
+
+// Если в HTML есть эти блоки — используем, если нет — просто игнорируем
+const roomAutoHint = $("roomAutoHint");
+
+// ====== EXTRA UI ======
 let emojiContainer, wcLabel, wcInput, wcBtn;
 
-// ====== EXTRA UI: EMOJI + WORDCLOUD ======
+// ====== HELPERS ======
+function getRoomId() {
+  return (roomInput?.value || "").trim();
+}
+
+function showStatus(msg) {
+  if (statusBox) statusBox.textContent = msg;
+}
+
+// ====== STUDENT PRESENCE ======
+const studentId =
+  localStorage.getItem("studentId") ||
+  ("std_" + Math.random().toString(36).slice(2, 9));
+
+localStorage.setItem("studentId", studentId);
+
+async function saveStudentPresence() {
+  const roomId = getRoomId();
+  const name = nameInput?.value.trim() || "";
+  const avatar = avatarSelect?.value || "🙂";
+
+  if (!roomId || !name) return;
+
+  localStorage.setItem("studentName", name);
+
+  await set(ref(db, `rooms/${roomId}/students/${studentId}`), {
+    name,
+    avatar,
+    time: Date.now(),
+  });
+}
+
+// ====== ROOM DETECT ======
+function detectRoomFromURL() {
+  if (!urlRoom || !roomInput) return;
+
+  roomInput.value = urlRoom;
+  roomInput.readOnly = true;
+
+  if (roomAutoHint) {
+    roomAutoHint.classList.remove("hidden");
+  }
+}
+
+// ====== EXTRA UI: EMOJI + WORD CLOUD ======
 function createExtraUI() {
   const card = titleEl?.closest(".card") || document.querySelector(".card");
   if (!card) return;
 
-  // ЭМОЦИЯ
   emojiContainer = document.createElement("div");
   emojiContainer.style.marginTop = "10px";
   emojiContainer.style.display = "flex";
@@ -71,7 +113,6 @@ function createExtraUI() {
     emojiContainer.appendChild(b);
   });
 
-  // WORD CLOUD
   wcLabel = document.createElement("label");
   wcLabel.id = "wcLbl";
   wcLabel.style.display = "block";
@@ -94,28 +135,8 @@ function createExtraUI() {
   card.appendChild(wcBtn);
 }
 
-// ====== ROOM DETECT (URL → input) ======
-function detectRoomFromURL() {
-  if (!urlRoom || !roomInput) return;
-
-  roomInput.value = urlRoom;
-  roomInput.readOnly = true;
-
-  if (roomAutoHint) {
-    roomAutoHint.classList.remove("hidden");
-  }
-}
-
-function getRoomId() {
-  return (roomInput?.value || "").trim();
-}
-
-function showStatus(msg) {
-  if (statusBox) statusBox.textContent = msg;
-}
-
 // ====== SEND ANSWER ======
-function sendAnswer() {
+async function sendAnswer() {
   const roomId = getRoomId();
   const name = nameInput?.value.trim() || "";
   const text = answerInput?.value.trim() || "";
@@ -125,28 +146,32 @@ function sendAnswer() {
   if (!name) return showStatus("❗ Есіміңізді жазыңыз.");
   if (!text) return showStatus("❗ Жауабыңызды жазыңыз.");
 
-  saveStudentPresence();
+  try {
+    await saveStudentPresence();
 
-  const ansRef = ref(db, `rooms/${roomId}/answers`);
-  push(ansRef, {
-    name,
-    avatar,
-    text,
-    time: Date.now(),
-  });
+    const ansRef = ref(db, `rooms/${roomId}/answers`);
+    await push(ansRef, {
+      name,
+      avatar,
+      text,
+      time: Date.now(),
+    });
 
-  if (answerInput) answerInput.value = "";
-  showStatus("✔ Жауап жіберілді!");
+    if (answerInput) answerInput.value = "";
+    showStatus("✔ Жауап жіберілді!");
+  } catch (e) {
+    console.error(e);
+    showStatus("❌ Жауап жіберілмеді.");
+  }
 }
 
-
-// ====== SEND PHOTO (Student -> Teacher) ======
+// ====== SEND PHOTO ======
 async function sendStudentPhoto() {
   const roomId = getRoomId();
   const name = nameInput?.value.trim() || "";
   const avatar = avatarSelect?.value || "🙂";
   const file = studentPhotoInput?.files?.[0];
-  // iPhone: слишком большие фото могут "падать" по памяти/сети
+
   if (file && file.size > 6 * 1024 * 1024) {
     return showStatus("❗ Фото тым үлкен. 6MB-тан кіші фото таңдаңыз.");
   }
@@ -162,18 +187,18 @@ async function sendStudentPhoto() {
     const fileRef = sRef(storage, path);
 
     await uploadBytes(fileRef, file);
-    console.log("UPLOAD OK");
     const url = await getDownloadURL(fileRef);
-   const photosRef = ref(db, `rooms/${roomId}/studentPhotos`);
 
-   await saveStudentPresence();
+    await saveStudentPresence();
 
-   await push(photosRef, {
-   name,
-   avatar,
-   url,
-   time: Date.now(),
-  });
+    const photosRef = ref(db, `rooms/${roomId}/studentPhotos`);
+    await push(photosRef, {
+      name,
+      avatar,
+      url,
+      time: Date.now(),
+    });
+
     if (studentPhotoInput) studentPhotoInput.value = "";
     showStatus("✅ Фото жіберілді!");
   } catch (e) {
@@ -202,7 +227,7 @@ function sendEmoji(emoji) {
   showStatus("💛 Эмоция жіберілді!");
 }
 
-// ====== SEND WORD CLOUD ======
+// ====== SEND WORD ======
 function sendWord() {
   const roomId = getRoomId();
   const name = nameInput?.value.trim() || "";
@@ -225,7 +250,7 @@ function sendWord() {
   showStatus("☁ Сөз бұлтқа қосылды!");
 }
 
-// ====== LANG SYSTEM ======
+// ====== LANG ======
 const LANG = {
   kz: {
     title: "Оқушы панелі",
@@ -239,7 +264,6 @@ const LANG = {
     roomPlaceholder: "ROOM ID",
     namePlaceholder: "Атыңыз",
     ansPlaceholder: "Жауабыңызды жазыңыз...",
-    wcPlaceholder: "Бір сөз жаз...",
   },
   ru: {
     title: "Панель ученика",
@@ -253,7 +277,6 @@ const LANG = {
     roomPlaceholder: "КОД",
     namePlaceholder: "Ваше имя",
     ansPlaceholder: "Напишите ответ...",
-    wcPlaceholder: "Введите одно слово...",
   },
   en: {
     title: "Student Panel",
@@ -267,7 +290,6 @@ const LANG = {
     roomPlaceholder: "ROOM ID",
     namePlaceholder: "Your name",
     ansPlaceholder: "Type your answer...",
-    wcPlaceholder: "One word...",
   },
 };
 
@@ -286,9 +308,9 @@ function applyLang(lang) {
   if (roomInput) roomInput.placeholder = t.roomPlaceholder;
   if (nameInput) nameInput.placeholder = t.namePlaceholder;
   if (answerInput) answerInput.placeholder = t.ansPlaceholder;
-  if (wcInput) wcInput.placeholder = t.wcPlaceholder;
 }
-// 👀 МҰҒАЛІМ БЛОГЫН ТЫҢДАУ
+
+// ====== LISTEN TEACHER BLOCK ======
 function listenTeacherBlock() {
   const roomId = getRoomId();
   if (!roomId) return;
@@ -297,44 +319,39 @@ function listenTeacherBlock() {
 
   onValue(blockRef, (snap) => {
     const data = snap.val();
-    const box = document.getElementById("teacherBlock");
-    if (!box || !data) return;
-if (data.type === "text" || data.type === "ai") {
-  box.innerHTML = `<div>${data.content}</div>`;
-}
-else if (data.type === "formula") {
-  box.innerHTML = `<div class="math-block">\\(${data.content}\\)</div>`;
-}
-else if (data.type === "trainer" || data.type === "video") {
-  box.innerHTML = `<iframe src="${data.content}"></iframe>`;
-}
-else {
-  box.innerHTML = `<div>${data.content}</div>`;
-}
+    if (!teacherBlock || !data) return;
 
-// ⬇⬇⬇ МІНДЕТТІ ТҮРДЕ ТӨМЕНДЕ ТҰРУЫ КЕРЕК
-if (window.MathJax) {
-  MathJax.typesetPromise();
-}
- 
+    if (data.type === "text" || data.type === "ai" || data.type === "rich") {
+      teacherBlock.innerHTML = `<div>${data.content}</div>`;
+    } else if (data.type === "formula") {
+      teacherBlock.innerHTML = `<div class="math-block">\\(${data.content}\\)</div>`;
+    } else if (data.type === "trainer" || data.type === "video") {
+      teacherBlock.innerHTML = `<iframe src="${data.content}"></iframe>`;
+    } else {
+      teacherBlock.innerHTML = `<div>${data.content}</div>`;
+    }
+
+    if (window.MathJax) {
+      MathJax.typesetPromise();
+    }
   });
 }
 
 // ====== EVENTS ======
 function attachEvents() {
-  if (sendBtn) sendBtn.addEventListener("click", sendAnswer);
+  if (sendBtn) sendBtn.addEventListener("click", async () => {
+    await sendAnswer();
+    listenTeacherBlock();
+  });
+
   if (sendPhotoBtn) sendPhotoBtn.addEventListener("click", sendStudentPhoto);
 
   if (nameInput) {
-    nameInput.addEventListener("change", () => {
-      saveStudentPresence();
-    });
+    nameInput.addEventListener("change", saveStudentPresence);
   }
 
   if (avatarSelect) {
-    avatarSelect.addEventListener("change", () => {
-      saveStudentPresence();
-    });
+    avatarSelect.addEventListener("change", saveStudentPresence);
   }
 
   if (emojiContainer) {
@@ -346,28 +363,21 @@ function attachEvents() {
     });
   }
 
-  if (wcBtn) wcBtn.addEventListener("click", sendWordCloud);
+  if (wcBtn) wcBtn.addEventListener("click", sendWord);
 
   if (btnKZ) btnKZ.addEventListener("click", () => applyLang("kz"));
   if (btnRU) btnRU.addEventListener("click", () => applyLang("ru"));
   if (btnEN) btnEN.addEventListener("click", () => applyLang("en"));
 }
+
 // ====== INIT ======
 document.addEventListener("DOMContentLoaded", () => {
   createExtraUI();
   detectRoomFromURL();
   applyLang("kz");
   attachEvents();
-  listenTeacherBlock();
+
+  if (urlRoom) {
+    listenTeacherBlock();
+  }
 });
-
-
-
-
-
-
-
-
-
-
-
