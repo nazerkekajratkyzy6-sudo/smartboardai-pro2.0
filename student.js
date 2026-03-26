@@ -85,6 +85,12 @@ function detectRoomFromURL() {
   if (roomAutoHint) {
     roomAutoHint.classList.remove("hidden");
   }
+
+  setTimeout(() => {
+    if (nameInput?.value.trim()) {
+      saveStudentPresence();
+    }
+  }, 500);
 }
 
 // ====== EXTRA UI: EMOJI + WORD CLOUD ======
@@ -348,6 +354,7 @@ function attachEvents() {
 
   if (nameInput) {
     nameInput.addEventListener("change", saveStudentPresence);
+    nameInput.addEventListener("blur", saveStudentPresence);
   }
 
   if (avatarSelect) {
@@ -377,7 +384,9 @@ document.addEventListener("DOMContentLoaded", () => {
   applyLang("kz");
   attachEvents();
 
-  if (urlRoom) {
-    listenTeacherBlock();
-  }
+  setTimeout(() => {
+    if (getRoomId()) {
+      listenTeacherBlock();
+    }
+  }, 300);
 });
