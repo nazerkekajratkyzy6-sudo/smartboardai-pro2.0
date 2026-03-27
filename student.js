@@ -93,6 +93,27 @@ function detectRoomFromURL() {
   }, 500);
 }
 
+function listenFeedback() {
+  const roomId = getRoomId();
+  if (!roomId) return;
+
+  const fbRef = ref(db, `rooms/${roomId}/answerFeedback`);
+
+  onValue(fbRef, (snap) => {
+    const box = document.getElementById("feedbackBox");
+    const data = snap.val();
+
+    if (!data || !box) {
+      box.innerHTML = "Әзірше жоқ";
+      return;
+    }
+
+    box.innerHTML = Object.values(data)
+      .map(f => `<div>${f.reaction} ${f.name}</div>`)
+      .join("");
+  });
+}
+
 // ====== EXTRA UI: EMOJI + WORD CLOUD ======
 function createExtraUI() {
   const card = titleEl?.closest(".card") || document.querySelector(".card");
@@ -384,7 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
   detectRoomFromURL();
   applyLang("kz");
   attachEvents();
-
+  listenFeedback();
   setTimeout(() => {
     if (getRoomId()) {
       listenTeacherBlock();
