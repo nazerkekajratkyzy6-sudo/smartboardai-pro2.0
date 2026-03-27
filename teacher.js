@@ -12,6 +12,7 @@ import {
   db,
   ref,
   set,
+  push,
   onValue,
   auth,
   onAuthStateChanged,
@@ -1150,80 +1151,77 @@ onValue(studentsRef, (snap) => {
     box.innerHTML = words.map((w) => `<span class="wc-chip">${w}</span>`).join(" ");
   });
     // STUDENT PHOTOS
-  console.log("👂 Teacher listening photos in room:", currentRoom);
-  const photosRef = ref(db, `rooms/${currentRoom}/studentPhotos`);
-  onValue(photosRef, (snap) => {
-   console.log("📸 PHOTO STREAM TRIGGERED");
-    const box = $("studentPhotos");
-    const t = T[currentLang] || T.kk;
+console.log("👂 Teacher listening photos in room:", currentRoom);
+const photosRef = ref(db, `rooms/${currentRoom}/studentPhotos`);
+onValue(photosRef, (snap) => {
+  console.log("📸 PHOTO STREAM TRIGGERED");
 
-    const data = snap.val();
-    if (!data) {
-      if (box) box.innerHTML = "Әзірше фото жоқ...";
-      return;
-    }
+  const box = $("studentPhotos");
+  const data = snap.val();
 
-    const list = Object.values(data).sort((a, b) => (a.time || 0) - (b.time || 0));
+  if (!data) {
+    if (box) box.innerHTML = "Әзірше фото жоқ...";
+    return;
+  }
 
-    // Right panel preview
-    if (box) {
-  const entries = Object.entries(data)
-    .sort((a, b) => (a[1].time || 0) - (b[1].time || 0))
-    .reverse();
+  if (box) {
+    const entries = Object.entries(data)
+      .sort((a, b) => (a[1].time || 0) - (b[1].time || 0))
+      .reverse();
 
-  box.innerHTML = entries
-    .map(([photoKey, p]) => {
-      const name = p.name || "Оқушы";
-      const avatar = p.avatar || "🙂";
-      const url = p.url || "";
+    box.innerHTML = entries
+      .map(([photoKey, p]) => {
+        const name = p.name || "Оқушы";
+        const avatar = p.avatar || "🙂";
+        const url = p.url || "";
 
-      return `
-        <div style="
-          display:flex;
-          justify-content:space-between;
-          align-items:center;
-          background:#fff;
-          border-radius:10px;
-          padding:8px;
-          margin-bottom:8px;
-          border:1px solid #e5e7eb;
-        ">
-          <span>${avatar} ${name}</span>
+        return `
+          <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            background:#fff;
+            border-radius:10px;
+            padding:8px;
+            margin-bottom:8px;
+            border:1px solid #e5e7eb;
+          ">
+            <span>${avatar} ${name}</span>
 
-          <div style="display:flex; gap:6px;">
-            <button data-open="${url}">👁</button>
-            <button data-download="${url}">⬇</button>
-            <button data-react="⭐" data-key="${photoKey}" data-name="${name}">⭐</button>
+            <div style="display:flex; gap:6px;">
+              <button type="button" data-open="${url}">👁</button>
+              <button type="button" data-download="${url}">⬇</button>
+              <button type="button" data-react="⭐" data-key="${photoKey}" data-name="${name}">⭐</button>
+            </div>
           </div>
-        </div>
-      `;
-    })
-    .join("");
+        `;
+      })
+      .join("");
 
-  // открыть
-  box.querySelectorAll("[data-open]").forEach(btn => {
-    btn.onclick = () => {
-      sbOpenOverlay(btn.dataset.open, "Фото");
-    };
-  });
+    box.querySelectorAll("[data-open]").forEach((btn) => {
+      btn.onclick = () => {
+        sbOpenOverlay(btn.dataset.open, "Фото");
+      };
+    });
 
-  // скачать
-  box.querySelectorAll("[data-download]").forEach(btn => {
-    btn.onclick = () => {
-      const a = document.createElement("a");
-      a.href = btn.dataset.download;
-      a.download = "photo.jpg";
-      a.click();
-    };
-  });
+    box.querySelectorAll("[data-download]").forEach((btn) => {
+      btn.onclick = () => {
+        const a = document.createElement("a");
+        a.href = btn.dataset.download;
+        a.download = "photo.jpg";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      };
+    });
 
-  // реакция ⭐
-  box.querySelectorAll("[data-react]").forEach(btn => {
-    btn.onclick = () => {
-      sendFeedback(btn.dataset.key, btn.dataset.name, "⭐");
-    };
-  });
-}
+    box.querySelectorAll("[data-react]").forEach((btn) => {
+      btn.onclick = () => {
+        sendFeedback(btn.dataset.key, btn.dataset.name, "⭐");
+      };
+    });
+  }
+});
 // =========================
 // FULLSCREEN BLOCK
 // =========================
@@ -1237,7 +1235,7 @@ function openFullscreenBlock(id) {
     else if (el.msRequestFullscreen) el.msRequestFullscreen();
 }
 
-  function sendAnswerReaction(name, reaction) {
+ window.sendAnswerReaction = function (name, reaction) {
   if (!currentRoom) return;
 
   const fbRef = ref(db, `rooms/${currentRoom}/answerFeedback`);
@@ -1247,7 +1245,7 @@ function openFullscreenBlock(id) {
     reaction,
     time: Date.now()
   });
-}
+};
     
   
 // =========================
@@ -1513,14 +1511,14 @@ function openRichEditorForBlock(blockId, html) {
   content.focus();
 }
 
-function sendFeedback(photoKey, studentName, reaction) {
+window.sendFeedback = function (photoKey, studentName, reaction) {
   if (!currentRoom) return;
 
   const fbRef = ref(db, `rooms/${currentRoom}/feedback/${photoKey}`);
 
   set(fbRef, {
     name: studentName,
-    reaction: reaction,
+    reaction,
     time: Date.now()
   });
-}
+};
