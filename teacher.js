@@ -1098,8 +1098,8 @@ onValue(studentsRef, (snap) => {
   ${text}
 
   <div style="margin-top:6px;">
-    <button onclick="sendAnswerReaction('${name}', '✅')">✅</button>
-    <button onclick="sendAnswerReaction('${name}', '⭐')">⭐</button>
+    <button type="button" data-answer-name="${name}" data-answer-reaction="✅">✅</button>
+    <button type="button" data-answer-name="${name}" data-answer-reaction="⭐">⭐</button>
   </div>
 </div>
         `;
@@ -1129,6 +1129,13 @@ onValue(studentsRef, (snap) => {
         return `<span class="emo-item">${avatar} ${name}: ${emoji}</span>`;
       })
       .join(" ");
+    box.querySelectorAll("[data-answer-reaction]").forEach((btn) => {
+  btn.onclick = () => {
+    const name = btn.dataset.answerName || "Оқушы";
+    const reaction = btn.dataset.answerReaction || "✅";
+    window.sendAnswerReaction(name, reaction);
+  };
+});
   });
 
   // WORD CLOUD
@@ -1215,13 +1222,14 @@ onValue(photosRef, (snap) => {
       };
     });
 
-    box.querySelectorAll("[data-react]").forEach((btn) => {
-      btn.onclick = () => {
-        sendFeedback(btn.dataset.key, btn.dataset.name, "⭐");
-      };
-    });
+   box.querySelectorAll("[data-react]").forEach((btn) => {
+  btn.onclick = () => {
+    window.sendFeedback(btn.dataset.key, btn.dataset.name, "⭐");
+  };
+});
   }
 });
+  }
 // =========================
 // FULLSCREEN BLOCK
 // =========================
@@ -1235,7 +1243,7 @@ function openFullscreenBlock(id) {
     else if (el.msRequestFullscreen) el.msRequestFullscreen();
 }
 
- window.sendAnswerReaction = function (name, reaction) {
+function sendAnswerReaction(name, reaction) {
   if (!currentRoom) return;
 
   const fbRef = ref(db, `rooms/${currentRoom}/answerFeedback`);
@@ -1245,7 +1253,9 @@ function openFullscreenBlock(id) {
     reaction,
     time: Date.now()
   });
-};
+}
+
+window.sendAnswerReaction = sendAnswerReaction;
     
   
 // =========================
@@ -1511,7 +1521,7 @@ function openRichEditorForBlock(blockId, html) {
   content.focus();
 }
 
-window.sendFeedback = function (photoKey, studentName, reaction) {
+function sendFeedback(photoKey, studentName, reaction) {
   if (!currentRoom) return;
 
   const fbRef = ref(db, `rooms/${currentRoom}/feedback/${photoKey}`);
@@ -1521,4 +1531,17 @@ window.sendFeedback = function (photoKey, studentName, reaction) {
     reaction,
     time: Date.now()
   });
-};
+}
+function sendFeedback(photoKey, studentName, reaction) {
+  if (!currentRoom) return;
+
+  const fbRef = ref(db, `rooms/${currentRoom}/feedback/${photoKey}`);
+
+  set(fbRef, {
+    name: studentName,
+    reaction,
+    time: Date.now()
+  });
+}
+
+window.sendFeedback = sendFeedback;
