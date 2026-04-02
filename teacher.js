@@ -1068,43 +1068,6 @@ onValue(studentsRef, (snap) => {
   }
 });
 
-  // ANSWERS
-  const answersRef = ref(db, `rooms/${currentRoom}/answers`);
-  onValue(answersRef, (snap) => {
-    const box = $("studentAnswers");
-    if (!box) return;
-
-    const t = T[currentLang] || T.kk;
-    const data = snap.val();
-    if (!data) {
-      box.innerHTML = t.noAnswers;
-      return;
-    }
-
-    const list = Object.values(data).sort((a, b) => (a.time || 0) - (b.time || 0));
-
-    box.innerHTML = list
-      .map((a) => {
-        const name = a.name || "Оқушы";
-        const text = String(a.text || "")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/\n/g, "<br>");
-        const avatar = a.avatar || "🙂";
-
-        return `
-          <div class="answer-item">
-  <b>${avatar} ${name}</b><br>
-  ${text}
-
-  <div style="margin-top:6px;">
-    <button type="button" data-answer-name="${name}" data-answer-reaction="✅">✅</button>
-    <button type="button" data-answer-name="${name}" data-answer-reaction="⭐">⭐</button>
-  </div>
-</div>
-        `;
-      })
-      .join("");
 // ANSWERS
 const answersRef = ref(db, `rooms/${currentRoom}/answers`);
 onValue(answersRef, (snap) => {
@@ -1113,6 +1076,7 @@ onValue(answersRef, (snap) => {
 
   const t = T[currentLang] || T.kk;
   const data = snap.val();
+
   if (!data) {
     box.innerHTML = t.noAnswers;
     return;
@@ -1134,7 +1098,7 @@ onValue(answersRef, (snap) => {
           <b>${avatar} ${name}</b><br>
           ${text}
 
-          <div style="margin-top:6px;">
+          <div style="margin-top:6px; display:flex; gap:6px;">
             <button type="button" data-answer-name="${name}" data-answer-reaction="✅">✅</button>
             <button type="button" data-answer-name="${name}" data-answer-reaction="⭐">⭐</button>
           </div>
@@ -1147,10 +1111,11 @@ onValue(answersRef, (snap) => {
     btn.onclick = () => {
       const name = btn.dataset.answerName || "Оқушы";
       const reaction = btn.dataset.answerReaction || "✅";
-      window.sendAnswerReaction(name, reaction);
+      sendAnswerReaction(name, reaction);
     };
   });
-});
+});  
+
   
   // EMOTIONS
   const emoRef = ref(db, `rooms/${currentRoom}/emotions`);
