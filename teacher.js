@@ -1208,23 +1208,37 @@ onValue(photosRef, (snap) => {
       })
       .join("");
 
-    box.querySelectorAll("[data-open]").forEach((btn) => {
-      btn.onclick = () => {
-        sbOpenOverlay(btn.dataset.open, "Фото");
-      };
-    });
+  box.querySelectorAll("[data-open]").forEach((btn) => {
+  btn.onclick = () => {
+    openPhotoModal(btn.dataset.open, "Фото");
+  };
+});
 
-    box.querySelectorAll("[data-download]").forEach((btn) => {
-      btn.onclick = () => {
-        const a = document.createElement("a");
-        a.href = btn.dataset.download;
-        a.download = "photo.jpg";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      };
-    });
+box.querySelectorAll("[data-download]").forEach((btn) => {
+  btn.onclick = async () => {
+    try {
+      const url = btn.dataset.download;
+      if (!url) return;
 
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = "photo.jpg";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      URL.revokeObjectURL(blobUrl);
+    } catch (e) {
+      console.error("Фото жүктеу қатесі:", e);
+      alert("Фотоны жүктеу кезінде қате шықты");
+    }
+  };
+});
+    
    box.querySelectorAll("[data-react]").forEach((btn) => {
   btn.onclick = () => {
     window.sendFeedback(btn.dataset.key, btn.dataset.name, "⭐");
@@ -1359,6 +1373,83 @@ document.addEventListener("fullscreenchange", () => {
     // Қаласақ, fullscreen-нен шыққанда стилдерді түзетуге болады
 });
 
+let photoModalEl = null;
+
+function ensurePhotoModal() {
+  if (photoModalEl) return photoModalEl;
+
+  const wrap = document.createElement("div");
+  wrap.id = "photoPreviewModal";
+  wrap.style.cssText = `
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,.75);
+    padding: 20px;
+  `;
+
+  wrap.innerHTML = `
+    <div style="
+      position: relative;
+      max-width: 92vw;
+      max-height: 92vh;
+      background: white;
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    ">
+      <button id="photoModalClose" style="
+        position:absolute;
+        top:10px;
+        right:10px;
+        border:none;
+        background:#ef4444;
+        color:white;
+        border-radius:10px;
+        padding:8px 10px;
+        cursor:pointer;
+        font-weight:700;
+      ">✕</button>
+
+      <img id="photoModalImg" src="" style="
+        display:block;
+        max-width: 88vw;
+        max-height: 82vh;
+        border-radius: 12px;
+      ">
+    </div>
+  `;
+
+  wrap.addEventListener("click", (e) => {
+    if (e.target === wrap) closePhotoModal();
+  });
+
+  document.body.appendChild(wrap);
+
+  wrap.querySelector("#photoModalClose").onclick = closePhotoModal;
+
+  photoModalEl = wrap;
+  return photoModalEl;
+}
+
+function openPhotoModal(url) {
+  const wrap = ensurePhotoModal();
+  const img = wrap.querySelector("#photoModalImg");
+  if (!img) return;
+
+  img.src = url || "";
+  wrap.style.display = "flex";
+}
+
+function closePhotoModal() {
+  if (!photoModalEl) return;
+  const img = photoModalEl.querySelector("#photoModalImg");
+  if (img) img.src = "";
+  photoModalEl.style.display = "none";
+}
 
 // =====================================================
 // INIT
