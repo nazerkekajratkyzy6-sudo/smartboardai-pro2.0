@@ -1215,27 +1215,10 @@ onValue(photosRef, (snap) => {
 });
 
 box.querySelectorAll("[data-download]").forEach((btn) => {
-  btn.onclick = async () => {
-    try {
-      const url = btn.dataset.download;
-      if (!url) return;
-
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = "photo.jpg";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-      URL.revokeObjectURL(blobUrl);
-    } catch (e) {
-      console.error("Фото жүктеу қатесі:", e);
-      alert("Фотоны жүктеу кезінде қате шықты");
-    }
+  btn.onclick = () => {
+    const url = btn.dataset.download || "";
+    if (!url) return;
+    window.open(url, "_blank");
   };
 });
     
@@ -1625,7 +1608,14 @@ function sendFeedback(photoKey, studentName, reaction) {
     name: studentName,
     reaction,
     time: Date.now()
-  });
+  })
+    .then(() => {
+      alert(`${studentName} үшін реакция жіберілді: ${reaction}`);
+    })
+    .catch((err) => {
+      console.error("Фото реакция қатесі:", err);
+      alert("Фотоға реакция жіберілмеді");
+    });
 }
 
 window.sendFeedback = sendFeedback;
