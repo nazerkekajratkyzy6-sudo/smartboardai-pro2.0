@@ -353,7 +353,39 @@ function listenTeacherBlock() {
     } else if (data.type === "formula") {
       teacherBlock.innerHTML = `<div class="math-block">\\(${data.content}\\)</div>`;
     } else if (data.type === "trainer" || data.type === "video") {
-      teacherBlock.innerHTML = `<iframe src="${data.content}"></iframe>`;
+     teacherBlock.innerHTML = `
+  <div style="position:relative;">
+    
+    <button onclick="openFullscreenTask()" style="
+      position:absolute;
+      top:8px;
+      right:8px;
+      z-index:10;
+      background:#2563eb;
+      color:white;
+      border:none;
+      border-radius:10px;
+      padding:6px 10px;
+      cursor:pointer;
+      font-size:14px;
+      box-shadow:0 4px 10px rgba(0,0,0,0.15);
+    ">
+      ⛶
+    </button>
+
+    <iframe 
+      id="studentTaskFrame"
+      src="${data.content}" 
+      style="
+        width:100%;
+        height:420px;
+        border-radius:12px;
+        border:1px solid #e2e8f0;
+      ">
+    </iframe>
+
+  </div>
+`;
     } else {
       teacherBlock.innerHTML = `<div>${data.content}</div>`;
     }
@@ -412,3 +444,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, 300);
 });
+window.openFullscreenTask = function () {
+  const el = document.getElementById("studentTaskFrame");
+  if (!el) return;
+
+  if (el.requestFullscreen) {
+    el.requestFullscreen();
+  } else if (el.webkitRequestFullscreen) {
+    el.webkitRequestFullscreen();
+  } else if (el.msRequestFullscreen) {
+    el.msRequestFullscreen();
+  }
+};
