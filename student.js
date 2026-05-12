@@ -97,20 +97,36 @@ function listenFeedback() {
   const roomId = getRoomId();
   if (!roomId) return;
 
-  const fbRef = ref(db, `rooms/${roomId}/answerFeedback`);
+  // studentFeedback/{studentId} — тек осы оқушының реакцияларын тыңдайды
+  const fbRef = ref(db, `rooms/${roomId}/studentFeedback/${studentId}`);
 
   onValue(fbRef, (snap) => {
     const box = document.getElementById("feedbackBox");
+    if (!box) return;
+
     const data = snap.val();
 
-    if (!data || !box) {
+    if (!data) {
       box.innerHTML = "Әзірше жоқ";
       return;
     }
 
-    box.innerHTML = Object.values(data)
-      .map(f => `<div>${f.reaction} ${f.name}</div>`)
-      .join("");
+    // Соңғы реакцияларды уақыт бойынша сорттап көрсету
+    const items = Object.values(data).sort((a, b) => (b.time || 0) - (a.time || 0));
+
+    box.innerHTML = items.map((f) => {
+      const reaction = f.reaction || "";
+      const comment = f.comment ? `<span style="color:#475569; font-size:13px;"> — ${f.comment}</span>` : "";
+      const typeLabel = f.type === "photo" ? "📷" : "✍️";
+      return `<div style="
+        padding:8px 10px;
+        margin-bottom:6px;
+        background:#f0fdf4;
+        border:1px solid #bbf7d0;
+        border-radius:10px;
+        font-size:15px;
+      ">${typeLabel} ${reaction}${comment}</div>`;
+    }).join("");
   });
 }
 
@@ -181,6 +197,7 @@ async function sendAnswer() {
       name,
       avatar,
       text,
+      studentId,   // feedback байланыстыру үшін қажет
       time: Date.now(),
     });
 
@@ -223,6 +240,7 @@ async function sendStudentPhoto() {
       name,
       avatar,
       url,
+      studentId,   // feedback байланыстыру үшін қажет
       time: Date.now(),
     });
 
@@ -401,6 +419,8 @@ function attachEvents() {
   if (sendBtn) sendBtn.addEventListener("click", async () => {
     await sendAnswer();
     listenTeacherBlock();
+    // Жауап жіберілгеннен кейін feedback тыңдауды қайта іске қосу (бөлме коды дайын)
+    listenFeedback();
   });
 
   if (sendPhotoBtn) sendPhotoBtn.addEventListener("click", sendStudentPhoto);
