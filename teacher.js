@@ -1087,6 +1087,7 @@ onValue(answersRef, (snap) => {
   box.innerHTML = list
     .map((a) => {
       const name = a.name || "Оқушы";
+      const sid = a.studentId || "";   // Firebase-тен келген studentId
       const text = String(a.text || "")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -1098,9 +1099,28 @@ onValue(answersRef, (snap) => {
           <b>${avatar} ${name}</b><br>
           ${text}
 
-          <div style="margin-top:6px; display:flex; gap:6px;">
-            <button type="button" data-answer-name="${name}" data-answer-reaction="✅">✅</button>
-            <button type="button" data-answer-name="${name}" data-answer-reaction="⭐">⭐</button>
+          <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+            <button type="button"
+              data-answer-name="${name}"
+              data-answer-sid="${sid}"
+              data-answer-reaction="👍 Жақсы"
+              style="background:#dcfce7; border:none; border-radius:8px; padding:4px 10px; cursor:pointer;">
+              👍 Жақсы
+            </button>
+            <button type="button"
+              data-answer-name="${name}"
+              data-answer-sid="${sid}"
+              data-answer-reaction="⭐ Өте жақсы"
+              style="background:#fef9c3; border:none; border-radius:8px; padding:4px 10px; cursor:pointer;">
+              ⭐ Өте жақсы
+            </button>
+            <button type="button"
+              data-answer-name="${name}"
+              data-answer-sid="${sid}"
+              data-answer-reaction="⚠ Түзет"
+              style="background:#fee2e2; border:none; border-radius:8px; padding:4px 10px; cursor:pointer;">
+              ⚠ Түзет
+            </button>
           </div>
         </div>
       `;
@@ -1110,8 +1130,9 @@ onValue(answersRef, (snap) => {
   box.querySelectorAll("[data-answer-reaction]").forEach((btn) => {
     btn.onclick = () => {
       const name = btn.dataset.answerName || "Оқушы";
-      const reaction = btn.dataset.answerReaction || "✅";
-      sendAnswerReaction(name, reaction);
+      const sid = btn.dataset.answerSid || "";
+      const reaction = btn.dataset.answerReaction || "👍";
+      sendAnswerReaction(name, sid, reaction);
     };
   });
 });  
@@ -1187,21 +1208,44 @@ onValue(photosRef, (snap) => {
 
         return `
           <div style="
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
             background:#fff;
             border-radius:10px;
             padding:8px;
             margin-bottom:8px;
             border:1px solid #e5e7eb;
           ">
-            <span>${avatar} ${name}</span>
-
-            <div style="display:flex; gap:6px;">
-              <button type="button" data-open="${url}">👁</button>
-              <button type="button" data-download="${url}">⬇</button>
-              <button type="button" data-react="⭐" data-key="${photoKey}" data-name="${name}">⭐</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span>${avatar} ${name}</span>
+              <div style="display:flex; gap:6px;">
+                <button type="button" data-open="${url}">👁</button>
+                <button type="button" data-download="${url}">⬇</button>
+              </div>
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button type="button"
+                data-react="👍 Жақсы"
+                data-key="${photoKey}"
+                data-name="${name}"
+                data-sid="${p.studentId || ""}"
+                style="background:#dcfce7; border:none; border-radius:8px; padding:4px 10px; cursor:pointer; font-size:13px;">
+                👍 Жақсы
+              </button>
+              <button type="button"
+                data-react="⭐ Өте жақсы"
+                data-key="${photoKey}"
+                data-name="${name}"
+                data-sid="${p.studentId || ""}"
+                style="background:#fef9c3; border:none; border-radius:8px; padding:4px 10px; cursor:pointer; font-size:13px;">
+                ⭐ Өте жақсы
+              </button>
+              <button type="button"
+                data-react="⚠ Түзет"
+                data-key="${photoKey}"
+                data-name="${name}"
+                data-sid="${p.studentId || ""}"
+                style="background:#fee2e2; border:none; border-radius:8px; padding:4px 10px; cursor:pointer; font-size:13px;">
+                ⚠ Түзет
+              </button>
             </div>
           </div>
         `;
@@ -1224,7 +1268,9 @@ box.querySelectorAll("[data-download]").forEach((btn) => {
     
    box.querySelectorAll("[data-react]").forEach((btn) => {
   btn.onclick = () => {
-    window.sendFeedback(btn.dataset.key, btn.dataset.name, "⭐");
+    window.sendFeedback(btn.dataset.key, btn.dataset.name, btn.dataset.sid || "", btn.dataset.react);
+    btn.style.opacity = "0.5";
+    setTimeout(() => { if (btn) btn.style.opacity = "1"; }, 800);
   };
 });
   }
@@ -1243,16 +1289,32 @@ function openFullscreenBlock(id) {
     else if (el.msRequestFullscreen) el.msRequestFullscreen();
 }
 
-function sendAnswerReaction(name, reaction) {
+function sendAnswerReaction(name, studentId, reaction) {
   if (!currentRoom) return;
 
-  const fbRef = ref(db, `rooms/${currentRoom}/answerFeedback`);
+  // Егер studentId бар болса → studentFeedback/{studentId} жолына жазамыз
+  // Егер жоқ болса → ескі жол (answerFeedback) — кері үйлесімділік үшін
+  if (studentId) {
+    const fbRef = ref(db, `rooms/${currentRoom}/studentFeedback/${studentId}`);
+    push(fbRef, {
+      type: "answer",
+      reaction,
+      name,
+      comment: "",
+      time: Date.now()
+    });
+  } else {
+    // Fallback: studentId жоқ ескі жазбалар үшін
+    const fbRef = ref(db, `rooms/${currentRoom}/answerFeedback`);
+    push(fbRef, { name, reaction, time: Date.now() });
+  }
 
-  push(fbRef, {
-    name,
-    reaction,
-    time: Date.now()
-  });
+  // Визуалды растау
+  const btn = document.querySelector(`[data-answer-sid="${studentId}"][data-answer-reaction="${reaction}"]`);
+  if (btn) {
+    btn.style.opacity = "0.5";
+    setTimeout(() => { if (btn) btn.style.opacity = "1"; }, 800);
+  }
 }
 
 window.sendAnswerReaction = sendAnswerReaction;
@@ -1599,23 +1661,29 @@ function openRichEditorForBlock(blockId, html) {
 }
 
 
-function sendFeedback(photoKey, studentName, reaction) {
+function sendFeedback(photoKey, studentName, studentId, reaction) {
   if (!currentRoom) return;
 
-  const fbRef = ref(db, `rooms/${currentRoom}/feedback/${photoKey}`);
-
-  set(fbRef, {
-    name: studentName,
-    reaction,
-    time: Date.now()
-  })
-    .then(() => {
-      alert(`${studentName} үшін реакция жіберілді: ${reaction}`);
-    })
-    .catch((err) => {
-      console.error("Фото реакция қатесі:", err);
-      alert("Фотоға реакция жіберілмеді");
+  // Егер studentId бар → жаңа жол
+  if (studentId) {
+    const fbRef = ref(db, `rooms/${currentRoom}/studentFeedback/${studentId}`);
+    push(fbRef, {
+      type: "photo",
+      reaction,
+      name: studentName,
+      itemKey: photoKey,
+      comment: "",
+      time: Date.now()
     });
+  } else {
+    // Fallback: ескі фотолар үшін (studentId жоқ)
+    const fbRef = ref(db, `rooms/${currentRoom}/feedback/${photoKey}`);
+    set(fbRef, {
+      name: studentName,
+      reaction,
+      time: Date.now()
+    });
+  }
 }
 
 window.sendFeedback = sendFeedback;
