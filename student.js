@@ -85,12 +85,6 @@ function detectRoomFromURL() {
   if (roomAutoHint) {
     roomAutoHint.classList.remove("hidden");
   }
-
-  setTimeout(() => {
-    if (nameInput?.value.trim()) {
-      saveStudentPresence();
-    }
-  }, 500);
 }
 
 function listenFeedback() {
@@ -338,98 +332,61 @@ function applyLang(lang) {
 }
 
 // ====== LISTEN TEACHER BLOCK ======
+let teacherBlockListening = false;
+
 function listenTeacherBlock() {
   const roomId = getRoomId();
   if (!roomId) return;
+  if (teacherBlockListening) return; // қайталап listener қоспас үшін
+  teacherBlockListening = true;
 
   const blockRef = ref(db, `rooms/${roomId}/activeBlock`);
+
+  const fsBtn = `
+    <button onclick="openFullscreenTask()" style="
+      display:block; width:100%; margin-bottom:10px;
+      background:#2563eb; color:white; border:none;
+      border-radius:10px; padding:8px 12px; cursor:pointer;
+      font-size:14px; font-weight:600;
+    ">⛶ Толық экранда ашу</button>
+  `;
 
   onValue(blockRef, (snap) => {
     const data = snap.val();
     if (!teacherBlock || !data) return;
-
-    // Fullscreen батырмасы — барлық блок типтері үшін бірдей
-    const fsBtn = `
-      <button onclick="openFullscreenTask()" style="
-        display:block;
-        width:100%;
-        margin-bottom:10px;
-        background:#2563eb;
-        color:white;
-        border:none;
-        border-radius:10px;
-        padding:8px 12px;
-        cursor:pointer;
-        font-size:14px;
-        font-weight:600;
-        letter-spacing:0.3px;
-      ">⛶ Толық экранда ашу</button>
-    `;
 
     if (data.type === "text" || data.type === "ai") {
       teacherBlock.innerHTML = `
         ${fsBtn}
         <div id="studentTaskContent" style="font-size:15px; line-height:1.6;">
           ${String(data.content || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}
-        </div>
-      `;
+        </div>`;
     } else if (data.type === "rich") {
-      teacherBlock.innerHTML = `
-        ${fsBtn}
-        <div id="studentTaskContent" style="font-size:15px; line-height:1.6;">
-          ${data.content}
-        </div>
-      `;
+      teacherBlock.innerHTML = `${fsBtn}<div id="studentTaskContent" style="font-size:15px; line-height:1.6;">${data.content}</div>`;
     } else if (data.type === "formula") {
-      teacherBlock.innerHTML = `
-        ${fsBtn}
-        <div id="studentTaskContent" style="font-size:18px; text-align:center; padding:10px 0;">
-          \\(${data.content}\\)
-        </div>
-      `;
+      teacherBlock.innerHTML = `${fsBtn}<div id="studentTaskContent" style="font-size:18px; text-align:center; padding:10px 0;">\\(${data.content}\\)</div>`;
     } else if (data.type === "image") {
-      teacherBlock.innerHTML = `
-        ${fsBtn}
-        <img id="studentTaskContent" src="${data.content}" style="
-          width:100%; border-radius:10px; display:block;
-        ">
-      `;
+      teacherBlock.innerHTML = `${fsBtn}<img id="studentTaskContent" src="${data.content}" style="width:100%; border-radius:10px; display:block;">`;
     } else if (data.type === "trainer" || data.type === "video" || data.type === "geogebra" || data.type === "link") {
       teacherBlock.innerHTML = `
         <div style="position:relative;">
           <button onclick="openFullscreenTask()" style="
-            position:absolute;
-            top:8px; right:8px; z-index:10;
-            background:#2563eb; color:white;
-            border:none; border-radius:10px;
-            padding:6px 12px; cursor:pointer;
+            position:absolute; top:8px; right:8px; z-index:10;
+            background:#2563eb; color:white; border:none;
+            border-radius:10px; padding:6px 12px; cursor:pointer;
             font-size:14px; font-weight:600;
             box-shadow:0 4px 10px rgba(0,0,0,0.15);
           ">⛶ Толық экран</button>
-          <iframe
-            id="studentTaskFrame"
-            src="${data.content}"
-            style="
-              width:100%; height:420px;
-              border-radius:12px;
-              border:1px solid #e2e8f0;
-              display:block;
-            "
-            allowfullscreen
-            allow="fullscreen; microphone; camera"
-          ></iframe>
-        </div>
-      `;
+          <iframe id="studentTaskFrame" src="${data.content}"
+            style="width:100%; height:420px; border-radius:12px; border:1px solid #e2e8f0; display:block;"
+            allowfullscreen allow="fullscreen; microphone; camera">
+          </iframe>
+        </div>`;
     } else {
-      teacherBlock.innerHTML = `
-        ${fsBtn}
-        <div id="studentTaskContent">${data.content}</div>
-      `;
+      teacherBlock.innerHTML = `${fsBtn}<div id="studentTaskContent">${data.content}</div>`;
     }
 
-    if (window.MathJax) {
-      MathJax.typesetPromise();
-    }
+    if (window.MathJax) MathJax.typesetPromise();
   });
 }
 
@@ -437,7 +394,6 @@ function listenTeacherBlock() {
 function attachEvents() {
   if (sendBtn) sendBtn.addEventListener("click", async () => {
     await sendAnswer();
-    listenTeacherBlock();
   });
 
   if (sendPhotoBtn) sendPhotoBtn.addEventListener("click", sendStudentPhoto);
@@ -451,6 +407,22 @@ function attachEvents() {
     avatarSelect.addEventListener("change", saveStudentPresence);
   }
 
+  // Бөлме коды қолмен енгізілсе → listener іске қос
+  if (roomInput) {
+    roomInput.addEventListener("change", () => {
+      if (getRoomId()) {
+        listenTeacherBlock();
+        listenFeedback();
+      }
+    });
+    roomInput.addEventListener("blur", () => {
+      if (getRoomId()) {
+        listenTeacherBlock();
+        listenFeedback();
+      }
+    });
+  }
+
   if (emojiContainer) {
     emojiContainer.querySelectorAll(".emoji-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -460,7 +432,6 @@ function attachEvents() {
     });
   }
 
-  
   if (wcBtn) wcBtn.addEventListener("click", sendWord);
 
   if (btnKZ) btnKZ.addEventListener("click", () => applyLang("kz"));
@@ -474,15 +445,14 @@ document.addEventListener("DOMContentLoaded", () => {
   detectRoomFromURL();
   applyLang("kz");
   attachEvents();
-  listenFeedback();
-  setTimeout(() => {
-    if (getRoomId()) {
-      listenTeacherBlock();
-    }
-  }, 300);
+
+  // QR арқылы бөлме коды бар болса — дереу listener іске қос
+  if (getRoomId()) {
+    listenTeacherBlock();
+    listenFeedback();
+  }
 });
 window.openFullscreenTask = function () {
-  // 1. Алдымен iframe бар-жоғын тексер (trainer, video, geogebra)
   const frame = document.getElementById("studentTaskFrame");
   if (frame) {
     if (frame.requestFullscreen) frame.requestFullscreen();
@@ -490,11 +460,8 @@ window.openFullscreenTask = function () {
     else if (frame.msRequestFullscreen) frame.msRequestFullscreen();
     return;
   }
-
-  // 2. iframe жоқ болса → бүкіл teacherBlock div-ін fullscreen-ге аш
   const block = document.getElementById("teacherBlock");
   if (!block) return;
-
   if (block.requestFullscreen) block.requestFullscreen();
   else if (block.webkitRequestFullscreen) block.webkitRequestFullscreen();
   else if (block.msRequestFullscreen) block.msRequestFullscreen();
