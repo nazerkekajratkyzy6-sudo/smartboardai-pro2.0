@@ -97,36 +97,20 @@ function listenFeedback() {
   const roomId = getRoomId();
   if (!roomId) return;
 
-  // studentFeedback/{studentId} — тек осы оқушының реакцияларын тыңдайды
-  const fbRef = ref(db, `rooms/${roomId}/studentFeedback/${studentId}`);
+  const fbRef = ref(db, `rooms/${roomId}/answerFeedback`);
 
   onValue(fbRef, (snap) => {
     const box = document.getElementById("feedbackBox");
-    if (!box) return;
-
     const data = snap.val();
 
-    if (!data) {
+    if (!data || !box) {
       box.innerHTML = "Әзірше жоқ";
       return;
     }
 
-    // Соңғы реакцияларды уақыт бойынша сорттап көрсету
-    const items = Object.values(data).sort((a, b) => (b.time || 0) - (a.time || 0));
-
-    box.innerHTML = items.map((f) => {
-      const reaction = f.reaction || "";
-      const comment = f.comment ? `<span style="color:#475569; font-size:13px;"> — ${f.comment}</span>` : "";
-      const typeLabel = f.type === "photo" ? "📷" : "✍️";
-      return `<div style="
-        padding:8px 10px;
-        margin-bottom:6px;
-        background:#f0fdf4;
-        border:1px solid #bbf7d0;
-        border-radius:10px;
-        font-size:15px;
-      ">${typeLabel} ${reaction}${comment}</div>`;
-    }).join("");
+    box.innerHTML = Object.values(data)
+      .map(f => `<div>${f.reaction} ${f.name}</div>`)
+      .join("");
   });
 }
 
@@ -197,7 +181,6 @@ async function sendAnswer() {
       name,
       avatar,
       text,
-      studentId,   // feedback байланыстыру үшін қажет
       time: Date.now(),
     });
 
@@ -240,7 +223,6 @@ async function sendStudentPhoto() {
       name,
       avatar,
       url,
-      studentId,   // feedback байланыстыру үшін қажет
       time: Date.now(),
     });
 
@@ -366,46 +348,83 @@ function listenTeacherBlock() {
     const data = snap.val();
     if (!teacherBlock || !data) return;
 
-    if (data.type === "text" || data.type === "ai" || data.type === "rich") {
-      teacherBlock.innerHTML = `<div>${data.content}</div>`;
-    } else if (data.type === "formula") {
-      teacherBlock.innerHTML = `<div class="math-block">\\(${data.content}\\)</div>`;
-    } else if (data.type === "trainer" || data.type === "video") {
-     teacherBlock.innerHTML = `
-  <div style="position:relative;">
-    
-    <button onclick="openFullscreenTask()" style="
-      position:absolute;
-      top:8px;
-      right:8px;
-      z-index:10;
-      background:#2563eb;
-      color:white;
-      border:none;
-      border-radius:10px;
-      padding:6px 10px;
-      cursor:pointer;
-      font-size:14px;
-      box-shadow:0 4px 10px rgba(0,0,0,0.15);
-    ">
-      ⛶
-    </button>
-
-    <iframe 
-      id="studentTaskFrame"
-      src="${data.content}" 
-      style="
+    // Fullscreen батырмасы — барлық блок типтері үшін бірдей
+    const fsBtn = `
+      <button onclick="openFullscreenTask()" style="
+        display:block;
         width:100%;
-        height:420px;
-        border-radius:12px;
-        border:1px solid #e2e8f0;
-      ">
-    </iframe>
+        margin-bottom:10px;
+        background:#2563eb;
+        color:white;
+        border:none;
+        border-radius:10px;
+        padding:8px 12px;
+        cursor:pointer;
+        font-size:14px;
+        font-weight:600;
+        letter-spacing:0.3px;
+      ">⛶ Толық экранда ашу</button>
+    `;
 
-  </div>
-`;
+    if (data.type === "text" || data.type === "ai") {
+      teacherBlock.innerHTML = `
+        ${fsBtn}
+        <div id="studentTaskContent" style="font-size:15px; line-height:1.6;">
+          ${String(data.content || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}
+        </div>
+      `;
+    } else if (data.type === "rich") {
+      teacherBlock.innerHTML = `
+        ${fsBtn}
+        <div id="studentTaskContent" style="font-size:15px; line-height:1.6;">
+          ${data.content}
+        </div>
+      `;
+    } else if (data.type === "formula") {
+      teacherBlock.innerHTML = `
+        ${fsBtn}
+        <div id="studentTaskContent" style="font-size:18px; text-align:center; padding:10px 0;">
+          \\(${data.content}\\)
+        </div>
+      `;
+    } else if (data.type === "image") {
+      teacherBlock.innerHTML = `
+        ${fsBtn}
+        <img id="studentTaskContent" src="${data.content}" style="
+          width:100%; border-radius:10px; display:block;
+        ">
+      `;
+    } else if (data.type === "trainer" || data.type === "video" || data.type === "geogebra" || data.type === "link") {
+      teacherBlock.innerHTML = `
+        <div style="position:relative;">
+          <button onclick="openFullscreenTask()" style="
+            position:absolute;
+            top:8px; right:8px; z-index:10;
+            background:#2563eb; color:white;
+            border:none; border-radius:10px;
+            padding:6px 12px; cursor:pointer;
+            font-size:14px; font-weight:600;
+            box-shadow:0 4px 10px rgba(0,0,0,0.15);
+          ">⛶ Толық экран</button>
+          <iframe
+            id="studentTaskFrame"
+            src="${data.content}"
+            style="
+              width:100%; height:420px;
+              border-radius:12px;
+              border:1px solid #e2e8f0;
+              display:block;
+            "
+            allowfullscreen
+            allow="fullscreen; microphone; camera"
+          ></iframe>
+        </div>
+      `;
     } else {
-      teacherBlock.innerHTML = `<div>${data.content}</div>`;
+      teacherBlock.innerHTML = `
+        ${fsBtn}
+        <div id="studentTaskContent">${data.content}</div>
+      `;
     }
 
     if (window.MathJax) {
@@ -419,8 +438,6 @@ function attachEvents() {
   if (sendBtn) sendBtn.addEventListener("click", async () => {
     await sendAnswer();
     listenTeacherBlock();
-    // Жауап жіберілгеннен кейін feedback тыңдауды қайта іске қосу (бөлме коды дайын)
-    listenFeedback();
   });
 
   if (sendPhotoBtn) sendPhotoBtn.addEventListener("click", sendStudentPhoto);
@@ -465,14 +482,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }, 300);
 });
 window.openFullscreenTask = function () {
-  const el = document.getElementById("studentTaskFrame");
-  if (!el) return;
-
-  if (el.requestFullscreen) {
-    el.requestFullscreen();
-  } else if (el.webkitRequestFullscreen) {
-    el.webkitRequestFullscreen();
-  } else if (el.msRequestFullscreen) {
-    el.msRequestFullscreen();
+  // 1. Алдымен iframe бар-жоғын тексер (trainer, video, geogebra)
+  const frame = document.getElementById("studentTaskFrame");
+  if (frame) {
+    if (frame.requestFullscreen) frame.requestFullscreen();
+    else if (frame.webkitRequestFullscreen) frame.webkitRequestFullscreen();
+    else if (frame.msRequestFullscreen) frame.msRequestFullscreen();
+    return;
   }
+
+  // 2. iframe жоқ болса → бүкіл teacherBlock div-ін fullscreen-ге аш
+  const block = document.getElementById("teacherBlock");
+  if (!block) return;
+
+  if (block.requestFullscreen) block.requestFullscreen();
+  else if (block.webkitRequestFullscreen) block.webkitRequestFullscreen();
+  else if (block.msRequestFullscreen) block.msRequestFullscreen();
 };
