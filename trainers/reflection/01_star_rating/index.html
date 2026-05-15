@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Жұлдызша бағалау – SmartBoardAI</title>
+<style>
+  :root {
+    --gold: #f59e0b;
+    --bg: radial-gradient(135deg, #fffbeb, #fef3c7, #fffbeb);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, Arial, sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+  .wrapper {
+    max-width: 860px;
+    width: 100%;
+    background: #fff;
+    border-radius: 24px;
+    padding: 28px 24px;
+    box-shadow: 0 16px 40px rgba(15,23,42,0.12);
+  }
+  h1 {
+    text-align: center;
+    font-size: 26px;
+    color: #92400e;
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #78716c;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  /* STAR DISPLAY */
+  .star-display {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .star {
+    font-size: 52px;
+    cursor: pointer;
+    transition: transform 0.15s, filter 0.15s;
+    filter: grayscale(1) opacity(0.35);
+    user-select: none;
+  }
+  .star.active {
+    filter: none;
+    transform: scale(1.12);
+  }
+  .star:hover {
+    transform: scale(1.18);
+    filter: none;
+  }
+  .star-labels {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    font-size: 11px;
+    color: #78716c;
+    margin-bottom: 20px;
+  }
+  .star-labels span { width: 52px; text-align: center; }
+
+  /* INPUT */
+  .input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .input-row input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    outline: none;
+  }
+  .input-row input:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+  }
+  .btn {
+    border: none;
+    border-radius: 999px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    box-shadow: 0 4px 12px rgba(245,158,11,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(245,158,11,0.45); }
+  .btn-ghost {
+    background: #f3f4f6;
+    color: #374151;
+  }
+  .btn-ghost:hover { background: #e5e7eb; }
+
+  /* RESULTS TABLE */
+  .results-box {
+    margin-top: 20px;
+    border-radius: 16px;
+    border: 1px solid #fde68a;
+    overflow: hidden;
+  }
+  .results-header {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    padding: 10px 16px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #92400e;
+    display: flex;
+    justify-content: space-between;
+  }
+  .result-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-top: 1px solid #fef3c7;
+    font-size: 14px;
+    animation: fade-in 0.2s ease;
+  }
+  .result-row:nth-child(even) { background: #fffbeb; }
+  .result-stars { font-size: 18px; letter-spacing: 2px; }
+
+  /* STATS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .stat-card {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border-radius: 14px;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #fde68a;
+  }
+  .stat-num { font-size: 28px; font-weight: 800; color: #b45309; }
+  .stat-lbl { font-size: 12px; color: #78716c; margin-top: 2px; }
+
+  /* DISTRIBUTION BAR */
+  .dist-box { margin-top: 16px; }
+  .dist-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .dist-bar-wrap {
+    flex: 1;
+    background: #f3f4f6;
+    border-radius: 999px;
+    height: 14px;
+    overflow: hidden;
+  }
+  .dist-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    transition: width 0.4s ease;
+  }
+  .dist-count { width: 24px; text-align: right; color: #6b7280; }
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .footer {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 13px;
+    color: #78716c;
+    padding-top: 14px;
+    border-top: 3px solid #fde68a;
+  }
+  .footer span { color: #b45309; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <h1>⭐ Жұлдызша бағалау</h1>
+  <div class="subtitle">Оқушы немесе топ жұмысын 1–5 жұлдызбен бағала</div>
+
+  <!-- STARS -->
+  <div class="star-display" id="starDisplay">
+    <span class="star" data-v="1">⭐</span>
+    <span class="star" data-v="2">⭐</span>
+    <span class="star" data-v="3">⭐</span>
+    <span class="star" data-v="4">⭐</span>
+    <span class="star" data-v="5">⭐</span>
+  </div>
+  <div class="star-labels">
+    <span>Өте нашар</span>
+    <span>Нашар</span>
+    <span>Орташа</span>
+    <span>Жақсы</span>
+    <span>Тамаша</span>
+  </div>
+
+  <!-- INPUT -->
+  <div class="input-row">
+    <input id="nameInput" type="text" placeholder="Оқушы / топ аты (міндетті емес)">
+    <button class="btn btn-primary" onclick="addRating()">➕ Қосу</button>
+    <button class="btn btn-ghost" onclick="resetAll()">🔄</button>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-num" id="statCount">0</div>
+      <div class="stat-lbl">Бағаланды</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statAvg">—</div>
+      <div class="stat-lbl">Орташа ⭐</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statTop">—</div>
+      <div class="stat-lbl">Үздік</div>
+    </div>
+  </div>
+
+  <!-- DISTRIBUTION -->
+  <div class="dist-box" id="distBox"></div>
+
+  <!-- TABLE -->
+  <div class="results-box" id="resultsBox" style="display:none;">
+    <div class="results-header">
+      <span>Аты</span>
+      <span>Баға</span>
+      <span>Уақыт</span>
+    </div>
+    <div id="resultsList"></div>
+  </div>
+
+  <div class="footer">
+    🌿 <b>AI-Pedagogy Tools</b> by <span>Nazerke Kairatkyzy</span> 🌿
+  </div>
+</div>
+
+<script>
+  let selected = 0;
+  let ratings = [];
+
+  const stars = document.querySelectorAll(".star");
+  const LABELS = ["", "Өте нашар", "Нашар", "Орташа", "Жақсы", "Тамаша"];
+
+  stars.forEach(s => {
+    s.addEventListener("mouseenter", () => highlightStars(+s.dataset.v));
+    s.addEventListener("mouseleave", () => highlightStars(selected));
+    s.addEventListener("click", () => {
+      selected = +s.dataset.v;
+      highlightStars(selected);
+    });
+  });
+
+  function highlightStars(n) {
+    stars.forEach(s => {
+      s.classList.toggle("active", +s.dataset.v <= n);
+    });
+  }
+
+  function addRating() {
+    if (!selected) { alert("Алдымен жұлдызша таңдаңыз!"); return; }
+    const name = document.getElementById("nameInput").value.trim() || ("Оқушы " + (ratings.length + 1));
+    ratings.push({ name, stars: selected, time: new Date().toLocaleTimeString("kk-KZ", {hour:"2-digit",minute:"2-digit"}) });
+    document.getElementById("nameInput").value = "";
+    selected = 0;
+    highlightStars(0);
+    render();
+  }
+
+  function render() {
+    // stats
+    const n = ratings.length;
+    document.getElementById("statCount").textContent = n;
+
+    if (n > 0) {
+      const avg = (ratings.reduce((s, r) => s + r.stars, 0) / n).toFixed(1);
+      document.getElementById("statAvg").textContent = avg;
+      const top = ratings.reduce((a, b) => a.stars >= b.stars ? a : b);
+      document.getElementById("statTop").textContent = top.name.slice(0, 8);
+    }
+
+    // distribution
+    const dist = [0, 0, 0, 0, 0];
+    ratings.forEach(r => dist[r.stars - 1]++);
+    const max = Math.max(...dist, 1);
+    document.getElementById("distBox").innerHTML = dist.map((c, i) => `
+      <div class="dist-row">
+        <span style="width:60px;">${"⭐".repeat(i+1)}</span>
+        <div class="dist-bar-wrap">
+          <div class="dist-bar-fill" style="width:${c/max*100}%"></div>
+        </div>
+        <span class="dist-count">${c}</span>
+      </div>
+    `).join("");
+
+    // table
+    const box = document.getElementById("resultsBox");
+    const list = document.getElementById("resultsList");
+    if (n > 0) {
+      box.style.display = "block";
+      list.innerHTML = [...ratings].reverse().map(r => `
+        <div class="result-row">
+          <span>${r.name}</span>
+          <span class="result-stars">${"⭐".repeat(r.stars)}</span>
+          <span style="color:#9ca3af;font-size:12px;">${r.time}</span>
+        </div>
+      `).join("");
+    }
+  }
+
+  function resetAll() {
+    if (ratings.length && !confirm("Барлық бағаларды тазалайық па?")) return;
+    ratings = [];
+    selected = 0;
+    highlightStars(0);
+    document.getElementById("statCount").textContent = "0";
+    document.getElementById("statAvg").textContent = "—";
+    document.getElementById("statTop").textContent = "—";
+    document.getElementById("distBox").innerHTML = "";
+    document.getElementById("resultsBox").style.display = "none";
+    document.getElementById("resultsList").innerHTML = "";
+  }
+</script>
+
+</body>
+</html>

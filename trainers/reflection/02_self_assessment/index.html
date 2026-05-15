@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Өзін-өзі бағалау – SmartBoardAI</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, Arial, sans-serif;
+    background: radial-gradient(135deg, #eff6ff, #f0fdf4);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+  .wrapper {
+    max-width: 780px;
+    width: 100%;
+    background: #fff;
+    border-radius: 24px;
+    padding: 28px 24px;
+    box-shadow: 0 16px 40px rgba(15,23,42,0.1);
+  }
+  h1 { text-align: center; font-size: 24px; color: #1e3a8a; margin-bottom: 6px; }
+  .subtitle { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 22px; }
+
+  /* CRITERIA EDITOR */
+  .editor-box {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 18px;
+  }
+  .editor-title { font-weight: 700; font-size: 14px; color: #334155; margin-bottom: 10px; }
+  #criteriaInput {
+    width: 100%;
+    height: 100px;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    padding: 10px;
+    font-size: 13px;
+    resize: vertical;
+    outline: none;
+  }
+  #criteriaInput:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+
+  .btn {
+    border: none;
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s;
+    margin-top: 8px;
+    margin-right: 6px;
+  }
+  .btn-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+  .btn-blue:hover { transform: translateY(-1px); }
+  .btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; box-shadow: 0 4px 12px rgba(34,197,94,0.3); }
+  .btn-green:hover { transform: translateY(-1px); }
+  .btn-ghost { background: #f1f5f9; color: #475569; }
+
+  /* STUDENT NAME */
+  .name-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .name-row input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    outline: none;
+  }
+  .name-row input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+
+  /* CHECKLIST */
+  .checklist { display: none; }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 8px;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .check-item:hover { background: #eff6ff; border-color: #bfdbfe; }
+  .check-item.checked { background: #f0fdf4; border-color: #86efac; }
+  .check-item.partial { background: #fffbeb; border-color: #fde68a; }
+
+  .check-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    border: 2px solid #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .check-item.checked .check-icon { background: #22c55e; border-color: #22c55e; color: white; }
+  .check-item.partial .check-icon { background: #fbbf24; border-color: #fbbf24; color: white; }
+
+  .check-text { font-size: 14px; color: #334155; line-height: 1.4; flex: 1; }
+
+  .level-toggle {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .lvl-btn {
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 11px;
+    cursor: pointer;
+    background: white;
+    transition: all 0.12s;
+  }
+  .lvl-btn.yes { background: #22c55e; color: white; border-color: #22c55e; }
+  .lvl-btn.part { background: #fbbf24; color: white; border-color: #fbbf24; }
+  .lvl-btn.no { background: #ef4444; color: white; border-color: #ef4444; }
+
+  /* RESULT */
+  .result-box {
+    margin-top: 18px;
+    padding: 16px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 1px solid #86efac;
+    display: none;
+    animation: fade-in 0.25s ease;
+  }
+  .result-score { font-size: 32px; font-weight: 800; color: #166534; text-align: center; }
+  .result-label { text-align: center; font-size: 14px; color: #166534; margin-top: 4px; }
+
+  /* HISTORY */
+  .history-box { margin-top: 18px; }
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 6px;
+    background: #f9fafb;
+    font-size: 13px;
+    animation: fade-in 0.2s ease;
+  }
+  .hist-score {
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+  }
+  .hist-high { background: #dcfce7; color: #166534; }
+  .hist-mid  { background: #fef9c3; color: #854d0e; }
+  .hist-low  { background: #fee2e2; color: #991b1b; }
+
+  @keyframes fade-in {
+    from { opacity:0; transform:translateY(6px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  .footer { margin-top: 24px; text-align: center; font-size: 13px; color: #64748b; padding-top: 14px; border-top: 3px solid #bfdbfe; }
+  .footer span { color: #2563eb; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <h1>✅ Өзін-өзі бағалау</h1>
+  <div class="subtitle">Оқушы өз жұмысын критерийлер бойынша бағалайды</div>
+
+  <!-- EDITOR -->
+  <div class="editor-box">
+    <div class="editor-title">📝 Критерийлерді жаз (әр жолға бір):</div>
+    <textarea id="criteriaInput">Тапсырманы толық орындадым
+Жауаптарым дәлелді
+Уақытты дұрыс пайдаландым
+Командамен жақсы жұмыс жасадым
+Жаңа ұғымдарды түсіндім</textarea>
+    <button class="btn btn-blue" onclick="buildChecklist()">📋 Чек-лист жасау</button>
+  </div>
+
+  <!-- STUDENT NAME -->
+  <div class="name-row">
+    <input id="studentName" type="text" placeholder="Оқушының аты (міндетті емес)">
+  </div>
+
+  <!-- CHECKLIST -->
+  <div class="checklist" id="checklist"></div>
+
+  <div id="submitRow" style="display:none; margin-top:12px;">
+    <button class="btn btn-green" onclick="submitAssessment()">📊 Нәтижені есептеу</button>
+    <button class="btn btn-ghost" onclick="resetForm()">🔄 Тазалау</button>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-box" id="resultBox">
+    <div class="result-score" id="resultScore"></div>
+    <div class="result-label" id="resultLabel"></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-box" id="historyBox"></div>
+
+  <div class="footer">
+    🌿 <b>AI-Pedagogy Tools</b> by <span>Nazerke Kairatkyzy</span> 🌿
+  </div>
+</div>
+
+<script>
+  let criteria = [];
+  let answers = [];
+  let history = [];
+
+  function buildChecklist() {
+    const raw = document.getElementById("criteriaInput").value.trim();
+    criteria = raw.split(/\r?\n/).map(x => x.trim()).filter(x => x);
+    if (!criteria.length) { alert("Кемінде бір критерий жаз!"); return; }
+
+    answers = criteria.map(() => null);
+
+    const box = document.getElementById("checklist");
+    box.style.display = "block";
+    box.innerHTML = criteria.map((c, i) => `
+      <div class="check-item" id="ci${i}">
+        <div class="check-icon" id="icon${i}">—</div>
+        <div class="check-text">${c}</div>
+        <div class="level-toggle">
+          <button class="lvl-btn" onclick="setAnswer(${i},'yes')">Иә</button>
+          <button class="lvl-btn" onclick="setAnswer(${i},'part')">Ішінара</button>
+          <button class="lvl-btn" onclick="setAnswer(${i},'no')">Жоқ</button>
+        </div>
+      </div>
+    `).join("");
+
+    document.getElementById("submitRow").style.display = "block";
+    document.getElementById("resultBox").style.display = "none";
+  }
+
+  function setAnswer(i, val) {
+    answers[i] = val;
+    const item = document.getElementById("ci" + i);
+    const icon = document.getElementById("icon" + i);
+    item.className = "check-item " + (val === "yes" ? "checked" : val === "part" ? "partial" : "");
+    icon.textContent = val === "yes" ? "✓" : val === "part" ? "~" : "✗";
+
+    // update button styles
+    const btns = item.querySelectorAll(".lvl-btn");
+    btns[0].className = "lvl-btn" + (val === "yes" ? " yes" : "");
+    btns[1].className = "lvl-btn" + (val === "part" ? " part" : "");
+    btns[2].className = "lvl-btn" + (val === "no" ? " no" : "");
+  }
+
+  function submitAssessment() {
+    const yes  = answers.filter(a => a === "yes").length;
+    const part = answers.filter(a => a === "part").length;
+    const no   = answers.filter(a => a === "no").length;
+    const total = criteria.length;
+    const score = Math.round((yes * 2 + part * 1) / (total * 2) * 100);
+
+    const label = score >= 80 ? "Тамаша! 🌟" : score >= 60 ? "Жақсы! 👍" : score >= 40 ? "Тырысып жатыр 🙂" : "Қосымша жұмыс керек 📚";
+
+    const rb = document.getElementById("resultBox");
+    rb.style.display = "block";
+    document.getElementById("resultScore").textContent = score + "%";
+    document.getElementById("resultLabel").textContent = label;
+
+    const name = document.getElementById("studentName").value.trim() || "Оқушы";
+    history.unshift({ name, score, label, yes, part, no, total });
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const box = document.getElementById("historyBox");
+    if (!history.length) { box.innerHTML = ""; return; }
+    box.innerHTML = `<div style="font-weight:700;font-size:13px;color:#334155;margin-bottom:8px;">📋 Тарих</div>` +
+      history.map(h => {
+        const cls = h.score >= 80 ? "hist-high" : h.score >= 50 ? "hist-mid" : "hist-low";
+        return `<div class="history-item">
+          <span>${h.name}</span>
+          <span style="color:#64748b;font-size:12px;">✓${h.yes} ~${h.part} ✗${h.no}</span>
+          <span class="hist-score ${cls}">${h.score}%</span>
+        </div>`;
+      }).join("");
+  }
+
+  function resetForm() {
+    answers = criteria.map(() => null);
+    criteria.forEach((_, i) => {
+      const item = document.getElementById("ci" + i);
+      if (item) {
+        item.className = "check-item";
+        document.getElementById("icon" + i).textContent = "—";
+        item.querySelectorAll(".lvl-btn").forEach(b => b.className = "lvl-btn");
+      }
+    });
+    document.getElementById("resultBox").style.display = "none";
+  }
+</script>
+</body>
+</html>

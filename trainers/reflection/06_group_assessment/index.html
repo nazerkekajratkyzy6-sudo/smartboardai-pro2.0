@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Топтық бағалау – SmartBoardAI</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, Arial, sans-serif;
+    background: linear-gradient(135deg, #fdf4ff, #f0f9ff);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+  .wrapper { max-width: 960px; width: 100%; background: #fff; border-radius: 24px; padding: 28px 24px; box-shadow: 0 16px 40px rgba(15,23,42,0.1); }
+  h1 { text-align: center; font-size: 24px; color: #7e22ce; margin-bottom: 6px; }
+  .subtitle { text-align: center; color: #9333ea; font-size: 14px; margin-bottom: 22px; }
+
+  .btn { border: none; border-radius: 999px; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.18s; }
+  .btn-pink { background: linear-gradient(135deg, #a855f7, #9333ea); color: white; box-shadow: 0 4px 12px rgba(168,85,247,0.3); }
+  .btn-pink:hover { transform: translateY(-1px); }
+  .btn-ghost { background: #f3f4f6; color: #374151; margin-left: 8px; }
+
+  /* SETUP */
+  .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+  @media(max-width:600px){ .setup-grid { grid-template-columns: 1fr; } }
+  .setup-card { background: #fdf4ff; border-radius: 16px; padding: 14px; border: 1px solid #e9d5ff; }
+  .setup-card label { font-size: 13px; font-weight: 700; color: #7e22ce; display: block; margin-bottom: 6px; }
+  .setup-card textarea {
+    width: 100%; height: 80px; border-radius: 10px;
+    border: 1px solid #d8b4fe; font-size: 13px;
+    padding: 8px; resize: vertical; outline: none;
+  }
+  .setup-card textarea:focus { border-color: #a855f7; box-shadow: 0 0 0 3px rgba(168,85,247,0.1); }
+
+  /* ASSESSMENT GRID */
+  .assessment-wrap { overflow-x: auto; margin-top: 18px; }
+  .assessment-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  .assessment-table th { background: linear-gradient(135deg, #a855f7, #9333ea); color: white; padding: 10px 8px; font-size: 12px; text-align: center; white-space: nowrap; }
+  .assessment-table th:first-child { border-radius: 12px 0 0 0; text-align: left; }
+  .assessment-table th:last-child { border-radius: 0 12px 0 0; }
+  .assessment-table td { padding: 8px; border-top: 1px solid #f3e8ff; vertical-align: middle; text-align: center; font-size: 13px; }
+  .assessment-table tr:nth-child(even) td { background: #fdf4ff; }
+  .assessment-table td:first-child { text-align: left; font-weight: 600; color: #374151; white-space: nowrap; }
+
+  /* RATING BUTTONS */
+  .rating-group { display: flex; gap: 3px; justify-content: center; }
+  .rating-btn {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    border: 1.5px solid #e9d5ff;
+    background: white;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.12s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rating-btn:hover { background: #f3e8ff; border-color: #a855f7; }
+  .rating-btn.sel-4 { background: #22c55e; color: white; border-color: #22c55e; }
+  .rating-btn.sel-3 { background: #3b82f6; color: white; border-color: #3b82f6; }
+  .rating-btn.sel-2 { background: #fbbf24; color: white; border-color: #fbbf24; }
+  .rating-btn.sel-1 { background: #ef4444; color: white; border-color: #ef4444; }
+
+  .total-cell { font-weight: 800; color: #7e22ce; font-size: 15px; }
+
+  /* SUMMARY */
+  .summary-box { margin-top: 20px; padding: 18px; background: linear-gradient(135deg, #fdf4ff, #f5f3ff); border-radius: 18px; border: 1px solid #e9d5ff; display: none; }
+  .summary-title { font-weight: 700; font-size: 15px; color: #7e22ce; margin-bottom: 12px; }
+  .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-radius: 10px; background: white; border: 1px solid #f3e8ff; margin-bottom: 6px; }
+  .summary-score { font-weight: 800; font-size: 16px; color: #a855f7; }
+  .rank-badge-sum { padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .rank-1s { background: #fef9c3; color: #92400e; }
+  .rank-2s { background: #f1f5f9; color: #334155; }
+  .rank-3s { background: #fff7ed; color: #7c2d12; }
+
+  @keyframes fade-in { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+  .footer { margin-top: 24px; text-align: center; font-size: 13px; color: #9333ea; padding-top: 14px; border-top: 3px solid #d8b4fe; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <h1>👥 Топтық бағалау</h1>
+  <div class="subtitle">Әр топты критерийлер бойынша бағала және рейтингті автоматты есепте</div>
+
+  <!-- SETUP -->
+  <div class="setup-grid">
+    <div class="setup-card">
+      <label>🏆 Топтар (әр жолға бір):</label>
+      <textarea id="groupsInput">Тұлпар
+Қыран
+Жігер
+Алаш
+Самғау</textarea>
+    </div>
+    <div class="setup-card">
+      <label>📋 Критерийлер (әр жолға бір):</label>
+      <textarea id="critInput">Мазмұны
+Ұсынысы
+Командалық жұмыс
+Уақыт</textarea>
+    </div>
+  </div>
+
+  <button class="btn btn-pink" onclick="buildGrid()">📊 Бағалау кестесін жасау</button>
+
+  <!-- GRID -->
+  <div class="assessment-wrap" id="assessWrap"></div>
+
+  <div id="calcRow" style="display:none; margin-top:14px;">
+    <button class="btn btn-pink" onclick="calcSummary()">🏆 Рейтинг есептеу</button>
+    <button class="btn btn-ghost" onclick="resetGrid()">🔄 Тазалау</button>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-box" id="summaryBox">
+    <div class="summary-title">🏆 Топтар рейтингі</div>
+    <div id="summaryContent"></div>
+  </div>
+
+  <div class="footer">
+    🌿 <b>AI-Pedagogy Tools</b> by Nazerke Kairatkyzy 🌿
+  </div>
+</div>
+
+<script>
+  let groups = [];
+  let criteria = [];
+  let scores = {};
+
+  function buildGrid() {
+    groups = document.getElementById("groupsInput").value.trim().split(/\r?\n/).map(x=>x.trim()).filter(x=>x);
+    criteria = document.getElementById("critInput").value.trim().split(/\r?\n/).map(x=>x.trim()).filter(x=>x);
+    if (!groups.length || !criteria.length) { alert("Топтар мен критерийлерді жаз!"); return; }
+    scores = {};
+
+    const maxPts = criteria.length * 4;
+    let html = `<table class="assessment-table"><thead><tr>
+      <th>Топ</th>
+      ${criteria.map(c => `<th>${c}</th>`).join("")}
+      <th>Жалпы /${maxPts}</th>
+    </tr></thead><tbody>`;
+
+    groups.forEach(g => {
+      scores[g] = {};
+      html += `<tr><td>${g}</td>`;
+      criteria.forEach((c, ci) => {
+        scores[g][ci] = 0;
+        html += `<td><div class="rating-group">
+          ${[4,3,2,1].map(v => `<button class="rating-btn" id="btn-${g}-${ci}-${v}" onclick="setScore('${g}',${ci},${v})">${v}</button>`).join("")}
+        </div></td>`;
+      });
+      html += `<td class="total-cell" id="total-${g}">0</td></tr>`;
+    });
+
+    html += `</tbody></table>`;
+    document.getElementById("assessWrap").innerHTML = html;
+    document.getElementById("calcRow").style.display = "block";
+    document.getElementById("summaryBox").style.display = "none";
+  }
+
+  function setScore(g, ci, v) {
+    scores[g][ci] = v;
+    // update button styles
+    [4,3,2,1].forEach(val => {
+      const btn = document.getElementById(`btn-${g}-${ci}-${val}`);
+      if (btn) btn.className = "rating-btn" + (val === v ? ` sel-${v}` : "");
+    });
+    // update total
+    const total = Object.values(scores[g]).reduce((s,x)=>s+x,0);
+    document.getElementById(`total-${g}`).textContent = total;
+  }
+
+  function calcSummary() {
+    const ranked = groups.map(g => ({
+      name: g,
+      total: Object.values(scores[g]).reduce((s,x)=>s+x,0),
+      max: criteria.length * 4
+    })).sort((a,b) => b.total - a.total);
+
+    const box = document.getElementById("summaryBox");
+    box.style.display = "block";
+
+    const RANK_EMOJI = ["🥇","🥈","🥉","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣"];
+    document.getElementById("summaryContent").innerHTML = ranked.map((r, i) => {
+      const pct = Math.round(r.total / r.max * 100);
+      const rankClass = i === 0 ? "rank-1s" : i === 1 ? "rank-2s" : i === 2 ? "rank-3s" : "";
+      return `<div class="summary-row" style="animation:fade-in ${0.1+i*0.08}s ease;">
+        <span style="font-size:18px;">${RANK_EMOJI[i]||""}  <b>${r.name}</b></span>
+        <span style="color:#6b7280;font-size:12px;">${r.total}/${r.max} · ${pct}%</span>
+        <span class="rank-badge-sum ${rankClass}">${i===0?"Чемпион":i===1?"2-орын":i===2?"3-орын":(i+1)+"-орын"}</span>
+        <span class="summary-score">${r.total}</span>
+      </div>`;
+    }).join("");
+  }
+
+  function resetGrid() {
+    groups.forEach(g => {
+      criteria.forEach((_, ci) => {
+        scores[g][ci] = 0;
+        [4,3,2,1].forEach(v => {
+          const btn = document.getElementById(`btn-${g}-${ci}-${v}`);
+          if (btn) btn.className = "rating-btn";
+        });
+      });
+      document.getElementById(`total-${g}`).textContent = "0";
+    });
+    document.getElementById("summaryBox").style.display = "none";
+  }
+</script>
+</body>
+</html>

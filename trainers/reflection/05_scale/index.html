@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Бағалау шкаласы 1-10 – SmartBoardAI</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, Arial, sans-serif;
+    background: linear-gradient(135deg, #ecfdf5, #eff6ff);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+  .wrapper { max-width: 820px; width: 100%; background: #fff; border-radius: 24px; padding: 28px 24px; box-shadow: 0 16px 40px rgba(15,23,42,0.1); }
+  h1 { text-align: center; font-size: 24px; color: #065f46; margin-bottom: 6px; }
+  .subtitle { text-align: center; color: #059669; font-size: 14px; margin-bottom: 24px; }
+
+  /* QUESTION */
+  .question-box { background: #f0fdf4; border-radius: 16px; padding: 16px; border: 1px solid #bbf7d0; margin-bottom: 22px; }
+  .question-box label { font-size: 13px; font-weight: 700; color: #065f46; display: block; margin-bottom: 6px; }
+  .question-box input { width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #6ee7b7; font-size: 14px; outline: none; }
+  .question-box input:focus { border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,0.1); }
+
+  /* SCALE */
+  .scale-label { text-align: center; font-size: 14px; color: #374151; margin-bottom: 10px; font-weight: 600; }
+  .scale-track { position: relative; margin: 0 10px 8px; }
+  #scaleSlider {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 10px;
+    border-radius: 999px;
+    outline: none;
+    cursor: pointer;
+  }
+  #scaleSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #059669, #047857);
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(5,150,105,0.4);
+    border: 3px solid white;
+  }
+  .scale-nums { display: flex; justify-content: space-between; font-size: 11px; color: #6b7280; margin: 0 0 4px; }
+  .scale-value-display { text-align: center; font-size: 52px; font-weight: 900; margin: 10px 0; transition: all 0.2s; }
+  .scale-desc { text-align: center; font-size: 14px; color: #6b7280; margin-bottom: 16px; min-height: 22px; }
+
+  .btn { border: none; border-radius: 999px; padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.18s; }
+  .btn-green { background: linear-gradient(135deg, #059669, #047857); color: white; box-shadow: 0 4px 12px rgba(5,150,105,0.3); }
+  .btn-green:hover { transform: translateY(-1px); }
+  .btn-ghost { background: #f3f4f6; color: #374151; margin-left: 8px; }
+
+  .submit-row { text-align: center; margin-bottom: 18px; }
+
+  /* RESULTS */
+  .results-box { margin-top: 18px; }
+  .chart-box { background: #f0fdf4; border-radius: 16px; padding: 16px; border: 1px solid #bbf7d0; margin-bottom: 16px; }
+  .chart-title { font-weight: 700; font-size: 13px; color: #065f46; margin-bottom: 12px; }
+  .chart-bars { display: flex; align-items: flex-end; gap: 4px; height: 80px; }
+  .chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .chart-bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    transition: height 0.4s ease;
+  }
+  .chart-bar-label { font-size: 10px; color: #6b7280; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 14px; }
+  .stat-card { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: 12px; padding: 10px; text-align: center; border: 1px solid #bbf7d0; }
+  .stat-num { font-size: 22px; font-weight: 800; color: #065f46; }
+  .stat-lbl { font-size: 11px; color: #6b7280; }
+
+  .answer-list { max-height: 200px; overflow-y: auto; }
+  .answer-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 10px; background: #f9fafb; border: 1px solid #e5e7eb; margin-bottom: 5px; font-size: 13px; animation: fade-in 0.2s ease; }
+  .answer-score { font-weight: 800; padding: 2px 10px; border-radius: 999px; font-size: 13px; }
+
+  @keyframes fade-in { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:translateY(0)} }
+  .footer { margin-top: 24px; text-align: center; font-size: 13px; color: #059669; padding-top: 14px; border-top: 3px solid #6ee7b7; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <h1>📊 Бағалау шкаласы 1–10</h1>
+  <div class="subtitle">Слайдермен жылдам бағалау — оқушы немесе тапсырма үшін</div>
+
+  <!-- QUESTION -->
+  <div class="question-box">
+    <label>Сұрақ / бағалау тақырыбы:</label>
+    <input id="questionInput" value="Бүгінгі сабақты қалай бағалайсың?">
+  </div>
+
+  <!-- SCALE -->
+  <div class="scale-label" id="questionDisplay">Бүгінгі сабақты қалай бағалайсың?</div>
+
+  <div class="scale-nums">
+    <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+    <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+  </div>
+  <div class="scale-track">
+    <input type="range" id="scaleSlider" min="1" max="10" value="5">
+  </div>
+
+  <div class="scale-value-display" id="valueDisplay">5</div>
+  <div class="scale-desc" id="valueDesc">Орташа</div>
+
+  <!-- NAME -->
+  <div style="display:flex; gap:10px; margin-bottom:14px;">
+    <input id="nameInput" type="text" placeholder="Оқушының аты (міндетті емес)"
+      style="flex:1; padding:9px 14px; border-radius:999px; border:1px solid #d1d5db; font-size:14px; outline:none;">
+  </div>
+
+  <div class="submit-row">
+    <button class="btn btn-green" onclick="submitScore()">✅ Жіберу</button>
+    <button class="btn btn-ghost" onclick="resetAll()">🔄</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-box" id="resultsBox" style="display:none;">
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="sCount">0</div><div class="stat-lbl">Жіберді</div></div>
+      <div class="stat-card"><div class="stat-num" id="sAvg">—</div><div class="stat-lbl">Орташа</div></div>
+      <div class="stat-card"><div class="stat-num" id="sMin">—</div><div class="stat-lbl">Ең аз</div></div>
+      <div class="stat-card"><div class="stat-num" id="sMax">—</div><div class="stat-lbl">Ең көп</div></div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-title">📈 Таралу диаграммасы</div>
+      <div class="chart-bars" id="chartBars"></div>
+    </div>
+
+    <div class="answer-list" id="answerList"></div>
+  </div>
+
+  <div class="footer">
+    🌿 <b>AI-Pedagogy Tools</b> by Nazerke Kairatkyzy 🌿
+  </div>
+</div>
+
+<script>
+  const DESCS = ["","Өте нашар 😞","Нашар 😟","Орташадан төмен 😕","Орташа 😐","Жеткілікті 🙂","Қанағаттанарлық 😊","Жақсы 👍","Өте жақсы 😄","Тамаша 🌟","Керемет! 🚀"];
+  const COLORS = ["","#ef4444","#f97316","#fb923c","#fbbf24","#facc15","#a3e635","#4ade80","#34d399","#10b981","#059669"];
+
+  let answers = [];
+
+  const slider = document.getElementById("scaleSlider");
+  slider.addEventListener("input", updateSlider);
+
+  function updateSlider() {
+    const v = +slider.value;
+    document.getElementById("valueDisplay").textContent = v;
+    document.getElementById("valueDisplay").style.color = COLORS[v];
+    document.getElementById("valueDesc").textContent = DESCS[v];
+
+    const pct = (v - 1) / 9 * 100;
+    slider.style.background = `linear-gradient(90deg, ${COLORS[v]} ${pct}%, #e5e7eb ${pct}%)`;
+  }
+
+  document.getElementById("questionInput").addEventListener("input", function() {
+    document.getElementById("questionDisplay").textContent = this.value;
+  });
+
+  function submitScore() {
+    const v = +slider.value;
+    const name = document.getElementById("nameInput").value.trim() || ("Оқушы " + (answers.length + 1));
+    answers.push({ name, score: v, time: new Date().toLocaleTimeString("kk-KZ", {hour:"2-digit",minute:"2-digit"}) });
+    document.getElementById("nameInput").value = "";
+    render();
+  }
+
+  function render() {
+    if (!answers.length) return;
+    document.getElementById("resultsBox").style.display = "block";
+
+    const scores = answers.map(a => a.score);
+    const avg = (scores.reduce((s,v)=>s+v,0)/scores.length).toFixed(1);
+    document.getElementById("sCount").textContent = scores.length;
+    document.getElementById("sAvg").textContent = avg;
+    document.getElementById("sMin").textContent = Math.min(...scores);
+    document.getElementById("sMax").textContent = Math.max(...scores);
+
+    // chart
+    const dist = Array(10).fill(0);
+    scores.forEach(s => dist[s-1]++);
+    const maxD = Math.max(...dist, 1);
+    document.getElementById("chartBars").innerHTML = dist.map((c, i) => `
+      <div class="chart-bar-wrap">
+        <div class="chart-bar" style="height:${c/maxD*70+5}px; background:${COLORS[i+1]};"></div>
+        <div class="chart-bar-label">${i+1}</div>
+      </div>
+    `).join("");
+
+    // list
+    document.getElementById("answerList").innerHTML = [...answers].reverse().map(a => `
+      <div class="answer-item">
+        <span>${a.name}</span>
+        <span style="color:#9ca3af;font-size:11px;">${a.time}</span>
+        <span class="answer-score" style="background:${COLORS[a.score]}22; color:${COLORS[a.score]};">${a.score}</span>
+      </div>
+    `).join("");
+  }
+
+  function resetAll() {
+    if (answers.length && !confirm("Барлық жауаптарды тазалайық па?")) return;
+    answers = [];
+    document.getElementById("resultsBox").style.display = "none";
+  }
+
+  updateSlider();
+</script>
+</body>
+</html>
