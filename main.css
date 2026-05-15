@@ -1,618 +1,710 @@
 /* =========================================================
-   SmartBoardAI PRO — MAIN CSS (Phase 1 FINAL)
-   Board + LiveRoom + Modal + Multi-page + Login (index.html)
-========================================================= */
+   SmartBoardAI PRO — MAIN CSS v3.0
+   Module Navigation System
+   =========================================================
+   1. Design Tokens
+   2. Global Reset
+   3. Layout — новая 4-колонная сетка
+   4. Topbar
+   5. MODULE NAV (icon strip)
+   6. MODULE PANEL (content area)
+   7. Board Area + Cards
+   8. Right Panel
+   9. LiveRoom Box
+   10. Modal
+   11. Text Editor
+   12. Login / Index Page
+   13. Utilities + Animations
+   14. Scrollbars
+   ========================================================= */
 
-/* ---------- GLOBAL ---------- */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Inter", sans-serif;
-}
+/* =========================================================
+   1. DESIGN TOKENS
+   ========================================================= */
+:root {
+  --clr-primary:        #2563eb;
+  --clr-primary-dark:   #1d4ed8;
+  --clr-primary-light:  #eff6ff;
+  --clr-primary-border: #bfdbfe;
+  --clr-accent:         #6366f1;
+  --clr-accent-light:   #eef2ff;
 
-body {
-  background: #f5f7fb;
-  color: #1f2937;
-  height: 100vh;
-  overflow: hidden;
-}
+  --clr-success:        #16a34a;
+  --clr-success-light:  #f0fdf4;
+  --clr-success-border: #bbf7d0;
+  --clr-warning:        #d97706;
+  --clr-warning-light:  #fffbeb;
+  --clr-warning-border: #fde68a;
+  --clr-danger:         #dc2626;
+  --clr-danger-light:   #fef2f2;
+  --clr-danger-border:  #fecaca;
 
-button {
-  cursor: pointer;
-  border: none;
-  outline: none;
+  --clr-white:   #ffffff;
+  --clr-bg:      #f1f5f9;
+  --clr-surface: #ffffff;
+  --clr-border:  #e2e8f0;
+  --clr-border2: #f1f5f9;
+
+  --clr-text-1: #0f172a;
+  --clr-text-2: #334155;
+  --clr-text-3: #64748b;
+  --clr-text-4: #94a3b8;
+
+  /* Module identity colors */
+  --mod-lesson:     #2563eb;
+  --mod-organize:   #0891b2;
+  --mod-assessment: #d97706;
+  --mod-feedback:   #db2777;
+  --mod-interactive:#f59e0b;
+  --mod-simulators: #059669;
+  --mod-ai:         #6366f1;
+  --mod-materials:  #0284c7;
+
+  --r-sm:   8px;
+  --r-md:   12px;
+  --r-lg:   16px;
+  --r-xl:   20px;
+  --r-2xl:  24px;
+  --r-full: 999px;
+
+  --shadow-xs: 0 1px 3px rgba(15,23,42,0.06);
+  --shadow-sm: 0 2px 8px rgba(15,23,42,0.08);
+  --shadow-md: 0 4px 16px rgba(15,23,42,0.10);
+  --shadow-lg: 0 8px 32px rgba(15,23,42,0.12);
+  --shadow-xl: 0 16px 48px rgba(15,23,42,0.16);
+
+  --font: "Inter", system-ui, -apple-system, sans-serif;
+  --ease: all 0.18s ease;
+
+  --topbar-h:    60px;
+  --nav-w:       64px;
+  --panel-w:     220px;
+  --right-w:     300px;
 }
 
 /* =========================================================
-   TOP BAR (TEACHER)
-========================================================= */
+   2. GLOBAL RESET
+   ========================================================= */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: var(--font);
+  background: var(--clr-bg);
+  color: var(--clr-text-1);
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { cursor:pointer; border:none; outline:none; font-family:var(--font); transition:var(--ease); }
+input, textarea, select { font-family:var(--font); }
+
+/* =========================================================
+   3. LAYOUT
+   ========================================================= */
+.container {
+  display: grid;
+  grid-template-columns: var(--nav-w) var(--panel-w) 1fr var(--right-w);
+  grid-template-rows: 1fr;
+  height: calc(100vh - var(--topbar-h));
+}
+
+/* sidebar wraps nav + panel */
+.sidebar {
+  display: contents; /* nav и panel идут как прямые потомки грида */
+}
+
+/* =========================================================
+   4. TOPBAR
+   ========================================================= */
 .topbar {
-  height: 56px;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  height: var(--topbar-h);
+  background: var(--clr-white);
+  border-bottom: 1px solid var(--clr-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 22px;
-  font-size: 20px;
-  font-weight: 600;
+  padding: 0 20px;
+  box-shadow: var(--shadow-xs);
+  position: relative;
+  z-index: 20;
 }
 
-.topbar-right button {
-  margin-left: 10px;
+.topbar-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--clr-text-1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+
+.topbar-right { display:flex; align-items:center; gap:6px; }
 
 .lang-btn {
-  background: #eef2ff;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 14px;
+  background: var(--clr-accent-light);
+  color: var(--clr-accent);
+  padding: 5px 11px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 700;
 }
-
-.lang-btn:hover {
-  background: #dbe4ff;
-}
+.lang-btn:hover { background: #dbe4ff; }
 
 .logout-btn {
-  background: #fee2e2;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 14px;
+  background: var(--clr-danger-light);
+  color: var(--clr-danger);
+  padding: 5px 11px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 700;
 }
-
-.logout-btn:hover {
-  background: #fecaca;
-}
-
-/* =========================================================
-   LAYOUT
-========================================================= */
-.container {
-  display: grid;
-  grid-template-columns: 280px auto 310px;
-  height: calc(100vh - 56px);
-}
+.logout-btn:hover { background: var(--clr-danger-border); }
 
 /* =========================================================
-   SIDEBAR
-========================================================= */
-.sidebar {
-  background: #ffffff;
-  border-right: 1px solid #e5e7eb;
-  padding: 20px;
+   5. MODULE NAV — 64px dark icon strip
+   ========================================================= */
+.mod-nav {
+  width: var(--nav-w);
+  background: #0f172a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0 16px;
+  gap: 2px;
   overflow-y: auto;
+  overflow-x: hidden;
+  height: calc(100vh - var(--topbar-h));
+  z-index: 10;
 }
 
-.section-title {
-  margin-top: 24px;
+.mod-nav-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-bottom: 10px;
-  font-weight: 600;
-  font-size: 16px;
-  color: #374151;
-}
-
-.tool-btn,
-.room-btn {
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
   width: 100%;
-  background: #eef2ff;
-  padding: 10px 12px;
-  border-radius: 10px;
-  margin-bottom: 8px;
+  text-align: center;
+}
+.mod-nav-logo  { font-size: 22px; line-height: 1; }
+.mod-nav-title { font-size: 8px; color: #475569; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 3px; }
+
+.mod-nav-btn {
+  width: 52px;
+  padding: 7px 4px;
+  border: none;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: #475569;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transition: var(--ease);
+  position: relative;
+}
+.mod-nav-btn:hover {
+  background: rgba(255,255,255,0.06);
+  color: #94a3b8;
+}
+.mod-nav-btn.active {
+  background: rgba(99,102,241,0.18);
+  color: #a5b4fc;
+}
+.mod-nav-btn.active::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 6px; bottom: 6px;
+  width: 3px;
+  background: #6366f1;
+  border-radius: 0 3px 3px 0;
+}
+.mod-icon  { font-size: 18px; line-height: 1; }
+.mod-label { font-size: 9px; font-weight: 600; text-align: center; line-height: 1.2; }
+
+.mod-nav-divider {
+  width: 36px;
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 6px 0;
+}
+
+/* LiveRoom in nav */
+.mod-nav .room-box {
+  margin: 4px 6px 0;
+  padding: 8px 6px;
+  text-align: center;
+}
+.mod-nav .room-id  { font-size: 14px; font-weight: 800; color: var(--clr-primary); letter-spacing: 0.04em; margin-bottom: 4px; }
+.mod-nav .room-btn { font-size: 9px; padding: 5px 6px; width: 100%; border-radius: var(--r-sm); }
+.mod-nav .qr-box   { width: 48px; height: 48px; margin: 6px auto; border-radius: var(--r-sm); overflow: hidden; }
+.mod-nav .room-hint{ font-size: 8px; color: #475569; line-height: 1.3; margin-top: 3px; }
+
+/* =========================================================
+   6. MODULE PANEL — 220px white content area
+   ========================================================= */
+.mod-panel-wrap {
+  width: var(--panel-w);
+  background: var(--clr-white);
+  border-right: 1px solid var(--clr-border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: calc(100vh - var(--topbar-h));
+  z-index: 9;
+}
+
+.mod-panel { display: none; padding-bottom: 24px; animation: fade-in 0.2s ease; }
+.mod-panel.active { display: block; }
+
+.mod-panel-title {
+  padding: 13px 13px 10px 17px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--clr-text-1);
+  border-bottom: 1px solid var(--clr-border2);
+  margin-bottom: 2px;
+  position: relative;
+}
+.mod-panel-title::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 4px;
+  background: var(--mod-color, var(--clr-primary));
+  border-radius: 0 4px 4px 0;
+}
+
+.mod-section-label {
+  padding: 9px 13px 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--clr-text-4);
+}
+
+/* Tool buttons in panels */
+.tool-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  padding: 7px 10px;
+  border-radius: var(--r-md);
+  margin-bottom: 1px;
   text-align: left;
-  font-size: 15px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--clr-text-2);
+  transition: var(--ease);
+}
+.tool-btn:hover {
+  background: var(--clr-accent-light);
+  color: var(--clr-accent);
 }
 
-.tool-btn:hover,
-.room-btn:hover {
-  background: #dbe4ff;
+.tool-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  background: var(--clr-bg);
+  transition: var(--ease);
 }
+.tool-btn:hover .tool-icon { background: #dbe4ff; }
 
+/* AI panel */
+.ai-panel { padding: 0 10px; }
+.ai-panel select {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--clr-border);
+  font-size: 12px;
+  color: var(--clr-text-2);
+  background: var(--clr-bg);
+  outline: none;
+  margin-bottom: 6px;
+}
+.ai-panel select:focus { border-color: var(--clr-primary); }
 .ai-panel textarea {
   width: 100%;
-  height: 90px;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-  padding: 10px;
+  height: 72px;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--r-md);
+  padding: 8px 10px;
   resize: vertical;
+  font-size: 12px;
+  color: var(--clr-text-2);
+  background: var(--clr-bg);
+  outline: none;
+  transition: var(--ease);
 }
-
+.ai-panel textarea:focus {
+  border-color: var(--clr-primary);
+  background: var(--clr-white);
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+}
+.ai-panel input[type="file"] {
+  font-size: 10px;
+  color: var(--clr-text-3);
+  margin: 4px 0;
+  width: 100%;
+}
 .ai-btn {
   width: 100%;
-  background: #2563eb;
+  background: linear-gradient(135deg, var(--clr-primary), var(--clr-accent));
   color: white;
-  padding: 10px 12px;
-  border-radius: 10px;
-  margin-top: 8px;
-  font-weight: 600;
-}
-
-.ai-btn:hover {
-  background: #1d4ed8;
-}
-
-#aiOutput {
-  margin-top: 8px;
-  font-size: 14px;
-}
-
-/* =========================================================
-   ROOM (LiveRoom)
-========================================================= */
-.room-box {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 12px;
-  text-align: center;
-  margin-top: 10px;
-}
-
-.room-id {
-  font-size: 26px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.qr-box {
-  margin: 10px auto;
-  width: 140px;
-  height: 140px;
-}
-
-/* кішкене helper – room-hint класын teacher.html-де қолдандың */
-.room-hint {
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  margin-top: 6px;
   font-size: 12px;
-  margin-top: 8px;
-  text-align: center;
+  font-weight: 700;
+  box-shadow: 0 3px 10px rgba(37,99,235,0.22);
 }
+.ai-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(37,99,235,0.32); }
+#aiOutput { margin-top: 8px; font-size: 12px; color: var(--clr-text-2); line-height: 1.55; }
 
-/* =========================================================
-   PAGES (Multi-page)
-========================================================= */
-#pagesWrap {
-  margin-top: 8px;
-}
-
+/* Pages */
+#pagesWrap { padding: 0 6px; }
 .page-btn {
   width: 100%;
-  background: #f3f4f6;
-  padding: 8px 10px;
-  border-radius: 8px;
-  margin-bottom: 6px;
+  background: var(--clr-bg);
+  padding: 7px 10px;
+  border-radius: var(--r-sm);
+  margin-bottom: 3px;
   text-align: left;
-  font-size: 14px;
+  font-size: 12px;
+  color: var(--clr-text-2);
+  transition: var(--ease);
+}
+.page-btn:hover { background: var(--clr-accent-light); color: var(--clr-accent); }
+.page-btn.active {
+  background: var(--clr-accent-light);
+  color: var(--clr-accent);
+  font-weight: 700;
+  border-left: 3px solid var(--clr-accent);
 }
 
-.page-btn.active {
-  background: #c7d2fe;
-  font-weight: 600;
+/* Room box (standalone, not in nav) */
+.room-box {
+  background: linear-gradient(135deg, #f0f9ff, #eff6ff);
+  border: 1px solid var(--clr-primary-border);
+  border-radius: var(--r-lg);
+  padding: 10px;
+  text-align: center;
+  margin: 8px;
 }
+.room-id   { font-size: 22px; font-weight: 800; color: var(--clr-primary); letter-spacing: 0.06em; margin-bottom: 4px; }
+.room-btn  {
+  width: 100%;
+  background: linear-gradient(135deg, var(--clr-primary), var(--clr-accent));
+  color: white;
+  padding: 8px;
+  border-radius: var(--r-md);
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 3px 10px rgba(37,99,235,0.28);
+  margin-bottom: 6px;
+}
+.room-btn:hover { transform: translateY(-1px); }
+.qr-box    { margin: 6px auto; width: 110px; height: 110px; border-radius: var(--r-md); overflow: hidden; box-shadow: var(--shadow-sm); }
+.room-hint { font-size: 10px; color: var(--clr-text-3); margin-top: 4px; }
 
 /* =========================================================
-   BOARD AREA
-========================================================= */
+   7. BOARD AREA + CARDS
+   ========================================================= */
 .board-area {
-  background: #f9fafb;
-  padding: 20px;
+  background: var(--clr-bg);
+  padding: 18px;
   overflow-y: auto;
+  min-width: 0;
 }
 
 .center-msg {
-  color: #6b7280;
-  font-size: 20px;
+  color: var(--clr-text-4);
+  font-size: 17px;
   text-align: center;
-  margin-top: 50px;
+  margin-top: 60px;
+  font-weight: 500;
 }
 
-/* Blocks */
 .board-card {
-  background: #ffffff;
-  border-radius: 12px;
+  background: var(--clr-white);
+  border-radius: var(--r-lg);
   padding: 14px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--clr-border);
   margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--ease);
+  animation: fade-in 0.2s ease;
 }
+.board-card:hover { box-shadow: var(--shadow-md); border-color: var(--clr-primary-border); }
 
 .board-card-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 10px;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 10px;
+  color: var(--clr-text-4);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-.board-card-body {
-  font-size: 15px;
-  line-height: 1.5;
-}
+.board-card-body { font-size: 14px; line-height: 1.65; color: var(--clr-text-2); }
 
 .card-delete-btn {
-  background: #fee2e2;
-  color: #991b1b;
-  padding: 4px 10px;
-  border-radius: 8px;
+  background: var(--clr-danger-light);
+  color: var(--clr-danger);
+  padding: 3px 9px;
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  font-weight: 600;
 }
+.card-delete-btn:hover { background: var(--clr-danger-border); }
 
-.card-delete-btn:hover {
-  background: #fecaca;
-}
+.board-text { white-space: normal; }
+.board-image { width: 100%; border-radius: var(--r-md); display: block; }
 
-.board-text {
-  white-space: normal;
-}
-
-.board-image {
+.board-video, .trainer-frame {
   width: 100%;
-  border-radius: 10px;
+  height: calc(100vh - 140px);
+  border-radius: var(--r-md);
+  border: none;
 }
 
-.board-video,
-.trainer-frame {
-    width: 100%;
-    height: calc(100vh - 140px); /* Толық биіктікке созылады */
-    border-radius: 10px;
-    border: none;
-}
 .geogebra-frame {
-    width: 100%;
-    height: 500px;
-    border: none;
-    border-radius: 10px;
+  width: 100%; height: 560px; min-height: 560px;
+  border: none; border-radius: var(--r-md); background: white;
 }
+:fullscreen .geogebra-frame { width: 100%; height: 100%; }
 
+.fullscreen-btn {
+  background: var(--clr-accent-light);
+  color: var(--clr-accent);
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-weight: 600;
+}
+.fullscreen-btn:hover { background: #dbe4ff; }
 
 /* =========================================================
-   RIGHT PANEL
-========================================================= */
+   8. RIGHT PANEL
+   ========================================================= */
 .right-panel {
-  background: #ffffff;
-  border-left: 1px solid #e5e7eb;
-  padding: 18px;
+  background: var(--clr-white);
+  border-left: 1px solid var(--clr-border);
   overflow-y: auto;
+  min-width: 0;
 }
 
 .right-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-weight: 700;
-  font-size: 18px;
-  margin-bottom: 10px;
+  font-size: 12px;
+  color: var(--clr-text-1);
+  padding: 12px 14px 8px;
+  border-bottom: 1px solid var(--clr-border2);
 }
 
-.right-box {
-  padding: 12px;
-  background: #f3f4f6;
-  border-radius: 10px;
-  min-height: 60px;
-  font-size: 15px;
-  margin-bottom: 12px;
+.right-box { padding: 8px 12px; min-height: 36px; font-size: 12px; }
+
+.section-title {
+  padding: 10px 12px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--clr-text-4);
 }
 
 .answer-item {
   padding: 8px 10px;
-  background: #e5e7eb;
-  border-radius: 8px;
+  background: var(--clr-bg);
+  border-radius: var(--r-md);
   margin-bottom: 6px;
-}
-
-.emo-item {
-  display: inline-block;
-  margin-right: 4px;
-  margin-bottom: 4px;
+  border: 1px solid var(--clr-border);
+  font-size: 12px;
 }
 
 .wc-chip {
   display: inline-block;
-  padding: 4px 8px;
-  background: #e0f2fe;
-  border-radius: 999px;
+  padding: 2px 8px;
+  background: var(--clr-primary-light);
+  color: var(--clr-primary);
+  border-radius: var(--r-full);
   margin: 2px;
-}
-
-/* =========================================================
-   TRAINERS PANEL (оң жақтан ашылатын панель үшін жалпы стиль)
-   teacher.js → buildTrainerPanelDom() / toggleTrainerPanel()
-   ========================================================== */
-
-/* панель контейнерінің ID – trainerPanel
-   (қазір JS оны right-panel ішіне right-box ретінде жасайды,
-    сондықтан тек ішкі элементтерді сәндейміз) */
-
-.trainer-tab-btn {
-  flex: 1;
-  border: none;
-  background: #e5e7eb;
-  padding: 6px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.trainer-tab-btn.active {
-  background: #c7d2fe;
+  font-size: 11px;
   font-weight: 600;
 }
 
-.trainer-list {
-  margin-top: 6px;
+/* Trainer panel tabs */
+.trainer-tab-btn {
+  flex: 1; background: var(--clr-bg);
+  padding: 5px 6px; border-radius: var(--r-sm);
+  font-size: 11px; font-weight: 600; color: var(--clr-text-3);
 }
+.trainer-tab-btn.active { background: var(--clr-accent-light); color: var(--clr-accent); }
 
-/* Тізімдегі тренажёр кнопкалары.
-   JS ішінде inline-style де бар, бірақ мұнда да әдемірек қыламыз. */
-
+.trainer-list { margin-top: 6px; }
 .trainer-item-btn {
-  width: 100%;
-  background: #f3f4f6;
-  border: none;
-  padding: 8px;
-  margin-bottom: 4px;
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: left;
-  font-size: 13px;
+  width: 100%; background: var(--clr-bg); border: none;
+  padding: 7px 8px; margin-bottom: 3px; border-radius: var(--r-sm);
+  cursor: pointer; text-align: left; font-size: 12px; color: var(--clr-text-2);
+  transition: var(--ease);
 }
-
-.trainer-item-btn:hover {
-  background: #e5e7eb;
-}
+.trainer-item-btn:hover { background: var(--clr-accent-light); color: var(--clr-accent); }
 
 /* =========================================================
-   MODAL (prompt replacement)
-========================================================= */
+   9. MODAL
+   ========================================================= */
 .modal-bg {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: none;
-  align-items: center;
-  justify-content: center;
+  position: fixed; inset: 0;
+  background: rgba(15,23,42,0.5);
+  backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
   z-index: 50;
 }
-
 .modal {
-  background: #ffffff;
-  padding: 22px;
-  width: 380px;
-  border-radius: 14px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  background: var(--clr-white);
+  padding: 22px; width: 400px;
+  border-radius: var(--r-2xl);
+  box-shadow: var(--shadow-xl);
+  animation: modal-in 0.2s ease;
 }
-
-.modal h2 {
-  font-size: 18px;
-  margin-bottom: 12px;
-}
-
+.modal h2 { font-size: 16px; font-weight: 700; margin-bottom: 14px; color: var(--clr-text-1); }
 #modal-input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
+  width: 100%; padding: 9px 13px;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--r-md); font-size: 14px;
+  outline: none; background: var(--clr-bg);
 }
-
-.modal footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 16px;
+#modal-input:focus {
+  border-color: var(--clr-primary);
+  background: var(--clr-white);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
 }
+.modal footer { display:flex; justify-content:flex-end; gap:8px; margin-top:18px; }
+.modal-btn { padding: 8px 16px; border-radius: var(--r-md); font-size: 13px; font-weight: 600; }
+.modal-btn.cancel { background: var(--clr-bg); color: var(--clr-text-2); }
+.modal-btn.cancel:hover { background: var(--clr-border); }
+.modal-btn.ok { background: linear-gradient(135deg, var(--clr-primary), var(--clr-accent)); color: white; box-shadow: 0 4px 12px rgba(37,99,235,0.28); }
+.modal-btn.ok:hover { transform: translateY(-1px); }
 
-.modal-btn {
-  padding: 8px 14px;
-  border-radius: 8px;
+/* =========================================================
+   10. TEXT EDITOR
+   ========================================================= */
+.text-toolbar {
+  position: fixed; top: 70px; left: calc(var(--nav-w) + var(--panel-w) + 10px);
+  background: var(--clr-white); border: 1px solid var(--clr-border);
+  padding: 5px; border-radius: var(--r-md); display: flex; gap: 3px;
+  z-index: 9999; box-shadow: var(--shadow-md);
 }
-
-.modal-btn.cancel {
-  background: #e5e7eb;
+.text-toolbar button {
+  padding: 3px 8px; border-radius: var(--r-sm);
+  background: var(--clr-bg); border: none; font-size: 12px;
 }
+.text-toolbar button:hover { background: var(--clr-accent-light); }
 
-.modal-btn.ok {
-  background: #2563eb;
-  color: white;
+.text-editor {
+  position: fixed; top: 120px; left: calc(var(--nav-w) + var(--panel-w) + 10px);
+  width: 500px; height: 280px;
+  background: var(--clr-white); border: 1px solid var(--clr-border);
+  border-radius: var(--r-lg); padding: 10px; z-index: 9999;
+  box-shadow: var(--shadow-lg);
 }
-
-.modal-btn.ok:hover {
-  background: #1e40af;
-}
-
-/* Scrollbars */
-.sidebar::-webkit-scrollbar,
-.right-panel::-webkit-scrollbar,
-.board-area::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
+.text-editor-area {
+  width: 100%; height: 100%; outline: none;
+  font-size: 14px; line-height: 1.6; color: var(--clr-text-2);
 }
 
 /* =========================================================
-   LOGIN / INDEX PAGE
-   (index.html — кіреберіс экран)
-========================================================= */
-
+   11. LOGIN / INDEX
+   ========================================================= */
 .index-body {
-  background: radial-gradient(circle at top, #e0f2fe 0, #f5f7fb 40%, #eef2ff 100%);
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: radial-gradient(ellipse at 30% 20%,#dbeafe,transparent 60%),
+              radial-gradient(ellipse at 80% 80%,#ede9fe,transparent 60%),
+              #f8fafc;
+  height:100vh; display:flex; align-items:center; justify-content:center; overflow:auto;
 }
-
-.index-wrapper {
-  width: 100%;
-  max-width: 420px;
-  padding: 16px;
-}
-
+.index-wrapper { width:100%; max-width:420px; padding:16px; }
 .index-card {
-  background: #ffffff;
-  border-radius: 18px;
-  padding: 22px 20px 18px;
-  box-shadow: 0 15px 45px rgba(15, 23, 42, 0.18);
+  background: var(--clr-white);
+  border-radius: var(--r-2xl);
+  padding: 28px 24px 22px;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--clr-border);
 }
-
-/* Lang switch */
-.index-lang-switch {
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-
+.index-lang-switch { display:flex; justify-content:flex-end; gap:6px; margin-bottom:12px; }
 .index-lang-switch button {
-  padding: 4px 8px;
-  border-radius: 999px;
-  border: none;
-  background: #eef2ff;
-  font-size: 12px;
-  cursor: pointer;
+  padding: 4px 10px; border-radius:var(--r-full); border:none;
+  background: var(--clr-accent-light); color: var(--clr-accent);
+  font-size: 11px; font-weight:700; cursor:pointer;
 }
-
-.index-lang-switch button:hover {
-  background: #dbe4ff;
-}
-
-/* Header */
-.index-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
+.index-lang-switch button:hover { background:#dbe4ff; }
+.index-header { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
 .index-logo-circle {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb, #4f46e5);
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 18px;
+  width:46px; height:46px; border-radius:var(--r-md);
+  background: linear-gradient(135deg,var(--clr-primary),var(--clr-accent));
+  color:white; display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:19px; flex-shrink:0;
+  box-shadow:0 4px 12px rgba(37,99,235,0.28);
 }
-
-.index-header h1 {
-  font-size: 20px;
-  margin-bottom: 2px;
-}
-
-.index-header p {
-  font-size: 13px;
-  color: #6b7280;
-}
-
-/* Buttons */
-.index-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 16px 0;
-}
-
+.index-header h1 { font-size:20px; font-weight:800; color:var(--clr-text-1); margin-bottom:2px; }
+.index-header p  { font-size:13px; color:var(--clr-text-3); }
+.index-buttons { display:flex; flex-direction:column; gap:10px; margin:18px 0; }
 .index-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  padding: 10px 12px;
-  border-radius: 12px;
-  font-size: 15px;
+  display:flex; align-items:center; gap:10px; text-decoration:none;
+  padding:13px 16px; border-radius:var(--r-lg); font-size:14px; font-weight:600;
+  transition:var(--ease);
 }
-
+.index-btn:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
 .index-btn-teacher {
-  background: #2563eb;
-  color: white;
+  background: linear-gradient(135deg,var(--clr-primary),var(--clr-accent));
+  color:white; box-shadow:0 4px 12px rgba(37,99,235,0.28);
 }
-
-.index-btn-teacher:hover {
-  background: #1d4ed8;
-}
-
 .index-btn-student {
-  background: #f3f4f6;
-  color: #111827;
+  background:var(--clr-bg); color:var(--clr-text-2); border:1px solid var(--clr-border);
+}
+.index-btn-student:hover { background:var(--clr-success-light); border-color:var(--clr-success-border); color:var(--clr-success); }
+.index-footer { font-size:11px; color:var(--clr-text-4); text-align:center; margin-top:8px; }
+
+/* =========================================================
+   12. UTILITIES + ANIMATIONS
+   ========================================================= */
+@keyframes fade-in {
+  from { opacity:0; transform:translateY(6px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes modal-in {
+  from { opacity:0; transform:scale(0.95) translateY(6px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+@keyframes pulse-dot {
+  0%,100%{ opacity:1; } 50%{ opacity:0.4; }
 }
 
-.index-btn-student:hover {
-  background: #e5e7eb;
-}
-
-/* Footer */
-.index-footer {
-  font-size: 11px;
-  color: #9ca3af;
-  text-align: center;
-  margin-top: 6px;
-}
-/* TEXT EDITOR */
-.text-toolbar {
-  position: fixed;
-  top: 70px;
-  left: 260px;
-  background: white;
-  border: 1px solid #d1d5db;
-  padding: 6px;
-  border-radius: 8px;
-  display: flex;
-  gap: 6px;
-  z-index: 9999;
-}
-.text-toolbar button {
-  padding: 4px 8px;
-  border-radius: 6px;
-  background: #f3f4f6;
-  border: none;
-  cursor: pointer;
-}
-.text-editor {
-  position: fixed;
-  top: 120px;
-  left: 260px;
-  width: 500px;
-  height: 300px;
-  background: white;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 10px;
-  z-index: 9999;
-}
-.text-editor-area {
-  width: 100%;
-  height: 100%;
-  outline: none;
-}
-
-.fullscreen-btn {
-    border: none;
-    background: #e0e7ff;
-    padding: 2px 6px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-}
-.fullscreen-btn:hover {
-    background: #c7d2fe;
-}
-/* =========================
-   GEO GEBRA iframe (FULL SIZE)
-   ========================= */
-.geogebra-frame {
-    width: 100%;
-    min-height: 600px;
-    height: 600px;
-    border: none;
-    background: white;
-    border-radius: 10px;
-}
-
-/* Толық экран режиміне кіргенде iframe созылуы */
-:fullscreen .geogebra-frame {
-    width: 100%;
-    height: 100%;
-}
-
-
-
-
-
+/* =========================================================
+   13. SCROLLBARS
+   ========================================================= */
+.mod-nav::-webkit-scrollbar,
+.mod-panel-wrap::-webkit-scrollbar,
+.right-panel::-webkit-scrollbar,
+.board-area::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--clr-border); border-radius:var(--r-full); }
+::-webkit-scrollbar-thumb:hover { background:#cbd5e1; }
