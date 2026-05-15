@@ -2,233 +2,249 @@
 <html lang="kk">
 <head>
 <meta charset="UTF-8">
-<title>True / False – Иә / Жоқ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ИӘ / ЖОҚ Генераторы – SmartBoardAI</title>
 <style>
-    body{
-        margin:0;
-        padding:20px;
-        font-family:system-ui,Arial;
-        background:#eef2ff;
-        display:flex;
-        justify-content:center;
-    }
-    .container{
-        max-width:750px;
-        width:100%;
-        background:white;
-        border-radius:16px;
-        padding:20px 24px 32px;
-        box-shadow:0 10px 25px rgba(0,0,0,0.18);
-    }
-    h1{
-        text-align:center;
-        color:#1e3a8a;
-        margin:0 0 16px;
-        font-size:26px;
-    }
-    textarea{
-        width:100%;
-        height:160px;
-        border-radius:12px;
-        border:1px solid #cbd5ff;
-        padding:10px;
-        font-size:14px;
-        resize:vertical;
-        margin-bottom:10px;
-    }
-    button{
-        border:none;
-        border-radius:999px;
-        padding:10px 22px;
-        background:linear-gradient(135deg,#6366f1,#4f46e5);
-        color:white;
-        font-size:15px;
-        cursor:pointer;
-        margin-bottom:14px;
-        box-shadow:0 4px 12px rgba(79,70,229,0.35);
-    }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, Arial, sans-serif;
+    background: linear-gradient(135deg, #ecfdf5, #eff6ff, #fdf4ff);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .wrapper {
+    background: white;
+    border-radius: 28px;
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 24px 60px rgba(15,23,42,0.14);
+    text-align: center;
+  }
+  h1 { font-size: 24px; font-weight: 800; color: #1e293b; margin-bottom: 6px; }
+  .subtitle { font-size: 14px; color: #64748b; margin-bottom: 32px; }
 
-    .statement{
-        font-size:22px;
-        font-weight:600;
-        text-align:center;
-        color:#1e293b;
-        min-height:80px;
-        margin-bottom:20px;
-    }
+  /* MAIN BUTTON */
+  .spin-btn {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 800;
+    color: white;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    box-shadow: 0 12px 30px rgba(99,102,241,0.4);
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin: 0 auto 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .spin-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.25), transparent 60%);
+  }
+  .spin-btn:hover { transform: scale(1.05); box-shadow: 0 16px 40px rgba(99,102,241,0.5); }
+  .spin-btn:active { transform: scale(0.97); }
+  .spin-btn .btn-emoji { font-size: 36px; }
+  .spin-btn .btn-text { font-size: 15px; letter-spacing: 0.5px; }
 
-    .btns{
-        display:flex;
-        justify-content:center;
-        gap:20px;
-    }
-    .tf-btn{
-        border:none;
-        border-radius:12px;
-        padding:14px 30px;
-        font-size:20px;
-        font-weight:600;
-        cursor:pointer;
-        background:#eef2ff;
-        transition:0.15s;
-        border:2px solid transparent;
-    }
-    .tf-btn:hover{
-        transform:scale(1.05);
-        border-color:#c7d2fe;
-    }
-    .correct{
-        background:#22c55e!important;
-        color:#fff!important;
-    }
-    .wrong{
-        background:#ef4444!important;
-        color:#fff!important;
-    }
+  /* RESULT */
+  .result-card {
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 24px;
+    transition: all 0.35s cubic-bezier(.34,1.56,.64,1);
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-card.yes {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    border-color: #86efac;
+    animation: pop-in 0.4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .result-card.no {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    border-color: #fca5a5;
+    animation: pop-in 0.4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .result-card.idle {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+  }
 
-    .finish{
-        text-align:center;
-        font-size:22px;
-        margin-top:24px;
-        color:#1e3a8a;
-        font-weight:600;
-    }
+  @keyframes pop-in {
+    0%  { transform: scale(0.7) rotate(-5deg); opacity: 0; }
+    100%{ transform: scale(1) rotate(0deg);    opacity: 1; }
+  }
 
-    .author{
-        margin-top:26px;
-        text-align:center;
-        font-size:14px;
-        color:#777;
-    }
+  .result-emoji { font-size: 56px; line-height: 1; margin-bottom: 8px; }
+  .result-text  { font-size: 40px; font-weight: 900; letter-spacing: 2px; }
+  .result-yes   { color: #166534; }
+  .result-no    { color: #991b1b; }
+  .result-idle  { color: #94a3b8; font-size: 18px; font-weight: 500; }
+
+  /* HISTORY */
+  .history { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; min-height: 28px; }
+  .hist-chip {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .hist-yes { background: #dcfce7; color: #166534; }
+  .hist-no  { background: #fee2e2; color: #991b1b; }
+
+  /* STATS */
+  .stats { display: flex; gap: 12px; justify-content: center; margin-bottom: 20px; }
+  .stat { background: #f8fafc; border-radius: 12px; padding: 10px 18px; border: 1px solid #e2e8f0; }
+  .stat-num { font-size: 22px; font-weight: 800; }
+  .stat-lbl { font-size: 11px; color: #64748b; }
+  .stat-yes .stat-num { color: #16a34a; }
+  .stat-no  .stat-num { color: #dc2626; }
+
+  /* CONTROLS */
+  .controls { display: flex; gap: 10px; justify-content: center; }
+  .ctrl-btn { border: none; border-radius: 999px; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+  .ctrl-reset { background: #f1f5f9; color: #475569; }
+  .ctrl-reset:hover { background: #e2e8f0; }
+
+  /* SHAKE ANIMATION */
+  @keyframes shake {
+    0%,100%{ transform: translateX(0) rotate(0); }
+    20%    { transform: translateX(-8px) rotate(-3deg); }
+    40%    { transform: translateX(8px)  rotate(3deg); }
+    60%    { transform: translateX(-5px) rotate(-1deg); }
+    80%    { transform: translateX(5px)  rotate(1deg); }
+  }
+  .shaking { animation: shake 0.5s ease; }
+
+  .footer { margin-top: 24px; font-size: 12px; color: #94a3b8; }
+  .footer span { color: #7c3aed; font-weight: 700; }
 </style>
 </head>
 <body>
+<div class="wrapper">
 
-<div class="container">
+  <h1>🎲 ИӘ / ЖОҚ</h1>
+  <div class="subtitle">Кездейсоқ жауап генераторы — сабаққа, ойынға, шешімге</div>
 
-    <h1>True / False – Иә / Жоқ</h1>
+  <!-- RESULT -->
+  <div class="result-card idle" id="resultCard">
+    <div class="result-emoji" id="resultEmoji">🎲</div>
+    <div class="result-text result-idle" id="resultText">Батырманы бас!</div>
+  </div>
 
-    <label>Мәлімдемелер (әр жолға: сөйлем - true/false):</label>
-    <textarea id="dataArea">Жер күнді айналады - true
-5+7 = 15 - false
-Алматы Қазақстанда орналасқан - true
-Мысық ұша алады - false
-Су 0°С-та қатып қалады - true</textarea>
+  <!-- HISTORY -->
+  <div class="history" id="historyBox"></div>
 
-    <div style="font-size:13px;color:#475569;margin-bottom:4px;">
-        Формат: <b>мәтін - true</b> немесе <b>мәтін - false</b>  
-        (true = Иә, false = Жоқ)
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat stat-yes">
+      <div class="stat-num" id="yesCount">0</div>
+      <div class="stat-lbl">ИӘ</div>
     </div>
-
-    <button onclick="startGame()">Ойынды бастау</button>
-
-    <div id="gameBox"></div>
-
-    <div class="author">
-        © Pedagogy Tools • Author: <b>Nazerke Kairatkyzy</b>
+    <div class="stat stat-no">
+      <div class="stat-num" id="noCount">0</div>
+      <div class="stat-lbl">ЖОҚ</div>
     </div>
+  </div>
 
+  <!-- BUTTON -->
+  <button class="spin-btn" id="spinBtn" onclick="generate()">
+    <span class="btn-emoji">✨</span>
+    <span class="btn-text">ТАҢДА!</span>
+  </button>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button class="ctrl-btn ctrl-reset" onclick="resetAll()">🔄 Қайтадан бастау</button>
+  </div>
+
+  <div class="footer">
+    🌿 <b>AI-Pedagogy Tools</b> by <span>Nazerke Kairatkyzy</span> 🌿
+  </div>
 </div>
 
 <script>
-let tasks = [];
-let order = [];
-let index = 0;
-let score = 0;
+  let yesCount = 0, noCount = 0;
+  let history = [];
+  const YES_EMOJIS = ["✅","🎉","👍","🌟","💚","🙌","🔥","⚡"];
+  const NO_EMOJIS  = ["❌","🚫","👎","💔","🔴","😅","🛑","❗"];
 
-function shuffle(arr){
-    for(let i=arr.length-1;i>0;i--){
-        const j=Math.floor(Math.random()*(i+1));
-        [arr[i],arr[j]]=[arr[j],arr[i]];
-    }
-    return arr;
-}
+  function generate() {
+    const btn = document.getElementById("spinBtn");
+    const card = document.getElementById("resultCard");
 
-function startGame(){
-    const txt = document.getElementById("dataArea").value.trim();
-    const lines = txt.split(/\r?\n/).filter(x=>x.trim().length>0);
+    // shake animation
+    btn.classList.remove("shaking");
+    void btn.offsetWidth;
+    btn.classList.add("shaking");
+    setTimeout(() => btn.classList.remove("shaking"), 500);
 
-    tasks = [];
+    // short suspense delay
+    const card2 = document.getElementById("resultCard");
+    card2.className = "result-card idle";
+    document.getElementById("resultEmoji").textContent = "⏳";
+    document.getElementById("resultText").textContent = "...";
+    document.getElementById("resultText").className = "result-text result-idle";
 
-    lines.forEach(line=>{
-        const parts = line.split(/[-–—]/);
-        if(parts.length>=2){
-            const st = parts[0].trim();
-            const ans = parts[1].trim().toLowerCase();
-            if(st && (ans==="true" || ans==="false")){
-                tasks.push({
-                    text: st,
-                    correct: ans==="true"
-                });
-            }
-        }
-    });
+    setTimeout(() => {
+      const isYes = Math.random() < 0.5;
+      const emoji = isYes
+        ? YES_EMOJIS[Math.floor(Math.random() * YES_EMOJIS.length)]
+        : NO_EMOJIS [Math.floor(Math.random() * NO_EMOJIS.length)];
 
-    if(tasks.length === 0){
-        alert("Мәліметтер дұрыс енгізілмеген!");
-        return;
-    }
+      card2.className = "result-card " + (isYes ? "yes" : "no");
+      document.getElementById("resultEmoji").textContent = emoji;
+      document.getElementById("resultText").textContent  = isYes ? "ИӘ" : "ЖОҚ";
+      document.getElementById("resultText").className = "result-text " + (isYes ? "result-yes" : "result-no");
 
-    order = tasks.map((_,i)=>i);
-    shuffle(order);
+      if (isYes) yesCount++; else noCount++;
+      document.getElementById("yesCount").textContent = yesCount;
+      document.getElementById("noCount").textContent  = noCount;
 
-    index = 0;
-    score = 0;
+      history.unshift(isYes ? "yes" : "no");
+      if (history.length > 10) history.pop();
+      renderHistory();
+    }, 400);
+  }
 
-    loadTask();
-}
+  function renderHistory() {
+    document.getElementById("historyBox").innerHTML = history.map(h =>
+      `<span class="hist-chip hist-${h}">${h === "yes" ? "ИӘ" : "ЖОҚ"}</span>`
+    ).join("");
+  }
 
-function loadTask(){
-    const box = document.getElementById("gameBox");
-
-    if(index >= order.length){
-        box.innerHTML = `
-            <div class="finish">
-                Ойын аяқталды!<br>
-                Дұрыс жауаптар: <b>${score}</b> / ${order.length}
-            </div>
-        `;
-        return;
-    }
-
-    const task = tasks[order[index]];
-
-    box.innerHTML = `
-        <div class="statement">${task.text}</div>
-
-        <div class="btns">
-            <button class="tf-btn" onclick="checkAnswer(this,true)">Иә</button>
-            <button class="tf-btn" onclick="checkAnswer(this,false)">Жоқ</button>
-        </div>
-    `;
-}
-
-function checkAnswer(btn, chosen){
-    const task = tasks[order[index]];
-    const correctBtnTxt = task.correct ? "Иә" : "Жоқ";
-
-    const allBtns = document.querySelectorAll(".tf-btn");
-    allBtns.forEach(b=>b.disabled = true);
-
-    if(chosen === task.correct){
-        btn.classList.add("correct");
-        score++;
-    } else {
-        btn.classList.add("wrong");
-        // дұрыс жауапты көрсетеміз
-        allBtns.forEach(b=>{
-            if(b.textContent === correctBtnTxt){
-                b.classList.add("correct");
-            }
-        });
-    }
-
-    setTimeout(()=>{
-        index++;
-        loadTask();
-    },900);
-}
+  function resetAll() {
+    yesCount = 0; noCount = 0; history = [];
+    document.getElementById("yesCount").textContent = "0";
+    document.getElementById("noCount").textContent  = "0";
+    document.getElementById("historyBox").innerHTML = "";
+    const card = document.getElementById("resultCard");
+    card.className = "result-card idle";
+    document.getElementById("resultEmoji").textContent = "🎲";
+    document.getElementById("resultText").textContent  = "Батырманы бас!";
+    document.getElementById("resultText").className    = "result-text result-idle";
+  }
 </script>
-
 </body>
 </html>
