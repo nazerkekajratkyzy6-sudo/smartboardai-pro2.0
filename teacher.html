@@ -62,62 +62,223 @@
   <div class="container">
 
     <!-- =============== SIDEBAR =============== -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="mainSidebar">
 
-      <h2 id="toolsTitle">🧰 Құралдар</h2>
+      <!-- ── MODULE NAV ── -->
+      <nav class="mod-nav" id="modNav">
 
-      <div class="section-title" id="blocksTitle">Блоктар</div>
+        <div class="mod-nav-header">
+          <span class="mod-nav-logo">⚡</span>
+          <span class="mod-nav-title">SmartBoard</span>
+        </div>
 
-      <button class="tool-btn" onclick="addRichText()">📝 <span>Мәтін (Rich)</span></button>
-      <button class="tool-btn" onclick="addFormula()">∑ <span>Формула</span></button>
-      <button class="tool-btn" onclick="addImage()">🖼 <span>Фото</span></button>
-      <button class="tool-btn" onclick="analyzePhoto()">🧠 <span>Фото талдау</span></button>
-      <button class="tool-btn" onclick="addVideo()">🎬 <span>Видео</span></button>
-      <button class="tool-btn" onclick="addLink()">🔗 <span>Сілтеме</span></button>
-      
-      <!-- тренажер панелін ашатын КНОПКА -->
-      <button class="tool-btn" onclick="addTrainer()">🕹 <span>Тренажерлер</span></button>
-      <!-- FULLSCREEN BUTTON -->
-      <button class="tool-btn" onclick="toggleFullscreen()">🖥️ <span>Толық экран</span></button>
-      <button class="tool-btn" onclick="addGeoGebra()">📐 <span>GeoGebra</span></button>
+        <button class="mod-nav-btn active" data-module="lesson"      id="navLesson">
+          <span class="mod-icon">📚</span><span class="mod-label">Сабақ</span>
+        </button>
+        <button class="mod-nav-btn" data-module="organize"   id="navOrganize">
+          <span class="mod-icon">🏫</span><span class="mod-label">Ұйымдастыру</span>
+        </button>
+        <button class="mod-nav-btn" data-module="assessment" id="navAssessment">
+          <span class="mod-icon">⭐</span><span class="mod-label">Бағалау</span>
+        </button>
+        <button class="mod-nav-btn" data-module="feedback"   id="navFeedback">
+          <span class="mod-icon">💬</span><span class="mod-label">Кері байланыс</span>
+        </button>
+        <button class="mod-nav-btn" data-module="interactive" id="navInteractive">
+          <span class="mod-icon">🎮</span><span class="mod-label">Интерактив</span>
+        </button>
+        <button class="mod-nav-btn" data-module="simulators" id="navSimulators">
+          <span class="mod-icon">📐</span><span class="mod-label">Симуляторлар</span>
+        </button>
+        <button class="mod-nav-btn" data-module="ai"         id="navAI">
+          <span class="mod-icon">🤖</span><span class="mod-label">AI орталығы</span>
+        </button>
+        <button class="mod-nav-btn" data-module="materials"  id="navMaterials">
+          <span class="mod-icon">📦</span><span class="mod-label">Материалдар</span>
+        </button>
 
-      <div class="ai-panel">
-  <textarea id="aiPrompt" placeholder="Тапсырма немесе мәтін жазыңыз..."></textarea>
+        <!-- LiveRoom quick -->
+        <div class="mod-nav-divider"></div>
+        <div class="room-box" id="roomBoxNav">
+          <div class="room-id" id="roomId">–</div>
+          <button class="room-btn" id="roomBtn" onclick="createRoom()">🟢 Жаңа бөлме</button>
+          <div class="qr-box" id="qrContainer"></div>
+          <p id="roomHint" class="room-hint">Оқушылар <b>QR арқылы</b> қосылады</p>
+        </div>
 
-  <!-- 📷 Фото жүктеу -->
-  <input 
-    type="file" 
-    id="aiImageInput" 
-    accept="image/*"
-    style="margin:6px 0;"
-  />
+      </nav>
 
-  <button class="ai-btn" onclick="generateAI()">⚡ Генерация</button>
+      <!-- ── MODULE PANELS ── -->
+      <div class="mod-panel-wrap" id="modPanelWrap">
 
-  <div id="aiOutput"></div>
-</div>
+        <!-- 📚 САБАҚ -->
+        <div class="mod-panel active" id="panel-lesson">
+          <div class="mod-panel-title" style="--mod-color:#2563eb;">📚 Сабақ блоктары</div>
+          <div class="mod-section-label">Мазмұн</div>
+          <button class="tool-btn" onclick="addRichText()"><span class="tool-icon">📝</span>Мәтін (Rich)</button>
+          <button class="tool-btn" onclick="addFormula()"><span class="tool-icon">∑</span>Формула</button>
+          <button class="tool-btn" onclick="addImage()"><span class="tool-icon">🖼</span>Фото</button>
+          <button class="tool-btn" onclick="addVideo()"><span class="tool-icon">🎬</span>Видео</button>
+          <button class="tool-btn" onclick="addLink()"><span class="tool-icon">🔗</span>Сілтеме</button>
+          <button class="tool-btn" onclick="addGeoGebra()"><span class="tool-icon">📐</span>GeoGebra</button>
+          <button class="tool-btn" onclick="toggleFullscreen()"><span class="tool-icon">🖥️</span>Толық экран</button>
 
+          <div class="mod-section-label">Беттер</div>
+          <div id="pagesWrap"></div>
+          <button class="tool-btn" id="addPageBtn"><span class="tool-icon">➕</span>Бет қосу</button>
+        </div>
 
+        <!-- 🏫 ҰЙЫМДАСТЫРУ -->
+        <div class="mod-panel" id="panel-organize">
+          <div class="mod-panel-title" style="--mod-color:#0891b2;">🏫 Ұйымдастыру</div>
+          <div class="mod-section-label">Сынып басқару</div>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','timer')"><span class="tool-icon">⏱</span>Таймер</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Oqushy_tandau')"><span class="tool-icon">🎯</span>Оқушы таңдау</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Oqushy_topqa_bolu')"><span class="tool-icon">👥</span>Топқа бөлу</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Topqa_bolu_generator')"><span class="tool-icon">🔀</span>Топ генераторы</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Top_ishindegi_rolderge_bolu')"><span class="tool-icon">🎭</span>Рөл тағайындау</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Suraq_tandau')"><span class="tool-icon">❓</span>Сұрақ таңдау</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Koleso_toptyq_zarys')"><span class="tool-icon">🎡</span>Жарыс дөңгелегі</button>
+        </div>
 
-      <!-- ===== LIVE ROOM ===== -->
-      <div class="section-title" id="liveRoomTitle">LiveRoom</div>
+        <!-- ⭐ БАҒАЛАУ -->
+        <div class="mod-panel" id="panel-assessment">
+          <div class="mod-panel-title" style="--mod-color:#d97706;">⭐ Бағалау</div>
+          <div class="mod-section-label">Бағалау құралдары</div>
+          <button class="tool-btn" onclick="openTrainerDirect('assessment','Zhuldyzsha_bagalau')"><span class="tool-icon">⭐</span>Жұлдызша бағалау</button>
+          <button class="tool-btn" onclick="openTrainerDirect('assessment','Ozin-ozi_bagalau')"><span class="tool-icon">✅</span>Өзін-өзі бағалау</button>
+          <button class="tool-btn" onclick="openTrainerDirect('assessment','Upaı_taqtasy')"><span class="tool-icon">🏆</span>Ұпай тақтасы</button>
+          <button class="tool-btn" onclick="openTrainerDirect('assessment','Rubrika_generatory')"><span class="tool-icon">📋</span>Рубрика генераторы</button>
+          <button class="tool-btn" onclick="openTrainerDirect('assessment','Bagalau_shkalasy_1-10')"><span class="tool-icon">📊</span>Бағалау шкаласы 1–10</button>
+          <button class="tool-btn" onclick="openTrainerDirect('assessment','Toptyq_bagalau')"><span class="tool-icon">👥</span>Топтық бағалау</button>
+          <div class="mod-section-label">Классикалық</div>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Bagalau_generatory')"><span class="tool-icon">📝</span>Бағалау генераторы</button>
+          <button class="tool-btn" onclick="openTrainerDirect('reflection','Bagalau_juiesi')"><span class="tool-icon">📈</span>Бағалау жүйесі</button>
+        </div>
 
-      <div class="room-box">
-        <div class="room-id" id="roomId">–</div>
-        <button class="room-btn" id="roomBtn" onclick="createRoom()">🟢 Жаңа бөлме</button>
+        <!-- 💬 КЕРІ БАЙЛАНЫС -->
+        <div class="mod-panel" id="panel-feedback">
+          <div class="mod-panel-title" style="--mod-color:#db2777;">💬 Кері байланыс</div>
+          <div class="mod-section-label">Рефлексия</div>
+          <button class="tool-btn" onclick="openTrainerDirect('reflection','bagdarsham_refleksiya')"><span class="tool-icon">🚦</span>Бағдаршам</button>
+          <button class="tool-btn" onclick="openTrainerDirect('reflection','Poiyz_refleksiya')"><span class="tool-icon">🚆</span>Пойыз</button>
+          <button class="tool-btn" onclick="openTrainerDirect('reflection','batareya_refleksiya')"><span class="tool-icon">🔋</span>Батарея</button>
+          <button class="tool-btn" onclick="openTrainerDirect('reflection','dombyra_refleksiya')"><span class="tool-icon">🎵</span>Домбыра</button>
+          <button class="tool-btn" onclick="openTrainerDirect('reflection','emotion_refleksiya')"><span class="tool-icon">😊</span>Эмоция</button>
+          <button class="tool-btn" onclick="openTrainerDirect('reflection','emoji_reflection')"><span class="tool-icon">🎭</span>Emoji рефлексия</button>
+          <button class="tool-btn" onclick="openTrainerDirect('reflection','Kerі_baılanys')"><span class="tool-icon">📊</span>Кері байланыс</button>
+          <button class="tool-btn" onclick="openTrainerDirect('reflection','Universal_ref')"><span class="tool-icon">🌐</span>Универсал ЖИ</button>
+          <div class="mod-section-label">Сезім / Көңіл-күй</div>
+          <button class="tool-btn" onclick="openTrainerDirect('reflection','Refleksiya_Kevin')"><span class="tool-icon">🎬</span>Кевин</button>
+          <button class="tool-btn" onclick="openTrainerDirect('reflection','Refleksiya_ufo')"><span class="tool-icon">🛸</span>UFO</button>
+          <button class="tool-btn" onclick="openTrainerDirect('reflection','konil-kuı/_shary')"><span class="tool-icon">🎈</span>Шар (көңіл-күй)</button>
+          <button class="tool-btn" onclick="openTrainerDirect('reflection','psihonastroy')"><span class="tool-icon">🧠</span>Психонастрой</button>
+          <div class="mod-section-label">Сөз бұлты</div>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','wordcloud')"><span class="tool-icon">☁️</span>WordCloud</button>
+        </div>
 
-        <div class="qr-box" id="qrContainer"></div>
+        <!-- 🎮 ИНТЕРАКТИВ -->
+        <div class="mod-panel" id="panel-interactive">
+          <div class="mod-panel-title" style="--mod-color:#d97706;">🎮 Интерактив</div>
+          <div class="mod-section-label">Quiz / Тест</div>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Tort_nusqaly_Quiz')"><span class="tool-icon">❓</span>4 нұсқалы Quiz</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Ia_Joq')"><span class="tool-icon">🎲</span>Иә / Жоқ</button>
+          <div class="mod-section-label">Сәйкестендіру</div>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Match_Up')"><span class="tool-icon">🔗</span>Match Up</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Saikestendiru')"><span class="tool-icon">🔀</span>Сәйкестендіру</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Syzyqpen_saikestendir')"><span class="tool-icon">〰</span>Сызықпен</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Qai_sym_qai_shamga_barady')"><span class="tool-icon">⚡</span>Қай сым?</button>
+          <div class="mod-section-label">Топтастыру / Сорттау</div>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Erezhege_sai_toptastyr')"><span class="tool-icon">📂</span>Ережеге сай</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Jyldam_toptastyru')"><span class="tool-icon">⚡</span>Жылдам топтастыру</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Magynasyna_qarai_bol')"><span class="tool-icon">🗂</span>Мағынасына қарай</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Rettilik_qurastyr')"><span class="tool-icon">📋</span>Реттілік құрастыр</button>
+          <div class="mod-section-label">Жад / Зейін</div>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Jad_pen_zeyindi_damytu')"><span class="tool-icon">🧠</span>Жад пен зейін</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Jyldam_reakciya_oyny')"><span class="tool-icon">⚡</span>Жылдам реакция</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Bagytty_tanda')"><span class="tool-icon">🧭</span>Бағыт таңда</button>
+          <div class="mod-section-label">Тіл / Сөздік</div>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','anagram')"><span class="tool-icon">🔤</span>Анаграмма</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Wordsearch_KZ')"><span class="tool-icon">🔍</span>Жасырын сөздер</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','crossword')"><span class="tool-icon">🧩</span>Кроссворд</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','tarsia')"><span class="tool-icon">🔺</span>Tarsia</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Este_saktau_kartochkalary')"><span class="tool-icon">🃏</span>Flashcards</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Soilem_qurastyr')"><span class="tool-icon">✍️</span>Сөйлем құрастыр</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Sozdi_bir-birine_turlendir')"><span class="tool-icon">🔄</span>Сөзді түрлендіру</button>
+          <div class="mod-section-label">Ойындар</div>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Togyzqumalaq_oiin')"><span class="tool-icon">🎮</span>Тоғызқұмалақ</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Artyq_sozdi_tap')"><span class="tool-icon">🕵️</span>Артық сөзді тап</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Bigger_or_Smaller')"><span class="tool-icon">⚖️</span>Үлкен/Кіші</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','Ulgini_jalgastyr')"><span class="tool-icon">🔮</span>Үлгіні жалғастыр</button>
+        </div>
 
-        <p id="roomHint" class="room-hint">
-          Оқушылар <b>QR арқылы</b> қосылады
-        </p>
-      </div>
+        <!-- 📐 СИМУЛЯТОРЛАР -->
+        <div class="mod-panel" id="panel-simulators">
+          <div class="mod-panel-title" style="--mod-color:#059669;">📐 Симуляторлар</div>
+          <div class="mod-section-label">5–6 сынып</div>
+          <button class="tool-btn" onclick="openTrainerDirect('math','Matematika_trenazhery(5–6synyp)')"><span class="tool-icon">🔢</span>Математика 5–6</button>
+          <button class="tool-btn" onclick="openTrainerDirect('math','Koordinata_zhaiyqtyq')"><span class="tool-icon">📍</span>Координата жазықтық</button>
+          <button class="tool-btn" onclick="openTrainerDirect('math','On_zhane_teris_sandar_6')"><span class="tool-icon">±</span>Оң/теріс сандар</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','San_syzygynda_belgele')"><span class="tool-icon">📏</span>Сан сызығы</button>
+          <div class="mod-section-label">7–8 сынып</div>
+          <button class="tool-btn" onclick="openTrainerDirect('math','Algebra_trenazhery(7–11)')"><span class="tool-icon">📗</span>Алгебра 7–11</button>
+          <button class="tool-btn" onclick="openTrainerDirect('math','Geometriya_trenazhery(7–11)')"><span class="tool-icon">📐</span>Геометрия 7–11</button>
+          <button class="tool-btn" onclick="openTrainerDirect('math','8-synyp–Viet_teoremasy')"><span class="tool-icon">📊</span>Виет теоремасы</button>
+          <button class="tool-btn" onclick="openTrainerDirect('math','Pifagor_teoremasy_8')"><span class="tool-icon">📐</span>Пифагор 8</button>
+          <button class="tool-btn" onclick="openTrainerDirect('math','Negizgi_trigonometrialyq_tepe-tendikter_8')"><span class="tool-icon">〜</span>Тригонометрия 8</button>
+          <div class="mod-section-label">9–11 сынып</div>
+          <button class="tool-btn" onclick="openTrainerDirect('math','Arif_prog')"><span class="tool-icon">📈</span>Арифм. прогрессия</button>
+          <button class="tool-btn" onclick="openTrainerDirect('math','Geom_progressiya')"><span class="tool-icon">📈</span>Геом. прогрессия</button>
+          <button class="tool-btn" onclick="openTrainerDirect('math','Kombinatorika_9')"><span class="tool-icon">🎲</span>Комбинаторика 9</button>
+          <button class="tool-btn" onclick="openTrainerDirect('math','10parametr')"><span class="tool-icon">📊</span>Параметрлік функция</button>
+          <button class="tool-btn" onclick="openTrainerDirect('math','10butin')"><span class="tool-icon">🔢</span>Бүтін сандар зертх.</button>
+          <div class="mod-section-label">Графиктер</div>
+          <button class="tool-btn" onclick="openTrainerDirect('math','funkciyalar_grafigi–7-synyp')"><span class="tool-icon">📈</span>Функция графигі</button>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','solver')"><span class="tool-icon">🔍</span>Math Solver</button>
+          <button class="tool-btn" onclick="addGeoGebra()"><span class="tool-icon">📐</span>GeoGebra</button>
+          <div class="mod-section-label">Статистика</div>
+          <button class="tool-btn" onclick="openTrainerDirect('math','Absoliutti_jiilik_7')"><span class="tool-icon">📊</span>Абс. жиілік</button>
+          <button class="tool-btn" onclick="openTrainerDirect('math','Jiilik_kestesi_jane_jiilik_alqaby')"><span class="tool-icon">📋</span>Жиілік кестесі</button>
+          <button class="tool-btn" onclick="openTrainerDirect('math','Salystrmaly_jiilik_7')"><span class="tool-icon">📉</span>Салыс. жиілік</button>
+        </div>
 
+        <!-- 🤖 AI ОРТАЛЫҒЫ -->
+        <div class="mod-panel" id="panel-ai">
+          <div class="mod-panel-title" style="--mod-color:#6366f1;">🤖 AI орталығы</div>
+          <div class="mod-section-label">AI генерация</div>
+          <div class="ai-panel">
+            <select id="aiActionSelect" style="width:100%;padding:8px;border-radius:10px;border:1px solid #c7d2fe;margin-bottom:8px;font-size:13px;">
+              <option value="chat">💬 Жалпы сұрақ</option>
+              <option value="lesson_plan">📋 Сабақ жоспары</option>
+              <option value="tasks">✏️ Тапсырмалар (5 дана)</option>
+              <option value="quiz">🎯 Тест сұрақтары (10)</option>
+              <option value="split">📦 Мәтінді блоктарға бөлу</option>
+            </select>
+            <textarea id="aiPrompt" placeholder="Тақырып немесе мәтін жазыңыз..."></textarea>
+            <input type="file" id="aiImageInput" accept="image/*" style="margin:6px 0; font-size:12px;"/>
+            <button class="ai-btn" onclick="generateAI()">⚡ Генерация</button>
+            <div id="aiOutput"></div>
+          </div>
+          <div class="mod-section-label">AI тренажерлер</div>
+          <button class="tool-btn" onclick="openTrainerDirect('generators','pisa_timss_generator')"><span class="tool-icon">🧪</span>PISA/TIMSS генератор</button>
+        </div>
 
-      <!-- ===== PAGES ===== -->
-      <div class="section-title" id="pagesTitle">📄 Беттер</div>
-      <div id="pagesWrap"></div>
-      <button class="tool-btn" id="addPageBtn">➕ Бет қосу</button>
+        <!-- 📦 МАТЕРИАЛДАР -->
+        <div class="mod-panel" id="panel-materials">
+          <div class="mod-panel-title" style="--mod-color:#0284c7;">📦 Материалдар</div>
+          <div class="mod-section-label">Мазмұн блоктары</div>
+          <button class="tool-btn" onclick="addRichText()"><span class="tool-icon">📝</span>Мәтін блогы</button>
+          <button class="tool-btn" onclick="addFormula()"><span class="tool-icon">∑</span>Формула</button>
+          <button class="tool-btn" onclick="addImage()"><span class="tool-icon">🖼</span>Фото жүктеу</button>
+          <button class="tool-btn" onclick="analyzePhoto()"><span class="tool-icon">🧠</span>Фото талдау (AI)</button>
+          <button class="tool-btn" onclick="addVideo()"><span class="tool-icon">🎬</span>Видео (YouTube)</button>
+          <button class="tool-btn" onclick="addLink()"><span class="tool-icon">🔗</span>Сілтеме/iframe</button>
+          <button class="tool-btn" onclick="addGeoGebra()"><span class="tool-icon">📐</span>GeoGebra</button>
+          <div class="mod-section-label">Барлық тренажерлер</div>
+          <button class="tool-btn" onclick="addTrainer()"><span class="tool-icon">🕹</span>Тренажер каталогы</button>
+        </div>
+
+      </div><!-- /mod-panel-wrap -->
 
     </aside>
 
@@ -174,12 +335,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
