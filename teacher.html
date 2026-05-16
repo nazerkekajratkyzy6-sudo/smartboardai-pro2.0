@@ -23,6 +23,8 @@
     <button class="lang-btn" id="langKZ">KZ</button>
     <button class="lang-btn" id="langRU">RU</button>
     <button class="lang-btn" id="langEN">EN</button>
+    <span id="cabinetStatus" style="font-size:12px;color:#4f46e5;margin-right:8px;"></span>
+    <button onclick="openCabinet()" style="background:linear-gradient(135deg,#4f46e5,#818cf8);color:white;padding:5px 14px;border-radius:999px;font-size:12px;font-weight:700;box-shadow:0 2px 8px rgba(79,70,229,0.3);">📚 Сабақтарым</button>
     <button class="logout-btn" id="logout">🔒 Шығу</button>
   </div>
 </div>
@@ -369,6 +371,7 @@ window.openTrainerDirect = function(category, id) {
 </script>
 
 <script type="module" src="teacher.js"></script>
+<script type="module" src="lessonCabinet.js"></script>
 <script type="module" src="firebaseConfig.js"></script>
 
 </body>
