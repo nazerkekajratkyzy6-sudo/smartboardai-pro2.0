@@ -28,6 +28,25 @@ let editingBlockId = null;
 let pages = [{ id: "page_1", blocks: [] }];
 let currentPageIndex = 0;
 
+
+// =====================================================
+// TEACHER CABINET — STATE API
+// =====================================================
+window.getTeacherState = function() {
+  return {
+    pages:            JSON.parse(JSON.stringify(pages)),
+    currentPageIndex: currentPageIndex,
+  };
+};
+
+window.setTeacherState = function(state) {
+  if (!state || !state.pages) return;
+  pages            = state.pages;
+  currentPageIndex = state.currentPageIndex || 0;
+  renderPages();
+  renderBoard();
+};
+
 // =====================================================
 // TRAINERS DATA
 // Папка аты (id) → URL: /trainers/<category>/<id>/index.html
@@ -746,36 +765,8 @@ window.addGeoGebra = () => {
 };
 
 // =====================================================
-// MODULE NAVIGATION SYSTEM
+// TRAINER PANEL (оң жақта, студент жауаптарының үстінде)
 // =====================================================
-
-function initModuleNav() {
-  const navBtns = document.querySelectorAll(".mod-nav-btn[data-module]");
-  const panels  = document.querySelectorAll(".mod-panel");
-
-  navBtns.forEach(btn => {
-    btn.addEventListener("click", () => {
-      const mod = btn.dataset.module;
-
-      // Active state on nav buttons
-      navBtns.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-
-      // Show correct panel
-      panels.forEach(p => p.classList.remove("active"));
-      const target = document.getElementById("panel-" + mod);
-      if (target) target.classList.add("active");
-    });
-  });
-}
-
-// Open a trainer directly (used by module panel buttons)
-window.openTrainerDirect = function(category, id) {
-  const url = `/trainers/${category}/${id}/index.html`;
-  addBlock("trainer", url);
-};
-
-
 function buildTrainerPanelDom() {
   const rightPanel = document.querySelector(".right-panel");
   if (!rightPanel) return;
@@ -1488,9 +1479,6 @@ if (savedRoom) {
 
   // Тренажер панелі DOM-ды құру
   buildTrainerPanelDom();
-
-  // Модуль навигация жүйесін іске қосу
-  initModuleNav();
 // =====================================================
 // FULLSCREEN MODE
 // =====================================================
