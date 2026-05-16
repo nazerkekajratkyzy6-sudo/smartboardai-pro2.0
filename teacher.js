@@ -663,6 +663,15 @@ if (window.MathJax) {
 }
 
 
+
+// window-ға шығару — HTML onclick үшін
+window.addBlock = addBlock;
+
+// Тренажерді тікелей ашу (sidebar батырмалары)
+window.openTrainerDirect = function(category, id) {
+  addBlock('trainer', `/trainers/${category}/${id}/index.html`);
+};
+
 // =====================================================
 // BLOCK BUTTONS (MODAL + FILE)
 // =====================================================
