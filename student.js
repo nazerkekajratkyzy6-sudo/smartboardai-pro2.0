@@ -85,6 +85,12 @@ function detectRoomFromURL() {
   if (roomAutoHint) {
     roomAutoHint.classList.remove("hidden");
   }
+
+  setTimeout(() => {
+    if (nameInput?.value.trim()) {
+      saveStudentPresence();
+    }
+  }, 500);
 }
 
 function listenFeedback() {
@@ -332,61 +338,61 @@ function applyLang(lang) {
 }
 
 // ====== LISTEN TEACHER BLOCK ======
-let teacherBlockListening = false;
-
 function listenTeacherBlock() {
   const roomId = getRoomId();
   if (!roomId) return;
-  if (teacherBlockListening) return; // қайталап listener қоспас үшін
-  teacherBlockListening = true;
 
   const blockRef = ref(db, `rooms/${roomId}/activeBlock`);
-
-  const fsBtn = `
-    <button onclick="openFullscreenTask()" style="
-      display:block; width:100%; margin-bottom:10px;
-      background:#2563eb; color:white; border:none;
-      border-radius:10px; padding:8px 12px; cursor:pointer;
-      font-size:14px; font-weight:600;
-    ">⛶ Толық экранда ашу</button>
-  `;
 
   onValue(blockRef, (snap) => {
     const data = snap.val();
     if (!teacherBlock || !data) return;
 
-    if (data.type === "text" || data.type === "ai") {
-      teacherBlock.innerHTML = `
-        ${fsBtn}
-        <div id="studentTaskContent" style="font-size:15px; line-height:1.6;">
-          ${String(data.content || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}
-        </div>`;
-    } else if (data.type === "rich") {
-      teacherBlock.innerHTML = `${fsBtn}<div id="studentTaskContent" style="font-size:15px; line-height:1.6;">${data.content}</div>`;
+    if (data.type === "text" || data.type === "ai" || data.type === "rich") {
+      teacherBlock.innerHTML = `<div>${data.content}</div>`;
     } else if (data.type === "formula") {
-      teacherBlock.innerHTML = `${fsBtn}<div id="studentTaskContent" style="font-size:18px; text-align:center; padding:10px 0;">\\(${data.content}\\)</div>`;
-    } else if (data.type === "image") {
-      teacherBlock.innerHTML = `${fsBtn}<img id="studentTaskContent" src="${data.content}" style="width:100%; border-radius:10px; display:block;">`;
-    } else if (data.type === "trainer" || data.type === "video" || data.type === "geogebra" || data.type === "link") {
-      teacherBlock.innerHTML = `
-        <div style="position:relative;">
-          <button onclick="openFullscreenTask()" style="
-            position:absolute; top:8px; right:8px; z-index:10;
-            background:#2563eb; color:white; border:none;
-            border-radius:10px; padding:6px 12px; cursor:pointer;
-            font-size:14px; font-weight:600;
-            box-shadow:0 4px 10px rgba(0,0,0,0.15);
-          ">⛶ Толық экран</button>
-          <iframe id="studentTaskFrame" src="${data.content}"
-            style="width:100%; height:420px; border-radius:12px; border:1px solid #e2e8f0; display:block;"
-            allowfullscreen allow="fullscreen; microphone; camera">
-          </iframe>
-        </div>`;
+      teacherBlock.innerHTML = `<div class="math-block">\\(${data.content}\\)</div>`;
+    } else if (data.type === "trainer" || data.type === "video") {
+     teacherBlock.innerHTML = `
+  <div style="position:relative;">
+    
+    <button onclick="openFullscreenTask()" style="
+      position:absolute;
+      top:8px;
+      right:8px;
+      z-index:10;
+      background:#2563eb;
+      color:white;
+      border:none;
+      border-radius:10px;
+      padding:6px 10px;
+      cursor:pointer;
+      font-size:14px;
+      box-shadow:0 4px 10px rgba(0,0,0,0.15);
+    ">
+      ⛶
+    </button>
+
+    <iframe 
+      id="studentTaskFrame"
+      src="${data.content}" 
+      style="
+        width:100%;
+        height:420px;
+        border-radius:12px;
+        border:1px solid #e2e8f0;
+      ">
+    </iframe>
+
+  </div>
+`;
     } else {
-      teacherBlock.innerHTML = `${fsBtn}<div id="studentTaskContent">${data.content}</div>`;
+      teacherBlock.innerHTML = `<div>${data.content}</div>`;
     }
 
-    if (window.MathJax) MathJax.typesetPromise();
+    if (window.MathJax) {
+      MathJax.typesetPromise();
+    }
   });
 }
 
@@ -394,6 +400,7 @@ function listenTeacherBlock() {
 function attachEvents() {
   if (sendBtn) sendBtn.addEventListener("click", async () => {
     await sendAnswer();
+    listenTeacherBlock();
   });
 
   if (sendPhotoBtn) sendPhotoBtn.addEventListener("click", sendStudentPhoto);
@@ -407,22 +414,6 @@ function attachEvents() {
     avatarSelect.addEventListener("change", saveStudentPresence);
   }
 
-  // Бөлме коды қолмен енгізілсе → listener іске қос
-  if (roomInput) {
-    roomInput.addEventListener("change", () => {
-      if (getRoomId()) {
-        listenTeacherBlock();
-        listenFeedback();
-      }
-    });
-    roomInput.addEventListener("blur", () => {
-      if (getRoomId()) {
-        listenTeacherBlock();
-        listenFeedback();
-      }
-    });
-  }
-
   if (emojiContainer) {
     emojiContainer.querySelectorAll(".emoji-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -432,6 +423,7 @@ function attachEvents() {
     });
   }
 
+  
   if (wcBtn) wcBtn.addEventListener("click", sendWord);
 
   if (btnKZ) btnKZ.addEventListener("click", () => applyLang("kz"));
@@ -445,24 +437,115 @@ document.addEventListener("DOMContentLoaded", () => {
   detectRoomFromURL();
   applyLang("kz");
   attachEvents();
-
-  // QR арқылы бөлме коды бар болса — дереу listener іске қос
-  if (getRoomId()) {
-    listenTeacherBlock();
-    listenFeedback();
-  }
+  listenFeedback();
+  setTimeout(() => {
+    if (getRoomId()) {
+      listenTeacherBlock();
+    }
+  }, 300);
 });
 window.openFullscreenTask = function () {
-  const frame = document.getElementById("studentTaskFrame");
-  if (frame) {
-    if (frame.requestFullscreen) frame.requestFullscreen();
-    else if (frame.webkitRequestFullscreen) frame.webkitRequestFullscreen();
-    else if (frame.msRequestFullscreen) frame.msRequestFullscreen();
-    return;
+  const el = document.getElementById("studentTaskFrame");
+  if (!el) return;
+
+  if (el.requestFullscreen) {
+    el.requestFullscreen();
+  } else if (el.webkitRequestFullscreen) {
+    el.webkitRequestFullscreen();
+  } else if (el.msRequestFullscreen) {
+    el.msRequestFullscreen();
   }
-  const block = document.getElementById("teacherBlock");
-  if (!block) return;
-  if (block.requestFullscreen) block.requestFullscreen();
-  else if (block.webkitRequestFullscreen) block.webkitRequestFullscreen();
-  else if (block.msRequestFullscreen) block.msRequestFullscreen();
 };
+
+// =====================================================
+// NEW STUDENT PRO ROOM — API
+// student.html-мен байланыс
+// =====================================================
+
+// joinRoom — HTML-дегі "Кіру" батырмасы шақырады
+window.joinRoom = function(roomId, name, avatar) {
+  // roomInput, studentName-ге мән қою (бұрынғы логика үшін)
+  const ri = document.getElementById("roomInput");
+  const ni = document.getElementById("studentName");
+  if (ri) ri.value = roomId;
+  if (ni) ni.value = name;
+
+  // avatar store
+  window._studentAvatar = avatar || "🙂";
+  window._studentName   = name;
+  window._studentRoom   = roomId;
+
+  // Бұрынғы saveStudentPresence логикасын іске қосу
+  if (typeof saveStudentPresence === "function") {
+    saveStudentPresence();
+  }
+
+  // Room UI-ді ашу
+  if (window.showStudentRoom) {
+    window.showStudentRoom(name, roomId, avatar || "🙂");
+  }
+
+  // Listen teacher block + feedback
+  if (typeof listenTeacherBlock === "function") listenTeacherBlock();
+  if (typeof listenFeedback === "function") listenFeedback();
+
+  if (window.showStudentStatus) window.showStudentStatus("✅ Сабаққа қосылдыңыз!", "ok");
+};
+
+// sendEmoji — emoji панелінен
+window.sendEmoji = function(emoji) {
+  if (typeof sendEmoji === "function") {
+    // внутренняя функция
+  }
+  // Firebase-ке жазу
+  if (typeof db !== "undefined" && typeof ref !== "undefined" && typeof push !== "undefined") {
+    const roomId = window._studentRoom;
+    if (!roomId) return;
+    push(ref(db, `rooms/${roomId}/emotions`), {
+      emoji,
+      name: window._studentName || "Оқушы",
+      ts: Date.now()
+    }).catch(console.error);
+  }
+};
+
+// Жауап жіберу батырмасын жаңа UI-ге қосу
+document.addEventListener("DOMContentLoaded", () => {
+  // Жаңа sendBtn
+  const newSendBtn = document.getElementById("sendBtn");
+  if (newSendBtn) {
+    newSendBtn.addEventListener("click", async () => {
+      if (typeof sendAnswer === "function") {
+        await sendAnswer();
+        if (window.showStudentStatus) window.showStudentStatus("✅ Жауап жіберілді!", "ok");
+      }
+    });
+  }
+
+  // Жаңа sendPhotoBtn
+  const newPhotoBtn = document.getElementById("sendPhotoBtn");
+  if (newPhotoBtn) {
+    newPhotoBtn.addEventListener("click", async () => {
+      if (typeof sendStudentPhoto === "function") {
+        await sendStudentPhoto();
+        if (window.showStudentStatus) window.showStudentStatus("✅ Фото жіберілді!", "ok");
+      }
+    });
+  }
+
+  // Word cloud жіберу
+  const wordBtn = document.getElementById("sendWordBtn");
+  const wordInput = document.getElementById("wordInput");
+  if (wordBtn && wordInput) {
+    wordBtn.addEventListener("click", () => {
+      const word = wordInput.value.trim();
+      if (!word) return;
+      if (typeof sendWord === "function") sendWord(word);
+      wordInput.value = "";
+      if (window.showStudentStatus) window.showStudentStatus("✅ Жіберілді!", "ok");
+    });
+  }
+});
+
+// listenTeacherBlock override — жаңа UI-ді қолдану
+// (student.js-тегі функция бар, бірақ жаңа showStudentTask-ты шақырамыз)
