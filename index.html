@@ -1,151 +1,729 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-  <meta charset="UTF-8" />
-  <title>SmartBoardAI PRO – Кіру</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- MAIN THEME -->
-  <link rel="stylesheet" href="main.css" />
+  <meta charset="UTF-8"/>
+  <title>SmartBoardAI PRO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="main.css">
 
   <style>
     body {
-      background: #f5f7fb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      overflow-y: auto;
+      height: auto;
+      background:
+        radial-gradient(ellipse at 10% 5%, rgba(79,70,229,0.09), transparent 45%),
+        radial-gradient(ellipse at 90% 80%, rgba(6,182,212,0.07), transparent 45%),
+        var(--bg);
     }
 
-    .login-card {
-      background: white;
-      padding: 36px 42px;
-      width: 420px;
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.10);
+    /* ═══ TOPBAR ═══ */
+    .index-topbar {
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .index-topbar-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 34px; height: 34px;
+      border-radius: var(--r-md);
+      background: linear-gradient(135deg, var(--primary), #818cf8);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: white; font-weight: 800;
+      box-shadow: 0 2px 8px rgba(79,70,229,0.28);
+    }
+
+    .brand-name {
+      font-size: 15px; font-weight: 800;
+      color: var(--text-1);
+    }
+
+    .brand-pro {
+      font-size: 10px; font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), #818cf8);
+      color: white;
+      padding: 2px 7px;
+      border-radius: var(--r-full);
+    }
+
+    .nav-btns {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      padding: 6px 14px;
+      border-radius: var(--r-full);
+      font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 5px;
+      transition: var(--tr);
+    }
+
+    .nav-btn-ghost {
+      background: transparent;
+      color: var(--text-2);
+      border: 1px solid var(--border);
+    }
+    .nav-btn-ghost:hover { background: var(--bg2); }
+
+    .nav-btn-primary {
+      background: linear-gradient(135deg, var(--primary), #818cf8);
+      color: white;
+      box-shadow: 0 2px 8px rgba(79,70,229,0.25);
+    }
+    .nav-btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(79,70,229,0.35);
+    }
+
+    /* ═══ HERO ═══ */
+    .hero {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 56px 20px 48px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 48px;
+      align-items: center;
+    }
+
+    @media(max-width: 800px) {
+      .hero { grid-template-columns: 1fr; gap: 28px; padding: 36px 16px 32px; }
+      .hero-mockup { display: none; }
+    }
+
+    .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid var(--primary-mid);
+      font-size: 12px; font-weight: 700;
+      padding: 5px 12px;
+      border-radius: var(--r-full);
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      font-size: 40px;
+      font-weight: 800;
+      line-height: 1.18;
+      color: var(--text-1);
+      margin-bottom: 16px;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--primary), #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 15px;
+      color: var(--text-3);
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-hero {
+      padding: 12px 24px;
+      border-radius: var(--r-lg);
+      font-size: 14px; font-weight: 700;
+      cursor: pointer; border: none;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 7px;
+      transition: var(--tr);
+    }
+
+    .btn-hero-fill {
+      background: linear-gradient(135deg, var(--primary), #818cf8);
+      color: white;
+      box-shadow: 0 4px 14px rgba(79,70,229,0.30);
+    }
+    .btn-hero-fill:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(79,70,229,0.40);
+    }
+
+    .btn-hero-out {
+      background: var(--white);
+      color: var(--text-2);
+      border: 1.5px solid var(--border);
+    }
+    .btn-hero-out:hover {
+      border-color: var(--primary-mid);
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    /* ─── Mockup ─── */
+    .hero-mockup {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .mockup-bar {
+      background: var(--text-1);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .m-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+
+    .mockup-body {
+      display: flex;
+      height: 260px;
+    }
+
+    .mockup-nav {
+      width: 44px;
+      background: #0f172a;
+      display: flex; flex-direction: column;
+      align-items: center;
+      padding: 10px 0; gap: 7px;
+    }
+
+    .m-nav-item {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+    }
+    .m-nav-item.act { background: rgba(99,102,241,0.4); }
+
+    .mockup-panel {
+      width: 90px;
+      background: var(--white);
+      border-right: 1px solid var(--border2);
+      padding: 8px;
+    }
+
+    .m-tab {
+      height: 20px;
+      border-radius: var(--r-full);
+      margin-bottom: 6px;
+    }
+    .m-tab.act { background: var(--primary); }
+    .m-tab.off { background: var(--bg2); width: 70%; }
+
+    .m-line {
+      height: 7px; border-radius: 3px;
+      background: var(--bg2);
+      margin-bottom: 5px;
+    }
+    .m-line.acc { background: var(--primary-mid); }
+    .m-line.short { width: 55%; }
+
+    .mockup-board {
+      flex: 1;
+      background: var(--bg);
+      padding: 10px;
+    }
+
+    .m-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px;
+      margin-bottom: 8px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .m-card-row {
+      height: 7px; border-radius: 3px;
+      background: var(--border2);
+      margin-bottom: 5px;
+    }
+    .m-card-row.acc { background: var(--primary-mid); }
+    .m-card-row.s { width: 50%; }
+
+    .m-ai-badge {
+      background: var(--primary-light);
+      border: 1px solid var(--primary-mid);
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 10px;
+      color: var(--primary);
+      font-weight: 700;
       text-align: center;
     }
 
-    .login-title {
-      font-size: 26px;
-      font-weight: 700;
-      margin-bottom: 6px;
+    /* ═══ STATS ═══ */
+    .stats-wrap {
+      max-width: 1100px;
+      margin: 0 auto 48px;
+      padding: 0 20px;
     }
 
-    .login-sub {
-      font-size: 16px;
-      color: #6b7280;
-      margin-bottom: 24px;
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
     }
 
-    .login-btn {
-      width: 100%;
-      padding: 14px;
-      border-radius: 10px;
-      display: block;
-      margin-top: 14px;
-      font-size: 16px;
-      font-weight: 600;
-      text-decoration: none;
-      color: white;
+    @media(max-width: 640px) { .stats-grid { grid-template-columns: repeat(2,1fr); } }
+
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 18px 16px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      transition: var(--tr);
+    }
+    .stat-card:hover {
+      border-color: var(--primary-mid);
+      box-shadow: var(--shadow-md);
     }
 
-    .teacher-btn { background: #2563eb; }
-    .teacher-btn:hover { background: #1d4ed8; }
+    .stat-num {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+      margin-bottom: 5px;
+    }
 
-    .student-btn { background: #10b981; }
-    .student-btn:hover { background: #059669; }
+    .stat-lbl {
+      font-size: 12px;
+      color: var(--text-3);
+      font-weight: 500;
+    }
 
-    .lang-row {
+    /* ═══ MODULES ═══ */
+    .section-wrap {
+      max-width: 1100px;
+      margin: 0 auto 48px;
+      padding: 0 20px;
+    }
+
+    .section-head {
       margin-bottom: 20px;
     }
 
-    .lang-row button {
-      background: #eef2ff;
-      padding: 6px 12px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      margin: 0 4px;
+    .section-head h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-1);
+      margin-bottom: 5px;
     }
 
-    .lang-row button:hover {
-      background: #dbe4ff;
-    }
-
-    .footer {
-      margin-top: 24px;
+    .section-head p {
       font-size: 13px;
-      color: #6b7280;
+      color: var(--text-3);
+    }
+
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    @media(max-width: 900px) { .modules-grid { grid-template-columns: repeat(2,1fr); } }
+    @media(max-width: 480px) { .modules-grid { grid-template-columns: 1fr; } }
+
+    .module-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 18px;
+      transition: var(--tr);
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+    }
+    .module-card:hover {
+      border-color: var(--primary-mid);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .module-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--r-lg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+
+    .module-title {
+      font-size: 14px; font-weight: 700;
+      color: var(--text-1); margin-bottom: 5px;
+    }
+
+    .module-desc {
+      font-size: 12px;
+      color: var(--text-3);
+      line-height: 1.5;
+    }
+
+    .module-count {
+      font-size: 11px; font-weight: 700;
+      color: var(--primary);
+      margin-top: 8px;
+    }
+
+    /* ═══ FEATURES ═══ */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    @media(max-width: 768px) { .features-grid { grid-template-columns: repeat(2,1fr); } }
+    @media(max-width: 480px) { .features-grid { grid-template-columns: 1fr; } }
+
+    .feature-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 18px;
+      transition: var(--tr);
+    }
+    .feature-card:hover {
+      border-color: var(--primary-mid);
+      box-shadow: var(--shadow-md);
+    }
+
+    .feat-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--r-lg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .feat-title {
+      font-size: 14px; font-weight: 700;
+      color: var(--text-1); margin-bottom: 5px;
+    }
+
+    .feat-desc {
+      font-size: 12px;
+      color: var(--text-3);
+      line-height: 1.55;
+    }
+
+    /* ═══ CTA ═══ */
+    .cta-wrap {
+      max-width: 1100px;
+      margin: 0 auto 40px;
+      padding: 0 20px;
+    }
+
+    .cta-box {
+      background: linear-gradient(135deg, var(--primary), #6366f1);
+      border-radius: 20px;
+      padding: 44px 32px;
+      text-align: center;
+      box-shadow: 0 12px 36px rgba(79,70,229,0.28);
+    }
+
+    .cta-box h2 {
+      font-size: 26px; font-weight: 800;
+      color: white; margin-bottom: 10px;
+    }
+
+    .cta-box p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.78);
+      margin-bottom: 22px;
+    }
+
+    .btn-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: white;
+      color: var(--primary);
+      padding: 12px 26px;
+      border-radius: var(--r-lg);
+      font-size: 14px; font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+      transition: var(--tr);
+    }
+    .btn-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    /* ═══ FOOTER ═══ */
+    .index-footer {
+      border-top: 1px solid var(--border);
+      padding: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-4);
     }
   </style>
 </head>
-
 <body>
 
-  <div class="login-card">
-      
-      <!-- Тіл -->
-      <div class="lang-row">
-        <button data-lang="kk">🇰🇿 KZ</button>
-        <button data-lang="ru">🇷🇺 RU</button>
-        <button data-lang="en">🇬🇧 EN</button>
-      </div>
+<!-- TOPBAR -->
+<div class="index-topbar">
+  <div class="index-topbar-inner">
+    <a href="index.html" class="brand">
+      <div class="brand-icon">⚡</div>
+      <span class="brand-name">SmartBoardAI</span>
+      <span class="brand-pro">PRO</span>
+    </a>
+    <div class="nav-btns">
+      <a href="student.html" class="nav-btn nav-btn-ghost">👤 Оқушы</a>
+      <a href="login.html" class="nav-btn nav-btn-primary">🔑 Кіру</a>
+    </div>
+  </div>
+</div>
 
-      <div class="login-title" id="lgTitle">SmartBoardAI PRO</div>
-      <div class="login-sub" id="lgSub">Интерактивті сабақ платформасы</div>
-
-      <a href="login.html" class="login-btn teacher-btn">
-        👩‍🏫 <span id="lgTeach">Мұғалім панелі</span>
-      </a>
-
-      <a href="student.html" class="login-btn student-btn">
-        👨‍🎓 <span id="lgStud">Оқушы панелі</span>
-      </a>
-
-      <div class="footer">
-        AI-Pedagogy Tools by Nazerke Kairatkyzy
-      </div>
-
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="hero-chip">✨ AI-powered EdTech платформасы</div>
+    <h1>Ақылды сынып —<br><em>SmartBoardAI PRO</em></h1>
+    <p>
+      Тікелей сабақ жүргізіңіз, оқушыларды QR арқылы қосыңыз,
+      AI көмегімен тапсырмалар жасаңыз және 91+ интерактив
+      тренажерді бір платформада пайдаланыңыз.
+    </p>
+    <div class="hero-actions">
+      <a href="login.html" class="btn-hero btn-hero-fill">🚀 Сабақты бастау</a>
+      <a href="student.html" class="btn-hero btn-hero-out">👤 Оқушы ретінде кіру</a>
+    </div>
   </div>
 
-  <script>
-    const TEXTS = {
-      kk: {
-        title: "SmartBoardAI PRO",
-        subtitle: "Интерактивті сабақ платформасы",
-        teacher: "Мұғалім панелі",
-        student: "Оқушы панелі",
-      },
-      ru: {
-        title: "SmartBoardAI PRO",
-        subtitle: "Интерактивная платформа для уроков",
-        teacher: "Панель учителя",
-        student: "Панель ученика",
-      },
-      en: {
-        title: "SmartBoardAI PRO",
-        subtitle: "Interactive lesson platform",
-        teacher: "Teacher panel",
-        student: "Student panel",
-      },
-    };
+  <!-- MOCKUP -->
+  <div class="hero-mockup">
+    <div class="mockup-bar">
+      <div class="m-dot" style="background:#ef4444;"></div>
+      <div class="m-dot" style="background:#f59e0b;"></div>
+      <div class="m-dot" style="background:#22c55e;"></div>
+      <div style="flex:1;background:rgba(255,255,255,0.1);height:6px;border-radius:3px;margin-left:10px;"></div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-nav">
+        <div class="m-nav-item act"></div>
+        <div class="m-nav-item"></div>
+        <div class="m-nav-item"></div>
+        <div class="m-nav-item"></div>
+        <div class="m-nav-item"></div>
+      </div>
+      <div class="mockup-panel">
+        <div class="m-tab act"></div>
+        <div class="m-tab off"></div>
+        <div style="height:1px;background:var(--border2);margin:8px 0;"></div>
+        <div class="m-line acc"></div>
+        <div class="m-line"></div>
+        <div class="m-line short"></div>
+        <div class="m-line acc"></div>
+        <div class="m-line"></div>
+        <div class="m-line short acc"></div>
+      </div>
+      <div class="mockup-board">
+        <div class="m-card">
+          <div class="m-card-row acc"></div>
+          <div class="m-card-row s"></div>
+        </div>
+        <div class="m-card">
+          <div class="m-card-row"></div>
+          <div class="m-card-row acc"></div>
+          <div class="m-card-row s"></div>
+        </div>
+        <div class="m-ai-badge">🤖 AI генерация</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    function applyLang(lang) {
-      const t = TEXTS[lang] || TEXTS.kk;
-      document.getElementById("lgTitle").textContent = t.title;
-      document.getElementById("lgSub").textContent = t.subtitle;
-      document.getElementById("lgTeach").textContent = t.teacher;
-      document.getElementById("lgStud").textContent = t.student;
-    }
+<!-- STATS -->
+<div class="stats-wrap">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-num">91+</div>
+      <div class="stat-lbl">Интерактив тренажер</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">8</div>
+      <div class="stat-lbl">Педагогикалық модуль</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">QR</div>
+      <div class="stat-lbl">Жылдам қосылу</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">AI</div>
+      <div class="stat-lbl">Педагогикалық ассистент</div>
+    </div>
+  </div>
+</div>
 
-    document.querySelectorAll("button[data-lang]").forEach((btn) => {
-      btn.onclick = () => applyLang(btn.dataset.lang);
-    });
+<!-- MODULES -->
+<div class="section-wrap">
+  <div class="section-head">
+    <h2>Платформа модульдері</h2>
+    <p>Сабақтың барлық кезеңіне арналған құралдар</p>
+  </div>
+  <div class="modules-grid">
 
-    applyLang("kk");
-  </script>
+    <a href="login.html" class="module-card">
+      <div class="module-icon" style="background:#eef2ff;">📚</div>
+      <div class="module-title">Сабақ блоктары</div>
+      <div class="module-desc">Мәтін, формула, фото, видео, GeoGebra, iframe</div>
+      <div class="module-count">7 блок түрі</div>
+    </a>
+
+    <a href="login.html" class="module-card">
+      <div class="module-icon" style="background:#e0f2fe;">🏫</div>
+      <div class="module-title">Ұйымдастыру</div>
+      <div class="module-desc">Таймер, топқа бөлу, оқушы таңдау, рөл тағайындау</div>
+      <div class="module-count">7 құрал</div>
+    </a>
+
+    <a href="login.html" class="module-card">
+      <div class="module-icon" style="background:#fef3c7;">⭐</div>
+      <div class="module-title">Бағалау</div>
+      <div class="module-desc">Жұлдыз, рубрика, ұпай тақтасы, шкала, топтық бағалау</div>
+      <div class="module-count">8 тренажер</div>
+    </a>
+
+    <a href="login.html" class="module-card">
+      <div class="module-icon" style="background:#fdf2f8;">💬</div>
+      <div class="module-title">Кері байланыс</div>
+      <div class="module-desc">Бағдаршам, пойыз, батарея, домбыра, эмоция рефлексиясы</div>
+      <div class="module-count">13+ тренажер</div>
+    </a>
+
+    <a href="login.html" class="module-card">
+      <div class="module-icon" style="background:#fffbeb;">🎮</div>
+      <div class="module-title">Интерактив</div>
+      <div class="module-desc">Quiz, кроссворд, анаграмма, match-up, тоғызқұмалақ</div>
+      <div class="module-count">30+ тренажер</div>
+    </a>
+
+    <a href="login.html" class="module-card">
+      <div class="module-icon" style="background:#f0fdf4;">📐</div>
+      <div class="module-title">Симуляторлар</div>
+      <div class="module-desc">Математика 5–11 сынып, алгебра, геометрия, тригонометрия</div>
+      <div class="module-count">39 тренажер</div>
+    </a>
+
+    <a href="login.html" class="module-card">
+      <div class="module-icon" style="background:#f5f3ff;">🤖</div>
+      <div class="module-title">AI орталығы</div>
+      <div class="module-desc">Тапсырма жасау, сабақ жоспарлау, мәтін талдау, PISA</div>
+      <div class="module-count">5 AI режим</div>
+    </a>
+
+    <a href="login.html" class="module-card">
+      <div class="module-icon" style="background:#eff6ff;">📦</div>
+      <div class="module-title">Материалдар</div>
+      <div class="module-desc">Барлық блоктар мен тренажерлер бір жерде</div>
+      <div class="module-count">91+ ресурс</div>
+    </a>
+
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="section-wrap">
+  <div class="section-head">
+    <h2>Негізгі мүмкіндіктер</h2>
+    <p>Заманауи мұғалімге қажеттінің бәрі</p>
+  </div>
+  <div class="features-grid">
+
+    <div class="feature-card">
+      <div class="feat-icon" style="background:#f0fdf4;">🟢</div>
+      <div class="feat-title">LiveRoom — Тікелей сабақ</div>
+      <div class="feat-desc">QR код арқылы оқушылар қосылады. Нақты уақытта жауаптар, фотолар, эмоциялар.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feat-icon" style="background:#eef2ff;">🤖</div>
+      <div class="feat-title">AI педагогикалық ассистент</div>
+      <div class="feat-desc">Тапсырма жаса, сабақ жоспарла, мәтін талда — 5 AI режим.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feat-icon" style="background:#fffbeb;">📷</div>
+      <div class="feat-title">Фото талдау (AI)</div>
+      <div class="feat-desc">Оқушы тапсырмасының фотосын AI талдайды, қате мен дұрысын анықтайды.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feat-icon" style="background:#f5f3ff;">📚</div>
+      <div class="feat-title">Сабақ кабинеті</div>
+      <div class="feat-desc">Сабақтарды Firebase-та сақта, жүктей, көшір. Автосақтау.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feat-icon" style="background:#e0f2fe;">📐</div>
+      <div class="feat-title">GeoGebra кірістірілген</div>
+      <div class="feat-desc">Тікелей сабақта геометрия мен алгебра визуализациясы.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feat-icon" style="background:#fdf2f8;">📊</div>
+      <div class="feat-title">Нақты уақытта аналитика</div>
+      <div class="feat-desc">Кім қосылды, кім жауап берді, кім фото жіберді — бәрі көрінеді.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-wrap">
+  <div class="cta-box">
+    <h2>Сабақты қазір бастаңыз!</h2>
+    <p>Тіркелу тегін. Барлық негізгі функциялар ашық.</p>
+    <a href="login.html" class="btn-cta">⚡ Кіру / Тіркелу</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="index-footer">
+  <b style="color:var(--text-3);">SmartBoardAI PRO</b> ·
+  AI-Pedagogy Tools by Nazerke Kairatkyzy · 2025
+</div>
 
 </body>
 </html>
-
