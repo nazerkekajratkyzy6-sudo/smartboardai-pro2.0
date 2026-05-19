@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8"/>
+  <title>SmartBoardAI — 3D/AR/VR Зертхана</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:       #4f46e5;
+      --primary-light: #eef2ff;
+      --primary-mid:   #c7d2fe;
+      --accent:        #06b6d4;
+      --accent-light:  #e0f2fe;
+      --success:       #10b981;
+      --white:  #ffffff;
+      --bg:     #f0f2f8;
+      --bg2:    #f8f9fc;
+      --border: #e2e6f0;
+      --text-1: #0f172a;
+      --text-2: #334155;
+      --text-3: #64748b;
+      --text-4: #94a3b8;
+      --r-md:   10px;
+      --r-lg:   14px;
+      --r-xl:   20px;
+      --r-full: 999px;
+      --shadow-sm: 0 2px 6px rgba(15,23,42,0.07);
+      --shadow-md: 0 6px 18px rgba(15,23,42,0.10);
+      --shadow-lg: 0 12px 32px rgba(15,23,42,0.12);
+      --tr: all 0.2s ease;
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { cursor:pointer; border:none; outline:none; font-family:inherit; transition:var(--tr); }
+
+    /* ═══ TOPBAR ═══ */
+    .topbar {
+      height: 56px;
+      background: linear-gradient(135deg, #0f172a, #1e1b4b, #312e81);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px;
+      box-shadow: 0 4px 20px rgba(15,23,42,0.4);
+      position: relative; z-index: 20;
+    }
+
+    .topbar-left { display:flex; align-items:center; gap:12px; }
+
+    .topbar-logo {
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 3px 10px rgba(79,70,229,0.4);
+    }
+
+    .topbar-title { font-size:15px; font-weight:800; color:white; }
+    .topbar-sub   { font-size:10px; color:rgba(255,255,255,0.5); margin-top:1px; }
+
+    .topbar-right { display:flex; align-items:center; gap:8px; }
+
+    .btn-back {
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.85);
+      padding: 6px 14px;
+      border-radius: var(--r-full);
+      font-size: 12px; font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.2);
+      text-decoration: none;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.22); }
+
+    .btn-add-board {
+      background: linear-gradient(135deg, #4f46e5, #818cf8);
+      color: white;
+      padding: 6px 14px;
+      border-radius: var(--r-full);
+      font-size: 12px; font-weight: 700;
+      box-shadow: 0 3px 10px rgba(79,70,229,0.3);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .btn-add-board:hover { transform: translateY(-1px); }
+
+    /* ═══ LAYOUT ═══ */
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      height: calc(100vh - 56px);
+    }
+
+    /* ═══ SIDEBAR ═══ */
+    .sidebar {
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      display: flex; flex-direction: column;
+    }
+
+    .search-wrap {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 9px 12px 9px 36px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      font-size: 13px; color: var(--text-1);
+      background: var(--bg2);
+      position: relative;
+    }
+    .search-input:focus { border-color:var(--primary); outline:none; background:white; }
+
+    .search-wrap-inner {
+      position: relative;
+    }
+    .search-icon {
+      position: absolute; left:10px; top:50%;
+      transform: translateY(-50%);
+      font-size: 14px; color: var(--text-4);
+      pointer-events: none;
+    }
+
+    /* Category filter */
+    .cat-list { padding: 10px 10px 6px; }
+
+    .cat-btn {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: var(--r-md);
+      font-size: 12px; font-weight: 500;
+      color: var(--text-2);
+      background: transparent;
+      border-left: 3px solid transparent;
+      text-align: left;
+      transition: var(--tr);
+    }
+    .cat-btn:hover { background: var(--primary-light); color: var(--primary); }
+    .cat-btn.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-left-color: var(--primary);
+      font-weight: 700;
+    }
+
+    .cat-icon {
+      width: 26px; height: 26px;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; flex-shrink: 0;
+    }
+
+    .cat-count {
+      margin-left: auto;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text-4);
+      font-size: 10px; font-weight: 700;
+      padding: 1px 7px;
+      border-radius: var(--r-full);
+    }
+
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+
+    /* ═══ MAIN CONTENT ═══ */
+    .main {
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Resource grid */
+    .resource-grid-wrap {
+      flex: 1; overflow-y: auto;
+      padding: 18px;
+      background-image: radial-gradient(circle at 90% 10%, rgba(79,70,229,0.04), transparent 40%);
+    }
+
+    .section-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .section-header h2 {
+      font-size: 17px; font-weight: 800; color: var(--text-1);
+    }
+    .section-header p {
+      font-size: 12px; color: var(--text-3);
+      margin-top: 2px;
+    }
+    .resource-count-badge {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 11px; font-weight: 700;
+      padding: 3px 9px;
+      border-radius: var(--r-full);
+      margin-left: auto;
+    }
+
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 14px;
+    }
+
+    /* Resource card */
+    .res-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      overflow: hidden;
+      cursor: pointer;
+      transition: var(--tr);
+      box-shadow: var(--shadow-sm);
+    }
+    .res-card:hover {
+      border-color: var(--primary-mid);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .res-card-thumb {
+      height: 120px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 52px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .res-card-body {
+      padding: 12px 14px;
+    }
+
+    .res-card-title {
+      font-size: 13px; font-weight: 700;
+      color: var(--text-1); margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .res-card-desc {
+      font-size: 11px; color: var(--text-3);
+      line-height: 1.4; margin-bottom: 8px;
+    }
+
+    .res-card-footer {
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    .res-tag {
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px;
+      border-radius: var(--r-full);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .res-source {
+      font-size: 10px; color: var(--text-4);
+      margin-left: auto;
+    }
+
+    /* ═══ PREVIEW PANEL ═══ */
+    .preview-panel {
+      display: none;
+      position: fixed;
+      inset: 56px 0 0 0;
+      background: rgba(15,23,42,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .preview-box {
+      background: var(--white);
+      border-radius: 20px;
+      width: min(960px, 96vw);
+      height: min(680px, 90vh);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .preview-header {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      flex-shrink: 0;
+    }
+
+    .preview-title {
+      font-size: 15px; font-weight: 700; color: var(--text-1);
+    }
+
+    .preview-actions { display:flex; gap:8px; }
+
+    .btn-preview-add {
+      background: linear-gradient(135deg, var(--primary), #818cf8);
+      color: white; padding: 7px 16px;
+      border-radius: var(--r-md);
+      font-size: 13px; font-weight: 700;
+      box-shadow: 0 3px 10px rgba(79,70,229,0.25);
+    }
+    .btn-preview-add:hover { transform: translateY(-1px); }
+
+    .btn-preview-close {
+      background: var(--bg2);
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      padding: 7px 12px;
+      border-radius: var(--r-md);
+      font-size: 13px; font-weight: 600;
+    }
+
+    .preview-iframe {
+      flex: 1; border: none; width: 100%;
+    }
+
+    .resource-grid-wrap::-webkit-scrollbar { width:5px; }
+    .resource-grid-wrap::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+
+    /* No results */
+    .no-results {
+      text-align: center; padding: 60px 20px;
+      color: var(--text-4);
+    }
+    .no-results-icon { font-size: 52px; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">🌐</div>
+    <div>
+      <div class="topbar-title">3D / AR / VR Зертхана</div>
+      <div class="topbar-sub">SmartBoardAI PRO — Симулятор кітапханасы</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <a href="teacher.html" class="btn-back">← Тақтаға оралу</a>
+    <button id="addToBoardBtn" class="btn-add-board" style="display:none;"
+      onclick="addCurrentToBoard()">
+      📌 Тақтаға қосу
+    </button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <div class="search-wrap-inner">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" type="text" id="searchInput"
+          placeholder="Іздеу..." oninput="filterResources(this.value)"/>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="cat-list" id="catList"></div>
+
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="resource-grid-wrap" id="gridWrap">
+      <div class="section-header">
+        <div>
+          <h2 id="sectionTitle">Барлық ресурстар</h2>
+          <p id="sectionDesc">Математика, Физика, Химия, Биология, Жер шары</p>
+        </div>
+        <div class="resource-count-badge" id="countBadge">0 ресурс</div>
+      </div>
+      <div class="resource-grid" id="resourceGrid"></div>
+      <div class="no-results" id="noResults" style="display:none;">
+        <div class="no-results-icon">🔭</div>
+        <div>Іздеу нәтижесі табылмады</div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<!-- PREVIEW PANEL -->
+<div class="preview-panel" id="previewPanel">
+  <div class="preview-box">
+    <div class="preview-header">
+      <div class="preview-title" id="previewTitle">—</div>
+      <div class="preview-actions">
+        <button class="btn-preview-add" onclick="addPreviewToBoard()">
+          📌 Тақтаға қосу
+        </button>
+        <button class="btn-preview-close" onclick="closePreview()">✕ Жабу</button>
+      </div>
+    </div>
+    <iframe class="preview-iframe" id="previewIframe" allowfullscreen></iframe>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// RESOURCE DATABASE
+// ═══════════════════════════════════════════════════
+const RESOURCES = [
+
+  // ── МАТЕМАТИКА ──────────────────────────────────
+  {
+    id: "geo3d_1", cat: "math",
+    title: "GeoGebra 3D Геометрия",
+    desc: "3D денелер, координата кеңістігі, векторлар",
+    icon: "📐", color: "#eef2ff", iconBg: "#c7d2fe",
+    url: "https://www.geogebra.org/3d",
+    source: "GeoGebra", grade: "7-11",
+    tags: ["3D", "Геометрия"],
+  },
+  {
+    id: "geo_func", cat: "math",
+    title: "Функциялар Графигі",
+    desc: "Сызықтық, квадраттық, тригонометриялық функциялар",
+    icon: "📈", color: "#f0fdf4", iconBg: "#bbf7d0",
+    url: "https://www.geogebra.org/graphing",
+    source: "GeoGebra", grade: "7-11",
+    tags: ["Функция", "График"],
+  },
+  {
+    id: "desmos", cat: "math",
+    title: "Desmos Графиктік калькулятор",
+    desc: "Интерактивті функция графиктері мен теңдеулер",
+    icon: "🔢", color: "#fef3c7", iconBg: "#fde68a",
+    url: "https://www.desmos.com/calculator",
+    source: "Desmos", grade: "6-11",
+    tags: ["Функция", "Калькулятор"],
+  },
+  {
+    id: "geo_prob", cat: "math",
+    title: "Ықтималдық Симулятор",
+    desc: "Монета лақтыру, кубик, ықтималдық эксперименттер",
+    icon: "🎲", color: "#fdf4ff", iconBg: "#e9d5ff",
+    url: "https://www.geogebra.org/m/cQvNHMqe",
+    source: "GeoGebra", grade: "8-11",
+    tags: ["Ықтималдық", "Статистика"],
+  },
+  {
+    id: "phet_math", cat: "math",
+    title: "Алгебраны балансты теңдестіру",
+    desc: "Теңдеу шешу визуализациясы (таразы моделі)",
+    icon: "⚖️", color: "#e0f2fe", iconBg: "#bae6fd",
+    url: "https://phet.colorado.edu/sims/html/equality-explorer/latest/equality-explorer_all.html",
+    source: "PhET", grade: "5-8",
+    tags: ["Алгебра", "Теңдеу"],
+  },
+
+  // ── ФИЗИКА ──────────────────────────────────────
+  {
+    id: "phet_wave", cat: "physics",
+    title: "Толқындар зертханасы",
+    desc: "Толқын қасиеттері: жиілік, амплитуда, интерференция",
+    icon: "〰️", color: "#f0fdf4", iconBg: "#bbf7d0",
+    url: "https://phet.colorado.edu/sims/html/wave-on-a-string/latest/wave-on-a-string_all.html",
+    source: "PhET", grade: "8-11",
+    tags: ["Толқын", "Механика"],
+  },
+  {
+    id: "phet_gravity", cat: "physics",
+    title: "Гравитация зертханасы",
+    desc: "Гравитациялық өзара әрекет, масса мен қашықтық",
+    icon: "🌍", color: "#eef2ff", iconBg: "#c7d2fe",
+    url: "https://phet.colorado.edu/sims/html/gravity-force-lab/latest/gravity-force-lab_all.html",
+    source: "PhET", grade: "9-11",
+    tags: ["Гравитация", "Физика"],
+  },
+  {
+    id: "phet_circuit", cat: "physics",
+    title: "Электр тізбегі зертханасы",
+    desc: "Ток, кернеу, кедергі — тізбек жаса",
+    icon: "⚡", color: "#fef3c7", iconBg: "#fde68a",
+    url: "https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_all.html",
+    source: "PhET", grade: "8-11",
+    tags: ["Электр", "Тізбек"],
+  },
+  {
+    id: "phet_optics", cat: "physics",
+    title: "Геометриялық оптика",
+    desc: "Жарық сәулесі, линза, шағылысу, синус заңы",
+    icon: "🔭", color: "#fdf4ff", iconBg: "#e9d5ff",
+    url: "https://phet.colorado.edu/sims/html/bending-light/latest/bending-light_all.html",
+    source: "PhET", grade: "9-11",
+    tags: ["Оптика", "Жарық"],
+  },
+  {
+    id: "phet_projectile", cat: "physics",
+    title: "Снаряд қозғалысы",
+    desc: "Баллистика, лақтыру бұрышы, ауа кедергісі",
+    icon: "🚀", color: "#e0f2fe", iconBg: "#bae6fd",
+    url: "https://phet.colorado.edu/sims/html/projectile-motion/latest/projectile-motion_all.html",
+    source: "PhET", grade: "9-11",
+    tags: ["Кинематика", "Динамика"],
+  },
+  {
+    id: "phet_energy", cat: "physics",
+    title: "Энергия сырғанақта",
+    desc: "Кинетикалық, потенциалдық энергия, үйкеліс",
+    icon: "🎢", color: "#fff7ed", iconBg: "#fed7aa",
+    url: "https://phet.colorado.edu/sims/html/energy-skate-park/latest/energy-skate-park_all.html",
+    source: "PhET", grade: "8-11",
+    tags: ["Энергия", "Механика"],
+  },
+
+  // ── ХИМИЯ ──────────────────────────────────────
+  {
+    id: "phet_atom", cat: "chemistry",
+    title: "Атом құрылысы",
+    desc: "Протон, нейтрон, электрон — атом моделі",
+    icon: "⚛️", color: "#f0fdf4", iconBg: "#bbf7d0",
+    url: "https://phet.colorado.edu/sims/html/build-an-atom/latest/build-an-atom_all.html",
+    source: "PhET", grade: "7-11",
+    tags: ["Атом", "Химия"],
+  },
+  {
+    id: "phet_molarity", cat: "chemistry",
+    title: "Ерітінді концентрациясы",
+    desc: "Молярлық концентрация, еру, сұйылту",
+    icon: "🧪", color: "#eef2ff", iconBg: "#c7d2fe",
+    url: "https://phet.colorado.edu/sims/html/molarity/latest/molarity_all.html",
+    source: "PhET", grade: "9-11",
+    tags: ["Ерітінді", "Химия"],
+  },
+  {
+    id: "phet_reactions", cat: "chemistry",
+    title: "Химиялық реакциялар",
+    desc: "Реакция теңдеулері, стехиометрия",
+    icon: "🔬", color: "#fef3c7", iconBg: "#fde68a",
+    url: "https://phet.colorado.edu/sims/html/reactants-products-and-leftovers/latest/reactants-products-and-leftovers_all.html",
+    source: "PhET", grade: "8-11",
+    tags: ["Реакция", "Химия"],
+  },
+  {
+    id: "phet_states", cat: "chemistry",
+    title: "Заттың агрегаттық күйлері",
+    desc: "Қатты, сұйық, газ — молекулалық модель",
+    icon: "💧", color: "#e0f2fe", iconBg: "#bae6fd",
+    url: "https://phet.colorado.edu/sims/html/states-of-matter/latest/states-of-matter_all.html",
+    source: "PhET", grade: "7-10",
+    tags: ["Термодинамика", "Химия"],
+  },
+
+  // ── БИОЛОГИЯ ────────────────────────────────────
+  {
+    id: "bio_cell", cat: "biology",
+    title: "Жасуша моделі (3D)",
+    desc: "Жануар және өсімдік жасушасының 3D моделі",
+    icon: "🦠", color: "#f0fdf4", iconBg: "#bbf7d0",
+    url: "https://www.geogebra.org/m/zmqkdnqr",
+    source: "GeoGebra", grade: "7-9",
+    tags: ["Биология", "Жасуша"],
+  },
+  {
+    id: "bio_genetics", cat: "biology",
+    title: "Мендель генетикасы",
+    desc: "Тұқым қуалаушылық, доминанттық, рецессивтік",
+    icon: "🧬", color: "#fdf4ff", iconBg: "#e9d5ff",
+    url: "https://phet.colorado.edu/sims/html/natural-selection/latest/natural-selection_all.html",
+    source: "PhET", grade: "9-11",
+    tags: ["Генетика", "Биология"],
+  },
+  {
+    id: "bio_ecosystem", cat: "biology",
+    title: "Экожүйе симуляциясы",
+    desc: "Тамақ тізбегі, популяция динамикасы",
+    icon: "🌿", color: "#f0fdf4", iconBg: "#bbf7d0",
+    url: "https://phet.colorado.edu/sims/html/natural-selection/latest/natural-selection_all.html",
+    source: "PhET", grade: "8-10",
+    tags: ["Экология", "Биология"],
+  },
+
+  // ── ЖАРАТЫЛЫСТАНУ ──────────────────────────────
+  {
+    id: "earth_solar", cat: "earth",
+    title: "Күн жүйесі 3D",
+    desc: "Планеталардың орбиталары, Кеплер заңдары",
+    icon: "🪐", color: "#0f172a", iconBg: "#1e293b",
+    url: "https://phet.colorado.edu/sims/html/my-solar-system/latest/my-solar-system_all.html",
+    source: "PhET", grade: "7-11",
+    tags: ["Астрономия", "Физика"],
+    darkThumb: true,
+  },
+  {
+    id: "earth_greenhouse", cat: "earth",
+    title: "Парниктік эффект",
+    desc: "Климат өзгерісі, CO₂, температура",
+    icon: "🌡️", color: "#fff7ed", iconBg: "#fed7aa",
+    url: "https://phet.colorado.edu/sims/html/greenhouse-effect/latest/greenhouse-effect_all.html",
+    source: "PhET", grade: "8-11",
+    tags: ["Климат", "Экология"],
+  },
+  {
+    id: "earth_map", cat: "earth",
+    title: "Интерактив Дүниежүзілік карта",
+    desc: "Континенттер, мұхиттар, мемлекеттер",
+    icon: "🗺️", color: "#e0f2fe", iconBg: "#bae6fd",
+    url: "https://www.geoguessr.com/free",
+    source: "GeoGuessr", grade: "5-11",
+    tags: ["География", "Карта"],
+  },
+  {
+    id: "earth_tectonic", cat: "earth",
+    title: "Тектоникалық плиталар",
+    desc: "Жер қыртысының қозғалысы, жер сілкінісі",
+    icon: "🌋", color: "#fef2f2", iconBg: "#fecaca",
+    url: "https://phet.colorado.edu/sims/html/plate-tectonics/latest/plate-tectonics_all.html",
+    source: "PhET", grade: "7-9",
+    tags: ["Геология", "Жер"],
+  },
+
+  // ── 3D МОДЕЛЬДЕР ───────────────────────────────
+  {
+    id: "sketchfab_human", cat: "3d",
+    title: "Адам анатомиясы 3D",
+    desc: "Адам денесінің толық 3D моделі, органдар",
+    icon: "🫀", color: "#fef2f2", iconBg: "#fecaca",
+    url: "https://sketchfab.com/3d-models/human-body-anatomy-man-5efcd97fe7bb43f8b6ea2e3f38b5b3c3/embed",
+    source: "Sketchfab", grade: "7-11",
+    tags: ["Биология", "3D модель"],
+  },
+  {
+    id: "sketchfab_dna", cat: "3d",
+    title: "ДНҚ спирал 3D",
+    desc: "ДНҚ молекуласының 3D моделі, нуклеотидтер",
+    icon: "🧬", color: "#eef2ff", iconBg: "#c7d2fe",
+    url: "https://sketchfab.com/3d-models/dna-double-helix-3d-model-85e7c788ea514d5da7f81b3d2c8a0b5e/embed",
+    source: "Sketchfab", grade: "9-11",
+    tags: ["Химия", "3D модель"],
+  },
+  {
+    id: "geo3d_prism", cat: "3d",
+    title: "3D Геометриялық денелер",
+    desc: "Призма, цилиндр, конус, сфера — интерактив 3D",
+    icon: "🔷", color: "#eef2ff", iconBg: "#c7d2fe",
+    url: "https://www.geogebra.org/m/rhyqrqzq",
+    source: "GeoGebra", grade: "6-11",
+    tags: ["Геометрия", "3D"],
+  },
+  {
+    id: "geo3d_vectors", cat: "3d",
+    title: "Векторлар 3D кеңістікте",
+    desc: "Вектор қосу, скаляр және векторлық көбейту",
+    icon: "↗️", color: "#f0fdf4", iconBg: "#bbf7d0",
+    url: "https://www.geogebra.org/m/pqosqvfg",
+    source: "GeoGebra", grade: "10-11",
+    tags: ["Алгебра", "3D"],
+  },
+
+  // ── VR ЗЕРТХАНАЛАР ──────────────────────────────
+  {
+    id: "vr_chem", cat: "vr",
+    title: "Виртуалды Химия зертханасы",
+    desc: "Тәжірибелер: реакциялар, ерітінділер, жану",
+    icon: "🥽", color: "#fdf4ff", iconBg: "#e9d5ff",
+    url: "https://lab.bret.dk/",
+    source: "Virtual Lab", grade: "8-11",
+    tags: ["VR", "Химия"],
+  },
+  {
+    id: "vr_dissect", cat: "vr",
+    title: "Виртуалды Биология зертханасы",
+    desc: "Өсімдік жасушасы, фотосинтез тәжірибесі",
+    icon: "🔬", color: "#f0fdf4", iconBg: "#bbf7d0",
+    url: "https://phet.colorado.edu/sims/html/gene-expression-essentials/latest/gene-expression-essentials_all.html",
+    source: "PhET", grade: "9-11",
+    tags: ["VR", "Биология"],
+  },
+];
+
+// ── Categories ────────────────────────────────────────
+const CATEGORIES = [
+  { id: "all",       label: "Барлығы",        icon: "🌐", bg: "#eef2ff" },
+  { id: "math",      label: "Математика",     icon: "📐", bg: "#eef2ff" },
+  { id: "physics",   label: "Физика",         icon: "⚡", bg: "#fef3c7" },
+  { id: "chemistry", label: "Химия",          icon: "🧪", bg: "#fdf4ff" },
+  { id: "biology",   label: "Биология",       icon: "🦠", bg: "#f0fdf4" },
+  { id: "earth",     label: "Жаратылыстану", icon: "🌍", bg: "#e0f2fe" },
+  { id: "3d",        label: "3D Модельдер",  icon: "🔷", bg: "#eef2ff" },
+  { id: "vr",        label: "VR Зертхана",   icon: "🥽", bg: "#fdf4ff" },
+];
+
+// ── State ─────────────────────────────────────────────
+let currentCat    = "all";
+let currentSearch = "";
+let currentRes    = null;  // Ашылған ресурс
+
+// ── Init ──────────────────────────────────────────────
+function init() {
+  renderCategories();
+  renderResources();
+}
+
+// ── Категориялар ─────────────────────────────────────
+function renderCategories() {
+  const list = document.getElementById("catList");
+  list.innerHTML = CATEGORIES.map(cat => {
+    const count = cat.id === "all"
+      ? RESOURCES.length
+      : RESOURCES.filter(r => r.cat === cat.id).length;
+
+    return `
+      <button class="cat-btn ${cat.id === currentCat ? "active" : ""}"
+        onclick="selectCat('${cat.id}')" >
+        <span class="cat-icon" style="background:${cat.bg};">${cat.icon}</span>
+        ${cat.label}
+        <span class="cat-count">${count}</span>
+      </button>`;
+  }).join("");
+}
+
+function selectCat(catId) {
+  currentCat = catId;
+  renderCategories();
+  renderResources();
+}
+
+// ── Ресурс іздеу ─────────────────────────────────────
+function filterResources(query) {
+  currentSearch = query.toLowerCase();
+  renderResources();
+}
+
+// ── Ресурстарды render ────────────────────────────────
+function renderResources() {
+  const grid = document.getElementById("resourceGrid");
+  const noRes = document.getElementById("noResults");
+  const title = document.getElementById("sectionTitle");
+  const desc  = document.getElementById("sectionDesc");
+  const badge = document.getElementById("countBadge");
+
+  let filtered = RESOURCES.filter(r => {
+    const catMatch = currentCat === "all" || r.cat === currentCat;
+    const searchMatch = !currentSearch ||
+      r.title.toLowerCase().includes(currentSearch) ||
+      r.desc.toLowerCase().includes(currentSearch) ||
+      r.tags.some(t => t.toLowerCase().includes(currentSearch));
+    return catMatch && searchMatch;
+  });
+
+  // Title жаңарту
+  const cat = CATEGORIES.find(c => c.id === currentCat);
+  title.textContent = cat ? cat.label : "Барлық ресурстар";
+  badge.textContent = filtered.length + " ресурс";
+
+  if (!filtered.length) {
+    grid.innerHTML = "";
+    noRes.style.display = "block";
+    return;
+  }
+  noRes.style.display = "none";
+
+  // Tag түстері
+  const tagColors = {
+    "3D":          { bg:"#eef2ff", color:"#4f46e5" },
+    "VR":          { bg:"#fdf4ff", color:"#7c3aed" },
+    "Физика":      { bg:"#fef3c7", color:"#92400e" },
+    "Химия":       { bg:"#fdf4ff", color:"#6d28d9" },
+    "Биология":    { bg:"#f0fdf4", color:"#065f46" },
+    "Математика":  { bg:"#eef2ff", color:"#3730a3" },
+    "Геометрия":   { bg:"#eef2ff", color:"#4338ca" },
+    "Астрономия":  { bg:"#0f172a", color:"#94a3b8" },
+    "Генетика":    { bg:"#fdf4ff", color:"#7c3aed" },
+    "Функция":     { bg:"#f0fdf4", color:"#065f46" },
+    "Толқын":      { bg:"#e0f2fe", color:"#0369a1" },
+    "Оптика":      { bg:"#fef3c7", color:"#92400e" },
+    "Электр":      { bg:"#fef3c7", color:"#b45309" },
+    "Гравитация":  { bg:"#eef2ff", color:"#4338ca" },
+    "Климат":      { bg:"#fff7ed", color:"#9a3412" },
+    "Экология":    { bg:"#f0fdf4", color:"#065f46" },
+    "Алгебра":     { bg:"#eef2ff", color:"#3730a3" },
+    "Реакция":     { bg:"#fdf4ff", color:"#6d28d9" },
+    "Атом":        { bg:"#f0fdf4", color:"#065f46" },
+    "Энергия":     { bg:"#fff7ed", color:"#9a3412" },
+    "Механика":    { bg:"#fef3c7", color:"#92400e" },
+    "Термодинамика": { bg:"#e0f2fe", color:"#0369a1" },
+    "Ықтималдық":  { bg:"#fdf4ff", color:"#6d28d9" },
+    "Калькулятор": { bg:"#f0fdf4", color:"#065f46" },
+    "Теңдеу":      { bg:"#eef2ff", color:"#4338ca" },
+  };
+
+  grid.innerHTML = filtered.map(r => {
+    const thumbBg  = r.darkThumb ? "#0f172a" : r.color;
+    const firstTag = r.tags[0];
+    const tc       = tagColors[firstTag] || { bg:"#f3f4f6", color:"#374151" };
+
+    return `
+      <div class="res-card" onclick="openPreview('${r.id}')">
+        <div class="res-card-thumb" style="background:${thumbBg};">
+          <span>${r.icon}</span>
+        </div>
+        <div class="res-card-body">
+          <div class="res-card-title">${r.title}</div>
+          <div class="res-card-desc">${r.desc}</div>
+          <div class="res-card-footer">
+            <span class="res-tag" style="background:${tc.bg};color:${tc.color};">
+              ${firstTag}
+            </span>
+            ${r.grade ? `<span class="res-tag" style="background:#f3f4f6;color:#6b7280;">${r.grade}</span>` : ""}
+            <span class="res-source">${r.source}</span>
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+// ── Preview ───────────────────────────────────────────
+function openPreview(id) {
+  const res = RESOURCES.find(r => r.id === id);
+  if (!res) return;
+  currentRes = res;
+
+  document.getElementById("previewTitle").textContent = res.icon + " " + res.title;
+  document.getElementById("previewIframe").src = res.url;
+  document.getElementById("previewPanel").style.display = "flex";
+  document.getElementById("addToBoardBtn").style.display = "flex";
+}
+
+function closePreview() {
+  document.getElementById("previewPanel").style.display = "none";
+  document.getElementById("previewIframe").src = "about:blank";
+  document.getElementById("addToBoardBtn").style.display = "none";
+}
+
+// ── Тақтаға қосу ─────────────────────────────────────
+function addPreviewToBoard() {
+  if (!currentRes) return;
+  addToBoard(currentRes);
+  closePreview();
+}
+
+function addCurrentToBoard() {
+  if (!currentRes) return;
+  addToBoard(currentRes);
+}
+
+function addToBoard(res) {
+  // teacher.html ашылса — postMessage жіберу
+  if (window.opener && !window.opener.closed) {
+    window.opener.postMessage({
+      type: "ADD_HUB_RESOURCE",
+      url:  res.url,
+      title: res.title,
+    }, "*");
+    window.close();
+    return;
+  }
+
+  // localStorage арқылы
+  localStorage.setItem("hubResource", JSON.stringify({
+    url:   res.url,
+    title: res.title,
+    icon:  res.icon,
+    time:  Date.now(),
+  }));
+
+  alert(`✅ "${res.title}" тақтаға қосылды!\nТақтаға оралып, блокты жаңартыңыз.`);
+}
+
+// ── Keyboard ─────────────────────────────────────────
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closePreview();
+});
+
+// ── Preview panel click outside ───────────────────────
+document.getElementById("previewPanel").addEventListener("click", (e) => {
+  if (e.target === document.getElementById("previewPanel")) closePreview();
+});
+
+// Іске қосу
+init();
+</script>
+</body>
+</html>
