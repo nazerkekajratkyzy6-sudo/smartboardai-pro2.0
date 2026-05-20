@@ -971,11 +971,8 @@ function formatAIResult(text, action) {
     .replace(/^🟢 (.+)$/gm,  "<div style='color:#059669;font-weight:700;margin:6px 0;'>🟢 $1</div>")
     .replace(/^🟡 (.+)$/gm,  "<div style='color:#d97706;font-weight:700;margin:6px 0;'>🟡 $1</div>")
     .replace(/^🔴 (.+)$/gm,  "<div style='color:#dc2626;font-weight:700;margin:6px 0;'>🔴 $1</div>")
-    .replace(/
-
-/g, "<br><br>")
-    .replace(/
-/g, "<br>");
+    .replace(/\n\n/g, "<br><br>")
+    .replace(/\n/g, "<br>");
 
   return `<div style="
     font-size:14px;line-height:1.7;color:#334155;
@@ -5399,28 +5396,17 @@ window.toggleDarkMode = function() {
     if (label) label.textContent = "Қараңғы тема";
   }
 };
-// openSpinWheel alias
+// openSpinWheel — teacher.js-тегі Spin the Wheel виджетін ашу
 window.openSpinWheel = function() {
-  if (typeof openSpinWheelWidget === 'function') openSpinWheelWidget();
-  else {
-    // Spin Wheel виджетін ашу
-    const existWrap = document.getElementById('spinWheelContainer');
-    if (!existWrap) {
-      // Create minimal spinner
-      const el = document.createElement('div');
-      el.id = 'spinWheelContainer';
-      el.style.cssText = 'position:fixed;top:80px;right:20px;z-index:500;background:white;border-radius:18px;box-shadow:0 10px 36px rgba(15,23,42,0.18);padding:20px;width:300px;';
-      el.innerHTML = '<button onclick="document.getElementById(\"spinWheelContainer\").remove()" style="float:right;border:none;background:#fef2f2;color:#dc2626;border-radius:6px;padding:3px 8px;cursor:pointer;">✕</button><h3 style="margin:0 0 12px;">🎡 Spin the Wheel</h3><canvas id="swCanvas" width="260" height="260" style="border-radius:50%;cursor:pointer;" onclick="doSpinWheel()"></canvas><div id="swResult" style="text-align:center;font-weight:800;font-size:18px;color:#7c3aed;min-height:28px;margin-top:10px;"></div><button onclick="doSpinWheel()" style="width:100%;padding:10px;border:none;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#c026d3);color:white;font-size:14px;font-weight:800;cursor:pointer;margin-top:8px;">🎡 Айналдыру!</button><details style="margin-top:8px;"><summary style="cursor:pointer;font-size:11px;color:#6b7280;">✏️ Тізім</summary><textarea id="swItems" style="width:100%;height:70px;margin-top:6px;padding:8px;border:1.5px solid #e2e6f0;border-radius:8px;font-size:12px;resize:none;font-family:inherit;" oninput="drawSpinWheel()">Оқушы 1
-Оқушы 2
-Оқушы 3
-Оқушы 4
-Оқушы 5</textarea></details>';
-      document.body.appendChild(el);
-      window._swAngle = 0; window._swSpinning = false;
-      drawSpinWheel();
-    }
+  // Егер miniTools dropdown арқылы ашылса
+  const existing = document.getElementById('miniTool-spinwheel');
+  if (existing) { existing.style.display = 'block'; return; }
+  // Немесе openMiniTool арқылы
+  if (typeof window.openMiniTool === 'function') {
+    window.openMiniTool('spin');
   }
 };
+
 
 window.drawSpinWheel = function() {
   const cvs = document.getElementById('swCanvas');
@@ -5459,6 +5445,128 @@ window.doSpinWheel = function() {
       const r=document.getElementById('swResult');
       if(r) r.textContent='🎉 '+items[idx]+'!';
     }
+  }
+  requestAnimationFrame(anim);
+};
+// openSpinWheel — Spin the Wheel
+window.openSpinWheel = function() {
+  const existId = 'wSpinWheel';
+  if (document.getElementById(existId)) {
+    document.getElementById(existId).style.zIndex = 600;
+    return;
+  }
+  const el = document.createElement('div');
+  el.id = existId;
+  el.style.cssText = [
+    'position:fixed;top:80px;right:20px;z-index:500;',
+    'background:white;border-radius:18px;',
+    'box-shadow:0 10px 36px rgba(15,23,42,0.18);',
+    'width:300px;overflow:hidden;'
+  ].join('');
+
+  // Header
+  const hdr = document.createElement('div');
+  hdr.style.cssText = 'background:linear-gradient(135deg,#7c3aed,#c026d3);padding:9px 12px;display:flex;align-items:center;justify-content:space-between;cursor:move;';
+  const lbl = document.createElement('span');
+  lbl.style.cssText = 'color:white;font-size:13px;font-weight:700;';
+  lbl.textContent = '🎡 Spin the Wheel';
+  const cls = document.createElement('button');
+  cls.style.cssText = 'background:rgba(255,255,255,0.2);color:white;border:none;border-radius:6px;width:22px;height:22px;font-size:13px;cursor:pointer;';
+  cls.textContent = '✕';
+  cls.onclick = () => el.remove();
+  hdr.appendChild(lbl);
+  hdr.appendChild(cls);
+
+  // Body
+  const body = document.createElement('div');
+  body.style.cssText = 'padding:14px;text-align:center;';
+
+  const cvs = document.createElement('canvas');
+  cvs.id = 'swCvs'; cvs.width = 260; cvs.height = 260;
+  cvs.style.cssText = 'border-radius:50%;cursor:pointer;display:block;margin:0 auto;';
+  cvs.onclick = () => window.doSpinW();
+
+  const res = document.createElement('div');
+  res.id = 'swRes';
+  res.style.cssText = 'font-size:18px;font-weight:800;color:#7c3aed;min-height:26px;margin:10px 0;';
+
+  const spinBtn = document.createElement('button');
+  spinBtn.style.cssText = 'width:100%;padding:10px;border:none;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#c026d3);color:white;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:8px;';
+  spinBtn.textContent = '🎡 Айналдыру!';
+  spinBtn.onclick = () => window.doSpinW();
+
+  const det = document.createElement('details');
+  const sum = document.createElement('summary');
+  sum.style.cssText = 'font-size:11px;color:#64748b;cursor:pointer;margin-bottom:5px;';
+  sum.textContent = '✏️ Тізімді өзгерту';
+  const ta = document.createElement('textarea');
+  ta.id = 'swItems'; ta.rows = 5;
+  ta.style.cssText = 'width:100%;padding:8px;border:1.5px solid #e2e6f0;border-radius:8px;font-size:12px;resize:none;font-family:inherit;';
+  ta.value = 'Оқушы 1\nОқушы 2\nОқушы 3\nОқушы 4\nОқушы 5';
+  ta.oninput = () => window.drawSpinW();
+  det.appendChild(sum); det.appendChild(ta);
+
+  body.appendChild(cvs); body.appendChild(res);
+  body.appendChild(spinBtn); body.appendChild(det);
+  el.appendChild(hdr); el.appendChild(body);
+  document.body.appendChild(el);
+
+  // Drag
+  hdr.addEventListener('mousedown', (e) => {
+    const ox = e.clientX - el.offsetLeft, oy = e.clientY - el.offsetTop;
+    const mm = (e2) => { el.style.left=(e2.clientX-ox)+'px'; el.style.top=(e2.clientY-oy)+'px'; };
+    const mu = () => { document.removeEventListener('mousemove',mm); document.removeEventListener('mouseup',mu); };
+    document.addEventListener('mousemove', mm); document.addEventListener('mouseup', mu);
+  });
+
+  window._swAngle = 0; window._swSpinning = false;
+  window.drawSpinW();
+};
+
+window.drawSpinW = function() {
+  const cvs = document.getElementById('swCvs');
+  if (!cvs) return;
+  const ctx = cvs.getContext('2d'), cx=130, cy=130, R=122;
+  const ta = document.getElementById('swItems');
+  const items = ta ? ta.value.split('\n').map(s=>s.trim()).filter(Boolean) : ['A','B','C'];
+  window._swItems = items;
+  const n = items.length, arc = Math.PI*2/n;
+  const C = ['#ef4444','#f97316','#f59e0b','#22c55e','#06b6d4','#4f46e5','#8b5cf6','#ec4899'];
+  ctx.clearRect(0,0,260,260);
+  for (let i=0;i<n;i++) {
+    const s=(window._swAngle||0)+i*arc-Math.PI/2, e=s+arc;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,s,e);ctx.closePath();
+    ctx.fillStyle=C[i%C.length];ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=2;ctx.stroke();
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(s+arc/2);ctx.textAlign='right';
+    ctx.fillStyle='white';
+    ctx.font='bold '+Math.max(9,Math.min(13,110/n))+'px Inter,sans-serif';
+    const txt = items[i].length>10 ? items[i].slice(0,10)+'…' : items[i];
+    ctx.fillText(txt,R-10,4);ctx.restore();
+  }
+  ctx.beginPath();ctx.arc(cx,cy,16,0,Math.PI*2);ctx.fillStyle='white';ctx.fill();
+  ctx.beginPath();ctx.moveTo(cx,cy-R+2);ctx.lineTo(cx-9,cy-R-14);ctx.lineTo(cx+9,cy-R-14);
+  ctx.closePath();ctx.fillStyle='#1f2937';ctx.fill();
+};
+
+window.doSpinW = function() {
+  if (window._swSpinning) return;
+  window._swSpinning = true;
+  const tot = Math.PI*2*(8+Math.random()*10);
+  const dur = 4000, st = performance.now(), sa = window._swAngle||0;
+  function anim(now) {
+    const p = Math.min((now-st)/dur, 1);
+    const ease = 1-Math.pow(1-p, 4);
+    window._swAngle = sa+tot*ease;
+    window.drawSpinW();
+    if (p < 1) { requestAnimationFrame(anim); return; }
+    window._swSpinning = false;
+    const items = window._swItems||[], n=items.length;
+    if (!n) return;
+    const arc = Math.PI*2/n;
+    const na = ((window._swAngle%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
+    const idx = Math.floor(((Math.PI*2-na+Math.PI/2+arc/2)%(Math.PI*2))/arc)%n;
+    const r = document.getElementById('swRes');
+    if (r) r.textContent = '🎉 '+items[idx]+'!';
   }
   requestAnimationFrame(anim);
 };
