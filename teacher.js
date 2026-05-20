@@ -19,6 +19,15 @@ import {
   signOut
 } from "./firebaseConfig.js";
 
+// ── safeReady: DOMContentLoaded немесе дереу ──────────
+function safeReady(fn) {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fn, { once: true });
+  } else {
+    fn();
+  }
+}
+
 const $ = (id) => document.getElementById(id);
 
 let currentLang = "kk";
@@ -1580,7 +1589,7 @@ function closePhotoModal() {
 // =====================================================
 // INIT
 // =====================================================
-window.addEventListener("DOMContentLoaded", () => {
+safeReady(() => {
   setupLanguage();
   setupModalEvents();
   renderPages();
@@ -1940,7 +1949,7 @@ window.exportAnalytics = function() {
 
 // ── createRoom-ға analytics hook ──────────────────────
 // DOMContentLoaded кейін wrap — сол кезде window.createRoom нақты бар
-document.addEventListener("DOMContentLoaded", () => {
+safeReady(() => {
   const _origCR = window.createRoom;
   if (typeof _origCR === "function") {
     window.createRoom = function() {
@@ -2377,7 +2386,7 @@ window.contactForPRO = function() {
 // generateAI — барлық режимдер ашық (PRO check жоқ)
 
 // selectAIMode — PRO белгісі (DOMContentLoaded-та)
-document.addEventListener("DOMContentLoaded", () => {
+safeReady(() => {
   const _origSM = window.selectAIMode;
   if (typeof _origSM !== "function") return;
   window.selectAIMode = function(btn, mode) {
@@ -2398,7 +2407,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ── Auth-қа план detect hook ──────────────────────────
 // DOMContentLoaded кезінде onAuthStateChanged арқылы plan анықтау
-document.addEventListener("DOMContentLoaded", () => {
+safeReady(() => {
   // onAuthStateChanged бар болса — plan detect
   if (typeof onAuthStateChanged === "function" && typeof auth !== "undefined") {
     onAuthStateChanged(auth, (user) => {
@@ -2438,7 +2447,7 @@ window.addEventListener("message", (event) => {
 });
 
 // LocalStorage арқылы hub ресурс тексеру
-document.addEventListener("DOMContentLoaded", () => {
+safeReady(() => {
   const stored = localStorage.getItem("hubResource");
   if (stored) {
     try {
@@ -3002,7 +3011,7 @@ function updateCoverPosition() {
 }
 
 // Handle drag
-document.addEventListener("DOMContentLoaded", () => {
+safeReady(() => {
   const handle = document.getElementById("coverHandle");
   if (!handle) return;
 
