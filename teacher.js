@@ -2131,7 +2131,7 @@ const PRO_EMAILS = [
 ];
 
 // Ағымдағы план
-let currentPlan = "free";   // "free" | "pro"
+let currentPlan = "pro";   // Барлық мүмкіндіктер ашық
 let currentUserEmail = "";
 
 // ── Plan анықтау ──────────────────────────────────────
@@ -2152,11 +2152,7 @@ function detectPlan(user) {
 
 // ── PRO функциясын тексеру ────────────────────────────
 window.requirePRO = function(featureName) {
-  if (currentPlan === "pro") return true;
-
-  // PRO емес → upgrade modal
-  showUpgradeModal(featureName);
-  return false;
+  return true; // Барлық мүмкіндіктер ашық
 };
 
 // ── UI-ге план қолдану ────────────────────────────────
@@ -2376,46 +2372,9 @@ window.contactForPRO = function() {
   closeUpgradeModal();
 };
 
-// ── PRO батырма wrapper-лары ──────────────────────────
-// DOMContentLoaded кейін — window functions нақты бар
-document.addEventListener("DOMContentLoaded", () => {
-  // AI Generator PRO check
-  const _origAIGen = window.openAIGenerator;
-  if (typeof _origAIGen === "function") {
-    window.openAIGenerator = function() {
-      if (typeof requirePRO === "function" && !requirePRO("ai_generator")) return;
-      _origAIGen();
-    };
-  }
-  // analyzePhoto PRO check
-  const _origPhoto = window.analyzePhoto;
-  if (typeof _origPhoto === "function") {
-    window.analyzePhoto = function() {
-      if (typeof requirePRO === "function" && !requirePRO("photo_analyze")) return;
-      _origPhoto();
-    };
-  }
-  // exportAnalytics PRO check
-  const _origExpAn = window.exportAnalytics;
-  if (typeof _origExpAn === "function") {
-    window.exportAnalytics = function() {
-      if (typeof requirePRO === "function" && !requirePRO("analytics_export")) return;
-      _origExpAn();
-    };
-  }
-});
+// PRO wrappers — барлығы ашық (lock жоқ)
 
-// generateAI — режим тексеру (DOMContentLoaded-та)
-document.addEventListener("DOMContentLoaded", () => {
-  const _origGA = window.generateAI;
-  if (typeof _origGA !== "function") return;
-  window.generateAI = async function() {
-    const action = document.getElementById("aiActionSelect")?.value || "chat";
-    const freeActions = ["chat"];
-    if (!freeActions.includes(action) && typeof requirePRO === "function" && !requirePRO("ai_center")) return;
-    await _origGA();
-  };
-}, { once: true });
+// generateAI — барлық режимдер ашық (PRO check жоқ)
 
 // selectAIMode — PRO белгісі (DOMContentLoaded-та)
 document.addEventListener("DOMContentLoaded", () => {
@@ -5430,4 +5389,67 @@ window.toggleDarkMode = function() {
     if (icon)  icon.textContent  = "🌙";
     if (label) label.textContent = "Қараңғы тема";
   }
+};
+// openSpinWheel alias
+window.openSpinWheel = function() {
+  if (typeof openSpinWheelWidget === 'function') openSpinWheelWidget();
+  else {
+    // Spin Wheel виджетін ашу
+    const existWrap = document.getElementById('spinWheelContainer');
+    if (!existWrap) {
+      // Create minimal spinner
+      const el = document.createElement('div');
+      el.id = 'spinWheelContainer';
+      el.style.cssText = 'position:fixed;top:80px;right:20px;z-index:500;background:white;border-radius:18px;box-shadow:0 10px 36px rgba(15,23,42,0.18);padding:20px;width:300px;';
+      el.innerHTML = '<button onclick="document.getElementById(\"spinWheelContainer\").remove()" style="float:right;border:none;background:#fef2f2;color:#dc2626;border-radius:6px;padding:3px 8px;cursor:pointer;">✕</button><h3 style="margin:0 0 12px;">🎡 Spin the Wheel</h3><canvas id="swCanvas" width="260" height="260" style="border-radius:50%;cursor:pointer;" onclick="doSpinWheel()"></canvas><div id="swResult" style="text-align:center;font-weight:800;font-size:18px;color:#7c3aed;min-height:28px;margin-top:10px;"></div><button onclick="doSpinWheel()" style="width:100%;padding:10px;border:none;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#c026d3);color:white;font-size:14px;font-weight:800;cursor:pointer;margin-top:8px;">🎡 Айналдыру!</button><details style="margin-top:8px;"><summary style="cursor:pointer;font-size:11px;color:#6b7280;">✏️ Тізім</summary><textarea id="swItems" style="width:100%;height:70px;margin-top:6px;padding:8px;border:1.5px solid #e2e6f0;border-radius:8px;font-size:12px;resize:none;font-family:inherit;" oninput="drawSpinWheel()">Оқушы 1
+Оқушы 2
+Оқушы 3
+Оқушы 4
+Оқушы 5</textarea></details>';
+      document.body.appendChild(el);
+      window._swAngle = 0; window._swSpinning = false;
+      drawSpinWheel();
+    }
+  }
+};
+
+window.drawSpinWheel = function() {
+  const cvs = document.getElementById('swCanvas');
+  if (!cvs) return;
+  const ctx = cvs.getContext('2d'), W=260, cx=130, cy=130, R=122;
+  const items = (document.getElementById('swItems')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  window._swItems = items;
+  if (!items.length) return;
+  const n=items.length, arc=Math.PI*2/n;
+  const C=['#ef4444','#f97316','#f59e0b','#22c55e','#06b6d4','#4f46e5','#8b5cf6','#ec4899'];
+  ctx.clearRect(0,0,W,W);
+  for(let i=0;i<n;i++){
+    const s=(window._swAngle||0)+i*arc-Math.PI/2, e=s+arc;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,s,e);ctx.closePath();
+    ctx.fillStyle=C[i%C.length];ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=2;ctx.stroke();
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(s+arc/2);ctx.textAlign='right';
+    ctx.fillStyle='white';ctx.font=`bold ${Math.max(9,Math.min(13,110/n))}px Inter,sans-serif`;
+    ctx.fillText(items[i].length>10?items[i].slice(0,10)+'…':items[i],R-10,4);ctx.restore();
+  }
+  ctx.beginPath();ctx.arc(cx,cy,16,0,Math.PI*2);ctx.fillStyle='white';ctx.fill();
+  ctx.beginPath();ctx.moveTo(cx,cy-R+2);ctx.lineTo(cx-9,cy-R-14);ctx.lineTo(cx+9,cy-R-14);ctx.closePath();ctx.fillStyle='#1f2937';ctx.fill();
+};
+
+window.doSpinWheel = function() {
+  if(window._swSpinning) return; window._swSpinning=true;
+  const tot=Math.PI*2*(8+Math.random()*10), dur=4000, st=performance.now(), sa=window._swAngle||0;
+  function anim(now){
+    const p=Math.min((now-st)/dur,1), ease=1-Math.pow(1-p,4);
+    window._swAngle=sa+tot*ease; drawSpinWheel();
+    if(p<1){requestAnimationFrame(anim);}
+    else{
+      window._swSpinning=false;
+      const items=window._swItems||[], n=items.length, arc=Math.PI*2/n;
+      const na=((window._swAngle%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
+      const idx=Math.floor(((Math.PI*2-na+Math.PI/2+arc/2)%(Math.PI*2))/arc)%n;
+      const r=document.getElementById('swResult');
+      if(r) r.textContent='🎉 '+items[idx]+'!';
+    }
+  }
+  requestAnimationFrame(anim);
 };
