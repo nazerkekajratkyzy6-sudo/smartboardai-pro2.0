@@ -1,4 +1,4 @@
-// api/ai.js — SmartBoardAI PRO
+// api/ai.js —  SmartBoardAI PRO
 // 8 педагогикалық AI режим
 
 export const config = { runtime: "nodejs" };
@@ -20,10 +20,52 @@ export default async function handler(req, res) {
     image   = null,
     grade   = "",
     subject = "",
+    uid     = null,   // пайдаланушы ID (Firebase Auth)
+    plan    = "free", // "free" | "pro"
   } = body;
 
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: "OPENAI_API_KEY орнатылмаған" });
+
+  // ── FREEMIUM ЛИМИТ ЖҮЙЕСІ ──────────────────────────
+  const FREE_TOTAL_LIMIT = 10;  // Жалпы 10 тегін AI сұраныс (бір рет)
+
+  if (plan !== "pro" && uid) {
+    try {
+      const admin = await import("firebase-admin");
+      const { getDatabase } = await import("firebase-admin/database");
+
+      if (!admin.default.apps.length) {
+        admin.default.initializeApp({
+          credential: admin.default.credential.cert({
+            projectId:   process.env.FIREBASE_PROJECT_ID,
+            privateKey:  (process.env.FIREBASE_PRIVATE_KEY || "").replace(/\\n/g, "\n"),
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          }),
+          databaseURL: process.env.FIREBASE_DATABASE_URL,
+        });
+      }
+
+      const db     = getDatabase();
+      const useRef = db.ref(`users/${uid}/aiUsedTotal`);
+      const snap   = await useRef.get();
+      const used   = snap.val() || 0;
+
+      if (used >= FREE_TOTAL_LIMIT) {
+        return res.status(429).json({
+          error:   "limit_reached",
+          message: `${FREE_TOTAL_LIMIT} тегін AI сұраныс біткен. PRO жоспарына өтіңіз!`,
+          used,
+          limit:   FREE_TOTAL_LIMIT,
+        });
+      }
+
+      // Санауышты арттыру
+      await useRef.set(used + 1);
+    } catch(adminErr) {
+      console.warn("Firebase Admin limit check skipped:", adminErr.message);
+    }
+  }
 
   // ── System prompt ────────────────────────────────
   const systemPrompt = `
@@ -66,7 +108,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model,
         temperature: 0.7,
-        max_tokens: 2000,
+        max_tokens: action === "lesson_flow" ? 3500 : 2000,
         messages,
       }),
     });
@@ -75,6 +117,29 @@ export default async function handler(req, res) {
     if (data.error) return res.status(500).json({ error: data.error.message });
 
     const answer = data.choices?.[0]?.message?.content || "Жауап табылмады.";
+
+    // differentiation үшін JSON parse
+    if (action === "differentiation") {
+      try {
+        const clean = answer.replace(/```json|```/gi, "").trim();
+        const diff = JSON.parse(clean);
+        return res.status(200).json({ answer, diff });
+      } catch(e) {
+        return res.status(200).json({ answer, diff: null });
+      }
+    }
+
+    // lesson_flow үшін JSON parse
+    if (action === "lesson_flow") {
+      try {
+        const clean = answer.replace(/```json|```/gi, "").trim();
+        const lesson = JSON.parse(clean);
+        return res.status(200).json({ answer, lesson });
+      } catch(e) {
+        return res.status(200).json({ answer, lesson: { title: prompt, blocks: [] } });
+      }
+    }
+
     return res.status(200).json({ answer });
 
   } catch (err) {
@@ -119,9 +184,9 @@ function buildPrompt({ action, prompt, lang, grade, subject, image }) {
 Тақырып: ${prompt}${ctxStr}
 
 3 деңгейде тапсырма жаса:
-🟢 Деңгей 1 — Білу (2 тапсырма)
-🟡 Деңгей 2 — Түсіну (2 тапсырма)
-🔴 Деңгей 3 — Қолдану / Шығармашылық (1 тапсырма)
+🟢 Деңгей 1 —  Білу (2 тапсырма)
+🟡 Деңгей 2 —  Түсіну (2 тапсырма)
+🔴 Деңгей 3 —  Қолдану / Шығармашылық (1 тапсырма)
 
 Әр тапсырмаға бағалау критерийін қос.
 Жауапты ${L} бер.`.trim();
@@ -161,15 +226,47 @@ ${ctxStr}
 
     // 6. Дифференциация
     case "differentiation":
-      return `
-Тақырып: ${prompt}${ctxStr}
+      return `Сен SmartBoardAI PRO педагогикалық ассистентісің. Тек ${L} тілінде жауап бер.
 
-Осы тақырыпқа 3 деңгейде дифференцияланған тапсырма жаса:
-1. Қолдау қажет оқушыларға (базалық)
-2. Орташа деңгейдегі оқушыларға
-3. Дарынды оқушыларға (тереңдетілген)
+Тақырып: "${prompt}"${ctxStr}
 
-Жауапты ${L} бер.`.trim();
+3 деңгейде дифференцияланған тапсырма жасап, ТІКЕЛЕЙ JSON форматында қайтар (ешқандай түсіндірме жазба):
+
+{
+  "topic": "тақырып атауы",
+  "levels": [
+    {
+      "level": 1,
+      "name": "🟢 Базалық деңгей",
+      "description": "Қолдау қажет оқушыларға —  негізгі түсінік",
+      "tasks": [
+        { "num": 1, "task": "тапсырма мәтіні", "hint": "кеңес немесе формула" },
+        { "num": 2, "task": "тапсырма мәтіні", "hint": "кеңес" },
+        { "num": 3, "task": "тапсырма мәтіні", "hint": "кеңес" }
+      ]
+    },
+    {
+      "level": 2,
+      "name": "🟡 Орта деңгей",
+      "description": "Орташа оқушыларға —  стандарт тапсырмалар",
+      "tasks": [
+        { "num": 1, "task": "тапсырма мәтіні", "hint": "" },
+        { "num": 2, "task": "тапсырма мәтіні", "hint": "" },
+        { "num": 3, "task": "тапсырма мәтіні", "hint": "" }
+      ]
+    },
+    {
+      "level": 3,
+      "name": "🔴 Күрделі деңгей",
+      "description": "Дарынды оқушыларға —  тереңдетілген",
+      "tasks": [
+        { "num": 1, "task": "тапсырма мәтіні", "hint": "" },
+        { "num": 2, "task": "тапсырма мәтіні", "hint": "" },
+        { "num": 3, "task": "тапсырма мәтіні", "hint": "" }
+      ]
+    }
+  ]
+}`.trim();
 
     // 7. Кері байланыс жазу
     case "feedback":
@@ -224,7 +321,7 @@ ${ctxStr}
 
 МАҢЫЗДЫ ЕРЕЖЕЛЕР:
 1. Тек қана толық жұмыс жасайтын HTML файл жаз
-2. Ешқандай сыртқы CDN, import жоқ — тек inline JS/CSS
+2. Ешқандай сыртқы CDN, import жоқ —  тек inline JS/CSS
 3. Файл браузерде тікелей ашылуы керек (iframe-де)
 4. Дизайн: #4f46e5 (фиолет) негізгі түс, Inter шрифті
 5. Мобильге бейімделген (max-width: 600px)
@@ -251,7 +348,63 @@ ${ctxStr}
 Жауап тілі: ${L}
 `.trim();
 
-    // 11. Жалпы сұрақ
+    // 11. AI Lesson Flow —  толық сабақ JSON
+    case "lesson_flow": {
+      const lfLang = lang === "ru" ? "орыс" : lang === "en" ? "ағылшын" : "қазақ";
+      return `Сен SmartBoardAI PRO педагогикалық ассистентісің. Тек ${lfLang} тілінде жауап бер.
+
+Тақырып: "${prompt}"
+Пән: ${subject || "жалпы"}
+Сынып: ${grade || "7"}
+
+Толық сабақ сценарийін ТІКЕЛЕЙ JSON форматында қайтар. Ешқандай түсіндірме, сілтеме немесе код блогы (backtick) жазба —  тек таза JSON:
+
+{
+  "title": "Сабақ тақырыбы",
+  "goal": "Сабақ мақсаты (1-2 сөйлем)",
+  "duration": 45,
+  "blocks": [
+    {
+      "type": "intro",
+      "title": "🎯 Кіріспе / Мотивация",
+      "duration": 5,
+      "content": "<p>Мотивациялық сұрақтар, сабақ мақсаты</p>"
+    },
+    {
+      "type": "theory",
+      "title": "📖 Теориялық бөлім",
+      "duration": 12,
+      "content": "<p>Негізгі теория</p><ul><li>Анықтама</li><li>Формула</li></ul>"
+    },
+    {
+      "type": "example",
+      "title": "✏️ Мысалдар",
+      "duration": 10,
+      "content": "<p>Шешілген мысалдар қадамдар бойынша</p>"
+    },
+    {
+      "type": "practice",
+      "title": "🧠 Тапсырмалар",
+      "duration": 10,
+      "content": "<p><b>Жай:</b> ...<br><b>Орта:</b> ...<br><b>Күрделі:</b> ...</p>"
+    },
+    {
+      "type": "assessment",
+      "title": "✅ Тексеру / Рефлексия",
+      "duration": 5,
+      "content": "<p>Тест сұрақтары немесе рефлексия тапсырмасы</p>"
+    },
+    {
+      "type": "homework",
+      "title": "📚 Үй тапсырмасы",
+      "duration": 3,
+      "content": "<p>Үй тапсырмасы</p>"
+    }
+  ]
+}`;
+    }
+
+    // 12. Жалпы сұрақ
     default:
       return `\${prompt}\n\nЖауапты \${L} бер.`;
   }
