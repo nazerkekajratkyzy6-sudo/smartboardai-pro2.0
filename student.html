@@ -2,7 +2,7 @@
 <html lang="kk">
 <head>
   <meta charset="UTF-8"/>
-  <title>SmartBoardAI — Оқушы</title>
+  <title>SmartBoardAI —  Оқушы</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -249,6 +249,127 @@
 
     .st-content::-webkit-scrollbar { width:3px; }
     .st-content::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+    /* ── COLLAB ── */
+    .collab-note-card {
+      background:var(--white);border:1px solid var(--border);
+      border-radius:var(--r-lg);padding:12px;
+      animation:card-in .25s ease;
+    }
+    .collab-note-header {
+      display:flex;align-items:center;gap:6px;
+      font-size:11px;font-weight:700;color:var(--text-3);
+      margin-bottom:6px;
+    }
+    .collab-note-text {
+      font-size:14px;line-height:1.5;color:var(--text-2);
+      white-space:pre-wrap;word-break:break-word;
+    }
+    /* ── HOMEWORK ── */
+    .hw-student-card {
+      background:var(--white);border:1.5px solid var(--border);
+      border-radius:var(--r-xl);padding:14px;
+      box-shadow:var(--shadow-sm);animation:card-in .25s ease;
+    }
+    .hw-done-btn {
+      width:100%;padding:12px;border:none;border-radius:var(--r-md);
+      background:linear-gradient(135deg,#10b981,#059669);
+      color:white;font-size:14px;font-weight:700;cursor:pointer;
+      font-family:inherit;box-shadow:0 4px 12px rgba(16,185,129,0.25);
+      transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:6px;
+      margin-top:10px;
+    }
+    .hw-done-btn:hover { transform:translateY(-1px); }
+    .hw-done-btn.completed {
+      background:#f0fdf4;color:#16a34a;
+      border:2px solid #86efac;cursor:default;transform:none;
+    }
+    .hw-priority-badge {
+      display:inline-flex;align-items:center;gap:4px;
+      font-size:10px;font-weight:700;text-transform:uppercase;
+      padding:3px 8px;border-radius:999px;margin-bottom:8px;
+    }
+    .hw-deadline {
+      font-size:12px;font-weight:600;color:var(--text-3);
+      display:flex;align-items:center;gap:4px;margin-top:4px;
+    }
+
+    .collab-own {
+      border-left:3px solid var(--primary);
+      background:var(--primary-light);
+    }
+
+    /* ── VOTE ── */
+    .vote-question {
+      background:var(--white); border:1px solid var(--border);
+      border-radius:var(--r-xl); padding:18px;
+      margin-bottom:14px; font-size:16px; font-weight:700;
+      color:var(--text-1); text-align:center;
+      box-shadow:var(--shadow-sm);
+    }
+    .vote-opts { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+    .vote-opt-btn {
+      width:100%; padding:14px 16px; border-radius:var(--r-lg);
+      border:2px solid var(--border); background:var(--white);
+      font-size:15px; font-weight:700; color:var(--text-1);
+      cursor:pointer; text-align:left; transition:var(--tr);
+      font-family:inherit; display:flex; align-items:center; gap:10px;
+    }
+    .vote-opt-btn:hover { border-color:var(--primary-mid); background:var(--primary-light); }
+    .vote-opt-btn.voted { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+    .vote-opt-btn.disabled { opacity:.5; cursor:not-allowed; }
+    .vote-letter {
+      width:30px; height:30px; border-radius:8px;
+      background:var(--primary); color:white;
+      font-size:14px; font-weight:800;
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0;
+    }
+    .vote-result-wrap { margin-top:16px; }
+    .vote-result-bar-wrap { margin-bottom:10px; }
+    .vote-result-label { display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:var(--text-2); margin-bottom:4px; }
+    .vote-result-bar-bg { background:var(--border2); border-radius:999px; height:10px; overflow:hidden; }
+    .vote-result-bar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,var(--primary),#818cf8); transition:width .5s; }
+    .vote-sent-msg { text-align:center; padding:16px; font-size:14px; font-weight:700; color:var(--success); }
+
+    /* ── KAHOOT ── */
+    .kahoot-question {
+      background:linear-gradient(135deg,#4338ca,#7c3aed);
+      border-radius:var(--r-xl); padding:20px 16px;
+      margin-bottom:16px; color:white; font-size:17px;
+      font-weight:700; text-align:center; line-height:1.4;
+      box-shadow:0 6px 20px rgba(67,56,202,0.3);
+    }
+    .kahoot-opts {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:10px; margin-bottom:14px;
+    }
+    .kahoot-opt {
+      padding:16px 10px; border:none; border-radius:var(--r-lg);
+      font-size:14px; font-weight:700; color:white; cursor:pointer;
+      font-family:inherit; text-align:center; transition:var(--tr);
+      display:flex; align-items:center; justify-content:center;
+      gap:6px; min-height:70px; line-height:1.3;
+    }
+    .kahoot-opt:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.15); }
+    .kahoot-opt.disabled { opacity:.5; cursor:not-allowed; transform:none; }
+    .kahoot-opt.correct { outline:4px solid #22c55e; box-shadow:0 0 20px rgba(34,197,94,0.4); }
+    .kahoot-opt.wrong   { opacity:.4; }
+    .kahoot-opt[data-k="A"] { background:linear-gradient(135deg,#ef4444,#f87171); }
+    .kahoot-opt[data-k="B"] { background:linear-gradient(135deg,#3b82f6,#60a5fa); }
+    .kahoot-opt[data-k="C"] { background:linear-gradient(135deg,#f59e0b,#fbbf24); }
+    .kahoot-opt[data-k="D"] { background:linear-gradient(135deg,#22c55e,#4ade80); }
+    .kahoot-timer {
+      text-align:center; font-size:48px; font-weight:800;
+      color:var(--primary); margin-bottom:14px;
+      font-variant-numeric:tabular-nums;
+    }
+    .kahoot-result {
+      text-align:center; padding:20px; border-radius:var(--r-xl);
+      font-size:18px; font-weight:800; margin-top:10px;
+    }
+    .kahoot-result.correct { background:#f0fdf4; color:#16a34a; border:2px solid #86efac; }
+    .kahoot-result.wrong   { background:#fef2f2; color:#dc2626; border:2px solid #fca5a5; }
   </style>
 </head>
 <body>
@@ -302,8 +423,8 @@
     <div class="st-topbar-left">
       <div class="st-avatar-display" id="topAvatar">🙂</div>
       <div>
-        <div class="st-name-display" id="topName">—</div>
-        <div class="st-room-badge"   id="topRoom">—</div>
+        <div class="st-name-display" id="topName"> — </div>
+        <div class="st-room-badge"   id="topRoom"> — </div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
@@ -333,6 +454,27 @@
     </button>
     <button class="st-tab" data-panel="emoji">
       <span class="ti">😊</span><span class="tl" id="tabEmoji">Эмоция</span>
+    </button>
+    <button class="st-tab" data-panel="vote" id="voteTab" style="display:none;">
+      <span class="ti">🗳</span><span class="tl">Дауыс</span>
+      <span class="tab-badge" id="voteBadge" style="display:none;">!</span>
+    </button>
+    <button class="st-tab" data-panel="kahoot" id="kahootTab" style="display:none;">
+      <span class="ti">🎮</span><span class="tl">Тест</span>
+      <span class="tab-badge" id="kahootBadge" style="display:none;">!</span>
+    </button>
+    <button class="st-tab" data-panel="collab" id="collabTab" style="display:none;">
+      <span class="ti">🖊</span><span class="tl">Тақта</span>
+    </button>
+    <button class="st-tab" data-panel="race" id="raceTab" style="display:none;">
+      <span class="ti">🦙</span><span class="tl">Жарыс</span>
+    </button>
+    <button class="st-tab" data-panel="race" id="raceTab" style="display:none;">
+      <span class="ti">🦙</span><span class="tl">Жарыс</span>
+    </button>
+    <button class="st-tab" data-panel="homework">
+      <span class="ti">📚</span><span class="tl">Үй тапс.</span>
+      <span class="tab-badge" id="hwBadge" style="display:none;">0</span>
     </button>
   </div>
 
@@ -400,6 +542,107 @@
         <input id="wordInput" class="join-input" type="text"
           placeholder="Сөз немесе ой жаз..." style="flex:1;font-size:14px;"/>
         <button id="wcBtn" class="btn-send" style="width:auto;padding:11px 16px;">➤</button>
+      </div>
+    </div>
+
+
+    <!-- VOTE PANEL -->
+    <div class="st-panel" id="panel-vote">
+      <div class="section-hdr">🗳 Дауыс беру</div>
+      <div id="voteContent">
+        <div class="task-empty">
+          <div class="task-empty-icon">🗳</div>
+          <div>Мұғалім сауал ашқанда осында шығады</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLLAB PANEL -->
+    <div class="st-panel" id="panel-collab">
+      <div class="section-hdr">🖊 Collaborative Board</div>
+
+      <div id="collabStatusBanner" style="
+        display:none;background:linear-gradient(135deg,#0f172a,#1e3a8a);
+        border-radius:12px;padding:12px 14px;margin-bottom:12px;
+        color:white;font-size:13px;font-weight:700;text-align:center;
+      ">🟢 Мұғалім тақтаны ашты —  жазуға болады!</div>
+
+      <div id="collabClosedBanner" style="
+        background:#fef2f2;border:1px solid #fecaca;
+        border-radius:12px;padding:12px 14px;margin-bottom:12px;
+        color:#dc2626;font-size:13px;font-weight:700;text-align:center;
+      ">🔴 Тақта жабық —  мұғалімді күтіңіз</div>
+
+      <div id="collabWriteArea">
+        <textarea id="collabText" rows="5" style="
+          width:100%;padding:12px 14px;
+          border:2px solid #e2e6f0;border-radius:14px;
+          font-size:14px;color:#334155;background:#f8f9fc;
+          resize:none;font-family:inherit;transition:all .18s;
+          margin-bottom:10px;
+        " placeholder="Осында жазыңыз..." oninput="collabAutoSave()"></textarea>
+
+        <button onclick="sendCollabNote()" style="
+          width:100%;padding:13px;border:none;border-radius:12px;
+          background:linear-gradient(135deg,#0f172a,#1e3a8a);
+          color:white;font-size:14px;font-weight:700;cursor:pointer;
+          font-family:inherit;box-shadow:0 4px 12px rgba(15,23,42,0.2);
+          transition:all .18s;margin-bottom:14px;
+        ">🖊 Жіберу</button>
+      </div>
+
+      <div class="section-hdr">Барлық жазбалар</div>
+      <div id="collabNotesList" style="
+        display:flex;flex-direction:column;gap:8px;
+      ">
+        <div style="text-align:center;color:#94a3b8;padding:16px;font-size:13px;">
+          Жазбалар жоқ
+        </div>
+      </div>
+    </div>
+
+    <!-- RACE PANEL -->
+    <div class="st-panel" id="panel-race">
+      <div class="section-hdr">🦙 Alpaca Race</div>
+      <div id="raceContent">
+        <div class="task-empty">
+          <div class="task-empty-icon">🦙</div>
+          <div>Мұғалім жарысты бастағанда осында шығады</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RACE PANEL -->
+    <div class="st-panel" id="panel-race">
+      <div class="section-hdr">🦙 Alpaca Race</div>
+      <div id="raceContent">
+        <div class="task-empty">
+          <div class="task-empty-icon">🦙</div>
+          <div>Мұғалім жарысты бастағанда осында шығады</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOMEWORK PANEL -->
+    <div class="st-panel" id="panel-homework">
+      <div class="section-hdr">📚 Үй тапсырмалары</div>
+
+      <div id="hwStudentList" style="display:flex;flex-direction:column;gap:10px;">
+        <div class="task-empty">
+          <div class="task-empty-icon">📭</div>
+          <div>Мұғалім үй тапсырмасы жібергенде осында шығады</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KAHOOT PANEL -->
+    <div class="st-panel" id="panel-kahoot">
+      <div class="section-hdr">🎮 Тест жарысы</div>
+      <div id="kahootContent">
+        <div class="task-empty">
+          <div class="task-empty-icon">🎮</div>
+          <div>Мұғалім тест бастағанда осында шығады</div>
+        </div>
       </div>
     </div>
 
