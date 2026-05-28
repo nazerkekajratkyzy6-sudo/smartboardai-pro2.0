@@ -2,9 +2,17 @@
 <html lang="kk">
 <head>
   <meta charset="UTF-8"/>
-  <title>SmartBoardAI PRO – Мұғалім</title>
+  <title>SmartBoardAI PRO - Мұғалім</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="main.css">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SmartBoard">
+  <meta name="application-name" content="SmartBoardAI PRO">
+  <meta name="msapplication-TileColor" content="#4f46e5">
   <script>
     window.MathJax = {
       tex: { inlineMath: [['$','$'],['\\(','\\)']] },
@@ -22,6 +30,13 @@
 <div class="topbar">
   <div class="topbar-title" id="topbarTitle">⚡ SmartBoardAI PRO</div>
   <div class="topbar-right">
+    <button onclick="openVoiceControl()" style="
+      background:rgba(255,255,255,0.12);color:white;
+      border:1.5px solid rgba(255,255,255,0.2);
+      border-radius:999px;padding:5px 12px;
+      font-size:12px;font-weight:700;cursor:pointer;
+      margin-right:4px;
+    ">🎤 Дауыс</button>
     <button class="lang-btn" id="langKZ">KZ</button>
     <button class="lang-btn" id="langRU">RU</button>
     <button class="lang-btn" id="langEN">EN</button>
@@ -316,37 +331,176 @@
       display:flex;align-items:center;gap:5px;
       transition:all .18s;
     ">✏️ Сурет</button>
+    <span id="connectionIndicator" title="Онлайн" style="font-size:14px;cursor:pointer;" onclick="openOfflinePanel()">🟢</span>
+    <button onclick="openOfflinePanel()" id="offlineBadge" style="
+      background:rgba(255,255,255,0.12);color:white;
+      border:1.5px solid rgba(255,255,255,0.2);
+      border-radius:999px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;
+    " title="Офлайн режим">📡 Офлайн</button>
     <button class="logout-btn" id="logout">🔒 Шығу</button>
   </div>
 </div>
 
 <!-- TEXT EDITOR TOOLBAR (жоғарыда, фиксті) -->
-<div id="textToolbar" class="text-toolbar" style="display:none;">
-  <button onclick="execTextCmd('bold')"><b>B</b></button>
-  <button onclick="execTextCmd('italic')"><i>I</i></button>
-  <button onclick="execTextCmd('underline')"><u>U</u></button>
-  <select onchange="execTextCmd('fontSize',this.value)">
-    <option value="3">14px</option>
-    <option value="4">18px</option>
-    <option value="5">22px</option>
-    <option value="6">28px</option>
+<!-- ═══ RICH TEXT EDITOR ═══ -->
+<div id="textToolbar" style="
+  display:none;position:fixed;top:56px;left:0;right:0;z-index:300;
+  background:white;border-bottom:2px solid #e2e6f0;
+  box-shadow:0 4px 20px rgba(15,23,42,0.10);
+  padding:5px 10px;align-items:center;gap:3px;flex-wrap:wrap;
+  font-family:'Inter',system-ui,sans-serif;
+">
+  <!-- Шрифт тобы -->
+  <select id="rtFontFamily" onchange="rtCmd('fontName',this.value)" title="Шрифт" style="
+    padding:4px 8px;border:1.5px solid #e2e6f0;border-radius:7px;
+    font-size:12px;font-family:inherit;background:#f8f9ff;cursor:pointer;max-width:140px;
+  ">
+    <option value="Inter,sans-serif">Inter</option>
+    <option value="Times New Roman,serif">Times New Roman</option>
+    <option value="Georgia,serif">Georgia</option>
+    <option value="Arial,sans-serif">Arial</option>
+    <option value="Verdana,sans-serif">Verdana</option>
+    <option value="Courier New,monospace">Courier New</option>
+    <option value="Trebuchet MS,sans-serif">Trebuchet MS</option>
+    <option value="Palatino,serif">Palatino</option>
+    <option value="Garamond,serif">Garamond</option>
+    <option value="Comic Sans MS,cursive">Comic Sans</option>
   </select>
-  <input type="color" onchange="execTextCmd('foreColor',this.value)">
-  <button onclick="execTextCmd('justifyLeft')">↤</button>
-  <button onclick="execTextCmd('justifyCenter')">⦿</button>
-  <button onclick="execTextCmd('justifyRight')">↦</button>
-  <button onclick="closeTextEditor()"
-    style="background:#ef4444;color:white;border-radius:6px;padding:4px 10px;">Сақтау</button>
+
+  <!-- Өлшем -->
+  <select id="rtFontSize" onchange="rtSetSize(this.value)" title="Өлшем" style="
+    padding:4px 6px;border:1.5px solid #e2e6f0;border-radius:7px;
+    font-size:12px;font-family:inherit;background:#f8f9ff;cursor:pointer;width:66px;
+  ">
+    <option value="10">10</option><option value="12">12</option>
+    <option value="14" selected>14</option><option value="16">16</option>
+    <option value="18">18</option><option value="20">20</option>
+    <option value="24">24</option><option value="28">28</option>
+    <option value="32">32</option><option value="36">36</option>
+    <option value="42">42</option><option value="48">48</option>
+    <option value="60">60</option><option value="72">72</option>
+  </select>
+
+  <span style="width:1px;height:26px;background:#e2e6f0;display:inline-block;margin:0 2px;"></span>
+
+  <!-- Қалыптар -->
+  <button onclick="rtCmd('bold')" title="Жуан (Ctrl+B)" class="rt-btn"><b style="font-family:serif;">B</b></button>
+  <button onclick="rtCmd('italic')" title="Курсив (Ctrl+I)" class="rt-btn"><i style="font-family:serif;">I</i></button>
+  <button onclick="rtCmd('underline')" title="Асты сызу" class="rt-btn"><u>U</u></button>
+  <button onclick="rtCmd('strikeThrough')" title="Сызылған" class="rt-btn"><s>S</s></button>
+  <button onclick="rtCmd('superscript')" title="Жоғарғы" class="rt-btn" style="font-size:11px;">X<sup>2</sup></button>
+  <button onclick="rtCmd('subscript')" title="Төменгі" class="rt-btn" style="font-size:11px;">X<sub>2</sub></button>
+
+  <span style="width:1px;height:26px;background:#e2e6f0;display:inline-block;margin:0 2px;"></span>
+
+  <!-- Түстер -->
+  <label title="Мәтін түсі" class="rt-color-label">
+    <span style="font-size:13px;font-weight:700;color:#334155;">A</span>
+    <input type="color" value="#000000" onchange="rtCmd('foreColor',this.value)" class="rt-color-inp">
+  </label>
+  <label title="Фон / Маркер" class="rt-color-label">
+    <span style="font-size:14px;">🖌</span>
+    <input type="color" value="#ffff00" onchange="rtCmd('hiliteColor',this.value)" class="rt-color-inp">
+  </label>
+
+  <span style="width:1px;height:26px;background:#e2e6f0;display:inline-block;margin:0 2px;"></span>
+
+  <!-- Туралау -->
+  <button onclick="rtCmd('justifyLeft')" title="Солға" class="rt-btn">⬱</button>
+  <button onclick="rtCmd('justifyCenter')" title="Ортаға" class="rt-btn">≡</button>
+  <button onclick="rtCmd('justifyRight')" title="Оңға" class="rt-btn">⬰</button>
+  <button onclick="rtCmd('justifyFull')" title="Екі жаққа" class="rt-btn">⬷</button>
+
+  <span style="width:1px;height:26px;background:#e2e6f0;display:inline-block;margin:0 2px;"></span>
+
+  <!-- Тізімдер -->
+  <button onclick="rtCmd('insertUnorderedList')" title="• Тізім" class="rt-btn" style="font-size:13px;">•≡</button>
+  <button onclick="rtCmd('insertOrderedList')" title="1. Тізім" class="rt-btn" style="font-size:13px;">1≡</button>
+  <button onclick="rtCmd('indent')" title="Ішке" class="rt-btn">→</button>
+  <button onclick="rtCmd('outdent')" title="Сыртқа" class="rt-btn">←</button>
+
+  <span style="width:1px;height:26px;background:#e2e6f0;display:inline-block;margin:0 2px;"></span>
+
+  <!-- Кірістіру -->
+  <button onclick="rtInsertLink()" title="Сілтеме" class="rt-btn">🔗</button>
+  <button onclick="rtInsertImage()" title="Кескін" class="rt-btn">🖼</button>
+  <button onclick="rtCmd('insertHorizontalRule')" title="Сызық" class="rt-btn"> — </button>
+  <button onclick="rtCmd('removeFormat')" title="Тазалау" class="rt-btn">🧹</button>
+
+  <span style="width:1px;height:26px;background:#e2e6f0;display:inline-block;margin:0 2px;"></span>
+
+  <!-- Параграф стилі -->
+  <select onchange="rtCmd('formatBlock',this.value)" title="Параграф" style="
+    padding:4px 8px;border:1.5px solid #e2e6f0;border-radius:7px;
+    font-size:12px;font-family:inherit;background:#f8f9ff;cursor:pointer;
+  ">
+    <option value="p">¶ Параграф</option>
+    <option value="h1">H1 —  Тақырып 1</option>
+    <option value="h2">H2 —  Тақырып 2</option>
+    <option value="h3">H3 —  Тақырып 3</option>
+    <option value="blockquote">❝ Дәйексөз</option>
+    <option value="pre">⌨ Код</option>
+  </select>
+
+  <!-- Сақтау -->
+  <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+    <button onclick="rtSave()" style="
+      padding:6px 18px;border:none;border-radius:8px;
+      background:linear-gradient(135deg,#4f46e5,#7c3aed);
+      color:white;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;
+      box-shadow:0 3px 10px rgba(79,70,229,0.3);
+    ">✓ Тақтаға қосу</button>
+    <button onclick="closeTextEditor()" style="
+      padding:6px 12px;border:1.5px solid #fecaca;border-radius:8px;
+      background:#fef2f2;color:#dc2626;font-size:12px;font-weight:700;cursor:pointer;
+      font-family:inherit;
+    ">✕</button>
+  </div>
 </div>
-<div id="textEditor" class="text-editor" style="display:none;">
-  <div id="textEditorContent" contenteditable="true" class="text-editor-area"></div>
+
+<!-- Редактор -->
+<div id="textEditor" style="
+  display:none;position:fixed;top:102px;left:260px;right:24px;bottom:20px;
+  background:white;border-radius:16px;border:2px solid #c7d2fe;
+  box-shadow:0 8px 32px rgba(79,70,229,0.15);z-index:299;overflow:hidden;
+  display:none;flex-direction:column;
+">
+  <!-- Char count -->
+  <div style="display:flex;justify-content:space-between;padding:4px 16px 0;font-size:10px;color:#94a3b8;">
+    <span id="rtWordCount">0 сөз</span>
+    <span id="rtCharCount">0 таңба</span>
+  </div>
+  <div id="textEditorContent" contenteditable="true" style="
+    flex:1;overflow-y:auto;padding:16px 22px;outline:none;
+    font-size:16px;line-height:1.75;color:#0f172a;font-family:'Inter',system-ui,sans-serif;
+  " spellcheck="true" oninput="rtUpdateCount()"></div>
 </div>
+
+<style>
+.rt-btn {
+  width:30px;height:30px;border-radius:6px;border:1px solid transparent;
+  background:transparent;font-size:14px;cursor:pointer;transition:.12s;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-family:inherit;color:#334155;
+}
+.rt-btn:hover { background:#f0f2f8; border-color:#e2e6f0; }
+.rt-btn:active { background:#e2e6f0; transform:scale(.95); }
+.rt-color-label {
+  display:inline-flex;align-items:center;gap:2px;cursor:pointer;
+  padding:2px 5px;border-radius:6px;transition:.12s;
+}
+.rt-color-label:hover { background:#f0f2f8; }
+.rt-color-inp {
+  width:20px;height:20px;border:1px solid #e2e6f0;border-radius:4px;
+  cursor:pointer;padding:0;
+}
+</style>
 
 <!-- ═══ LAYOUT ═══ -->
 <div class="container">
 
   <!-- ══════════════════════════════════════
-       SIDEBAR — Mugalim.tech стилі
+       SIDEBAR —  Mugalim.tech стилі
        ══════════════════════════════════════ -->
   <aside class="sidebar">
 
@@ -450,7 +604,7 @@
         <span class="tool-btn-icon">📋</span>Рубрика
       </button>
       <button class="tool-btn" onclick="openTrainerDirect('reflection','05_scale')">
-        <span class="tool-btn-icon">📊</span>Шкала 1–10
+        <span class="tool-btn-icon">📊</span>Шкала 1-10
       </button>
       <button class="tool-btn" onclick="openTrainerDirect('reflection','06_group_assessment')">
         <span class="tool-btn-icon">👥</span>Топтық бағалау
@@ -528,13 +682,13 @@
 
       <div class="section-title">Математика</div>
       <button class="tool-btn" onclick="openTrainerDirect('math','Matematika_trenazhery(5-6synyp)')">
-        <span class="tool-btn-icon">🔢</span>Математика 5–6
+        <span class="tool-btn-icon">🔢</span>Математика 5-6
       </button>
       <button class="tool-btn" onclick="openTrainerDirect('math','Algebra_trenazhery(7-11)')">
-        <span class="tool-btn-icon">📗</span>Алгебра 7–11
+        <span class="tool-btn-icon">📗</span>Алгебра 7-11
       </button>
       <button class="tool-btn" onclick="openTrainerDirect('math','Geometriya_trenazhery(7-11)')">
-        <span class="tool-btn-icon">📐</span>Геометрия 7–11
+        <span class="tool-btn-icon">📐</span>Геометрия 7-11
       </button>
       <button class="tool-btn" onclick="openTrainerDirect('math','Pifagor_teoremasy_8')">
         <span class="tool-btn-icon">📐</span>Пифагор 8
@@ -677,6 +831,277 @@
       </div>
 
       <!-- AI Generator -->
+      <div class="section-title">Үй тапсырмасы</div>
+      <div style="padding:0 10px 8px;">
+        <button onclick="openHomeworkPanel()" style="
+          width:100%;padding:10px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#7c2d12,#ea580c);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(234,88,12,0.25);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+        ">
+          📚 Үй тапсырмасы
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+      </div>
+
+      <div class="section-title">Ынтымақтастық</div>
+      <div style="padding:0 10px 8px;">
+        <button onclick="openCollabBoard()" style="
+          width:100%;padding:10px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#0f172a,#1e3a8a);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(15,23,42,0.2);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+        ">
+          🖊 Collaborative Board
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+      </div>
+
+      <div class="section-title">AI Сабақ жасаушы</div>
+      <div style="padding:0 10px 8px;">
+        <button onclick="openLessonFlow()" style="
+          width:100%;padding:11px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#312e81,#4f46e5,#7c3aed);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(79,70,229,0.35);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+        ">
+          ⚡ AI Lesson Flow
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+      </div>
+
+      <div class="section-title">📈 Оқушы прогресі</div>
+      <div style="padding:0 10px 8px;">
+        <button onclick="openStudentProgress()" style="
+          width:100%;padding:11px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#0f172a,#1e3a8a,#7c3aed);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(124,58,237,0.25);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+        ">
+          📈 Оқушы прогресі
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+      </div>
+
+      <div class="section-title">📲 Мобильді App</div>
+      <div style="padding:0 10px 8px;">
+        <button onclick="openPWAPanel()" style="
+          width:100%;padding:11px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#312e81,#4f46e5,#7c3aed);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(79,70,229,0.3);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+          margin-bottom:6px;
+        ">
+          📲 PWA —  Орнату
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+        <button onclick="installPWA()" style="
+          width:100%;padding:9px 12px;border-radius:10px;
+          background:rgba(79,70,229,0.08);
+          color:#4f46e5;font-size:12px;font-weight:700;
+          border:1.5px solid #c7d2fe;cursor:pointer;
+          display:flex;align-items:center;justify-content:center;gap:6px;
+        ">
+          ⬇️ Экранға қою
+        </button>
+      </div>
+
+      <div class="section-title">📡 Офлайн</div>
+      <div style="padding:0 10px 8px;">
+        <button onclick="openOfflinePanel()" style="
+          width:100%;padding:11px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#1f2937,#374151);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(31,41,55,0.3);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+        ">
+          📡 Офлайн режим
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+      </div>
+
+      <div class="section-title">👥 Қауымдастық</div>
+      <div style="padding:0 10px 8px;">
+        <button onclick="openCommunity()" style="
+          width:100%;padding:11px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#831843,#be185d);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(190,24,93,0.3);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+        ">
+          👥 Мұғалімдер қауымдастығы
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+      </div>
+
+      <div class="section-title">📚 Кітапхана</div>
+      <div style="padding:0 10px 8px;">
+        <button onclick="openLessonLibrary()" style="
+          width:100%;padding:11px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#0c4a6e,#0369a1);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(3,105,161,0.3);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+        ">
+          📚 Сабақтар кітапханасы
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+      </div>
+
+      <div class="section-title">🎮 Ойындар</div>
+      <div style="padding:0 10px 8px;">
+        <button onclick="openAlpacaRace()" style="
+          width:100%;padding:11px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#064e3b,#059669);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(5,150,105,0.3);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+          margin-bottom:6px;
+        ">
+          🦙 Alpaca Race
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+        <button onclick="openFlashcards()" style="
+          width:100%;padding:10px 12px;border-radius:10px;
+          background:linear-gradient(135deg,#4c1d95,#6d28d9);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(76,29,149,0.3);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+          margin-bottom:6px;
+        ">
+          🃏 Flashcards Pro
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+        <button onclick="openCrossword()" style="
+          width:100%;padding:10px 12px;border-radius:10px;
+          background:linear-gradient(135deg,#1a1a2e,#0f3460);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          display:flex;align-items:center;justify-content:center;gap:8px;
+          margin-bottom:6px;
+        ">
+          ✏️ Crossword
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+        <button onclick="openMemoryGame()" style="
+          width:100%;padding:11px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#be123c,#e11d48);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(190,18,60,0.3);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+        ">
+          🧠 Memory Game
+        </button>
+      </div>
+
+      <div style="padding:0 10px 0;display:none;" id="oldGames"></div>
+
+      <div class="section-title">📁 Портфолио</div>
+      <div style="padding:0 10px 8px;">
+        <button onclick="openPortfolio()" style="
+          width:100%;padding:11px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#1e1b4b,#4338ca,#6366f1);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(67,56,202,0.3);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+        ">
+          📁 Мұғалім портфолиосы
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">PDF</span>
+        </button>
+      </div>
+
+      <div class="section-title">💌 Ата-ана</div>
+      <div style="padding:0 10px 8px;">
+        <button onclick="openParentMessage()" style="
+          width:100%;padding:11px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#065f46,#059669);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(5,150,105,0.3);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+        ">
+          💌 Ата-ана хабарламасы
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+      </div>
+
+      <div class="section-title">📈 Прогресс</div>
+      <div style="padding:0 10px 8px;">
+        <button onclick="openStudentProgress()" style="
+          width:100%;padding:11px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#14532d,#16a34a);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(22,163,74,0.3);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+        ">
+          📈 Оқушы прогресі
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+      </div>
+
+      <div class="section-title">📊 Аналитика</div>
+      <div style="padding:0 10px 8px;">
+        <button onclick="openAnalyticsDashboard()" style="
+          width:100%;padding:11px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#0f172a,#1e3a8a,#4f46e5);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(15,23,42,0.25);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+        ">
+          📊 Analytics Dashboard
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+      </div>
+
+      <div class="section-title">AI Сертификат</div>
+      <div style="padding:0 10px 8px;">
+        <button onclick="openCertificatePanel()" style="
+          width:100%;padding:11px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#78350f,#b45309,#f59e0b);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(180,83,9,0.3);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+        ">
+          🏆 AI Сертификат
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+      </div>
+
+      <div class="section-title">AI Дифференциация</div>
+      <div style="padding:0 10px 8px;">
+        <button onclick="openDiffPanel()" style="
+          width:100%;padding:11px 12px;border-radius:12px;
+          background:linear-gradient(135deg,#7c2d12,#dc2626,#f97316);
+          color:white;font-size:13px;font-weight:700;
+          border:none;cursor:pointer;
+          box-shadow:0 4px 14px rgba(220,38,38,0.3);
+          display:flex;align-items:center;justify-content:center;gap:8px;
+        ">
+          🎨 AI Дифференциация
+          <span style="background:rgba(255,255,255,0.2);font-size:10px;padding:1px 7px;border-radius:999px;">ЖАҢА</span>
+        </button>
+      </div>
+
       <div class="section-title">AI Ойын Жасаушы ✨</div>
       <div style="padding:0 10px 10px;">
         <div style="position:relative;">
@@ -719,7 +1144,7 @@
     <div class="sidebar-panel" id="panel-room">
       <div class="section-title">LiveRoom</div>
       <div class="room-box">
-        <div class="room-id" id="roomId">–</div>
+        <div class="room-id" id="roomId">-</div>
         <button class="room-btn" id="roomBtn" onclick="createRoom()">🟢 Жаңа бөлме</button>
         <div class="qr-box" id="qrContainer" style="width:160px;height:160px;overflow:visible;display:flex;align-items:center;justify-content:center;background:white;border-radius:10px;margin:10px auto;box-shadow:0 4px 14px rgba(0,0,0,0.10);"></div>
         <p id="roomHint" class="room-hint">Оқушылар <b>QR арқылы</b> қосылады</p>
@@ -822,7 +1247,7 @@
 
   </aside>
 
-  <!-- ═══ BOARD AREA — ДОСКА ═══ -->
+  <!-- ═══ BOARD AREA —  ДОСКА ═══ -->
   <div style="position:relative;flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;">
 
     <!-- DRAW CANVAS OVERLAY -->
@@ -1013,19 +1438,19 @@ document.querySelectorAll('.sidebar-tab').forEach(btn => {
   });
 });
 
-// openTrainerDirect — teacher.js-те анықталған
+// openTrainerDirect —  teacher.js-те анықталған
 
 // ── AI MODE SELECTOR ─────────────────────────────────
 const AI_MODE_DESCS = {
   chat:            "💬 Кез-келген сұрақ қойыңыз",
-  lesson_plan:     "📋 Тақырып жазсаңыз — толық сабақ жоспары жасалады",
-  tasks:           "✏️ Тақырып жазсаңыз — 3 деңгейде тапсырма жасалады",
-  quiz:            "🎯 Тақырып жазсаңыз — 10 тест сұрағы жасалады",
-  split:           "📦 Мәтін жазсаңыз — сабақ блоктарына бөлінеді",
+  lesson_plan:     "📋 Тақырып жазсаңыз —  толық сабақ жоспары жасалады",
+  tasks:           "✏️ Тақырып жазсаңыз —  3 деңгейде тапсырма жасалады",
+  quiz:            "🎯 Тақырып жазсаңыз —  10 тест сұрағы жасалады",
+  split:           "📦 Мәтін жазсаңыз —  сабақ блоктарына бөлінеді",
   explain:         "💡 Кез-келген ұғым немесе есепті қарапайым тілмен түсіндіреді",
-  differentiation: "🎨 Тақырып жазсаңыз — 3 деңгейде дифференцияланған тапсырма",
-  feedback:        "💬 Оқушы жауабын жазсаңыз — кәсіби кері байланыс жасалады",
-  pisa:            "🧪 Тақырып жазсаңыз — PISA/TIMSS стиліндегі тапсырма",
+  differentiation: "🎨 Тақырып жазсаңыз —  3 деңгейде дифференцияланған тапсырма",
+  feedback:        "💬 Оқушы жауабын жазсаңыз —  кәсіби кері байланыс жасалады",
+  pisa:            "🧪 Тақырып жазсаңыз —  PISA/TIMSS стиліндегі тапсырма",
 };
 
 window.selectAIMode = function(btn, mode) {
@@ -1051,12 +1476,12 @@ window.selectAIMode = function(btn, mode) {
   // Placeholder жаңарту
   const placeholders = {
     chat:            "Кез-келген сұрақ жазыңыз...",
-    lesson_plan:     "Мысалы: Квадрат теңдеу — 8-сынып",
-    tasks:           "Мысалы: Бүтін сандарға амалдар — 6-сынып",
-    quiz:            "Мысалы: Жер шары және климат — 7-сынып",
+    lesson_plan:     "Мысалы: Квадрат теңдеу —  8-сынып",
+    tasks:           "Мысалы: Бүтін сандарға амалдар —  6-сынып",
+    quiz:            "Мысалы: Жер шары және климат —  7-сынып",
     split:           "Мәтінді осында қойыңыз...",
     explain:         "Мысалы: Пифагор теоремасы немесе интеграл",
-    differentiation: "Мысалы: Сызықтық функция — 7-сынып",
+    differentiation: "Мысалы: Сызықтық функция —  7-сынып",
     feedback:        "Оқушының жауабын немесе жұмысын жазыңыз...",
     pisa:            "Мысалы: Экология және тұрақты даму",
   };
@@ -1065,6 +1490,7 @@ window.selectAIMode = function(btn, mode) {
 };
 </script>
 
+<script type="module" src="firebaseConfig.js"></script>
 <script type="module" src="teacher.js"></script>
 <script type="module" src="lessonCabinet.js"></script>
 
@@ -1184,7 +1610,7 @@ window.selectAIMode = function(btn, mode) {
           font-family:inherit;
           transition:all .18s;
           margin-bottom:10px;
-        " placeholder="Мысалы: Квадрат теңдеу — 8-сынып&#10;немесе: Жануарлар мен олардың тіршілік ортасы"></textarea>
+        " placeholder="Мысалы: Квадрат теңдеу —  8-сынып&#10;немесе: Жануарлар мен олардың тіршілік ортасы"></textarea>
 
         <!-- Пән / Сынып -->
         <div style="display:flex;gap:8px;margin-bottom:14px;">
@@ -1343,7 +1769,7 @@ window.selectAIMode = function(btn, mode) {
     user-select:none;
   ">
     <span style="color:white;font-size:12px;font-weight:700;">
-      🙈 Жасыру панелі — сүйреп ашыңыз
+      🙈 Жасыру панелі —  сүйреп ашыңыз
     </span>
     <div style="display:flex;gap:6px;">
       <button onclick="revealAll()" style="
