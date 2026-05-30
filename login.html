@@ -2,544 +2,250 @@
 <html lang="kk">
 <head>
   <meta charset="UTF-8"/>
-  <title>SmartBoardAI PRO – Кіру</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="main.css">
-
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SmartBoardAI PRO —  Кіру</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4f46e5">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
   <style>
-    /* Login беріне арнайы стильдер — main.css-тен алынған token-дар */
-    body {
-      overflow: auto;
-      background:
-        radial-gradient(ellipse at 15% 10%, rgba(79,70,229,0.10), transparent 50%),
-        radial-gradient(ellipse at 85% 90%, rgba(99,102,241,0.08), transparent 50%),
-        var(--bg);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    /* ─── TOPBAR ─── */
-    .topbar {
-      height: 56px;
-      background: var(--white);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .topbar-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
-
-    .brand-icon {
-      width: 32px; height: 32px;
-      border-radius: var(--r-md);
-      background: linear-gradient(135deg, var(--primary), #818cf8);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 15px; font-weight: 800; color: white;
-      box-shadow: 0 2px 8px rgba(79,70,229,0.3);
-    }
-
-    .brand-name {
-      font-size: 14px; font-weight: 800; color: var(--text-1);
-    }
-
-    .brand-pro {
-      font-size: 10px; font-weight: 700;
-      background: linear-gradient(135deg, var(--primary), #818cf8);
-      color: white;
-      padding: 2px 7px; border-radius: var(--r-full);
-    }
-
-    .topbar-link {
-      font-size: 13px; font-weight: 600;
-      color: var(--primary);
-      text-decoration: none;
-      padding: 5px 12px;
-      border-radius: var(--r-full);
-      background: var(--primary-light);
-      transition: var(--tr);
-    }
-    .topbar-link:hover { background: var(--primary-mid); }
-
-    /* ─── MAIN CONTENT ─── */
-    .login-main {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 32px 16px;
-    }
-
-    .login-wrap {
-      width: 100%;
-      max-width: 400px;
-    }
-
-    /* ─── CARD ─── */
-    .login-card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 30px 26px 24px;
-      box-shadow: var(--shadow-lg);
-    }
-
-    .login-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 22px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid var(--border2);
-    }
-
-    .login-logo {
-      width: 44px; height: 44px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, var(--primary), #818cf8);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; font-weight: 800; color: white;
-      box-shadow: 0 4px 14px rgba(79,70,229,0.3);
-      flex-shrink: 0;
-    }
-
-    .login-header-text h2 {
-      font-size: 17px; font-weight: 800;
-      color: var(--text-1); margin-bottom: 3px;
-    }
-
-    .login-header-text p {
-      font-size: 12px; color: var(--text-3);
-    }
-
-    /* ─── ROLE SWITCHER ─── */
-    .role-tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      margin-bottom: 20px;
-      background: var(--bg2);
-      border-radius: var(--r-lg);
-      padding: 4px;
-    }
-
-    .role-tab {
-      padding: 8px;
-      border-radius: var(--r-md);
-      border: none;
-      background: transparent;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-3);
-      cursor: pointer;
-      transition: var(--tr);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .role-tab.active {
-      background: var(--white);
-      color: var(--primary);
-      box-shadow: var(--shadow-sm);
-    }
-
-    /* ─── FIELDS ─── */
-    .field {
-      margin-bottom: 14px;
-    }
-
-    .field-label {
-      display: block;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-3);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 5px;
-    }
-
-    .field-input {
-      width: 100%;
-      padding: 11px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--r-md);
-      font-size: 14px;
-      color: var(--text-1);
-      background: var(--bg2);
-      transition: var(--tr);
-      font-family: inherit;
-    }
-
-    .field-input:focus {
-      border-color: var(--primary);
-      background: var(--white);
-      box-shadow: 0 0 0 3px rgba(79,70,229,0.10);
-      outline: none;
-    }
-
-    .field-input::placeholder { color: var(--text-4); }
-
-    /* ─── BUTTONS ─── */
-    .btn-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .btn-login {
-      padding: 11px;
-      border: none;
-      border-radius: var(--r-md);
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: var(--tr);
-      font-family: inherit;
-    }
-
-    .btn-login.primary {
-      background: linear-gradient(135deg, var(--primary), #818cf8);
-      color: white;
-      box-shadow: 0 4px 12px rgba(79,70,229,0.28);
-    }
-    .btn-login.primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(79,70,229,0.38);
-    }
-
-    .btn-login.outline {
-      background: var(--primary-light);
-      color: var(--primary);
-      border: 1px solid var(--primary-mid);
-    }
-    .btn-login.outline:hover { background: var(--primary-mid); }
-
-    /* ─── DIVIDER ─── */
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 14px 0;
-      font-size: 12px;
-      color: var(--text-4);
-    }
-    .divider::before, .divider::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    /* ─── GOOGLE ─── */
-    .btn-google {
-      width: 100%;
-      padding: 11px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--r-md);
-      background: var(--white);
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-2);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: var(--tr);
-      font-family: inherit;
-    }
-    .btn-google:hover { background: var(--bg2); border-color: var(--primary-mid); }
-
-    /* ─── MESSAGE ─── */
-    .msg-box {
-      display: none;
-      padding: 10px 12px;
-      border-radius: var(--r-md);
-      font-size: 13px;
-      font-weight: 500;
-      margin-top: 12px;
-    }
-    .msg-box.error { background: var(--danger-light); color: var(--danger); border: 1px solid #fecaca; display: block; }
-    .msg-box.ok    { background: var(--success-light); color: var(--success); border: 1px solid #6ee7b7; display: block; }
-
-    /* ─── STUDENT SECTION ─── */
-    .student-section { display: none; }
-    .student-section.active { display: block; }
-    .teacher-section { display: block; }
-    .teacher-section.hidden { display: none; }
-
-    .room-input-wrap {
-      text-align: center;
-      padding: 10px 0 4px;
-    }
-
-    .room-code-input {
-      width: 100%;
-      padding: 16px;
-      border: 2px solid var(--border);
-      border-radius: var(--r-lg);
-      font-size: 28px;
-      font-weight: 800;
-      text-align: center;
-      letter-spacing: 0.2em;
-      color: var(--primary);
-      background: var(--primary-light);
-      transition: var(--tr);
-      font-family: inherit;
-    }
-    .room-code-input:focus {
-      border-color: var(--primary);
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
-    }
-    .room-code-input::placeholder {
-      color: var(--primary-mid);
-      letter-spacing: 0.1em;
-      font-size: 20px;
-    }
-
-    .btn-join {
-      width: 100%;
-      margin-top: 12px;
-      padding: 13px;
-      border: none;
-      border-radius: var(--r-md);
-      background: linear-gradient(135deg, var(--success), #059669);
-      color: white;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: var(--tr);
-      font-family: inherit;
-    }
-    .btn-join:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(16,185,129,0.35); }
-
-    /* ─── FOOTER ─── */
-    .login-footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 12px;
-      color: var(--text-4);
-    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',system-ui,sans-serif;background:linear-gradient(135deg,#0f172a,#1e1b4b,#312e81);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .card{background:white;border-radius:24px;padding:36px;width:min(440px,100%);box-shadow:0 32px 80px rgba(15,23,42,0.4);}
+    .logo{text-align:center;margin-bottom:28px;}
+    .logo-icon{font-size:48px;display:block;margin-bottom:10px;}
+    .logo-title{font-size:22px;font-weight:800;color:#0f172a;}
+    .logo-sub{font-size:13px;color:#64748b;margin-top:3px;}
+    .tabs{display:grid;grid-template-columns:1fr 1fr;background:#f0f2f8;border-radius:12px;padding:4px;margin-bottom:24px;}
+    .tab-btn{padding:10px;border:none;border-radius:9px;background:transparent;font-size:14px;font-weight:700;cursor:pointer;color:#64748b;transition:.2s;font-family:inherit;}
+    .tab-btn.active{background:white;color:#4f46e5;box-shadow:0 2px 8px rgba(15,23,42,0.10);}
+    .form-group{margin-bottom:13px;}
+    label.lbl{font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:5px;}
+    input[type=text],input[type=email],input[type=password]{width:100%;padding:11px 14px;border:2px solid #e2e6f0;border-radius:11px;font-size:14px;font-family:inherit;transition:.15s;outline:none;}
+    input:focus{border-color:#c7d2fe;}
+    .plans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+    .plan-card{border:2px solid #e2e6f0;border-radius:12px;padding:12px;cursor:pointer;transition:.15s;text-align:center;}
+    .plan-card.selected{border-color:#4f46e5;background:#eef2ff;}
+    .plan-icon{font-size:24px;margin-bottom:4px;}
+    .plan-name{font-size:13px;font-weight:800;color:#0f172a;}
+    .plan-price{font-size:11px;color:#64748b;margin-top:2px;}
+    .plan-features{font-size:10px;color:#64748b;margin-top:6px;line-height:1.6;text-align:left;}
+    .btn-main{width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(79,70,229,0.35);margin-top:6px;transition:.15s;}
+    .btn-main:hover{transform:translateY(-1px);}
+    .btn-main:disabled{opacity:.6;transform:none;cursor:not-allowed;}
+    .btn-google{width:100%;padding:11px;border:2px solid #e2e6f0;border-radius:12px;background:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;transition:.15s;}
+    .btn-google:hover{border-color:#c7d2fe;background:#f8f9ff;}
+    .divider{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:12px;color:#94a3b8;}
+    .divider::before,.divider::after{content:"";flex:1;height:1px;background:#e2e6f0;}
+    .status{padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:12px;display:none;text-align:center;}
+    .status.ok{background:#f0fdf4;color:#16a34a;border:1px solid #86efac;}
+    .status.err{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;}
+    .status.load{background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;}
+    .footer{text-align:center;margin-top:14px;font-size:12px;color:#94a3b8;}
+    .footer a{color:#4f46e5;font-weight:600;text-decoration:none;}
+    .badge-pro{background:linear-gradient(135deg,#f59e0b,#d97706);color:white;font-size:9px;font-weight:800;padding:2px 5px;border-radius:999px;margin-left:3px;}
+    .badge-free{background:#f0fdf4;color:#16a34a;border:1px solid #86efac;font-size:9px;font-weight:800;padding:2px 5px;border-radius:999px;margin-left:3px;}
   </style>
 </head>
 <body>
+<div class="card">
+  <div class="logo">
+    <span class="logo-icon">⚡</span>
+    <div class="logo-title">SmartBoardAI PRO</div>
+    <div class="logo-sub">Мұғалімге арналған AI интерактив тақта</div>
+  </div>
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <a href="index.html" class="topbar-brand">
-    <div class="brand-icon">⚡</div>
-    <span class="brand-name">SmartBoardAI</span>
-    <span class="brand-pro">PRO</span>
-  </a>
-  <a href="index.html" class="topbar-link">← Басты бет</a>
-</div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('login')">🔑 Кіру</button>
+    <button class="tab-btn" onclick="switchTab('register')">✨ Тіркелу</button>
+  </div>
 
-<!-- MAIN -->
-<div class="login-main">
-  <div class="login-wrap">
+  <div class="status" id="st"></div>
 
-    <div class="login-card">
+  <!-- LOGIN -->
+  <div id="loginP">
+    <button class="btn-google" onclick="gLogin()">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+      Google арқылы кіру
+    </button>
+    <div class="divider">немесе</div>
+    <div class="form-group"><label class="lbl">Email</label><input type="email" id="lEmail" placeholder="teacher@school.kz"/></div>
+    <div class="form-group"><label class="lbl">Құпия сөз</label><input type="password" id="lPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <button class="btn-main" onclick="doLogin()" id="lBtn">🔑 Кіру</button>
+    <div class="footer"><a href="#" onclick="doForgot();return false;">Құпия сөзді ұмыттым</a></div>
+  </div>
 
-      <!-- HEADER -->
-      <div class="login-header">
-        <div class="login-logo">⚡</div>
-        <div class="login-header-text">
-          <h2>SmartBoardAI PRO</h2>
-          <p>Кіру немесе бөлмеге қосылу</p>
-        </div>
+  <!-- REGISTER -->
+  <div id="regP" style="display:none;">
+    <button class="btn-google" onclick="gLogin()">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+      Google арқылы тіркелу
+    </button>
+    <div class="divider">немесе</div>
+    <div class="form-group"><label class="lbl">Аты-жөніңіз</label><input type="text" id="rName" placeholder="Мырзаева Назгүл"/></div>
+    <div class="form-group"><label class="lbl">Email</label><input type="email" id="rEmail" placeholder="teacher@school.kz"/></div>
+    <div class="form-group"><label class="lbl">Мектеп / Мекеме</label><input type="text" id="rSchool" placeholder="№25 мектебі, Алматы"/></div>
+    <div class="form-group"><label class="lbl">Құпия сөз (кем дегенде 6 таңба)</label><input type="password" id="rPass" placeholder="••••••••"/></div>
+
+    <label class="lbl" style="margin-bottom:8px;">Тариф жоспары:</label>
+    <div class="plans">
+      <div class="plan-card selected" onclick="selPlan('free',this)">
+        <div class="plan-icon">🎁</div>
+        <div class="plan-name">Тегін <span class="badge-free">FREE</span></div>
+        <div class="plan-price">₸0 / ай</div>
+        <div class="plan-features">✅ Тақта + блоктар<br>✅ Бөлме + QR<br>✅ Оқушы жауабы<br>✅ Дауыс, Emoji<br>✅ <b>10 AI/күн тегін</b><br>⬆️ Кейін PRO</div>
       </div>
-
-      <!-- ROLE TABS -->
-      <div class="role-tabs">
-        <button class="role-tab active" id="tabTeacher" onclick="switchRole('teacher')">
-          🎓 Мұғалім
-        </button>
-        <button class="role-tab" id="tabStudent" onclick="switchRole('student')">
-          👤 Оқушы
-        </button>
+      <div class="plan-card" onclick="selPlan('pro',this)">
+        <div class="plan-icon">🚀</div>
+        <div class="plan-name">PRO <span class="badge-pro">PRO</span></div>
+        <div class="plan-price">₸4 900 / ай</div>
+        <div class="plan-features">✅ Барлық FREE<br>✅ AI Lesson Flow<br>✅ AI Дифф. + Сертификат<br>✅ Analytics Dashboard<br>✅ Memory, Kahoot...<br>✅ Voice Control</div>
       </div>
-
-      <!-- TEACHER SECTION -->
-      <div class="teacher-section" id="teacherSection">
-        <div class="field">
-          <label class="field-label">Email</label>
-          <input id="email" class="field-input" type="email"
-            placeholder="example@mail.com" autocomplete="email"/>
-        </div>
-
-        <div class="field">
-          <label class="field-label">Құпия сөз</label>
-          <input id="password" class="field-input" type="password"
-            placeholder="••••••••" autocomplete="current-password"/>
-        </div>
-
-        <div class="btn-row">
-          <button id="signInBtn" class="btn-login primary">🔑 Кіру</button>
-          <button id="signUpBtn" class="btn-login outline">➕ Тіркелу</button>
-        </div>
-
-        <div class="divider">немесе</div>
-
-        <button id="googleBtn" class="btn-google">
-          <svg width="18" height="18" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-          </svg>
-          Google арқылы кіру
-        </button>
-      </div>
-
-      <!-- STUDENT SECTION -->
-      <div class="student-section" id="studentSection">
-        <div class="room-input-wrap">
-          <p style="font-size:13px;color:var(--text-3);margin-bottom:14px;">
-            Мұғалім берген <b>PIN кодты</b> енгізіңіз
-          </p>
-          <input id="roomCodeInput" class="room-code-input"
-            type="text" maxlength="8"
-            placeholder="• • • •"
-            oninput="this.value=this.value.toUpperCase()"/>
-          <input id="studentNameInput" class="field-input"
-            type="text" placeholder="Атыңызды жазыңыз"
-            style="margin-top:10px;font-size:14px;"/>
-          <button class="btn-join" onclick="joinRoom()">
-            🚀 Бөлмеге қосылу
-          </button>
-        </div>
-      </div>
-
-      <!-- MESSAGE -->
-      <div id="msgBox" class="msg-box"></div>
-
     </div>
+    <input type="hidden" id="rPlan" value="free"/>
 
-    <!-- FOOTER -->
-    <div class="login-footer">
-      SmartBoardAI PRO · AI-Pedagogy Tools by <b style="color:var(--text-3);">Nazerke Kairatkyzy</b>
-    </div>
-
+    <button class="btn-main" onclick="doRegister()" id="rBtn">✨ Тіркелу</button>
+    <div class="footer">Тіркелу арқылы пайдалану шарттарымен келісесіз</div>
   </div>
 </div>
 
-<script>
-  // Role switcher
-  function switchRole(role) {
-    const isTeacher = role === 'teacher';
-    document.getElementById('tabTeacher').classList.toggle('active', isTeacher);
-    document.getElementById('tabStudent').classList.toggle('active', !isTeacher);
-    document.getElementById('teacherSection').classList.toggle('hidden', !isTeacher);
-    document.getElementById('studentSection').classList.toggle('active', !isTeacher);
-    document.getElementById('msgBox').className = 'msg-box';
-  }
-
-  // Student join
-  function joinRoom() {
-    const code = document.getElementById('roomCodeInput').value.trim();
-    const name = document.getElementById('studentNameInput').value.trim();
-    if (!code) { showMsg('PIN кодты енгізіңіз!', 'error'); return; }
-    if (!name) { showMsg('Атыңызды жазыңыз!', 'error'); return; }
-    // student.html-ге PIN + аты жіберу
-    window.location.href = `student.html?room=${encodeURIComponent(code)}&name=${encodeURIComponent(name)}`;
-  }
-
-  function showMsg(text, type) {
-    const el = document.getElementById('msgBox');
-    el.className = 'msg-box ' + type;
-    el.textContent = text;
-  }
-
-  // Enter key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      const tab = document.getElementById('tabTeacher').classList.contains('active');
-      if (tab) document.getElementById('signInBtn').click();
-      else joinRoom();
-    }
-  });
-</script>
-
 <script type="module">
-  import {
-    auth,
-    googleProvider,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    signInWithPopup
-  } from "./firebaseConfig.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup, GoogleAuthProvider,
+  sendPasswordResetEmail, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-  const allowedEmail = "naz-erke_k@mail.ru";
+// ── Firebase ─────────────────────────────────────────
+let auth, db;
+try {
+  const fc = await import("./firebaseConfig.js");
+  auth = fc.auth;
+  db   = fc.db;
+} catch(e) {
+  document.getElementById("st").textContent = "⚠️ Firebase жүктелмеді";
+  document.getElementById("st").className = "status err";
+  document.getElementById("st").style.display = "block";
+}
 
-  function showMsg(text, type) {
-    const el = document.getElementById('msgBox');
-    el.className = 'msg-box ' + type;
-    el.textContent = (type === 'error' ? '❌ ' : '✅ ') + text;
+// Кірген болса redirect
+if (auth) {
+  onAuthStateChanged(auth, u => {
+    if (u) goTeacher(u);
+  });
+}
+
+async function goTeacher(user) {
+  let plan = "free";
+  try {
+    const snap = await get(ref(db, `users/${user.uid}/plan`));
+    plan = snap.val() || "free";
+  } catch {}
+  localStorage.setItem("sb_plan",  plan);
+  localStorage.setItem("sb_uid",   user.uid);
+  localStorage.setItem("sb_email", user.email || "");
+  localStorage.setItem("sb_name",  user.displayName || "Мұғалім");
+  window.location.href = "/teacher.html";
+}
+
+function st(msg, type) {
+  const el = document.getElementById("st");
+  el.textContent = msg; el.className = "status " + type; el.style.display = "block";
+}
+
+async function saveProfile(user, extra = {}) {
+  if (!db) return;
+  const existing = await get(ref(db, `users/${user.uid}/plan`)).then(s=>s.val()).catch(()=>null);
+  await set(ref(db, `users/${user.uid}`), {
+    uid: user.uid, email: user.email || "",
+    name: extra.name || user.displayName || "Мұғалім",
+    school: extra.school || "",
+    plan: existing || extra.plan || "free",
+    lastLogin: Date.now(),
+    createdAt: Date.now(),
+  });
+}
+
+// ── Кіру ─────────────────────────────────────────────
+window.doLogin = async function() {
+  const e = document.getElementById("lEmail").value.trim();
+  const p = document.getElementById("lPass").value;
+  const btn = document.getElementById("lBtn");
+  if (!e || !p) { st("❗ Барлық өрістерді толтырыңыз","err"); return; }
+  btn.disabled=true; btn.textContent="⏳...";
+  st("⏳ Тексерілуде...","load");
+  try {
+    const c = await signInWithEmailAndPassword(auth, e, p);
+    await goTeacher(c.user);
+  } catch(err) {
+    const m = {"auth/user-not-found":"❌ Пайдаланушы табылмады","auth/wrong-password":"❌ Дұрыс емес құпия сөз","auth/invalid-credential":"❌ Email немесе құпия сөз қате"};
+    st(m[err.code]||"❌ "+err.message,"err");
+    btn.disabled=false; btn.textContent="🔑 Кіру";
   }
+};
 
-  function checkAllowed(email) {
-    if (email !== allowedEmail) {
-      showMsg("Бұл тақтаға тек автордың поштасына рұқсат бар.", "error");
-      return false;
-    }
-    return true;
+// ── Тіркелу ──────────────────────────────────────────
+window.doRegister = async function() {
+  const name=document.getElementById("rName").value.trim();
+  const email=document.getElementById("rEmail").value.trim();
+  const school=document.getElementById("rSchool").value.trim();
+  const pass=document.getElementById("rPass").value;
+  const plan=document.getElementById("rPlan").value;
+  const btn=document.getElementById("rBtn");
+  if(!name||!email||!pass){st("❗ Атыңыз, email және құпия сөзді толтырыңыз","err");return;}
+  if(pass.length<6){st("❗ Құпия сөз кем дегенде 6 таңба","err");return;}
+  btn.disabled=true;btn.textContent="⏳...";
+  st("⏳ Аккаунт жасалуда...","load");
+  try {
+    const c = await createUserWithEmailAndPassword(auth, email, pass);
+    await saveProfile(c.user,{name,school,plan});
+    st("✅ Тіркелдіңіз! Жүктелуде...","ok");
+    setTimeout(()=>goTeacher(c.user),1200);
+  } catch(err) {
+    const m={"auth/email-already-in-use":"❌ Бұл email тіркелген","auth/invalid-email":"❌ Email форматы дұрыс емес"};
+    st(m[err.code]||"❌ "+err.message,"err");
+    btn.disabled=false;btn.textContent="✨ Тіркелу";
   }
+};
 
-  document.getElementById('signInBtn').onclick = async () => {
-    const email = document.getElementById('email').value.trim();
-    const pass  = document.getElementById('password').value;
-    if (!email || !pass) { showMsg("Email мен құпия сөзді енгізіңіз.", "error"); return; }
-    if (!checkAllowed(email)) return;
-    try {
-      await signInWithEmailAndPassword(auth, email, pass);
-      showMsg("Сәтті кірдіңіз!", "ok");
-      setTimeout(() => window.location.href = "teacher.html", 600);
-    } catch (e) {
-      showMsg("Кіру қатесі: " + (e.code || e.message), "error");
-    }
-  };
+// ── Google ────────────────────────────────────────────
+window.gLogin = async function() {
+  st("⏳ Google арқылы кіру...","load");
+  try {
+    const c = await signInWithPopup(auth, new GoogleAuthProvider());
+    await saveProfile(c.user);
+    await goTeacher(c.user);
+  } catch(err) {
+    if(err.code!=="auth/popup-closed-by-user") st("❌ "+err.message,"err");
+    else document.getElementById("st").style.display="none";
+  }
+};
 
-  document.getElementById('signUpBtn').onclick = async () => {
-    const email = document.getElementById('email').value.trim();
-    const pass  = document.getElementById('password').value;
-    if (!email || !pass) { showMsg("Email мен құпия сөзді енгізіңіз.", "error"); return; }
-    if (!checkAllowed(email)) return;
-    try {
-      await createUserWithEmailAndPassword(auth, email, pass);
-      showMsg("Аккаунт тіркелді!", "ok");
-    } catch (e) {
-      showMsg("Тіркелу қатесі: " + (e.code || e.message), "error");
-    }
-  };
+// ── Ұмытылған ────────────────────────────────────────
+window.doForgot = function() {
+  const email = document.getElementById("lEmail").value.trim() || prompt("Email:");
+  if(!email) return;
+  sendPasswordResetEmail(auth,email)
+    .then(()=>st("✅ Қалпына келтіру сілтемесі жіберілді!","ok"))
+    .catch(err=>st("❌ "+err.message,"err"));
+};
 
-  document.getElementById('googleBtn').onclick = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      if (!checkAllowed(result.user.email)) { await auth.signOut(); return; }
-      window.location.href = "teacher.html";
-    } catch (e) {
-      showMsg("Google қатесі: " + (e.code || e.message), "error");
-    }
-  };
+// ── UI helpers ────────────────────────────────────────
+window.switchTab = function(tab) {
+  const isL = tab==="login";
+  document.getElementById("loginP").style.display = isL?"block":"none";
+  document.getElementById("regP").style.display   = isL?"none":"block";
+  document.querySelectorAll(".tab-btn").forEach((b,i)=>b.classList.toggle("active",isL?i===0:i===1));
+  document.getElementById("st").style.display="none";
+};
+
+window.selPlan = function(plan,el) {
+  document.querySelectorAll(".plan-card").forEach(c=>c.classList.remove("selected"));
+  el.classList.add("selected");
+  document.getElementById("rPlan").value=plan;
+};
 </script>
-
 </body>
 </html>
