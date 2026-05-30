@@ -1,5 +1,5 @@
 /* =========================================================
-   SmartBoardAI PRO — main.css v5.0 ✨
+   SmartBoardAI PRO —  main.css v5.0 ✨
    Premium EdTech Dashboard Design
    ========================================================= */
 
@@ -87,7 +87,7 @@ button { cursor:pointer; border:none; outline:none; font-family:inherit; transit
 input, textarea, select { font-family:inherit; outline:none; }
 
 /* ─────────────────────────────────────────────────────────
-   3. TOPBAR — Gradient premium
+   3. TOPBAR —  Gradient premium
 ───────────────────────────────────────────────────────── */
 .topbar {
   height: var(--topbar-h);
@@ -239,7 +239,7 @@ input, textarea, select { font-family:inherit; outline:none; }
 }
 
 /* ─────────────────────────────────────────────────────────
-   5. SIDEBAR — Premium dark+light mix
+   5. SIDEBAR —  Premium dark+light mix
 ───────────────────────────────────────────────────────── */
 .sidebar {
   background: var(--white);
@@ -549,7 +549,7 @@ input, textarea, select { font-family:inherit; outline:none; }
 .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
 /* ─────────────────────────────────────────────────────────
-   6. BOARD AREA — Premium cards
+   6. BOARD AREA —  Premium cards
 ───────────────────────────────────────────────────────── */
 .board-area {
   background: var(--bg);
@@ -603,7 +603,7 @@ input, textarea, select { font-family:inherit; outline:none; }
   to   { opacity:1; transform:translateY(0); }
 }
 
-/* Card header — colored top bar */
+/* Card header —  colored top bar */
 .board-card-header {
   display: flex;
   justify-content: space-between;
@@ -687,7 +687,7 @@ input, textarea, select { font-family:inherit; outline:none; }
 .board-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
 /* ─────────────────────────────────────────────────────────
-   7. RIGHT PANEL — Premium
+   7. RIGHT PANEL —  Premium
 ───────────────────────────────────────────────────────── */
 .right-panel {
   background: var(--white);
@@ -988,3 +988,166 @@ input, textarea, select { font-family:inherit; outline:none; }
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
 ::-webkit-scrollbar-thumb:hover { background:#cbd5e1; }
+
+/* ══════════════════════════════════════════
+   📱 MOBILE RESPONSIVE —  max-width: 768px
+══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Layout */
+  .container {
+    flex-direction: column;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 100% !important;
+    height: auto;
+    max-height: 45vh;
+    overflow-y: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .section-title {
+    width: 100%;
+    padding: 6px 8px 2px;
+  }
+
+  .tool-btn {
+    flex: 0 0 calc(50% - 4px);
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+
+  .tool-icon {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+
+  /* Board */
+  .board-area {
+    min-height: 55vh;
+    padding: 10px;
+  }
+
+  /* Right panel —  hide on mobile */
+  .right-panel {
+    display: none;
+  }
+
+  /* Topbar */
+  .topbar {
+    padding: 0 10px;
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 56px;
+  }
+
+  .topbar-right {
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .topbar-brand .topbar-sub {
+    display: none;
+  }
+
+  .lang-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  /* Room box */
+  .room-box {
+    margin: 6px 8px;
+  }
+
+  /* Board cards */
+  .board-card {
+    margin-bottom: 10px;
+  }
+
+  /* AI panel */
+  .ai-panel {
+    padding: 8px;
+  }
+
+  #aiPrompt {
+    height: 60px;
+  }
+
+  /* QR box */
+  .qr-box {
+    width: 140px;
+    height: 140px;
+  }
+
+  .qr-box img,
+  .qr-box canvas {
+    width: 130px !important;
+    height: 130px !important;
+  }
+}
+
+/* ── Tablet: 768px - 1024px ─────────────── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .sidebar {
+    width: 220px;
+  }
+
+  .right-panel {
+    width: 180px;
+  }
+
+  .tool-btn span:last-child {
+    font-size: 11px;
+  }
+}
+
+/* ── Touch devices ──────────────────────── */
+@media (hover: none) {
+  .tool-btn:hover {
+    background: var(--white);
+    transform: none;
+  }
+
+  .board-card:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.06);
+  }
+
+  /* Larger touch targets */
+  .tool-btn {
+    min-height: 44px;
+  }
+
+  .room-btn,
+  .ai-btn {
+    min-height: 44px;
+  }
+}
+
+/* ── Print styles ───────────────────────── */
+@media print {
+  .topbar,
+  .sidebar,
+  .right-panel {
+    display: none !important;
+  }
+
+  .board-area {
+    padding: 0;
+  }
+
+  .board-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #e2e6f0;
+  }
+}
