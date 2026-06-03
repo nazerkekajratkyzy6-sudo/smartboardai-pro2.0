@@ -1422,39 +1422,48 @@ localStorage.setItem("sb_roomId", currentRoom);
 function generateQR() {
   const qrDiv = $("qrContainer");
   if (!qrDiv || !currentRoom) return;
+
+  // Алдыңғы QR-ді тазалау
   qrDiv.innerHTML = "";
 
   const url = `${location.origin}/student.html?room=${currentRoom}`;
 
-  // URL сілтемесін hint-ке қосу
+  // URL hint
   const hint = $("roomHint");
   if (hint) {
-    hint.innerHTML = `Оқушылар <b>QR арқылы</b> қосылады -- <a href="${url}" target="_blank"
+    hint.innerHTML = `Оқушылар <b>QR арқылы</b> қосылады &mdash; <a href="${url}" target="_blank"
       style="color:#818cf8;font-size:10px;word-break:break-all;">${url}</a>`;
   }
 
   const doQR = () => {
     if (typeof QRCode !== "undefined") {
       try {
-        new QRCode(qrDiv, { text: url, width: 150, height: 150 });
+        new QRCode(qrDiv, { text: url, width: 160, height: 160 });
+
+        // QRCode.js canvas + img екеуін жасайды — canvas-ты жасырамыз, тек img қалады
         setTimeout(() => {
           const img = qrDiv.querySelector("img");
           const cvs = qrDiv.querySelector("canvas");
-          if (img) { img.style.width = "150px"; img.style.height = "150px"; img.style.display = "block"; }
-          if (cvs) { cvs.style.width = "150px"; cvs.style.height = "150px"; cvs.style.display = "block"; }
-        }, 300);
+
+          // Canvas-ты жасыру (img жеткілікті)
+          if (cvs) cvs.style.display = "none";
+
+          // Img стилі
+          if (img) {
+            img.style.cssText = "width:160px;height:160px;border-radius:8px;display:block;margin:0 auto;";
+          }
+        }, 200);
         return;
       } catch (e) { /* fallback */ }
     }
-    // Fallback: Google QR API
-    qrDiv.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}"
-      width="150" height="150" style="border-radius:6px;display:block;" alt="QR код"/>`;
+    // Fallback: Google QR API (QRCode.js жоқ болса)
+    qrDiv.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(url)}"
+      width="160" height="160" style="border-radius:8px;display:block;margin:0 auto;" alt="QR"/>`;
   };
 
   if (typeof QRCode !== "undefined") {
     doQR();
   } else {
-    // QRCode.js жүктелгенше күту (макс 3 сек)
     let tries = 0;
     const wait = setInterval(() => {
       tries++;
@@ -12611,6 +12620,118 @@ window.openTCPostDialog = function() {
       </div>
     </div>`;
   document.body.appendChild(dialog);
+};
+
+// ── Firebase-та parent message сақтау ──────────────
+window.saveParentMsgToFirebase = async function(studentName, msg) {
+  if (!currentRoom) return;
+  try {
+    const msgRef = push(ref(db, `rooms/${currentRoom}/parentMessages`));
+    await set(msgRef, {
+      studentName,
+      message: msg,
+      teacherEmail: auth?.currentUser?.email || "",
+      time: Date.now(),
+      sent: true,
+    });
+    showToast("✅ Хабарлама Firebase-та сақталды", "ok");
+  } catch(e) {
+    console.error("Parent msg save error:", e);
+  }
+};
+
+// ── Оқушыны тіркеу (Firebase-та) ──────────────────
+// Мұғалім оқушының ата-анасының контактісін сақтайды
+window.openStudentContacts = function() {
+  const students = Object.values(analyticsData.students || {});
+  if (!students.length) { showToast("⚠️ Оқушылар жоқ — алдымен бөлме ашыңыз", "warn"); return; }
+
+  if (document.getElementById("scModal")) {
+    document.getElementById("scModal").style.display = "flex";
+    renderStudentContacts(students);
+    return;
+  }
+
+  const modal = document.createElement("div");
+  modal.id = "scModal";
+  modal.style.cssText = "display:flex;position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(6px);z-index:400;align-items:center;justify-content:center;";
+
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "background:#fff;border-radius:20px;width:min(600px,96vw);max-height:85vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(15,23,42,0.2);overflow:hidden;";
+
+  const hdr = document.createElement("div");
+  hdr.style.cssText = "background:linear-gradient(135deg,#0c4a6e,#0369a1);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;";
+  hdr.innerHTML = `<div><div style="font-size:15px;font-weight:800;color:white;">👥 Оқушы контактілері</div><div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;">Ата-ана телефоны мен emailін сақтаңыз</div></div>`;
+  const cls = document.createElement("button");
+  cls.style.cssText = "background:rgba(255,255,255,0.15);color:white;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;";
+  cls.textContent = "✕";
+  cls.onclick = () => modal.style.display = "none";
+  hdr.appendChild(cls);
+
+  const body = document.createElement("div");
+  body.id = "scBody";
+  body.style.cssText = "flex:1;overflow-y:auto;padding:14px;";
+
+  wrap.appendChild(hdr);
+  wrap.appendChild(body);
+  modal.appendChild(wrap);
+  modal.addEventListener("click", e => { if (e.target === modal) modal.style.display = "none"; });
+  document.body.appendChild(modal);
+
+  renderStudentContacts(students);
+};
+
+function renderStudentContacts(students) {
+  const body = document.getElementById("scBody");
+  if (!body) return;
+
+  body.innerHTML = `
+    <div style="font-size:11px;color:#64748b;margin-bottom:12px;">
+      Ата-ана контактілерін сақтаңыз — кейін хабарлама жіберуге пайдаланылады
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${students.map(s => {
+        const saved = JSON.parse(localStorage.getItem("sb_contacts") || "{}");
+        const contact = saved[s.name] || {};
+        return `
+          <div style="background:#f8f9ff;border:1px solid #e2e6f0;border-radius:12px;padding:12px 14px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+              <span style="font-size:20px;">${s.avatar||"🙂"}</span>
+              <span style="font-size:13px;font-weight:700;color:#0f172a;">${s.name||"Оқушы"}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+              <input type="tel" placeholder="📱 Телефон: +7..." value="${contact.phone||""}"
+                id="sc_phone_${s.name.replace(/\s/g,'_')}"
+                style="padding:7px 10px;border:1.5px solid #e2e6f0;border-radius:8px;font-size:12px;font-family:inherit;"/>
+              <input type="email" placeholder="📧 Email" value="${contact.email||""}"
+                id="sc_email_${s.name.replace(/\s/g,'_')}"
+                style="padding:7px 10px;border:1.5px solid #e2e6f0;border-radius:8px;font-size:12px;font-family:inherit;"/>
+            </div>
+            <button onclick="saveStudentContact('${s.name}')" style="
+              width:100%;padding:7px;border:none;border-radius:8px;margin-top:7px;
+              background:#0369a1;color:white;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;
+            ">💾 Сақтау</button>
+          </div>`;
+      }).join("")}
+    </div>`;
+}
+
+window.saveStudentContact = function(name) {
+  const key    = name.replace(/\s/g, "_");
+  const phone  = document.getElementById(`sc_phone_${key}`)?.value.trim() || "";
+  const email  = document.getElementById(`sc_email_${key}`)?.value.trim() || "";
+  const saved  = JSON.parse(localStorage.getItem("sb_contacts") || "{}");
+  saved[name]  = { phone, email };
+  localStorage.setItem("sb_contacts", JSON.stringify(saved));
+  showToast("✅ " + name + " контакті сақталды", "ok");
+
+  // Firebase-та да сақтау
+  if (currentRoom && auth?.currentUser) {
+    const uid = auth.currentUser.uid;
+    set(ref(db, `users/${uid}/studentContacts/${btoa(name).replace(/=/g,"")}`), {
+      name, phone, email, savedAt: Date.now()
+    });
+  }
 };
 
 window.publishTCPost = async function() {
