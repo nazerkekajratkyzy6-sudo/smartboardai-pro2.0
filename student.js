@@ -900,3 +900,130 @@ window.sendRaceAnswer = async function() {
 
 // joinRoom hook
 // [Hook жинақталды —  joinRoom ішінде]
+
+// =====================================================
+// ОҚУШЫ AI CHAT — Mini ChatGPT
+// Оқушы сабаққа байланысты сұрақ береді
+// =====================================================
+
+let _aiChatHistory = [];
+
+window.sendStudentAI = async function() {
+  const input = document.getElementById("aiChatInput");
+  const text  = input?.value.trim();
+  if (!text) return;
+
+  input.value = "";
+  input.style.height = "auto";
+
+  // Оқушы хабарламасын қосу
+  addChatMsg(text, "user");
+  _aiChatHistory.push({ role: "user", content: text });
+
+  // Жүктелу анимациясы
+  const loadId = "aiLoad_" + Date.now();
+  addChatMsg("...", "ai", loadId);
+
+  try {
+    // Мұғалімнің сабақ контекстін алу (мұғалімнің Firebase-тан)
+    const roomId    = getRoomId();
+    const subjectCtx = roomId ? "" : "";
+
+    const res = await fetch("/api/ai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "chat",
+        lang:   "kk",
+        prompt: text,
+        // Жүйелік контекст — оқушы режимі
+        systemHint: `Сен SmartBoardAI платформасының оқушы көмекшісісің. 
+Оқушыға ${subjectCtx ? subjectCtx + " пәнінен " : ""}қысқа, нақты, ынталандырушы түрде жауап бер.
+Жауапты қазақ тілінде, оқушыға түсінікті тілмен жаз.
+Мысалдар мен кеңестер қос. Максимум 150 сөз.`,
+      })
+    });
+
+    const data = await res.json();
+
+    // Жүктелу хабарламасын ауыстыру
+    const loadEl = document.getElementById(loadId);
+    if (loadEl) loadEl.remove();
+
+    if (data.error === "limit_reached") {
+      addChatMsg("⚠️ Тегін AI лимиті біткен. Мұғалімнің PRO аккаунты арқылы пайдаланылады.", "ai");
+      return;
+    }
+
+    const answer = data.answer || "Жауап алынбады";
+    addChatMsg(answer, "ai");
+    _aiChatHistory.push({ role: "assistant", content: answer });
+
+    // Тарихты шектеу (10 хабарламадан аспасын)
+    if (_aiChatHistory.length > 20) {
+      _aiChatHistory = _aiChatHistory.slice(-20);
+    }
+
+  } catch(e) {
+    const loadEl = document.getElementById(loadId);
+    if (loadEl) loadEl.remove();
+    addChatMsg("❌ Қате: интернет байланысын тексеріңіз", "ai");
+  }
+};
+
+// Хабарлама қосу
+function addChatMsg(text, role, id) {
+  const msgs = document.getElementById("aiChatMsgs");
+  if (!msgs) return;
+
+  const isUser = role === "user";
+  const isLoad = text === "...";
+
+  const div = document.createElement("div");
+  if (id) div.id = id;
+  div.style.cssText = `
+    display:flex;flex-direction:column;
+    align-items:${isUser ? "flex-end" : "flex-start"};
+    animation:card-in .2s ease;
+  `;
+
+  if (isLoad) {
+    div.innerHTML = `
+      <div style="background:#f0f2f8;border-radius:14px 14px 14px 4px;padding:10px 14px;display:flex;gap:4px;align-items:center;">
+        <span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;animation:dot-pulse 1s ease infinite;display:inline-block;"></span>
+        <span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;animation:dot-pulse 1s ease .2s infinite;display:inline-block;"></span>
+        <span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;animation:dot-pulse 1s ease .4s infinite;display:inline-block;"></span>
+      </div>`;
+    if (!document.getElementById("dotPulseStyle")) {
+      const s = document.createElement("style");
+      s.id = "dotPulseStyle";
+      s.textContent = "@keyframes dot-pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}";
+      document.head.appendChild(s);
+    }
+  } else {
+    div.innerHTML = `
+      ${!isUser ? '<div style="font-size:10px;font-weight:700;color:#4f46e5;margin-bottom:3px;">🤖 AI Көмекші</div>' : ""}
+      <div style="
+        background:${isUser ? "linear-gradient(135deg,#4f46e5,#7c3aed)" : "white"};
+        color:${isUser ? "white" : "#0f172a"};
+        padding:10px 14px;
+        border-radius:${isUser ? "14px 14px 4px 14px" : "14px 14px 14px 4px"};
+        font-size:13px;line-height:1.6;max-width:88%;
+        border:${isUser ? "none" : "1px solid #e2e6f0"};
+        box-shadow:0 2px 8px rgba(15,23,42,0.06);
+        white-space:pre-wrap;word-break:break-word;
+      ">${text}</div>`;
+  }
+
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// Жылдам сұрақтар
+window.aiQuickAsk = function(q) {
+  const input = document.getElementById("aiChatInput");
+  if (input) {
+    input.value = q;
+    sendStudentAI();
+  }
+};
