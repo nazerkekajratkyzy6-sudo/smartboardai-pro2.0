@@ -496,10 +496,10 @@ input, textarea, select { font-family:inherit; outline:none; }
 
 .qr-box {
   margin: 10px auto;
-  width: 160px;
-  height: 160px;
+  width: 170px;
+  height: 170px;
   border-radius: var(--r-lg);
-  overflow: visible;
+  overflow: hidden;
   box-shadow: var(--shadow-md);
   border: 3px solid white;
   background: white;
@@ -507,10 +507,13 @@ input, textarea, select { font-family:inherit; outline:none; }
   align-items: center;
   justify-content: center;
 }
-.qr-box img,
+/* Canvas жасыру — QRCode.js canvas + img екеуін жасайды, тек img керек */
 .qr-box canvas {
-  width: 150px !important;
-  height: 150px !important;
+  display: none !important;
+}
+.qr-box img {
+  width: 160px !important;
+  height: 160px !important;
   border-radius: 6px;
   display: block !important;
 }
