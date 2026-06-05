@@ -507,7 +507,8 @@ function renderBoard() {
     </div>
   `;
 }    else if (b.type === "ai") {
-      contentHtml = `<div class="board-text">${safe(b.content)}</div>`;
+      // HTML мазмұн — escape емес, тікелей render
+      contentHtml = `<div class="board-text" style="line-height:1.7;font-size:14px;">${b.content}</div>`;
     } else if (b.type === "formula") {
   contentHtml = `
     <div class="math-block">
@@ -527,7 +528,14 @@ function renderBoard() {
     <button class="download-btn">⬇ Жүктеу</button>
   `;
 }    else if (b.type === "video") {
-      contentHtml = `<iframe src="${b.content}" class="board-video" allowfullscreen></iframe>`;
+      const vc = String(b.content || "");
+      if (vc.trimStart().startsWith("<")) {
+        // Жаңа нұсқа: html string (iframe/video tag)
+        contentHtml = `<div style="width:100%;border-radius:12px;overflow:hidden;">${vc}</div>`;
+      } else {
+        // Ескі нұсқа: URL тікелей
+        contentHtml = `<iframe src="${vc}" width="100%" height="315" frameborder="0" allowfullscreen style="border-radius:10px;display:block;"></iframe>`;
+      }
    } else if (b.type === "link") {
   const safeUrl = String(b.content || "").replace(/"/g, "&quot;");
 
@@ -1877,16 +1885,7 @@ safeReady(() => {
   renderPages();
   renderBoard();
 
-  // ── AI Usage Counter (topbar-да) ──────────────────
-  const topbarRight = document.querySelector(".topbar-right") || document.querySelector(".topbar");
-  if (topbarRight) {
-    const counter = document.createElement("div");
-    counter.id = "aiUsageCounter";
-    counter.style.cssText = "display:flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(255,255,255,0.10);border-radius:999px;border:1px solid rgba(255,255,255,0.15);cursor:pointer;";
-    counter.onclick = () => openUpgradeModal();
-    topbarRight.insertBefore(counter, topbarRight.firstChild);
-    updateAICounter();
-  }
+  // AI Usage Counter жасырылды (план жоқ — барлығы ашық)
 
   const savedRoom = localStorage.getItem("sb_roomId");
 if (savedRoom) {
@@ -1928,18 +1927,30 @@ window.toggleFullscreen = () => {
   // ================================
   onAuthStateChanged(auth, (user) => {
     if (!user) {
-      // Егер кірмеген → login.html-ге қайтарады
       location.href = "login.html";
       return;
     }
 
-    if (user.email !== "naz-erke_k@mail.ru") {
-      showToast("Бұл панельге рұқсатыңыз жоқ!", "info");
-      location.href = "login.html";
+        // ── РҰҚСАТ ТІЗІМІ ──────────────────────────────
+    // Тек осы emailдер кіре алады — қосқыңыз келсе жай email қосыңыз
+    const ALLOWED = [
+      "naz-erke_k@mail.ru",
+      // "жаңа@mail.ru",  ← осылай қосасыз
+    ];
+
+    if (!ALLOWED.includes(user.email)) {
+      auth.signOut();
+      location.href = "login.html?err=access";
       return;
     }
 
-    // енді ғана logout жұмыс істейді
+    // Рұқсат берілген барлығы — барлық мүмкіндік ашық (PRO жоқ)
+    currentUID  = user.uid;
+    currentPlan = "pro";
+    localStorage.setItem("sb_uid",   user.uid);
+    localStorage.setItem("sb_email", user.email || "");
+    localStorage.setItem("sb_plan",  "pro");
+
     setupLogout();
   });
 });
@@ -1976,9 +1987,9 @@ window.addRichText = function () {
   editingBlockId = null; // жаңа блок
 
   toolbar.style.display = "flex";
-  editor.style.display = "block";
+  editor.style.display = "flex";   // flex-direction:column үшін flex болу керек
   content.innerHTML = "";
-  content.focus();
+  setTimeout(() => content.focus(), 100);
 };
 
 // ── Rich Text Editor функциялары ────────────────────
@@ -2513,10 +2524,7 @@ function getAIUsed() {
   return parseInt(localStorage.getItem(LIMIT_KEY) || "0");
 }
 function incAIUsed() {
-  const n = getAIUsed() + 1;
-  localStorage.setItem(LIMIT_KEY, n);
-  updateAICounter();
-  return n;
+  return; // Лимит жоқ
 }
 function updateAICounter() {
   const el = document.getElementById("aiUsageCounter");
@@ -2564,14 +2572,8 @@ window.requirePRO = function(featureName) {
   return true; // Барлық UI мүмкіндіктер ашық (лимит API-да тексеріледі)
 };
 
-// AI лимит тексеру (generateAI алдында шақырылады)
+// AI лимит тексеру — лимит жоқ, барлығына рұқсат
 function checkAILimit() {
-  if (currentPlan === "pro") return true;
-  const used = getAIUsed();
-  if (used >= FREE_LIMIT) {
-    openUpgradeModal();
-    return false;
-  }
   return true;
 }
 
