@@ -1,12 +1,12 @@
 // =====================================================
-// extras.js — SmartBoardAI PRO
-// Жаңа мүмкіндіктер — оригинал кодты бұзбайды
+// extras.js - SmartBoardAI PRO
+// Жаңа мүмкіндіктер - оригинал кодты бұзбайды
 // =====================================================
 
-import { db, ref, set, push, onValue } from "./firebaseConfig.js";
+// Firebase teacher.js арқылы жүктеледі
 
 // ── Helpers ──────────────────────────────────────────
-const $ = (id) => document.getElementById(id);
+const _$ = (id) => document.getElementById(id);
 
 // Draggable widget жасаушы
 function createWidget({ id, title, icon, color, width = 240, html, onMount }) {
@@ -156,40 +156,48 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
 
   // Logout алдына кіргізу
-  const logoutBtn = $("logout");
+  const logoutBtn = _$("logout");
   if (logoutBtn) topbarRight.insertBefore(toolbar, logoutBtn);
   else topbarRight.appendChild(toolbar);
 
   // Events
-  $("extDrawBtn").addEventListener("click", toggleDrawMode);
-  $("extStickyBtn").addEventListener("click", addStickyNote);
-  $("extSpotBtn").addEventListener("click", toggleSpotlight);
-  $("extCoverBtn").addEventListener("click", toggleCover);
-  $("extBgBtn").addEventListener("click", toggleBgPicker);
+  _$("extDrawBtn").addEventListener("click", toggleDrawMode);
+  _$("extStickyBtn").addEventListener("click", addStickyNote);
+  _$("extSpotBtn").addEventListener("click", toggleSpotlight);
+  _$("extCoverBtn").addEventListener("click", toggleCover);
+  _$("extBgBtn").addEventListener("click", toggleBgPicker);
 
   // Tools dropdown
-  $("extToolsBtn").addEventListener("click", (e) => {
+  _$("extToolsBtn").addEventListener("click", (e) => {
     e.stopPropagation();
-    const drop = $("extToolsDrop");
+    const drop = _$("extToolsDrop");
     drop.style.display = drop.style.display === "none" ? "block" : "none";
   });
   document.addEventListener("click", () => {
-    const drop = $("extToolsDrop");
+    const drop = _$("extToolsDrop");
     if (drop) drop.style.display = "none";
   });
 });
 
 window.extTool = function(fn) {
-  const drop = $("extToolsDrop");
+  const drop = _$("extToolsDrop");
   if (drop) drop.style.display = "none";
   const map = {
-    spinWheel, namePicker, scoreboard,
-    timerW: timerWidget, dice: openDice,
-    traffic: openTrafficLight, soundMeter: openSoundMeter,
-    dateW: openDateWidget, clockW: openClock,
-    ruler: openRuler, protractor: openProtractor,
-    calc: openCalculator, numline: openNumberLine,
-    fraction: openFraction, darkmode: toggleDarkMode,
+    spinWheel: window.spinWheel || spinWheel,
+    namePicker: window.namePicker || namePicker,
+    scoreboard: window.scoreboard || scoreboard,
+    timerW: window.timerWidget || timerWidget,
+    dice: window.openDice || openDice,
+    traffic: window.openTrafficLight || openTrafficLight,
+    soundMeter: window.openSoundMeter || openSoundMeter,
+    dateW: window.openDateWidget || openDateWidget,
+    clockW: window.openClock || openClock,
+    ruler: window.openRuler || openRuler,
+    protractor: window.openProtractor || openProtractor,
+    calc: window.openCalculator || openCalculator,
+    numline: window.openNumberLine || openNumberLine,
+    fraction: window.openFraction || openFraction,
+    darkmode: window.toggleDarkMode || toggleDarkMode,
   };
   if (map[fn]) map[fn]();
 };
@@ -203,9 +211,9 @@ let snapX=0, snapY=0, shapeSnap=null, drawCtx=null;
 
 function toggleDrawMode() {
   drawMode = !drawMode;
-  const btn = $("extDrawBtn");
+  const btn = _$("extDrawBtn");
 
-  let cvs = $("drawCanvas");
+  let cvs = _$("drawCanvas");
   if (!cvs) {
     cvs = document.createElement("canvas");
     cvs.id = "drawCanvas";
@@ -213,7 +221,7 @@ function toggleDrawMode() {
     document.body.appendChild(cvs);
   }
 
-  let tb = $("drawToolbar");
+  let tb = _$("drawToolbar");
   if (!tb) {
     tb = document.createElement("div");
     tb.id = "drawToolbar";
@@ -259,7 +267,7 @@ function toggleDrawMode() {
   }
 
   if (drawMode) {
-    const board = $("board");
+    const board = _$("board");
     if (board) {
       const r = board.getBoundingClientRect();
       cvs.width  = r.width;
@@ -288,7 +296,7 @@ window.setDT = function(t) {
     b.style.borderColor = b.dataset.t===t ? "#c7d2fe" : "#e5e7eb";
     b.style.background  = b.dataset.t===t ? "#eef2ff" : "#f9fafb";
   });
-  const cvs = $("drawCanvas");
+  const cvs = _$("drawCanvas");
   if (cvs) cvs.style.cursor = t==="eraser" ? "cell" : "crosshair";
 };
 window.setDW = function(w) {
@@ -313,7 +321,7 @@ function bindDrawEvents(cvs) {
 function startD(x,y) {
   if (!drawCtx||!drawMode) return;
   drawing=true; snapX=x; snapY=y;
-  const cvs=$("drawCanvas");
+  const cvs=_$("drawCanvas");
   drawHistory.push(drawCtx.getImageData(0,0,cvs.width,cvs.height));
   if (drawHistory.length>30) drawHistory.shift();
   if (drawTool==="pen"||drawTool==="marker"||drawTool==="eraser") {
@@ -360,12 +368,12 @@ function endD() {
 }
 window.undoDraw = function() {
   if (!drawCtx||!drawHistory.length) return;
-  const cvs=$("drawCanvas");
+  const cvs=_$("drawCanvas");
   drawCtx.putImageData(drawHistory.pop(),0,0);
 };
 window.clearDraw = function() {
   if (!drawCtx) return;
-  const cvs=$("drawCanvas");
+  const cvs=_$("drawCanvas");
   drawHistory.push(drawCtx.getImageData(0,0,cvs.width,cvs.height));
   drawCtx.clearRect(0,0,cvs.width,cvs.height);
 };
@@ -423,7 +431,7 @@ function addStickyNote() {
 let spotOn=false;
 function toggleSpotlight() {
   spotOn=!spotOn;
-  let ov=$("spotOverlay");
+  let ov=_$("spotOverlay");
   if (!ov) {
     ov=document.createElement("div");
     ov.id="spotOverlay";
@@ -453,7 +461,7 @@ function toggleSpotlight() {
     document.body.appendChild(ov);
   }
   ov.style.display=spotOn?"block":"none";
-  const btn=$("extSpotBtn");
+  const btn=_$("extSpotBtn");
   if(btn){btn.style.background=spotOn?"rgba(255,255,255,0.3)":"rgba(255,255,255,0.15)";}
 }
 
@@ -463,7 +471,7 @@ function toggleSpotlight() {
 let coverOn=false,coverPct=50,coverDrag=false;
 function toggleCover() {
   coverOn=!coverOn;
-  let ov=$("coverOverlay");
+  let ov=_$("coverOverlay");
   if (!ov) {
     ov=document.createElement("div");
     ov.id="coverOverlay";
@@ -496,11 +504,11 @@ function toggleCover() {
   }
   ov.style.display=coverOn?"block":"none";
   updateCover();
-  const btn=$("extCoverBtn");
+  const btn=_$("extCoverBtn");
   if(btn){btn.style.background=coverOn?"rgba(255,255,255,0.3)":"rgba(255,255,255,0.15)";}
 }
 function updateCover() {
-  const top=$("coverTop"),handle=$("coverHandle");
+  const top=_$("coverTop"),handle=_$("coverHandle");
   if(top) top.style.height=coverPct+"vh";
   if(handle) handle.style.top=coverPct+"vh";
 }
@@ -524,7 +532,7 @@ const BG={
 let bgPickerOpen=false;
 function toggleBgPicker() {
   bgPickerOpen=!bgPickerOpen;
-  let pk=$("bgPicker");
+  let pk=_$("bgPicker");
   if (!pk) {
     pk=document.createElement("div");
     pk.id="bgPicker";
@@ -560,9 +568,9 @@ function toggleBgPicker() {
       </div>`;
     document.body.appendChild(pk);
     document.addEventListener("click",(e)=>{
-      const btn=$("extBgBtn");
-      if(!$("bgPicker")?.contains(e.target)&&!btn?.contains(e.target)){
-        $("bgPicker").style.display="none"; bgPickerOpen=false;
+      const btn=_$("extBgBtn");
+      if(!_$("bgPicker")?.contains(e.target)&&!btn?.contains(e.target)){
+        _$("bgPicker").style.display="none"; bgPickerOpen=false;
       }
     });
   }
@@ -570,12 +578,12 @@ function toggleBgPicker() {
 }
 
 window.setBG=function(type) {
-  const board=$("board"); if(!board) return;
+  const board=_$("board"); if(!board) return;
   board.style.background=""; board.style.backgroundImage="";
   board.style.backgroundColor=""; board.style.backgroundSize=""; board.style.backgroundPosition="";
   const p=BG[type]||{}; Object.entries(p).forEach(([k,v])=>board.style[k]=v);
 };
-window.setBGColor=function(c){ const b=$("board"); if(b){b.style.background=c;b.style.backgroundImage="none";}};
+window.setBGColor=function(c){ const b=_$("board"); if(b){b.style.background=c;b.style.backgroundImage="none";}};
 
 // =====================================================
 // 🎲 DICE
@@ -585,7 +593,7 @@ function openDice() {
     color:"linear-gradient(135deg,#7c3aed,#a78bfa)",width:200,
     html:`<div style="text-align:center;">
       <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;">
-        <button onclick="diceAdj(-1)" style="width:26px;height:26px;border-radius:7px;background:#f3f4f6;border:1px solid #e5e7eb;font-size:16px;font-weight:700;cursor:pointer;">−</button>
+        <button onclick="diceAdj(-1)" style="width:26px;height:26px;border-radius:7px;background:#f3f4f6;border:1px solid #e5e7eb;font-size:16px;font-weight:700;cursor:pointer;">-</button>
         <span id="diceN" style="font-weight:800;font-size:16px;color:#4f46e5;">1</span>
         <button onclick="diceAdj(1)" style="width:26px;height:26px;border-radius:7px;background:#f3f4f6;border:1px solid #e5e7eb;font-size:16px;font-weight:700;cursor:pointer;">+</button>
       </div>
@@ -596,9 +604,9 @@ function openDice() {
     onMount:()=>{ window._dN=1; }
   });
 }
-window.diceAdj=function(d){window._dN=Math.max(1,Math.min(6,(window._dN||1)+d));const e=$("diceN");if(e)e.textContent=window._dN;};
+window.diceAdj=function(d){window._dN=Math.max(1,Math.min(6,(window._dN||1)+d));const e=_$("diceN");if(e)e.textContent=window._dN;};
 window.rollDice=function(){
-  const F=["⚀","⚁","⚂","⚃","⚄","⚅"],n=window._dN||1,r=$("diceR"),s=$("diceS");
+  const F=["⚀","⚁","⚂","⚃","⚄","⚅"],n=window._dN||1,r=_$("diceR"),s=_$("diceS");
   let f=0,vals=[];
   const t=setInterval(()=>{
     vals=Array.from({length:n},()=>Math.floor(Math.random()*6));
@@ -633,7 +641,7 @@ window.setTL=function(c){
     const mc=["red","yellow","green"][i];
     if(el){el.style.background=mc===c?G[c]:"#374151";el.style.boxShadow=mc===c?`0 0 20px ${G[c]}`:"none";}
   });
-  const lbl=$("tlL"); if(lbl){lbl.textContent=L[c];lbl.style.color=G[c];}
+  const lbl=_$("tlL"); if(lbl){lbl.textContent=L[c];lbl.style.color=G[c];}
 };
 
 // =====================================================
@@ -668,18 +676,18 @@ window.startSM=async function(){
     smAnim=setInterval(()=>{
       an.getByteFrequencyData(da);
       const avg=da.reduce((a,b)=>a+b,0)/da.length,pct=Math.min(100,Math.round(avg*2.5));
-      const b=$("smBar"),p=$("smPct"),em=$("smEmoji"),lb=$("smLbl");
+      const b=_$("smBar"),p=_$("smPct"),em=_$("smEmoji"),lb=_$("smLbl");
       if(b)b.style.width=Math.max(3,pct)+"%";
       if(p)p.textContent=pct+"%";
       const lv=EM.find(e=>pct<=e.max)||EM[EM.length-1];
       if(em)em.textContent=lv.e; if(lb){lb.textContent=lv.l;lb.style.color=lv.c;}
     },100);
-  } catch(e){const l=$("smLbl");if(l)l.textContent="Рұқсат жоқ";}
+  } catch(e){const l=_$("smLbl");if(l)l.textContent="Рұқсат жоқ";}
 };
 window.stopSM=function(){
   if(smAnim){clearInterval(smAnim);smAnim=null;}
   if(smStream){smStream.getTracks().forEach(t=>t.stop());smStream=null;}
-  const b=$("smBar"),p=$("smPct"),em=$("smEmoji"),lb=$("smLbl");
+  const b=_$("smBar"),p=_$("smPct"),em=_$("smEmoji"),lb=_$("smLbl");
   if(b)b.style.width="3%"; if(p)p.textContent="0%";
   if(em)em.textContent="😶"; if(lb){lb.textContent="Тоқтатылды";lb.style.color="#94a3b8";}
 };
@@ -701,7 +709,7 @@ function openDateWidget() {
       <div id="lTime" style="font-size:24px;font-weight:800;color:#0f172a;background:#f0f2f8;border-radius:10px;padding:6px 14px;font-family:monospace;"></div>
     </div>`,
     onMount:()=>{
-      const upd=()=>{const t=new Date(),el=$("lTime");if(el)el.textContent=String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");};
+      const upd=()=>{const t=new Date(),el=_$("lTime");if(el)el.textContent=String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");};
       upd(); setInterval(upd,1000);
     }
   });
@@ -715,7 +723,7 @@ function openClock() {
     color:"linear-gradient(135deg,#374151,#1f2937)",width:200,
     html:`<div style="text-align:center;"><canvas id="clockCvs" width="160" height="160" style="border-radius:50%;box-shadow:0 4px 16px rgba(0,0,0,0.12);"></canvas></div>`,
     onMount:()=>{
-      const cvs=$("clockCvs"); if(!cvs)return;
+      const cvs=_$("clockCvs"); if(!cvs)return;
       const ctx=cvs.getContext("2d"),W=160,H=160,cx=80,cy=80,R=74;
       const draw=()=>{
         const now=new Date(),sec=now.getSeconds(),min=now.getMinutes(),hr=now.getHours()%12;
@@ -760,7 +768,7 @@ function openRuler() {
   let angle=0;
   window.rulerRotate=function(){angle=(angle+15)%360;el.style.transform=`rotate(${angle}deg)`;};
 
-  const cvs=$("rulerCvs"),ctx=cvs.getContext("2d"),W=500,H=68;
+  const cvs=_$("rulerCvs"),ctx=cvs.getContext("2d"),W=500,H=68;
   ctx.fillStyle="#fef9c3"; ctx.roundRect(0,0,W,H,8); ctx.fill();
   ctx.fillStyle="#fbbf24"; ctx.fillRect(0,0,W,6); ctx.fillRect(0,H-6,W,6);
   for(let i=0;i<=25;i++){
@@ -795,7 +803,7 @@ function openProtractor() {
   </div>`;
   document.body.appendChild(el);
 
-  const cvs=$("protCvs"),ctx=cvs.getContext("2d"),W=260,H=145,cx=W/2,cy=H-8,R=120;
+  const cvs=_$("protCvs"),ctx=cvs.getContext("2d"),W=260,H=145,cx=W/2,cy=H-8,R=120;
   ctx.beginPath();ctx.arc(cx,cy,R,Math.PI,0);ctx.lineTo(cx,cy);ctx.closePath();
   ctx.fillStyle="rgba(254,243,199,0.95)";ctx.fill();ctx.strokeStyle="#f59e0b";ctx.lineWidth=2;ctx.stroke();
   for(let a=0;a<=180;a++){
@@ -812,7 +820,7 @@ function openProtractor() {
     if(my>cy)return;
     let a=Math.round(Math.atan2(cy-my,mx-cx)*180/Math.PI);
     a=Math.max(0,Math.min(180,a));
-    const el2=$("protAngle"); if(el2)el2.textContent=a+"°";
+    const el2=_$("protAngle"); if(el2)el2.textContent=a+"°";
   });
 
   // Drag
@@ -835,9 +843,9 @@ function openCalculator() {
       <div id="calcD" style="background:#1f2937;color:#34d399;font-size:24px;font-weight:800;text-align:right;padding:10px 12px;border-radius:10px;margin-bottom:4px;font-family:monospace;min-height:44px;word-break:break-all;">0</div>
       <div id="calcE" style="font-size:10px;color:#64748b;text-align:right;margin-bottom:8px;font-family:monospace;min-height:13px;"></div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;">
-        ${[["C","#fef2f2","#dc2626"],["±","#f0fdf4","#16a34a"],["%","#f0fdf4","#16a34a"],["÷","#eef2ff","#4f46e5"],
-           ["7","#f9fafb","#111827"],["8","#f9fafb","#111827"],["9","#f9fafb","#111827"],["×","#eef2ff","#4f46e5"],
-           ["4","#f9fafb","#111827"],["5","#f9fafb","#111827"],["6","#f9fafb","#111827"],["−","#eef2ff","#4f46e5"],
+        ${[["C","#fef2f2","#dc2626"],["±","#f0fdf4","#16a34a"],["%","#f0fdf4","#16a34a"],["/","#eef2ff","#4f46e5"],
+           ["7","#f9fafb","#111827"],["8","#f9fafb","#111827"],["9","#f9fafb","#111827"],["*","#eef2ff","#4f46e5"],
+           ["4","#f9fafb","#111827"],["5","#f9fafb","#111827"],["6","#f9fafb","#111827"],["-","#eef2ff","#4f46e5"],
            ["1","#f9fafb","#111827"],["2","#f9fafb","#111827"],["3","#f9fafb","#111827"],["+","#eef2ff","#4f46e5"],
            ["0","#f9fafb","#111827"],[".","#f9fafb","#111827"],["⌫","#fef3c7","#92400e"],["=","#4f46e5","white"],
         ].map(([k,bg,c])=>`<button onclick="calcKey('${k}')" style="padding:11px 4px;border:none;border-radius:8px;background:${bg};color:${c};font-size:15px;font-weight:700;cursor:pointer;transition:.1s;font-family:inherit;">${k}</button>`).join("")}
@@ -847,40 +855,38 @@ function openCalculator() {
   });
 }
 window.calcKey=function(k){
-  const d=$("calcD"),ex=$("calcE");if(!d)return;
+  const d=_$("calcD"),ex=_$("calcE");if(!d)return;
   if(k==="C"){window._cExpr="";window._cNew=true;d.textContent="0";if(ex)ex.textContent="";return;}
-  if(k==="="){ try{ const r=Function('"use strict";return('+window._cExpr.replace(/×/g,"*").replace(/÷/g,"/").replace(/−/g,"-")+')')();if(ex)ex.textContent=window._cExpr+" =";d.textContent=Math.round(r*1e10)/1e10;window._cExpr=String(d.textContent);window._cNew=true;}catch{d.textContent="Қате";window._cExpr="";window._cNew=true;}return;}
-  if(k==="⌫"){window._cExpr=window._cExpr.slice(0,-1)||"0";d.textContent=window._cExpr;return;}
-  if(k==="±"){const v=parseFloat(window._cExpr||d.textContent);window._cExpr=String(-v);d.textContent=window._cExpr;return;}
-  if(k==="%"){const v=parseFloat(window._cExpr||d.textContent);window._cExpr=String(v/100);d.textContent=window._cExpr;return;}
-  if(window._cNew&&["+","−","×","÷"].includes(k)){window._cExpr=(window._cExpr||d.textContent)+" "+k+" ";window._cNew=false;}
-  else if(window._cNew){window._cExpr=k;window._cNew=false;}
-  else{window._cExpr=(window._cExpr||"")+k;}
-  d.textContent=window._cExpr;if(ex)ex.textContent="";
-};
-
-// =====================================================
-// 🔢 NUMBER LINE
-// =====================================================
-function openNumberLine() {
-  createWidget({id:"wNumLine",title:"Сан сызығы",icon:"🔢",
-    color:"linear-gradient(135deg,#0369a1,#0ea5e9)",width:360,
-    html:`<div>
-      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap;">
-        <div style="display:flex;align-items:center;gap:4px;"><label style="font-size:11px;font-weight:700;color:#64748b;">Бастапқы:</label><input id="nlMn" type="number" value="-10" style="width:52px;padding:4px;border:1px solid #e2e6f0;border-radius:6px;font-size:12px;text-align:center;" oninput="drawNL()"/></div>
-        <div style="display:flex;align-items:center;gap:4px;"><label style="font-size:11px;font-weight:700;color:#64748b;">Соңғы:</label><input id="nlMx" type="number" value="10" style="width:52px;padding:4px;border:1px solid #e2e6f0;border-radius:6px;font-size:12px;text-align:center;" oninput="drawNL()"/></div>
-        <div style="display:flex;align-items:center;gap:4px;"><label style="font-size:11px;font-weight:700;color:#64748b;">Қадам:</label><input id="nlSt" type="number" value="1" min="0.5" style="width:44px;padding:4px;border:1px solid #e2e6f0;border-radius:6px;font-size:12px;text-align:center;" oninput="drawNL()"/></div>
-      </div>
-      <canvas id="nlCvs" width="330" height="80" style="border-radius:8px;background:#f8f9ff;border:1px solid #e0e7ff;cursor:crosshair;" onclick="nlClick(event)"></canvas>
-      <div style="font-size:10px;color:#94a3b8;margin-top:4px;text-align:center;">Басып нүкте қою, қайта бассаңыз жояды</div>
-    </div>`,
-    onMount:()=>{window._nlM=[];drawNL();}
-  });
+  if(k==="="){
+    try{
+      const expr=window._cExpr||"0";
+      const safe=expr.replace(/[^0-9+\-*/.()%\s]/g,"");
+      const r=Function('"use strict";return('+safe+')')();
+      if(ex)ex.textContent=expr+" =";
+      d.textContent=Math.round(r*1e10)/1e10;
+      window._cExpr=String(d.textContent);
+      window._cNew=true;
+    }catch{d.textContent="Қате";window._cExpr="";window._cNew=true;}
+    return;
+  }
+  if(k==="⌫"||k==="DEL"){window._cExpr=(window._cExpr||"").slice(0,-1)||"0";d.textContent=window._cExpr;return;}
+  if(k==="+/-"){const v=parseFloat(window._cExpr||d.textContent||0);window._cExpr=String(-v);d.textContent=window._cExpr;return;}
+  if(k==="%"){const v=parseFloat(window._cExpr||d.textContent||0);window._cExpr=String(v/100);d.textContent=window._cExpr;return;}
+  if(window._cNew&&["+","-","*","/"].includes(k)){
+    window._cExpr=(window._cExpr||d.textContent||"0")+" "+k+" ";
+    window._cNew=false;
+  }else if(window._cNew){
+    window._cExpr=k;window._cNew=false;
+  }else{
+    window._cExpr=(window._cExpr||"")+k;
+  }
+  d.textContent=window._cExpr;
+  if(ex)ex.textContent="";
 }
 window.drawNL=function(){
-  const cvs=$("nlCvs");if(!cvs)return;
+  const cvs=_$("nlCvs");if(!cvs)return;
   const ctx=cvs.getContext("2d"),W=cvs.width,H=cvs.height,pad=20,y=H/2;
-  const mn=parseFloat($("nlMn")?.value)||−10,mx=parseFloat($("nlMx")?.value)||10,st=parseFloat($("nlSt")?.value)||1;
+  const mn=parseFloat(_$("nlMn")?.value)||-10,mx=parseFloat(_$("nlMx")?.value)||10,st=parseFloat(_$("nlSt")?.value)||1;
   const toX=(v)=>pad+((v-mn)/(mx-mn))*(W-pad*2);
   ctx.clearRect(0,0,W,H);
   ctx.beginPath();ctx.moveTo(pad-10,y);ctx.lineTo(W-pad+10,y);ctx.strokeStyle="#1e3a8a";ctx.lineWidth=2;ctx.stroke();
@@ -900,9 +906,9 @@ window.drawNL=function(){
   window._nlToX=toX;window._nlMn=mn;window._nlMx=mx;
 };
 window.nlClick=function(e){
-  const cvs=$("nlCvs");if(!cvs)return;
+  const cvs=_$("nlCvs");if(!cvs)return;
   const r=cvs.getBoundingClientRect(),px=e.clientX-r.left;
-  const mn=window._nlMn||−10,mx=window._nlMx||10;
+  const mn=window._nlMn||-10,mx=window._nlMx||10;
   const val=Math.round(((px-20)/(cvs.width-40))*(mx-mn)+mn);
   if(val<mn||val>mx)return;
   window._nlM=window._nlM||[];
@@ -935,12 +941,12 @@ function openFraction() {
   });
 }
 window.drawFrac=function(){
-  const n=parseInt($("fNum")?.value)||0,den=parseInt($("fDen")?.value)||1;
+  const n=parseInt(_$("fNum")?.value)||0,den=parseInt(_$("fDen")?.value)||1;
   const pct=den>0?(n/den)*100:0,dec=den>0?Math.round((n/den)*1000)/1000:0;
-  const d=$("fDec"),p=$("fPct"),b=$("fBar");
+  const d=_$("fDec"),p=_$("fPct"),b=_$("fBar");
   if(d)d.textContent="= "+dec; if(p)p.textContent=Math.round(pct)+"%";
   if(b)b.style.width=Math.min(100,Math.max(0,pct))+"%";
-  const cvs=$("fCvs");if(!cvs||den<=0)return;
+  const cvs=_$("fCvs");if(!cvs||den<=0)return;
   const ctx=cvs.getContext("2d"),W=cvs.width,H=cvs.height,tot=Math.min(den,20),bw=W/tot;
   ctx.clearRect(0,0,W,H);
   for(let i=0;i<tot;i++){
@@ -991,9 +997,9 @@ function spinWheel() {
   });
 }
 window.drawSpin=function(){
-  const cvs=$("wCvs");if(!cvs)return;
+  const cvs=_$("wCvs");if(!cvs)return;
   const ctx=cvs.getContext("2d"),W=260,cx=130,cy=130,R=122;
-  const items=($("wItems")?.value||"").split("\n").map(s=>s.trim()).filter(Boolean);
+  const items=(_$("wItems")?.value||"").split("\n").map(s=>s.trim()).filter(Boolean);
   window._wItems=items;if(!items.length)return;
   const n=items.length,arc=Math.PI*2/n;
   const C=["#ef4444","#f97316","#f59e0b","#22c55e","#06b6d4","#4f46e5","#8b5cf6","#ec4899","#10b981","#3b82f6","#a855f7","#f43f5e"];
@@ -1021,7 +1027,7 @@ window.doSpin=function(){
       const items=window._wItems||[],n=items.length,arc=Math.PI*2/n;
       const na=((window._wA%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
       const idx=Math.floor(((Math.PI*2-na+Math.PI/2+arc/2)%(Math.PI*2))/arc)%n;
-      const r=$("wRes");if(r)r.textContent="🎉 "+items[idx]+"!";
+      const r=_$("wRes");if(r)r.textContent="🎉 "+items[idx]+"!";
     }
   };
   requestAnimationFrame(anim);
@@ -1049,7 +1055,7 @@ function namePicker() {
   });
 }
 window.doPick=function(){
-  const names=($("npList")?.value||"").split("\n").map(s=>s.trim()).filter(Boolean),r=$("npR"),h=$("npH");
+  const names=(_$("npList")?.value||"").split("\n").map(s=>s.trim()).filter(Boolean),r=_$("npR"),h=_$("npH");
   if(!names.length||!r)return;
   const rem=names.filter(n=>!(window._npP||[]).includes(n));
   const pool=rem.length?rem:names;if(!rem.length)window._npP=[];
@@ -1082,16 +1088,16 @@ function scoreboard() {
   });
 }
 window.sbAdd=function(){
-  const n=$("sbN")?.value.trim();if(!n)return;
+  const n=_$("sbN")?.value.trim();if(!n)return;
   const C=["#ef4444","#4f46e5","#10b981","#f59e0b","#8b5cf6","#ec4899","#06b6d4","#f97316"];
   window._sbT=(window._sbT||[]);window._sbT.push({name:n,score:0,color:C[window._sbT.length%C.length]});
-  $("sbN").value="";sbRender();
+  _$("sbN").value="";sbRender();
 };
 window.sbChg=function(i,d){if(window._sbT?.[i]!==undefined){window._sbT[i].score+=d;sbRender();}};
 window.sbDel=function(i){window._sbT?.splice(i,1);sbRender();};
 window.sbReset=function(){(window._sbT||[]).forEach(t=>t.score=0);sbRender();};
 function sbRender(){
-  const el=$("sbList");if(!el)return;
+  const el=_$("sbList");if(!el)return;
   const t=window._sbT||[];
   if(!t.length){el.innerHTML=`<div style="text-align:center;color:#94a3b8;font-size:12px;padding:14px;">Команда қосыңыз</div>`;return;}
   const s=[...t].sort((a,b)=>b.score-a.score);
@@ -1103,7 +1109,7 @@ function sbRender(){
       <div style="font-size:22px;font-weight:800;color:${tm.color};min-width:34px;text-align:center;">${tm.score}</div>
       <div style="display:flex;flex-direction:column;gap:3px;">
         <button onclick="sbChg(${oi},1)" style="width:24px;height:20px;border:none;border-radius:5px;background:#f0fdf4;color:#16a34a;font-size:13px;font-weight:800;cursor:pointer;line-height:1;">+</button>
-        <button onclick="sbChg(${oi},-1)" style="width:24px;height:20px;border:none;border-radius:5px;background:#fef2f2;color:#dc2626;font-size:13px;font-weight:800;cursor:pointer;line-height:1;">−</button>
+        <button onclick="sbChg(${oi},-1)" style="width:24px;height:20px;border:none;border-radius:5px;background:#fef2f2;color:#dc2626;font-size:13px;font-weight:800;cursor:pointer;line-height:1;">-</button>
       </div>
       <button onclick="sbDel(${oi})" style="width:20px;height:20px;border:none;background:transparent;color:#94a3b8;font-size:12px;cursor:pointer;">✕</button>
     </div>`;}).join("");
@@ -1134,28 +1140,50 @@ function timerWidget() {
   });
 }
 window.tmToggle=function(){
-  const btn=$("tmBtn");
+  const btn=_$("tmBtn");
   if(window._tmR){clearInterval(window._tmI);window._tmR=false;if(btn){btn.textContent="▶ Жалғастыру";btn.style.background="linear-gradient(135deg,#059669,#10b981)";}}
   else{
     if(window._tmL<=0){tmReset();return;}
-    if(!window._tmSt){const m=parseInt($("tmM")?.value||5),s=parseInt($("tmS")?.value||0);window._tmTo=m*60+s;window._tmL=window._tmTo;window._tmSt=true;}
+    if(!window._tmSt){const m=parseInt(_$("tmM")?.value||5),s=parseInt(_$("tmS")?.value||0);window._tmTo=m*60+s;window._tmL=window._tmTo;window._tmSt=true;}
     window._tmR=true;if(btn){btn.textContent="⏸ Тоқтату";btn.style.background="linear-gradient(135deg,#dc2626,#ef4444)";}
-    window._tmI=setInterval(()=>{window._tmL--;tmUpd();if(window._tmL<=0){clearInterval(window._tmI);window._tmR=false;const d=$("tmD");if(d){d.style.background="#fef2f2";d.style.color="#dc2626";}if(btn){btn.textContent="⏰ Аяқталды!";btn.style.background="#fef2f2";btn.style.color="#dc2626";}}},1000);
+    window._tmI=setInterval(()=>{window._tmL--;tmUpd();if(window._tmL<=0){clearInterval(window._tmI);window._tmR=false;const d=_$("tmD");if(d){d.style.background="#fef2f2";d.style.color="#dc2626";}if(btn){btn.textContent="⏰ Аяқталды!";btn.style.background="#fef2f2";btn.style.color="#dc2626";}}},1000);
   }
 };
 function tmUpd(){
-  const l=window._tmL||0,to=window._tmTo||1,d=$("tmD"),b=$("tmBar");
+  const l=window._tmL||0,to=window._tmTo||1,d=_$("tmD"),b=_$("tmBar");
   if(d)d.textContent=String(Math.floor(l/60)).padStart(2,"0")+":"+String(l%60).padStart(2,"0");
   const p=(l/to)*100;
   if(b){b.style.width=p+"%";b.style.background=p>50?"linear-gradient(90deg,#22c55e,#86efac)":p>20?"linear-gradient(90deg,#f59e0b,#fbbf24)":"linear-gradient(90deg,#ef4444,#f87171)";}
 }
 window.tmReset=function(){
   clearInterval(window._tmI);window._tmR=false;window._tmSt=false;
-  const m=parseInt($("tmM")?.value||5),s=parseInt($("tmS")?.value||0);
+  const m=parseInt(_$("tmM")?.value||5),s=parseInt(_$("tmS")?.value||0);
   window._tmTo=m*60+s;window._tmL=window._tmTo;tmUpd();
-  const btn=$("tmBtn"),d=$("tmD");
+  const btn=_$("tmBtn"),d=_$("tmD");
   if(btn){btn.textContent="▶ Бастау";btn.style.background="linear-gradient(135deg,#059669,#10b981)";btn.style.color="white";}
   if(d){d.style.background="#f0f2f8";d.style.color="#0f172a";}
 };
 
-console.log("✅ extras.js жүктелді — барлық мүмкіндіктер дайын");
+console.log("✅ extras.js жүктелді - барлық мүмкіндіктер дайын");
+
+// ── Window exports (module scope fix) ──────────────
+window.toggleDrawMode = toggleDrawMode;
+window.toggleBgPicker = toggleBgPicker;
+window.openDice = openDice;
+window.openTrafficLight = openTrafficLight;
+window.openSoundMeter = openSoundMeter;
+window.openDateWidget = openDateWidget;
+window.openClock = openClock;
+window.openRuler = openRuler;
+window.openProtractor = openProtractor;
+window.openCalculator = openCalculator;
+window.openNumberLine = openNumberLine;
+window.openFraction = openFraction;
+window.toggleDarkMode = toggleDarkMode;
+window.spinWheel = spinWheel;
+window.namePicker = namePicker;
+window.scoreboard = scoreboard;
+window.timerWidget = timerWidget;
+window.updateCover = updateCover;
+window.sbRender = sbRender;
+window.tmUpd = tmUpd;
