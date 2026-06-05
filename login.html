@@ -22,13 +22,13 @@
     label.lbl{font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:5px;}
     input[type=text],input[type=email],input[type=password]{width:100%;padding:11px 14px;border:2px solid #e2e6f0;border-radius:11px;font-size:14px;font-family:inherit;transition:.15s;outline:none;}
     input:focus{border-color:#c7d2fe;}
-    .plans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
-    .plan-card{border:2px solid #e2e6f0;border-radius:12px;padding:12px;cursor:pointer;transition:.15s;text-align:center;}
-    .plan-card.selected{border-color:#4f46e5;background:#eef2ff;}
-    .plan-icon{font-size:24px;margin-bottom:4px;}
-    .plan-name{font-size:13px;font-weight:800;color:#0f172a;}
-    .plan-price{font-size:11px;color:#64748b;margin-top:2px;}
-    .plan-features{font-size:10px;color:#64748b;margin-top:6px;line-height:1.6;text-align:left;}
+    
+    
+    
+    
+    
+    
+    
     .btn-main{width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(79,70,229,0.35);margin-top:6px;transition:.15s;}
     .btn-main:hover{transform:translateY(-1px);}
     .btn-main:disabled{opacity:.6;transform:none;cursor:not-allowed;}
@@ -42,8 +42,8 @@
     .status.load{background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;}
     .footer{text-align:center;margin-top:14px;font-size:12px;color:#94a3b8;}
     .footer a{color:#4f46e5;font-weight:600;text-decoration:none;}
-    .badge-pro{background:linear-gradient(135deg,#f59e0b,#d97706);color:white;font-size:9px;font-weight:800;padding:2px 5px;border-radius:999px;margin-left:3px;}
-    .badge-free{background:#f0fdf4;color:#16a34a;border:1px solid #86efac;font-size:9px;font-weight:800;padding:2px 5px;border-radius:999px;margin-left:3px;}
+    
+    
   </style>
 </head>
 <body>
@@ -86,22 +86,7 @@
     <div class="form-group"><label class="lbl">Мектеп / Мекеме</label><input type="text" id="rSchool" placeholder="№25 мектебі, Алматы"/></div>
     <div class="form-group"><label class="lbl">Құпия сөз (кем дегенде 6 таңба)</label><input type="password" id="rPass" placeholder="••••••••"/></div>
 
-    <label class="lbl" style="margin-bottom:8px;">Тариф жоспары:</label>
-    <div class="plans">
-      <div class="plan-card selected" onclick="selPlan('free',this)">
-        <div class="plan-icon">🎁</div>
-        <div class="plan-name">Тегін <span class="badge-free">FREE</span></div>
-        <div class="plan-price">₸0 / ай</div>
-        <div class="plan-features">✅ Тақта + блоктар<br>✅ Бөлме + QR<br>✅ Оқушы жауабы<br>✅ Дауыс, Emoji<br>✅ <b>10 AI/күн тегін</b><br>⬆️ Кейін PRO</div>
-      </div>
-      <div class="plan-card" onclick="selPlan('pro',this)">
-        <div class="plan-icon">🚀</div>
-        <div class="plan-name">PRO <span class="badge-pro">PRO</span></div>
-        <div class="plan-price">₸4 900 / ай</div>
-        <div class="plan-features">✅ Барлық FREE<br>✅ AI Lesson Flow<br>✅ AI Дифф. + Сертификат<br>✅ Analytics Dashboard<br>✅ Memory, Kahoot...<br>✅ Voice Control</div>
-      </div>
-    </div>
-    <input type="hidden" id="rPlan" value="free"/>
+    <input type="hidden" id="rPlan" value="pro"/>
 
     <button class="btn-main" onclick="doRegister()" id="rBtn">✨ Тіркелу</button>
     <div class="footer">Тіркелу арқылы пайдалану шарттарымен келісесіз</div>
@@ -241,11 +226,28 @@ window.switchTab = function(tab) {
   document.getElementById("st").style.display="none";
 };
 
-window.selPlan = function(plan,el) {
-  document.querySelectorAll(".plan-card").forEach(c=>c.classList.remove("selected"));
-  el.classList.add("selected");
-  document.getElementById("rPlan").value=plan;
-};
+// URL-де қате хабарламасы
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get("err") === "access") {
+  const el = document.getElementById("st");
+  if (el) {
+    el.textContent = "❌ Бұл платформаға рұқсатыңыз жоқ. Байланысыңыз: naz-erke_k@mail.ru";
+    el.className = "status err";
+    el.style.display = "block";
+  }
+}
+
+// Рұқсат қатесі хабарламасы
+if (new URLSearchParams(location.search).get("err") === "access") {
+  const el = document.getElementById("st");
+  if (el) {
+    el.textContent = "❌ Рұқсат жоқ. Тек рұқсатты пайдаланушылар кіре алады.";
+    el.className = "status err";
+    el.style.display = "block";
+  }
+}
+
+
 </script>
 </body>
 </html>
