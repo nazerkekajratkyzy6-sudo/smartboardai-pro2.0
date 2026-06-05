@@ -28,44 +28,7 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: "OPENAI_API_KEY орнатылмаған" });
 
   // ── FREEMIUM ЛИМИТ ЖҮЙЕСІ ──────────────────────────
-  const FREE_TOTAL_LIMIT = 10;  // Жалпы 10 тегін AI сұраныс (бір рет)
-
-  if (plan !== "pro" && uid) {
-    try {
-      const admin = await import("firebase-admin");
-      const { getDatabase } = await import("firebase-admin/database");
-
-      if (!admin.default.apps.length) {
-        admin.default.initializeApp({
-          credential: admin.default.credential.cert({
-            projectId:   process.env.FIREBASE_PROJECT_ID,
-            privateKey:  (process.env.FIREBASE_PRIVATE_KEY || "").replace(/\\n/g, "\n"),
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          }),
-          databaseURL: process.env.FIREBASE_DATABASE_URL,
-        });
-      }
-
-      const db     = getDatabase();
-      const useRef = db.ref(`users/${uid}/aiUsedTotal`);
-      const snap   = await useRef.get();
-      const used   = snap.val() || 0;
-
-      if (used >= FREE_TOTAL_LIMIT) {
-        return res.status(429).json({
-          error:   "limit_reached",
-          message: `${FREE_TOTAL_LIMIT} тегін AI сұраныс біткен. PRO жоспарына өтіңіз!`,
-          used,
-          limit:   FREE_TOTAL_LIMIT,
-        });
-      }
-
-      // Санауышты арттыру
-      await useRef.set(used + 1);
-    } catch(adminErr) {
-      console.warn("Firebase Admin limit check skipped:", adminErr.message);
-    }
-  }
+  // Лимит жоқ — барлық рұқсатты пайдаланушыларға шексіз AI
 
   // ── System prompt ────────────────────────────────
   const systemPrompt = `
