@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>SmartBoardAI PRO —  Кіру</title>
+  <title>SmartBoardAI PRO — Кіру</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#4f46e5">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
@@ -22,13 +22,6 @@
     label.lbl{font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:5px;}
     input[type=text],input[type=email],input[type=password]{width:100%;padding:11px 14px;border:2px solid #e2e6f0;border-radius:11px;font-size:14px;font-family:inherit;transition:.15s;outline:none;}
     input:focus{border-color:#c7d2fe;}
-    
-    
-    
-    
-    
-    
-    
     .btn-main{width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(79,70,229,0.35);margin-top:6px;transition:.15s;}
     .btn-main:hover{transform:translateY(-1px);}
     .btn-main:disabled{opacity:.6;transform:none;cursor:not-allowed;}
@@ -42,11 +35,59 @@
     .status.load{background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;}
     .footer{text-align:center;margin-top:14px;font-size:12px;color:#94a3b8;}
     .footer a{color:#4f46e5;font-weight:600;text-decoration:none;}
-    
-    
+
+    .access-ended{
+      display:none;
+      position:fixed;inset:0;
+      background:linear-gradient(135deg,#0f172a,#1e1b4b,#312e81);
+      z-index:9999;
+      align-items:center;justify-content:center;
+      flex-direction:column;
+      text-align:center;padding:32px;
+    }
+    .access-ended.show{display:flex;}
+    .access-box{
+      background:white;border-radius:28px;
+      padding:44px 36px;max-width:420px;width:100%;
+      box-shadow:0 40px 80px rgba(0,0,0,0.4);
+    }
+    .access-icon{font-size:64px;margin-bottom:16px;}
+    .access-title{font-size:24px;font-weight:800;color:#0f172a;margin-bottom:10px;}
+    .access-text{font-size:14px;color:#64748b;line-height:1.7;margin-bottom:24px;}
+    .access-contact{
+      background:linear-gradient(135deg,#4f46e5,#7c3aed);
+      color:white;padding:14px 28px;border-radius:14px;
+      font-size:15px;font-weight:800;
+      text-decoration:none;display:inline-block;
+      box-shadow:0 6px 20px rgba(79,70,229,0.4);
+    }
+    .access-badge{
+      display:inline-block;
+      background:#fef3c7;color:#92400e;
+      font-size:11px;font-weight:700;
+      padding:4px 12px;border-radius:999px;
+      margin-bottom:20px;border:1px solid #fde68a;
+    }
   </style>
 </head>
 <body>
+
+<div class="access-ended" id="accessEndedScreen">
+  <div class="access-box">
+    <div class="access-icon">⏰</div>
+    <div class="access-badge">Қолжетімділік аяқталды</div>
+    <div class="access-title">Сынақ сабағыңыз аяқталды</div>
+    <div class="access-text">
+      SmartBoardAI PRO платформасын толық пайдалану үшін
+      авторға хабарласыңыз. Толық нұсқада барлық функциялар
+      шексіз қолжетімді болады.
+    </div>
+    <a href="mailto:naz-erke_k@mail.ru" class="access-contact">
+      ✉️ naz-erke_k@mail.ru
+    </a>
+  </div>
+</div>
+
 <div class="card">
   <div class="logo">
     <span class="logo-icon">⚡</span>
@@ -61,7 +102,6 @@
 
   <div class="status" id="st"></div>
 
-  <!-- LOGIN -->
   <div id="loginP">
     <button class="btn-google" onclick="gLogin()">
       <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
@@ -74,7 +114,6 @@
     <div class="footer"><a href="#" onclick="doForgot();return false;">Құпия сөзді ұмыттым</a></div>
   </div>
 
-  <!-- REGISTER -->
   <div id="regP" style="display:none;">
     <button class="btn-google" onclick="gLogin()">
       <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
@@ -85,11 +124,9 @@
     <div class="form-group"><label class="lbl">Email</label><input type="email" id="rEmail" placeholder="teacher@school.kz"/></div>
     <div class="form-group"><label class="lbl">Мектеп / Мекеме</label><input type="text" id="rSchool" placeholder="№25 мектебі, Алматы"/></div>
     <div class="form-group"><label class="lbl">Құпия сөз (кем дегенде 6 таңба)</label><input type="password" id="rPass" placeholder="••••••••"/></div>
-
-    <input type="hidden" id="rPlan" value="pro"/>
-
+    <input type="hidden" id="rPlan" value="trial"/>
     <button class="btn-main" onclick="doRegister()" id="rBtn">✨ Тіркелу</button>
-    <div class="footer">Тіркелу арқылы пайдалану шарттарымен келісесіз</div>
+    <div class="footer">Тіркелгеннен кейін кіруге болады</div>
   </div>
 </div>
 
@@ -103,7 +140,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// ── Firebase ─────────────────────────────────────────
 let auth, db;
 try {
   const fc = await import("./firebaseConfig.js");
@@ -115,24 +151,48 @@ try {
   document.getElementById("st").style.display = "block";
 }
 
-// Кірген болса redirect
+const UNLIMITED_EMAILS = [
+  "naz-erke_k@mail.ru",
+];
+
 if (auth) {
-  onAuthStateChanged(auth, u => {
-    if (u) goTeacher(u);
+  onAuthStateChanged(auth, async u => {
+    if (u) await checkAndGo(u);
   });
 }
 
-async function goTeacher(user) {
-  let plan = "free";
+async function checkAndGo(user) {
+  if (UNLIMITED_EMAILS.includes(user.email)) {
+    await setLocalStorage(user, "unlimited");
+    window.location.href = "/teacher.html";
+    return;
+  }
+
+  let accessUsed = false;
   try {
-    const snap = await get(ref(db, `users/${user.uid}/plan`));
-    plan = snap.val() || "free";
+    const snap = await get(ref(db, `users/${user.uid}/accessUsed`));
+    accessUsed = snap.val() === true;
   } catch {}
+
+  if (accessUsed) {
+    showAccessEnded();
+    return;
+  }
+
+  await setLocalStorage(user, "trial");
+  window.location.href = "/teacher.html";
+}
+
+async function setLocalStorage(user, plan) {
   localStorage.setItem("sb_plan",  plan);
   localStorage.setItem("sb_uid",   user.uid);
   localStorage.setItem("sb_email", user.email || "");
   localStorage.setItem("sb_name",  user.displayName || "Мұғалім");
-  window.location.href = "/teacher.html";
+}
+
+function showAccessEnded() {
+  document.querySelector(".card").style.display = "none";
+  document.getElementById("accessEndedScreen").classList.add("show");
 }
 
 function st(msg, type) {
@@ -142,18 +202,19 @@ function st(msg, type) {
 
 async function saveProfile(user, extra = {}) {
   if (!db) return;
-  const existing = await get(ref(db, `users/${user.uid}/plan`)).then(s=>s.val()).catch(()=>null);
+  const existing = await get(ref(db, `users/${user.uid}`)).then(s=>s.val()).catch(()=>null);
   await set(ref(db, `users/${user.uid}`), {
-    uid: user.uid, email: user.email || "",
+    uid: user.uid,
+    email: user.email || "",
     name: extra.name || user.displayName || "Мұғалім",
     school: extra.school || "",
-    plan: existing || extra.plan || "free",
+    plan: existing?.plan || "trial",
+    accessUsed: existing?.accessUsed || false,
     lastLogin: Date.now(),
-    createdAt: Date.now(),
+    createdAt: existing?.createdAt || Date.now(),
   });
 }
 
-// ── Кіру ─────────────────────────────────────────────
 window.doLogin = async function() {
   const e = document.getElementById("lEmail").value.trim();
   const p = document.getElementById("lPass").value;
@@ -163,61 +224,63 @@ window.doLogin = async function() {
   st("⏳ Тексерілуде...","load");
   try {
     const c = await signInWithEmailAndPassword(auth, e, p);
-    await goTeacher(c.user);
+    await checkAndGo(c.user);
   } catch(err) {
-    const m = {"auth/user-not-found":"❌ Пайдаланушы табылмады","auth/wrong-password":"❌ Дұрыс емес құпия сөз","auth/invalid-credential":"❌ Email немесе құпия сөз қате"};
+    const m = {
+      "auth/user-not-found":"❌ Пайдаланушы табылмады",
+      "auth/wrong-password":"❌ Дұрыс емес құпия сөз",
+      "auth/invalid-credential":"❌ Email немесе құпия сөз қате"
+    };
     st(m[err.code]||"❌ "+err.message,"err");
     btn.disabled=false; btn.textContent="🔑 Кіру";
   }
 };
 
-// ── Тіркелу ──────────────────────────────────────────
 window.doRegister = async function() {
-  const name=document.getElementById("rName").value.trim();
-  const email=document.getElementById("rEmail").value.trim();
-  const school=document.getElementById("rSchool").value.trim();
-  const pass=document.getElementById("rPass").value;
-  const plan=document.getElementById("rPlan").value;
-  const btn=document.getElementById("rBtn");
+  const name   = document.getElementById("rName").value.trim();
+  const email  = document.getElementById("rEmail").value.trim();
+  const school = document.getElementById("rSchool").value.trim();
+  const pass   = document.getElementById("rPass").value;
+  const btn    = document.getElementById("rBtn");
   if(!name||!email||!pass){st("❗ Атыңыз, email және құпия сөзді толтырыңыз","err");return;}
   if(pass.length<6){st("❗ Құпия сөз кем дегенде 6 таңба","err");return;}
-  btn.disabled=true;btn.textContent="⏳...";
+  btn.disabled=true; btn.textContent="⏳...";
   st("⏳ Аккаунт жасалуда...","load");
   try {
     const c = await createUserWithEmailAndPassword(auth, email, pass);
-    await saveProfile(c.user,{name,school,plan});
-    st("✅ Тіркелдіңіз! Жүктелуде...","ok");
-    setTimeout(()=>goTeacher(c.user),1200);
+    await saveProfile(c.user, {name, school});
+    st("✅ Тіркелдіңіз!","ok");
+    setTimeout(()=>checkAndGo(c.user), 1200);
   } catch(err) {
-    const m={"auth/email-already-in-use":"❌ Бұл email тіркелген","auth/invalid-email":"❌ Email форматы дұрыс емес"};
+    const m = {
+      "auth/email-already-in-use":"❌ Бұл email тіркелген",
+      "auth/invalid-email":"❌ Email форматы дұрыс емес"
+    };
     st(m[err.code]||"❌ "+err.message,"err");
-    btn.disabled=false;btn.textContent="✨ Тіркелу";
+    btn.disabled=false; btn.textContent="✨ Тіркелу";
   }
 };
 
-// ── Google ────────────────────────────────────────────
 window.gLogin = async function() {
   st("⏳ Google арқылы кіру...","load");
   try {
     const c = await signInWithPopup(auth, new GoogleAuthProvider());
     await saveProfile(c.user);
-    await goTeacher(c.user);
+    await checkAndGo(c.user);
   } catch(err) {
     if(err.code!=="auth/popup-closed-by-user") st("❌ "+err.message,"err");
     else document.getElementById("st").style.display="none";
   }
 };
 
-// ── Ұмытылған ────────────────────────────────────────
 window.doForgot = function() {
   const email = document.getElementById("lEmail").value.trim() || prompt("Email:");
   if(!email) return;
-  sendPasswordResetEmail(auth,email)
+  sendPasswordResetEmail(auth, email)
     .then(()=>st("✅ Қалпына келтіру сілтемесі жіберілді!","ok"))
     .catch(err=>st("❌ "+err.message,"err"));
 };
 
-// ── UI helpers ────────────────────────────────────────
 window.switchTab = function(tab) {
   const isL = tab==="login";
   document.getElementById("loginP").style.display = isL?"block":"none";
@@ -225,29 +288,6 @@ window.switchTab = function(tab) {
   document.querySelectorAll(".tab-btn").forEach((b,i)=>b.classList.toggle("active",isL?i===0:i===1));
   document.getElementById("st").style.display="none";
 };
-
-// URL-де қате хабарламасы
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get("err") === "access") {
-  const el = document.getElementById("st");
-  if (el) {
-    el.textContent = "❌ Бұл платформаға рұқсатыңыз жоқ. Байланысыңыз: naz-erke_k@mail.ru";
-    el.className = "status err";
-    el.style.display = "block";
-  }
-}
-
-// Рұқсат қатесі хабарламасы
-if (new URLSearchParams(location.search).get("err") === "access") {
-  const el = document.getElementById("st");
-  if (el) {
-    el.textContent = "❌ Рұқсат жоқ. Тек рұқсатты пайдаланушылар кіре алады.";
-    el.className = "status err";
-    el.style.display = "block";
-  }
-}
-
-
 </script>
 </body>
 </html>
