@@ -12780,34 +12780,26 @@ const CACHE_ASSETS    = [
   "/firebaseConfig.js", "/lessonCabinet.js",
 ];
 
-// ── Service Worker тіркеу ───────────────────────────
+// ── Service Worker ӨШІРІЛДІ ──────────────────────────
+// Офлайн режим уақытша алынды (платформа жиі жаңартылып
+// тұрғанда service worker ескі/бұзылған нұсқаны кэштен
+// көрсетіп қоюы мүмкін). Бұрын орнатылған SW мен кэшті
+// тазалаймыз, жаңасын тіркемейміз.
 window.initOfflineMode = function() {
   if (!("serviceWorker" in navigator)) {
     return;
   }
 
-  navigator.serviceWorker.register("/sw.js")
-    .then(reg => {
-      window._swReg = reg;
-      updateOfflineUI(true);
-    })
-    .catch(e => {
-      updateOfflineUI(false);
-    });
-
-  // Онлайн/офлайн тыңдаушылар
-  window.addEventListener("online",  () => {
-    showOfflineToast("🟢 Интернет қосылды -- синхрондалуда...", "ok");
-    syncOfflineData();
-    updateConnectionUI(true);
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(reg => reg.unregister());
   });
 
-  window.addEventListener("offline", () => {
-    showOfflineToast("🔴 Офлайн режим -- деректер сақталуда", "warn");
-    updateConnectionUI(false);
-  });
+  if (window.caches && caches.keys) {
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+  }
 
-  // Бастапқы күй
+  window._swReg = null;
+  updateOfflineUI(false);
   updateConnectionUI(navigator.onLine);
 };
 
