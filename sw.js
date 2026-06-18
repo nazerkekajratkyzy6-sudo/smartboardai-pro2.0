@@ -3,9 +3,9 @@
 // Офлайн режим + кэш стратегиясы
 // =====================================================
 
-const CACHE_NAME    = "smartboard-v1";
-const CACHE_STATIC  = "smartboard-static-v1";
-const CACHE_DYNAMIC = "smartboard-dynamic-v1";
+const CACHE_NAME    = "smartboard-v2";
+const CACHE_STATIC  = "smartboard-static-v2";
+const CACHE_DYNAMIC = "smartboard-dynamic-v2";
 
 // Кэштелетін статикалық файлдар
 const STATIC_ASSETS = [
