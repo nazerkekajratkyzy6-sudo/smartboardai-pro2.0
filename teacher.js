@@ -13093,12 +13093,14 @@ safeReady(() => {
 // =====================================================
 
 // ── PWA Install ─────────────────────────────────────
+// Банер өшірілді: ол "Офлайн жұмыс" дегенді жарнамалап тұрды,
+// ал офлайн режим қазір сөндірілген. Браузердің меню/мекенжай
+// жолағындағы өзіндік "орнату" белгішесі арқылы әлі де орнатуға
+// болады, бізге тек төменгі банер керек емес.
 let _pwaDeferredPrompt = null;
 
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
-  _pwaDeferredPrompt = e;
-  showInstallBanner();
 });
 
 window.addEventListener("appinstalled", () => {
@@ -13429,16 +13431,10 @@ window.sharePWAApp = function() {
 
 // ── PWA init ────────────────────────────────────────
 safeReady(() => {
-  // Banner dismissed болмаса көрсету
-  const dismissed = localStorage.getItem("sb_pwa_dismissed");
-  const isPWA     = window.matchMedia("(display-mode: standalone)").matches;
-
-  if (!isPWA && !dismissed) {
-    // 3 секундтан кейін banner
-    setTimeout(() => {
-      if (_pwaDeferredPrompt) showInstallBanner();
-    }, 3000);
-  }
+  // Install banner ӨШІРІЛДІ — әдейі ештеңе көрсетпейміз.
+  // (_pwaDeferredPrompt әрқашан null болады, сонда да escape-hatch
+  // ретінде шартты сақтап тұрмыз — болашақта қажет болса бір
+  // жолды қайтару жеткілікті.)
 
   // Existing answer listener-ге notification hook
   const _origUpdateRight = window.updateAnalyticsUI;
