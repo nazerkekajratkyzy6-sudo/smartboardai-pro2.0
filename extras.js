@@ -58,8 +58,14 @@ function createWidget({ id, title, icon, color, width = 240, html, onMount }) {
 }
 
 // =====================================================
-// ЖАҢА БАТЫРМАЛАРДЫ TOPBAR-ГА ҚОС
+// ЖАҢА БАТЫРМАЛАРДЫ TOPBAR-ГА ҚОС — ӨШІРІЛДІ
+// teacher.html-дың өзінде осы батырмалардың (Жазба,
+// Прожектор, Жасыру, Құралдар, Фон, Сурет) толық,
+// дайын нұсқасы бар. Бұл блок сол баппен бірге екінші
+// қайталама қатарды topbar-ға қосып, экранда қос-қабат
+// батырма көрсетіп тұрды — сол үшін өшірілді.
 // =====================================================
+/*
 document.addEventListener("DOMContentLoaded", () => {
   const topbarRight = document.querySelector(".topbar-right");
   if (!topbarRight) return;
@@ -178,6 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (drop) drop.style.display = "none";
   });
 });
+*/
 
 window.extTool = function(fn) {
   const drop = _$("extToolsDrop");
