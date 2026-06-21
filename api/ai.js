@@ -14,14 +14,15 @@ export default async function handler(req, res) {
   } catch { body = {}; }
 
   const {
-    action  = "chat",
-    lang    = "kk",
-    prompt  = "",
-    image   = null,
-    grade   = "",
-    subject = "",
-    uid     = null,   // пайдаланушы ID (Firebase Auth)
-    plan    = "free", // "free" | "pro"
+    action     = "chat",
+    lang       = "kk",
+    prompt     = "",
+    image      = null,
+    grade      = "",
+    subject    = "",
+    uid        = null,   // пайдаланушы ID (Firebase Auth)
+    plan       = "free", // "free" | "pro"
+    systemHint = null,   // оқушы чатынан келетін арнайы system prompt (міндетті емес)
   } = body;
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -31,7 +32,7 @@ export default async function handler(req, res) {
   // Лимит жоқ — барлық рұқсатты пайдаланушыларға шексіз AI
 
   // ── System prompt ────────────────────────────────
-  const systemPrompt = `
+  const systemPrompt = (systemHint && String(systemHint).trim()) || `
 Сен SmartBoardAI PRO жүйесінің ресми педагогикалық AI-ассистентісің.
 Қазақстандық мектеп бағдарламасын жақсы білесің (1-11 сынып).
 Мұғалімге кәсіби, нақты, дайын пайдалануға болатын материал бересің.
@@ -369,6 +370,6 @@ ${ctxStr}
 
     // 12. Жалпы сұрақ
     default:
-      return `\${prompt}\n\nЖауапты \${L} бер.`;
+      return `${prompt}\n\nЖауапты ${L} бер.`;
   }
 }
