@@ -559,6 +559,11 @@ input, textarea, select { font-family:inherit; outline:none; }
   padding: 18px;
   overflow-y: auto;
   min-width: 0;
+  min-height: 100%;
+  /* Фон контентпен бірге "өзгеруі" үшін — кері жағдайда фон
+     тек бастапқы (қысқа) биіктікте боялып қалады, төменгі
+     жағы ақ болып көрінеді (мысалы блок қосылған/өшірілген кезде) */
+  background-attachment: local;
   background-image:
     radial-gradient(circle at 10% 20%, rgba(79,70,229,0.04) 0%, transparent 40%),
     radial-gradient(circle at 90% 80%, rgba(6,182,212,0.03) 0%, transparent 40%);
