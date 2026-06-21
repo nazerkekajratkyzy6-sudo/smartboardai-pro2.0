@@ -19,7 +19,8 @@ import {
   set,
   push,
   get,
-  onValue
+  onValue,
+  runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // 🔐 Сен берген конфиг (smartboardai-pro2-0)
@@ -56,5 +57,6 @@ export {
   set,
   push,
   get,
-  onValue
+  onValue,
+  runTransaction
 };
