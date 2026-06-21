@@ -12,12 +12,15 @@ import {
   db,
   ref,
   set,
+  get,
   push,
   onValue,
   auth,
   onAuthStateChanged,
   signOut
 } from "./firebaseConfig.js";
+
+import { checkAccess } from "./access-control.js";
 
 // ── safeReady: DOMContentLoaded немесе дереу ──────────
 
@@ -416,7 +419,7 @@ function setupModalEvents() {
 function setupLogout() {
   const btn = $("logout");
   if (!btn) return;
-  btn.onclick = () => {
+  btn.onclick = async () => {
     const msg =
       currentLang === "ru"
         ? "Вы вышли из системы."
@@ -424,6 +427,11 @@ function setupLogout() {
         ? "You have logged out."
         : "Сіз жүйеден шықтыңыз.";
     showToast(msg, "info");
+    // Бір реттік қолжетімділік — шыққанда дереу белгілейміз
+    // (onDisconnect те жасайды, бірақ мұны бірден істеу сенімдірек)
+    if (window._accessLockRef) {
+      try { await set(window._accessLockRef, true); } catch (e) {}
+    }
     location.href = "index.html";
   };
 }
@@ -1529,6 +1537,7 @@ onValue(answersRef, (snap) => {
         .replace(/>/g, "&gt;")
         .replace(/\n/g, "<br>");
       const avatar = a.avatar || "🙂";
+      const sid = a.studentId || "";
 
       return `
         <div class="answer-item">
@@ -1536,8 +1545,15 @@ onValue(answersRef, (snap) => {
           ${text}
 
           <div style="margin-top:6px; display:flex; gap:6px;">
-            <button type="button" data-answer-name="${name}" data-answer-reaction="✅">✅</button>
-            <button type="button" data-answer-name="${name}" data-answer-reaction="⭐">⭐</button>
+            <button type="button" data-answer-name="${name}" data-answer-studentid="${sid}" data-answer-reaction="✅">✅</button>
+            <button type="button" data-answer-name="${name}" data-answer-studentid="${sid}" data-answer-reaction="⭐">⭐</button>
+          </div>
+
+          <div style="margin-top:6px; display:flex; gap:6px;">
+            <input type="text" class="fb-text-input" data-fb-studentid="${sid}" data-fb-name="${name}"
+              placeholder="Жауапқа пікір жазу..." style="flex:1;min-width:0;font-size:12px;padding:6px 8px;border:1px solid #e2e6f0;border-radius:8px;">
+            <button type="button" class="fb-text-send" data-fb-studentid="${sid}" data-fb-name="${name}"
+              style="font-size:12px;padding:6px 10px;border-radius:8px;background:#4f46e5;color:white;border:none;cursor:pointer;">Жіберу</button>
           </div>
         </div>
       `;
@@ -1547,11 +1563,24 @@ onValue(answersRef, (snap) => {
   box.querySelectorAll("[data-answer-reaction]").forEach((btn) => {
     btn.onclick = () => {
       const name = btn.dataset.answerName || "Оқушы";
+      const sid  = btn.dataset.answerStudentid || "";
       const reaction = btn.dataset.answerReaction || "✅";
-      sendAnswerReaction(name, reaction);
+      sendAnswerReaction(sid, name, reaction);
     };
   });
-});  
+
+  box.querySelectorAll(".fb-text-send").forEach((btn) => {
+    btn.onclick = () => {
+      const sid   = btn.dataset.fbStudentid || "";
+      const name  = btn.dataset.fbName || "Оқушы";
+      const input = box.querySelector(`.fb-text-input[data-fb-studentid="${sid}"]`);
+      const text  = (input?.value || "").trim();
+      if (!text) { showToast("Алдымен пікір жазыңыз", "info"); return; }
+      sendTextFeedback(sid, name, text);
+      if (input) input.value = "";
+    };
+  });
+});
 
   
   // EMOTIONS
@@ -1619,24 +1648,30 @@ onValue(photosRef, (snap) => {
         const name = p.name || "Оқушы";
         const avatar = p.avatar || "🙂";
         const url = p.url || "";
+        const sid = p.studentId || "";
 
         return `
           <div style="
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
             background:#fff;
             border-radius:10px;
             padding:8px;
             margin-bottom:8px;
             border:1px solid #e5e7eb;
           ">
-            <span>${avatar} ${name}</span>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span>${avatar} ${name}</span>
 
-            <div style="display:flex; gap:6px;">
-              <button type="button" data-open="${url}">👁</button>
-              <button type="button" data-download="${url}">⬇</button>
-              <button type="button" data-react="⭐" data-key="${photoKey}" data-name="${name}">⭐</button>
+              <div style="display:flex; gap:6px;">
+                <button type="button" data-open="${url}">👁</button>
+                <button type="button" data-download="${url}">⬇</button>
+                <button type="button" data-react="⭐" data-key="${photoKey}" data-name="${name}" data-studentid="${sid}">⭐</button>
+              </div>
+            </div>
+            <div style="margin-top:6px; display:flex; gap:6px;">
+              <input type="text" class="photo-fb-input" data-fb-studentid="${sid}"
+                placeholder="Фотоға пікір жазу..." style="flex:1;min-width:0;font-size:12px;padding:6px 8px;border:1px solid #e2e6f0;border-radius:8px;">
+              <button type="button" class="photo-fb-send" data-fb-studentid="${sid}" data-fb-name="${name}"
+                style="font-size:12px;padding:6px 10px;border-radius:8px;background:#4f46e5;color:white;border:none;cursor:pointer;">Жіберу</button>
             </div>
           </div>
         `;
@@ -1656,12 +1691,24 @@ box.querySelectorAll("[data-download]").forEach((btn) => {
     window.open(url, "_blank");
   };
 });
-    
+
    box.querySelectorAll("[data-react]").forEach((btn) => {
   btn.onclick = () => {
-    window.sendFeedback(btn.dataset.key, btn.dataset.name, "⭐");
+    window.sendFeedback(btn.dataset.studentid, btn.dataset.name, "⭐");
   };
 });
+
+  box.querySelectorAll(".photo-fb-send").forEach((btn) => {
+    btn.onclick = () => {
+      const sid   = btn.dataset.fbStudentid || "";
+      const name  = btn.dataset.fbName || "Оқушы";
+      const input = box.querySelector(`.photo-fb-input[data-fb-studentid="${sid}"]`);
+      const text  = (input?.value || "").trim();
+      if (!text) { showToast("Алдымен пікір жазыңыз", "info"); return; }
+      window.sendTextFeedback(sid, name, text);
+      if (input) input.value = "";
+    };
+  });
   }
 });
   }
@@ -1685,19 +1732,51 @@ function openFullscreenBlock(id) {
   else if (target.msRequestFullscreen) target.msRequestFullscreen();
 }
 
-function sendAnswerReaction(name, reaction) {
+function sendAnswerReaction(studentId, name, reaction) {
   if (!currentRoom) return;
+  if (!studentId) {
+    showToast("Бұл жауапта оқушы ID жоқ — реакция жіберілмеді", "info");
+    return;
+  }
 
-  const fbRef = ref(db, `rooms/${currentRoom}/answerFeedback`);
+  const fbRef = ref(db, `rooms/${currentRoom}/studentFeedback/${studentId}`);
 
-  push(fbRef, {
-    name,
+  set(fbRef, {
     reaction,
     time: Date.now()
+  }).then(() => {
+    showToast(`${name} үшін реакция жіберілді: ${reaction}`, "info");
+  }).catch((err) => {
+    console.error("Реакция қатесі:", err);
+    showToast("Реакция жіберілмеді", "info");
   });
 }
 
 window.sendAnswerReaction = sendAnswerReaction;
+
+// ── Жауапқа/жұмысқа мәтінмен пікір жіберу (ЖАҢА) ─────
+function sendTextFeedback(studentId, name, text) {
+  if (!currentRoom) return;
+  if (!studentId) {
+    showToast("Бұл жауапта оқушы ID жоқ — пікір жіберілмеді", "info");
+    return;
+  }
+
+  const fbRef = ref(db, `rooms/${currentRoom}/studentFeedback/${studentId}`);
+
+  set(fbRef, {
+    reaction: "💬",
+    text,
+    time: Date.now()
+  }).then(() => {
+    showToast(`${name} үшін пікір жіберілді`, "info");
+  }).catch((err) => {
+    console.error("Пікір жіберу қатесі:", err);
+    showToast("Пікір жіберілмеді", "info");
+  });
+}
+
+window.sendTextFeedback = sendTextFeedback;
     
   
 // =========================
@@ -1923,25 +2002,40 @@ window.toggleFullscreen = () => {
 };
 
   // ================================
-  // 🔐 AUTH CHECK (ТЕК СЕНДІКІ)
+  // 🔐 AUTH CHECK — access-control.js арқылы
   // ================================
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
     if (!user) {
       location.href = "login.html";
       return;
     }
 
-        // ── РҰҚСАТ ТІЗІМІ ──────────────────────────────
-    // Тек осы emailдер кіре алады — қосқыңыз келсе жай email қосыңыз
-    const ALLOWED = [
-      "naz-erke_k@mail.ru",
-      // "жаңа@mail.ru",  ← осылай қосасыз
-    ];
+    const access = await checkAccess(user);
 
-    if (!ALLOWED.includes(user.email)) {
+    if (!access.allowed) {
       auth.signOut();
       location.href = "login.html?err=access";
       return;
+    }
+
+    // ── Бір реттік қолжетімділік (тек unlimited емес адамдарға) ──
+    if (!access.unlimited) {
+      const usedRef = ref(db, `users/${user.uid}/accessUsed`);
+      try {
+        const snap = await get(usedRef);
+        if (snap.val() === true) {
+          auth.signOut();
+          location.href = "login.html?err=used";
+          return;
+        }
+      } catch (e) { /* желі қатесі — жалғастырамыз, кейін қайта тексеріледі */ }
+
+      // Қосылым үзілгенде (терезе/бет жабылғанда) автоматты түрде "пайдаланылды" деп белгілейміз
+      try {
+        usedRef.onDisconnect().set(true);
+      } catch (e) { console.warn("onDisconnect орнатылмады:", e); }
+
+      window._accessLockRef = usedRef;
     }
 
     // Рұқсат берілген барлығы — барлық мүмкіндік ашық (PRO жоқ)
@@ -2122,13 +2216,16 @@ function openRichEditorForBlock(blockId, html) {
 }
 
 
-function sendFeedback(photoKey, studentName, reaction) {
+function sendFeedback(studentId, studentName, reaction) {
   if (!currentRoom) return;
+  if (!studentId) {
+    showToast("Бұл фотода оқушы ID жоқ — реакция жіберілмеді", "info");
+    return;
+  }
 
-  const fbRef = ref(db, `rooms/${currentRoom}/feedback/${photoKey}`);
+  const fbRef = ref(db, `rooms/${currentRoom}/studentFeedback/${studentId}`);
 
   set(fbRef, {
-    name: studentName,
     reaction,
     time: Date.now()
   })
@@ -3349,8 +3446,12 @@ window.changeStickyColor = function(e, id, colorIdx) {
 };
 
 // Drag (mouse + touch)
-function makeDraggable(el) {
-  const handle = el.querySelector(".sticky-header");
+function makeDraggable(el, handleSelector) {
+  // sticky-header (жабысқақ жазба), widget-header (мини құралдар),
+  // ешқайсысы болмаса — элементтің өзін сүйрейміз (сызғыш, транспортир)
+  const handle = handleSelector
+    ? el.querySelector(handleSelector)
+    : (el.querySelector(".sticky-header") || el.querySelector(".widget-header") || el);
   if (!handle) return;
   let dx = 0, dy = 0;
 
@@ -3628,6 +3729,9 @@ window.setBoardBg = function(type) {
     board.style[prop] = val;
   });
 
+  // Фон контентпен бірге толық "созылып" тұруы үшін
+  board.style.backgroundAttachment = "local";
+
   // Active батырманы белгілеу
   document.querySelectorAll(".bg-opt").forEach(b => {
     b.style.borderColor = b.dataset.bg === type ? "#c7d2fe" : "#e5e7eb";
@@ -3647,6 +3751,7 @@ window.setBoardColor = function(color) {
   if (!board) return;
   board.style.background      = color;
   board.style.backgroundImage = "none";
+  board.style.backgroundAttachment = "local";
   currentBoardBg = "color_" + color;
 };
 
@@ -3662,6 +3767,7 @@ window.setBoardImage = function(input) {
     board.style.backgroundSize   = "cover";
     board.style.backgroundPosition = "center";
     board.style.backgroundColor  = "transparent";
+    board.style.backgroundAttachment = "local";
     currentBoardBg = "image";
     toggleBgPicker();
   };
