@@ -124,6 +124,36 @@ async function sendAnswer() {
   } catch(e) { showStatus("❌ Қате: " + e.message, "error"); }
 }
 
+// ── Image compression (Storage квотасын үнемдеу үшін) ─
+// Телефон камерасы 4-8MB фото жасайды — оны сол күйі
+// Firebase Storage-қа жіберу квотаны тез таусады.
+// Жүктеу алдында өлшемін кішірейтіп, JPEG-ке сығамыз.
+function compressImage(file, maxWidth = 1280, quality = 0.7) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      if (width > maxWidth) {
+        height = Math.round(height * (maxWidth / width));
+        width  = maxWidth;
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width  = width;
+      canvas.height = height;
+      canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => blob ? resolve(blob) : reject(new Error("Сурет сығылмады")),
+        "image/jpeg",
+        quality
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Сурет ашылмады")); };
+    img.src = url;
+  });
+}
+
 // ── Send photo ───────────────────────────────────────
 async function sendStudentPhoto() {
   const roomId = getRoomId();
@@ -133,11 +163,13 @@ async function sendStudentPhoto() {
   if (!roomId) { showStatus("❗ Бөлме коды жоқ","error"); return; }
   if (!name)   { showStatus("❗ Атыңызды жазыңыз","error"); return; }
   if (!file)   { showStatus("❗ Фото таңдаңыз","error"); return; }
-  if (file.size > 6*1024*1024) { showStatus("❗ Фото 6MB-тан кіші болсын","error"); return; }
+  if (file.size > 15*1024*1024) { showStatus("❗ Фото 15MB-тан кіші болсын","error"); return; }
   try {
+    showStatus("🗜️ Сурет сығылып жатыр...","sending");
+    const compressed = await compressImage(file);
     showStatus("📤 Жіберіліп жатыр...","sending");
-    const fr  = sRef(storage, `studentUploads/${roomId}/${Date.now()}_${file.name}`);
-    await uploadBytes(fr, file);
+    const fr  = sRef(storage, `studentUploads/${roomId}/${Date.now()}_${file.name.replace(/\.[^.]+$/,'')}.jpg`);
+    await uploadBytes(fr, compressed);
     const url = await getDownloadURL(fr);
     await saveStudentPresence();
     await push(ref(db, `rooms/${roomId}/studentPhotos`), {
