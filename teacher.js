@@ -2252,6 +2252,12 @@ const analyticsData = {
   emotions: {},   // {emoji: count}
 };
 
+// effectiveness.js — бөлек module, teacher.js-тің ішкі
+// айнымалысын тікелей көрмейді. Сол үшін window-ға да
+// шығарып қоямыз (объект бойымен сілтеме болғандықтан,
+// келешектегі өзгерістер автоматты түрде көрінеді).
+window.analyticsData = analyticsData;
+
 // ── Analytics listeners ──────────────────────────────
 function startAnalytics(roomId) {
   if (!roomId) return;
