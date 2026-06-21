@@ -74,10 +74,10 @@
 
 <div class="access-ended" id="accessEndedScreen">
   <div class="access-box">
-    <div class="access-icon">⏰</div>
-    <div class="access-badge">Қолжетімділік аяқталды</div>
-    <div class="access-title">Сынақ сабағыңыз аяқталды</div>
-    <div class="access-text">
+    <div class="access-icon" id="accessIcon">⏰</div>
+    <div class="access-badge" id="accessBadge">Қолжетімділік аяқталды</div>
+    <div class="access-title" id="accessTitle">Сынақ сабағыңыз аяқталды</div>
+    <div class="access-text" id="accessText">
       SmartBoardAI PRO платформасын толық пайдалану үшін
       авторға хабарласыңыз. Толық нұсқада барлық функциялар
       шексіз қолжетімді болады.
@@ -151,9 +151,7 @@ try {
   document.getElementById("st").style.display = "block";
 }
 
-const UNLIMITED_EMAILS = [
-  "naz-erke_k@mail.ru",
-];
+import { checkAccess } from "./access-control.js";
 
 if (auth) {
   onAuthStateChanged(auth, async u => {
@@ -162,7 +160,19 @@ if (auth) {
 }
 
 async function checkAndGo(user) {
-  if (UNLIMITED_EMAILS.includes(user.email)) {
+  const access = await checkAccess(user);
+
+  if (!access.allowed) {
+    await auth.signOut();
+    showAccessEnded(
+      access.reason === "closed" ? "closed" :
+      access.reason === "full"   ? "full"   :
+      "not-allowed"
+    );
+    return;
+  }
+
+  if (access.unlimited) {
     await setLocalStorage(user, "unlimited");
     window.location.href = "/teacher.html";
     return;
@@ -175,7 +185,7 @@ async function checkAndGo(user) {
   } catch {}
 
   if (accessUsed) {
-    showAccessEnded();
+    showAccessEnded("used");
     return;
   }
 
@@ -190,10 +200,42 @@ async function setLocalStorage(user, plan) {
   localStorage.setItem("sb_name",  user.displayName || "Мұғалім");
 }
 
-function showAccessEnded() {
+function showAccessEnded(reason) {
+  const MSG = {
+    "used": {
+      icon: "⏰", badge: "Қолжетімділік аяқталды",
+      title: "Сынақ сабағыңыз аяқталды",
+      text: "Сіз платформаны бұрын ашқансыз — бір реттік қолжетімділік қолданылды. Толық нұсқа үшін авторға хабарласыңыз."
+    },
+    "not-allowed": {
+      icon: "🔒", badge: "Қолжетімділік шектеулі",
+      title: "Бұл аккаунтқа қолжетімділік жоқ",
+      text: "Платформа қазір тек арнайы шақырылған адамдарға қолжетімді. Егер сізге қолжетімділік берілуі керек деп ойласаңыз, авторға хабарласыңыз."
+    },
+    "full": {
+      icon: "🪑", badge: "Орындар толды",
+      title: "Қолжетімді орындар таусылды",
+      text: "Бұл сынақ нұсқасына шектеулі санда адам кіре алады, барлық орын қазір алынған. Авторға хабарласыңыз."
+    },
+    "closed": {
+      icon: "🚧", badge: "Уақытша жабық",
+      title: "Платформа уақытша қолжетімсіз",
+      text: "Қазір тіркелу/кіру уақытша тоқтатылған. Жаңартулар туралы білу үшін авторға хабарласыңыз."
+    },
+  };
+  const m = MSG[reason] || MSG["not-allowed"];
+  document.getElementById("accessIcon").textContent  = m.icon;
+  document.getElementById("accessBadge").textContent = m.badge;
+  document.getElementById("accessTitle").textContent = m.title;
+  document.getElementById("accessText").textContent  = m.text;
   document.querySelector(".card").style.display = "none";
   document.getElementById("accessEndedScreen").classList.add("show");
 }
+
+// teacher.js өзінің auth-check-інен ?err=... арқылы қайтарса да хабарлама көрсетеміз
+const _urlErr = new URLSearchParams(window.location.search).get("err");
+if (_urlErr === "access") showAccessEnded("not-allowed");
+if (_urlErr === "used")   showAccessEnded("used");
 
 function st(msg, type) {
   const el = document.getElementById("st");
