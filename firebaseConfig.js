@@ -18,10 +18,16 @@ import {
   set,
   push,
   get,
-  onValue
+  onValue,
+  runTransaction,
+  update,
+  remove,
+  orderByChild,
+  limitToLast,
+  query
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// ✅ Firebase Storage — фото жүктеу үшін
+// ✅ Firebase Storage
 import {
   getStorage,
   ref as sRef,
@@ -44,14 +50,14 @@ const firebaseConfig = {
 const app      = initializeApp(firebaseConfig);
 const auth     = getAuth(app);
 const db       = getDatabase(app);
-const storage  = getStorage(app); // ✅ app аргументімен
+const storage  = getStorage(app);
 const googleProvider = new GoogleAuthProvider();
 
 export {
   app,
   auth,
   db,
-  storage,         // ✅ Storage қосылды
+  storage,
   googleProvider,
   // Auth
   signInWithEmailAndPassword,
@@ -59,13 +65,19 @@ export {
   signOut,
   signInWithPopup,
   onAuthStateChanged,
-  // Database
+  // Database — барлығы
   ref,
   set,
   push,
   get,
   onValue,
-  // Storage ✅
+  runTransaction,
+  update,
+  remove,
+  orderByChild,
+  limitToLast,
+  query,
+  // Storage
   sRef,
   uploadBytes,
   getDownloadURL,
