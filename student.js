@@ -1,6 +1,6 @@
 // student.js —  SmartBoardAI PRO v2.0
 
-import { db, ref, push, onValue, set, storage, sRef, uploadBytes, getDownloadURL } from "./firebaseConfig.js";
+import { db, ref, push, onValue, set } from "./firebaseConfig.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -117,11 +117,10 @@ async function sendAnswer() {
   } catch(e) { showStatus("❌ Қате: " + e.message, "error"); }
 }
 
-// ── Image compression (Storage квотасын үнемдеу үшін) ─
-// Телефон камерасы 4-8MB фото жасайды — оны сол күйі
-// Firebase Storage-қа жіберу квотаны тез таусады.
-// Жүктеу алдында өлшемін кішірейтіп, JPEG-ке сығамыз.
-function compressImage(file, maxWidth = 1280, quality = 0.7) {
+// ── Image to base64 (Storage жоқ — Realtime DB-ге жазамыз) ─
+// Firebase Storage квотасы толып кеткендіктен,
+// фотоны base64 форматында Realtime Database-ке сақтаймыз.
+function imageToBase64(file, maxWidth = 800, quality = 0.6) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -136,18 +135,14 @@ function compressImage(file, maxWidth = 1280, quality = 0.7) {
       canvas.width  = width;
       canvas.height = height;
       canvas.getContext("2d").drawImage(img, 0, 0, width, height);
-      canvas.toBlob(
-        (blob) => blob ? resolve(blob) : reject(new Error("Сурет сығылмады")),
-        "image/jpeg",
-        quality
-      );
+      resolve(canvas.toDataURL("image/jpeg", quality));
     };
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Сурет ашылмады")); };
     img.src = url;
   });
 }
 
-// ── Send photo ───────────────────────────────────────
+// ── Send photo (base64 → Realtime Database) ──────────
 async function sendStudentPhoto() {
   const roomId = getRoomId();
   const name   = $("sb_studentName")?.value.trim() || window._studentName || "";
@@ -158,15 +153,15 @@ async function sendStudentPhoto() {
   if (!file)   { showStatus("❗ Фото таңдаңыз","error"); return; }
   if (file.size > 15*1024*1024) { showStatus("❗ Фото 15MB-тан кіші болсын","error"); return; }
   try {
-    showStatus("🗜️ Сурет сығылып жатыр...","sending");
-    const compressed = await compressImage(file);
+    showStatus("🗜️ Сурет дайындалуда...","sending");
+    const base64 = await imageToBase64(file);
     showStatus("📤 Жіберіліп жатыр...","sending");
-    const fr  = sRef(storage, `studentUploads/${roomId}/${Date.now()}_${file.name.replace(/\.[^.]+$/,'')}.jpg`);
-    await uploadBytes(fr, compressed);
-    const url = await getDownloadURL(fr);
     await saveStudentPresence();
     await push(ref(db, `rooms/${roomId}/studentPhotos`), {
-      name, avatar, url, studentId, time: Date.now()
+      name, avatar,
+      url: base64,
+      studentId,
+      time: Date.now()
     });
     const pi = $("studentPhotoInput");
     if (pi) pi.value = "";
