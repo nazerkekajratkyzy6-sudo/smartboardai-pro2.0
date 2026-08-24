@@ -1,15 +1,8 @@
 // student.js —  SmartBoardAI PRO v2.0
 
-import { db, ref, push, onValue, set } from "./firebaseConfig.js";
-import {
-  getStorage,
-  ref as sRef,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+import { db, ref, push, onValue, set, storage, sRef, uploadBytes, getDownloadURL } from "./firebaseConfig.js";
 
 const $ = (id) => document.getElementById(id);
-const storage = getStorage();
 
 // ── URL params ───────────────────────────────────────
 const params  = new URLSearchParams(window.location.search);
