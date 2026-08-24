@@ -1,4 +1,3 @@
-// assets/js/firebaseConfig.js
 // firebaseConfig.js — SmartBoardAI PRO (Firebase v10)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -19,11 +18,18 @@ import {
   set,
   push,
   get,
-  onValue,
-  runTransaction
+  onValue
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// 🔐 Сен берген конфиг (smartboardai-pro2-0)
+// ✅ Firebase Storage — фото жүктеу үшін
+import {
+  getStorage,
+  ref as sRef,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+// 🔐 Firebase конфиг
 const firebaseConfig = {
   apiKey: "AIzaSyA5OZa9O6dOYzb7Tgb6ayrYsJLDTf1PWuo",
   authDomain: "smartboardai-pro2-0.firebaseapp.com",
@@ -35,16 +41,17 @@ const firebaseConfig = {
 };
 
 // 🔥 Инициализация
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+const app      = initializeApp(firebaseConfig);
+const auth     = getAuth(app);
+const db       = getDatabase(app);
+const storage  = getStorage(app); // ✅ app аргументімен
 const googleProvider = new GoogleAuthProvider();
 
-// Барлық керек нәрсені экспорттаймыз
 export {
   app,
   auth,
   db,
+  storage,         // ✅ Storage қосылды
   googleProvider,
   // Auth
   signInWithEmailAndPassword,
@@ -58,5 +65,8 @@ export {
   push,
   get,
   onValue,
-  runTransaction
+  // Storage ✅
+  sRef,
+  uploadBytes,
+  getDownloadURL,
 };
