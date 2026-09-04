@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SmartBoardAI PRO — Менің кабинетім</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f0f2f8;min-height:100vh;}
+
+    .topbar{background:linear-gradient(135deg,#1e1b4b,#4f46e5);color:white;
+      padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;
+      box-shadow:0 4px 20px rgba(79,70,229,0.3);}
+    .topbar-logo{font-size:18px;font-weight:800;}
+    .topbar-right{display:flex;align-items:center;gap:12px;}
+    .btn-sm{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;
+      cursor:pointer;border:none;font-family:inherit;}
+    .btn-white{background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.25);}
+    .btn-danger{background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);}
+
+    .container{max-width:1000px;margin:0 auto;padding:24px;}
+
+    /* PROFILE CARD */
+    .profile-card{background:white;border-radius:20px;padding:28px;
+      border:1px solid #e2e6f0;box-shadow:0 4px 16px rgba(15,23,42,0.08);
+      margin-bottom:20px;display:flex;align-items:center;gap:24px;}
+    .avatar{width:72px;height:72px;border-radius:50%;
+      background:linear-gradient(135deg,#4f46e5,#7c3aed);
+      display:flex;align-items:center;justify-content:center;
+      font-size:28px;color:white;font-weight:800;flex-shrink:0;}
+    .profile-info{flex:1;}
+    .profile-name{font-size:22px;font-weight:800;color:#0f172a;margin-bottom:4px;}
+    .profile-email{font-size:13px;color:#64748b;margin-bottom:8px;}
+    .profile-school{font-size:13px;color:#4f46e5;font-weight:600;}
+    .plan-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
+      border-radius:999px;font-size:12px;font-weight:700;margin-top:8px;}
+    .plan-free{background:#f1f5f9;color:#64748b;}
+    .plan-pro{background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;}
+    .plan-unlimited{background:#f0fdf4;color:#16a34a;border:1px solid #86efac;}
+
+    /* AI USAGE */
+    .ai-card{background:white;border-radius:16px;padding:20px;
+      border:1px solid #e2e6f0;box-shadow:0 2px 8px rgba(15,23,42,0.06);
+      margin-bottom:20px;}
+    .ai-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+    .ai-title{font-size:15px;font-weight:700;color:#0f172a;}
+    .ai-count{font-size:24px;font-weight:800;color:#4f46e5;}
+    .progress-bar{background:#f1f5f9;border-radius:999px;height:10px;overflow:hidden;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#4f46e5,#7c3aed);
+      border-radius:999px;transition:.3s;}
+    .progress-labels{display:flex;justify-content:space-between;
+      font-size:11px;color:#94a3b8;margin-top:6px;}
+
+    /* GRID */
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+
+    /* STAT MINI */
+    .stat-mini{background:white;border-radius:14px;padding:16px;
+      border:1px solid #e2e6f0;text-align:center;}
+    .stat-mini-num{font-size:28px;font-weight:800;color:#0f172a;margin-bottom:2px;}
+    .stat-mini-label{font-size:11px;color:#64748b;font-weight:600;}
+
+    /* TABS */
+    .tabs{display:flex;background:white;border-radius:14px;padding:4px;
+      border:1px solid #e2e6f0;margin-bottom:20px;gap:4px;}
+    .tab{flex:1;padding:10px;border:none;border-radius:10px;background:transparent;
+      font-size:13px;font-weight:700;cursor:pointer;color:#64748b;
+      transition:.15s;font-family:inherit;}
+    .tab.active{background:#eef2ff;color:#4f46e5;}
+
+    /* PANEL */
+    .panel{display:none;}
+    .panel.active{display:block;}
+
+    /* LESSONS */
+    .lesson-card{background:white;border-radius:12px;padding:16px;
+      border:1px solid #e2e6f0;margin-bottom:10px;
+      display:flex;align-items:center;gap:14px;transition:.15s;}
+    .lesson-card:hover{border-color:#c7d2fe;box-shadow:0 4px 12px rgba(79,70,229,0.1);}
+    .lesson-icon{font-size:24px;width:44px;height:44px;border-radius:10px;
+      background:#eef2ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .lesson-info{flex:1;}
+    .lesson-title{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:2px;}
+    .lesson-meta{font-size:11px;color:#94a3b8;}
+    .lesson-actions{display:flex;gap:6px;}
+
+    /* SETTINGS */
+    .settings-card{background:white;border-radius:16px;padding:24px;
+      border:1px solid #e2e6f0;margin-bottom:16px;}
+    .settings-title{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:16px;}
+    .form-group{margin-bottom:14px;}
+    .form-label{font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:5px;}
+    .form-input{width:100%;padding:10px 13px;border:1.5px solid #e2e6f0;border-radius:10px;
+      font-size:14px;font-family:inherit;outline:none;}
+    .form-input:focus{border-color:#c7d2fe;}
+    .btn-primary{background:#4f46e5;color:white;padding:10px 20px;border:none;
+      border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+
+    /* UPGRADE */
+    .upgrade-card{background:linear-gradient(135deg,#4f46e5,#7c3aed);
+      border-radius:16px;padding:24px;color:white;margin-bottom:20px;}
+    .upgrade-title{font-size:18px;font-weight:800;margin-bottom:8px;}
+    .upgrade-desc{font-size:13px;opacity:.85;margin-bottom:18px;line-height:1.6;}
+    .upgrade-btn{background:white;color:#4f46e5;padding:11px 24px;
+      border:none;border-radius:10px;font-size:13px;font-weight:800;
+      cursor:pointer;font-family:inherit;}
+
+    /* NOTIFICATION */
+    .notif{position:fixed;bottom:24px;right:24px;background:#0f172a;color:white;
+      padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;
+      box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:999;
+      transform:translateY(100px);transition:.3s;opacity:0;}
+    .notif.show{transform:translateY(0);opacity:1;}
+
+    .loading{text-align:center;padding:32px;color:#94a3b8;font-size:14px;}
+    .empty{text-align:center;padding:40px;color:#94a3b8;}
+    .empty-icon{font-size:48px;margin-bottom:12px;}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">⚡ SmartBoardAI PRO</div>
+  <div class="topbar-right">
+    <button class="btn-sm btn-white" onclick="window.location.href='teacher.html'">🏠 Тақтаға</button>
+    <button class="btn-sm btn-danger" onclick="doLogout()">Шығу</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- PROFILE -->
+  <div class="profile-card">
+    <div class="avatar" id="avatarEl">М</div>
+    <div class="profile-info">
+      <div class="profile-name" id="profileName">Жүктелуде...</div>
+      <div class="profile-email" id="profileEmail"></div>
+      <div class="profile-school" id="profileSchool"></div>
+      <div id="planBadgeEl" class="plan-badge plan-free">🆓 FREE</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;">Мүше болғалы</div>
+      <div style="font-size:13px;font-weight:700;color:#0f172a;" id="memberSince">—</div>
+    </div>
+  </div>
+
+  <!-- AI USAGE -->
+  <div class="ai-card" id="aiCard">
+    <div class="ai-header">
+      <div>
+        <div class="ai-title">🤖 AI пайдалану (ағымдағы ай)</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:2px;" id="aiMonth"></div>
+      </div>
+      <div class="ai-count"><span id="aiUsed">0</span> / <span id="aiLimit">10</span></div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="aiProgress" style="width:0%"></div>
+    </div>
+    <div class="progress-labels">
+      <span>0</span>
+      <span id="aiProgressLabel">0% пайдаланылды</span>
+      <span id="aiLimitLabel">10</span>
+    </div>
+  </div>
+
+  <!-- STATS MINI -->
+  <div class="grid-2">
+    <div class="stat-mini">
+      <div class="stat-mini-num" id="statLessons">0</div>
+      <div class="stat-mini-label">📚 Сақталған сабақтар</div>
+    </div>
+    <div class="stat-mini">
+      <div class="stat-mini-num" id="statRooms">0</div>
+      <div class="stat-mini-label">🏫 Өткізілген бөлмелер</div>
+    </div>
+  </div>
+
+  <!-- UPGRADE (тек free үшін) -->
+  <div class="upgrade-card" id="upgradeCard" style="display:none;">
+    <div class="upgrade-title">⭐ PRO нұсқасына өтіңіз</div>
+    <div class="upgrade-desc">
+      Айына 500₸-ге барлық AI функциялары: 200 сұраныс/ай, Analytics экспорт,
+      PISA генераторы, AI ойын жасаушы, шексіз сабақ кабинеті.
+    </div>
+    <button class="upgrade-btn" onclick="requestUpgrade()">🚀 PRO сұрату — 500₸/ай</button>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('lessons')">📚 Сабақтарым</button>
+    <button class="tab" onclick="showTab('analytics')">📊 Статистика</button>
+    <button class="tab" onclick="showTab('settings')">⚙️ Баптаулар</button>
+  </div>
+
+  <!-- LESSONS PANEL -->
+  <div class="panel active" id="panel-lessons">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div style="font-size:15px;font-weight:700;color:#0f172a;">Менің сабақтарым</div>
+      <button class="btn-primary" onclick="window.location.href='teacher.html'">+ Жаңа сабақ</button>
+    </div>
+    <div id="lessonsList" class="loading">Жүктелуде...</div>
+  </div>
+
+  <!-- ANALYTICS PANEL -->
+  <div class="panel" id="panel-analytics">
+    <div style="background:white;border-radius:16px;padding:24px;border:1px solid #e2e6f0;">
+      <div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:20px;">📊 Менің статистикам</div>
+      <div id="analyticsContent" class="loading">Жүктелуде...</div>
+    </div>
+  </div>
+
+  <!-- SETTINGS PANEL -->
+  <div class="panel" id="panel-settings">
+
+    <div class="settings-card">
+      <div class="settings-title">👤 Жеке мәлімет</div>
+      <div class="form-group">
+        <label class="form-label">Аты-жөніңіз</label>
+        <input class="form-input" id="setName" placeholder="Аты-жөніңіз"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Мектеп / Мекеме</label>
+        <input class="form-input" id="setSchool" placeholder="Мектеп атауы"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Қала</label>
+        <input class="form-input" id="setCity" placeholder="Алматы"/>
+      </div>
+      <button class="btn-primary" onclick="saveSettings()">💾 Сақтау</button>
+    </div>
+
+    <div class="settings-card">
+      <div class="settings-title">🔔 Хабарламалар</div>
+      <div id="adminMessages" class="loading">Жүктелуде...</div>
+    </div>
+
+    <div class="settings-card" style="border:1px solid #fecaca;">
+      <div class="settings-title" style="color:#dc2626;">⚠️ Аккаунт</div>
+      <p style="font-size:13px;color:#64748b;margin-bottom:14px;">
+        Аккаунтты жою кері қайтарылмайды. Барлық деректер жойылады.
+      </p>
+      <button style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;
+        padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;
+        cursor:pointer;" onclick="deleteAccount()">🗑️ Аккаунтты жою</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script type="module">
+import {
+  db, auth, ref, set, get, push, onAuthStateChanged, signOut
+} from "./firebaseConfig.js";
+
+let currentUser = null;
+let userData = null;
+
+// ── AUTH ───────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  await loadUserData();
+  loadLessons();
+  loadMessages();
+});
+
+// ── USER DATA ──────────────────────────────
+async function loadUserData() {
+  const snap = await get(ref(db, `users/${currentUser.uid}`));
+  userData = snap.val() || {};
+
+  // Profile
+  const name = userData.name || currentUser.displayName || 'Мұғалім';
+  document.getElementById('profileName').textContent = name;
+  document.getElementById('profileEmail').textContent = currentUser.email;
+  document.getElementById('profileSchool').textContent = userData.school || '';
+  document.getElementById('avatarEl').textContent = name.charAt(0).toUpperCase();
+  document.getElementById('setName').value = name;
+  document.getElementById('setSchool').value = userData.school || '';
+  document.getElementById('setCity').value = userData.city || '';
+
+  if (userData.createdAt) {
+    document.getElementById('memberSince').textContent =
+      new Date(userData.createdAt).toLocaleDateString('kk-KZ');
+  }
+
+  // Plan badge
+  const plan = userData.plan || 'free';
+  const planEl = document.getElementById('planBadgeEl');
+  const planMap = {
+    free: ['plan-free', '🆓 FREE — Тегін'],
+    pro: ['plan-pro', '⭐ PRO — 500₸/ай'],
+    unlimited: ['plan-unlimited', '🚀 UNLIMITED — 1500₸/ай'],
+    blocked: ['', '🚫 Блокталған'],
+  };
+  const [cls, label] = planMap[plan] || planMap.free;
+  planEl.className = `plan-badge ${cls}`;
+  planEl.textContent = label;
+
+  // Show upgrade card for free users
+  if (plan === 'free') {
+    document.getElementById('upgradeCard').style.display = 'block';
+  }
+
+  // Plan expiry
+  if (userData.planExpiry) {
+    const exp = new Date(userData.planExpiry);
+    const now = new Date();
+    if (exp < now) {
+      await set(ref(db, `users/${currentUser.uid}/plan`), 'free');
+    }
+  }
+
+  // AI Usage
+  const month = new Date().toISOString().slice(0, 7);
+  document.getElementById('aiMonth').textContent = month + ' — ағымдағы ай';
+  const aiUsed = userData.aiUsage?.[month] || 0;
+  const configSnap = await get(ref(db, 'config/aiLimits'));
+  const limits = configSnap.val() || { free: 10, pro: 200 };
+  const aiLimit = userData.aiLimit || (plan === 'unlimited' ? '∞' : plan === 'pro' ? limits.pro : limits.free);
+  const pct = aiLimit === '∞' ? 15 : Math.min(100, (aiUsed / aiLimit) * 100);
+
+  document.getElementById('aiUsed').textContent = aiUsed;
+  document.getElementById('aiLimit').textContent = aiLimit;
+  document.getElementById('aiProgress').style.width = pct + '%';
+  document.getElementById('aiProgressLabel').textContent = Math.round(pct) + '% пайдаланылды';
+  document.getElementById('aiLimitLabel').textContent = aiLimit;
+
+  if (pct >= 90) {
+    document.getElementById('aiProgress').style.background = 'linear-gradient(90deg,#dc2626,#ef4444)';
+  }
+
+  // Lessons count
+  const lessonsCount = Object.keys(userData.lessons || {}).length;
+  document.getElementById('statLessons').textContent = lessonsCount;
+  document.getElementById('statRooms').textContent = userData.roomsCount || 0;
+}
+
+// ── LESSONS ───────────────────────────────
+window.loadLessons = async function() {
+  const el = document.getElementById('lessonsList');
+  try {
+    const snap = await get(ref(db, `users/${currentUser.uid}/lessons`));
+    const lessons = snap.val() || {};
+    const list = Object.entries(lessons)
+      .map(([id, l]) => ({ id, ...l }))
+      .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+
+    if (!list.length) {
+      el.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">📚</div>
+          <div style="font-weight:700;color:#0f172a;margin-bottom:4px;">Сабақтар жоқ</div>
+          <div style="font-size:13px;">Тақтада сабақ жасап, сақтаңыз</div>
+        </div>`;
+      return;
+    }
+
+    el.innerHTML = list.map(l => `
+      <div class="lesson-card">
+        <div class="lesson-icon">📖</div>
+        <div class="lesson-info">
+          <div class="lesson-title">${l.title || 'Атаусыз сабақ'}</div>
+          <div class="lesson-meta">
+            ${l.subject ? l.subject + ' · ' : ''}
+            ${l.grade ? l.grade + '-сынып · ' : ''}
+            ${l.updatedAt ? new Date(l.updatedAt).toLocaleDateString('kk-KZ') : ''}
+            ${l.blocksCount ? ' · ' + l.blocksCount + ' блок' : ''}
+          </div>
+        </div>
+        <div class="lesson-actions">
+          <button class="btn-primary" style="font-size:12px;padding:6px 12px;"
+            onclick="openLesson('${l.id}')">▶️ Ашу</button>
+          <button style="background:#fef2f2;color:#dc2626;border:none;padding:6px 10px;
+            border-radius:8px;font-size:12px;cursor:pointer;"
+            onclick="deleteLesson('${l.id}','${l.title||''}')">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    el.innerHTML = `<div style="color:#dc2626;padding:20px;">Қате: ${e.message}</div>`;
+  }
+};
+
+window.openLesson = function(id) {
+  localStorage.setItem('sb_openLesson', id);
+  window.location.href = 'teacher.html';
+};
+
+window.deleteLesson = async function(id, title) {
+  if (!confirm(`"${title || 'Сабақ'}" жойылсын ба?`)) return;
+  await set(ref(db, `users/${currentUser.uid}/lessons/${id}`), null);
+  showNotif('🗑️ Сабақ жойылды');
+  loadLessons();
+};
+
+// ── ANALYTICS ─────────────────────────────
+window.loadAnalytics = async function() {
+  const el = document.getElementById('analyticsContent');
+  const month = new Date().toISOString().slice(0, 7);
+  const used = userData?.aiUsage?.[month] || 0;
+  const totalLessons = Object.keys(userData?.lessons || {}).length;
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+      <div style="text-align:center;padding:20px;background:#eef2ff;border-radius:12px;">
+        <div style="font-size:32px;font-weight:800;color:#4f46e5;">${used}</div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px;">AI сұраныс (ай)</div>
+      </div>
+      <div style="text-align:center;padding:20px;background:#f0fdf4;border-radius:12px;">
+        <div style="font-size:32px;font-weight:800;color:#16a34a;">${totalLessons}</div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px;">Сақталған сабақ</div>
+      </div>
+      <div style="text-align:center;padding:20px;background:#fef3c7;border-radius:12px;">
+        <div style="font-size:32px;font-weight:800;color:#d97706;">${userData?.roomsCount || 0}</div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px;">Бөлме (барлығы)</div>
+      </div>
+    </div>
+    <div style="margin-top:20px;padding:16px;background:#f8f9ff;border-radius:12px;font-size:13px;color:#64748b;">
+      📅 Тіркелген: ${userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString('kk-KZ') : '—'}<br>
+      🕐 Соңғы кіру: ${userData?.lastLogin ? new Date(userData.lastLogin).toLocaleDateString('kk-KZ') : '—'}
+    </div>
+  `;
+};
+
+// ── MESSAGES ──────────────────────────────
+async function loadMessages() {
+  const el = document.getElementById('adminMessages');
+  try {
+    const snap = await get(ref(db, 'adminMessages'));
+    const msgs = Object.values(snap.val() || {})
+      .sort((a, b) => b.sentAt - a.sentAt)
+      .slice(0, 5);
+    if (!msgs.length) {
+      el.innerHTML = '<div style="color:#94a3b8;font-size:13px;">Хабарламалар жоқ</div>';
+      return;
+    }
+    el.innerHTML = msgs.map(m => `
+      <div style="border:1px solid #e2e6f0;border-radius:10px;padding:12px;margin-bottom:8px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:4px;">${m.title}</div>
+        <div style="font-size:12px;color:#64748b;">${m.body}</div>
+        <div style="font-size:10px;color:#94a3b8;margin-top:6px;">
+          ${new Date(m.sentAt).toLocaleDateString('kk-KZ')}
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="color:#94a3b8;font-size:13px;">—</div>';
+  }
+}
+
+// ── SETTINGS ──────────────────────────────
+window.saveSettings = async function() {
+  const name = document.getElementById('setName').value.trim();
+  const school = document.getElementById('setSchool').value.trim();
+  const city = document.getElementById('setCity').value.trim();
+  if (!name) { showNotif('❗ Аты-жөніңізді жазыңыз'); return; }
+  await set(ref(db, `users/${currentUser.uid}/name`), name);
+  await set(ref(db, `users/${currentUser.uid}/school`), school);
+  await set(ref(db, `users/${currentUser.uid}/city`), city);
+  localStorage.setItem('sb_name', name);
+  document.getElementById('profileName').textContent = name;
+  showNotif('✅ Сақталды!');
+};
+
+// ── UPGRADE REQUEST ────────────────────────
+window.requestUpgrade = async function() {
+  await push(ref(db, 'upgradeRequests'), {
+    uid: currentUser.uid,
+    email: currentUser.email,
+    name: userData?.name || '',
+    plan: 'pro',
+    requestedAt: Date.now()
+  });
+  showNotif('✅ Сұраныс жіберілді! Admin хабарласады.');
+};
+
+// ── DELETE ACCOUNT ─────────────────────────
+window.deleteAccount = async function() {
+  if (!confirm('Аккаунтты жою кері қайтарылмайды. Жалғастырасыз ба?')) return;
+  if (!confirm('Шынымен жою керек пе? Барлық сабақтар жойылады!')) return;
+  await set(ref(db, `users/${currentUser.uid}`), null);
+  await signOut(auth);
+  window.location.href = 'login.html';
+};
+
+// ── TABS ───────────────────────────────────
+window.showTab = function(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name)?.classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (name === 'analytics') window.loadAnalytics();
+};
+
+// ── LOGOUT ─────────────────────────────────
+window.doLogout = async function() {
+  await signOut(auth);
+  window.location.href = 'login.html';
+};
+
+// ── NOTIF ──────────────────────────────────
+function showNotif(msg) {
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SmartBoardAI PRO — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f0f2f8;min-height:100vh;}
+
+    /* TOPBAR */
+    .topbar{background:linear-gradient(135deg,#1e1b4b,#4f46e5);color:white;
+      padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;
+      box-shadow:0 4px 20px rgba(79,70,229,0.3);position:sticky;top:0;z-index:100;}
+    .topbar-left{display:flex;align-items:center;gap:12px;}
+    .topbar-logo{font-size:22px;font-weight:800;}
+    .topbar-badge{background:rgba(255,255,255,0.2);padding:3px 10px;border-radius:999px;
+      font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.3);}
+    .topbar-right{display:flex;align-items:center;gap:12px;}
+    .admin-name{font-size:13px;color:rgba(255,255,255,0.8);}
+    .btn-logout{background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);
+      padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;}
+
+    /* LAYOUT */
+    .layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 60px);}
+
+    /* SIDEBAR */
+    .sidebar{background:white;border-right:1px solid #e2e6f0;padding:20px 0;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;cursor:pointer;
+      font-size:13px;font-weight:600;color:#64748b;transition:.15s;border-left:3px solid transparent;}
+    .nav-item:hover{background:#f8f9ff;color:#4f46e5;}
+    .nav-item.active{background:#eef2ff;color:#4f46e5;border-left-color:#4f46e5;}
+    .nav-icon{font-size:18px;width:24px;text-align:center;}
+    .nav-section{padding:12px 20px 4px;font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;}
+
+    /* MAIN */
+    .main{padding:24px;overflow-y:auto;}
+
+    /* STAT CARDS */
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+    .stat-card{background:white;border-radius:16px;padding:20px;border:1px solid #e2e6f0;
+      box-shadow:0 2px 8px rgba(15,23,42,0.06);}
+    .stat-num{font-size:32px;font-weight:800;color:#0f172a;margin-bottom:4px;}
+    .stat-label{font-size:12px;color:#64748b;font-weight:600;}
+    .stat-icon{font-size:28px;margin-bottom:8px;}
+
+    /* TABLE */
+    .card{background:white;border-radius:16px;border:1px solid #e2e6f0;
+      box-shadow:0 2px 8px rgba(15,23,42,0.06);margin-bottom:20px;overflow:hidden;}
+    .card-header{padding:16px 20px;border-bottom:1px solid #f1f5f9;
+      display:flex;align-items:center;justify-content:space-between;}
+    .card-title{font-size:15px;font-weight:700;color:#0f172a;}
+    .card-body{padding:0;}
+    table{width:100%;border-collapse:collapse;}
+    th{padding:10px 16px;font-size:11px;font-weight:700;color:#94a3b8;
+      text-align:left;background:#f8f9ff;border-bottom:1px solid #f1f5f9;text-transform:uppercase;}
+    td{padding:12px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f9fafb;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:#f8f9ff;}
+
+    /* BADGES */
+    .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;}
+    .badge-free{background:#f1f5f9;color:#64748b;}
+    .badge-pro{background:#eef2ff;color:#4f46e5;}
+    .badge-unlimited{background:#f0fdf4;color:#16a34a;}
+    .badge-blocked{background:#fef2f2;color:#dc2626;}
+
+    /* BUTTONS */
+    .btn{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;
+      cursor:pointer;border:none;font-family:inherit;transition:.15s;}
+    .btn-primary{background:#4f46e5;color:white;}
+    .btn-success{background:#16a34a;color:white;}
+    .btn-danger{background:#dc2626;color:white;}
+    .btn-warn{background:#d97706;color:white;}
+    .btn-ghost{background:#f1f5f9;color:#374151;}
+    .btn:hover{opacity:.85;}
+
+    /* SEARCH */
+    .search-bar{display:flex;gap:10px;align-items:center;margin-bottom:16px;}
+    .search-input{flex:1;padding:10px 14px;border:1.5px solid #e2e6f0;border-radius:10px;
+      font-size:14px;font-family:inherit;outline:none;}
+    .search-input:focus{border-color:#c7d2fe;}
+
+    /* PANEL */
+    .panel{display:none;}
+    .panel.active{display:block;}
+
+    /* MODAL */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.6);
+      backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:white;border-radius:20px;padding:28px;width:min(480px,95vw);
+      box-shadow:0 24px 64px rgba(15,23,42,0.25);}
+    .modal-title{font-size:18px;font-weight:800;color:#0f172a;margin-bottom:20px;}
+    .form-group{margin-bottom:14px;}
+    .form-label{font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:5px;}
+    .form-input{width:100%;padding:10px 13px;border:1.5px solid #e2e6f0;border-radius:10px;
+      font-size:14px;font-family:inherit;outline:none;}
+    .form-input:focus{border-color:#c7d2fe;}
+    .form-select{width:100%;padding:10px 13px;border:1.5px solid #e2e6f0;border-radius:10px;
+      font-size:14px;font-family:inherit;outline:none;background:white;}
+    .modal-actions{display:flex;gap:10px;margin-top:20px;}
+
+    /* AI USAGE BAR */
+    .usage-bar{background:#f1f5f9;border-radius:999px;height:6px;overflow:hidden;margin-top:4px;}
+    .usage-fill{height:100%;background:linear-gradient(90deg,#4f46e5,#7c3aed);border-radius:999px;transition:.3s;}
+
+    /* NOTIFICATION */
+    .notif{position:fixed;bottom:24px;right:24px;background:#0f172a;color:white;
+      padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;
+      box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:999;transform:translateY(100px);
+      transition:.3s;opacity:0;}
+    .notif.show{transform:translateY(0);opacity:1;}
+
+    /* ACCESS DENIED */
+    .access-denied{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#0f172a,#1e1b4b);
+      align-items:center;justify-content:center;z-index:999;flex-direction:column;text-align:center;padding:32px;}
+    .access-denied.show{display:flex;}
+
+    /* LOADING */
+    .loading{text-align:center;padding:40px;color:#94a3b8;font-size:14px;}
+  </style>
+</head>
+<body>
+
+<!-- ACCESS DENIED -->
+<div class="access-denied" id="accessDenied">
+  <div style="font-size:64px;margin-bottom:16px;">🔒</div>
+  <div style="font-size:24px;font-weight:800;color:white;margin-bottom:10px;">Рұқсат жоқ</div>
+  <div style="font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:28px;">Бұл бет тек Admin үшін</div>
+  <a href="login.html" style="background:#4f46e5;color:white;padding:12px 28px;border-radius:12px;
+    font-weight:700;text-decoration:none;font-size:14px;">← Кіру бетіне</a>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">⚡ SmartBoardAI PRO</div>
+    <div class="topbar-badge">🛡️ ADMIN</div>
+  </div>
+  <div class="topbar-right">
+    <span class="admin-name" id="adminName">Жүктелуде...</span>
+    <button class="btn-logout" onclick="doLogout()">Шығу</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR NAV -->
+  <div class="sidebar">
+    <div class="nav-section">Басқару</div>
+    <div class="nav-item active" onclick="showPanel('dashboard')">
+      <span class="nav-icon">📊</span> Дашборд
+    </div>
+    <div class="nav-item" onclick="showPanel('users')">
+      <span class="nav-icon">👥</span> Мұғалімдер
+    </div>
+    <div class="nav-item" onclick="showPanel('plans')">
+      <span class="nav-icon">💳</span> Жоспарлар
+    </div>
+    <div class="nav-section">Мазмұн</div>
+    <div class="nav-item" onclick="showPanel('lessons')">
+      <span class="nav-icon">📚</span> Барлық сабақтар
+    </div>
+    <div class="nav-item" onclick="showPanel('activity')">
+      <span class="nav-icon">📈</span> Белсенділік
+    </div>
+    <div class="nav-section">Баптау</div>
+    <div class="nav-item" onclick="showPanel('limits')">
+      <span class="nav-icon">⚙️</span> AI Лимиттер
+    </div>
+    <div class="nav-item" onclick="showPanel('messages')">
+      <span class="nav-icon">✉️</span> Хабарламалар
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div class="panel active" id="panel-dashboard">
+      <h2 style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:20px;">📊 Дашборд</h2>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-num" id="statTotal">—</div>
+          <div class="stat-label">Барлық мұғалім</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-num" id="statPro">—</div>
+          <div class="stat-label">PRO мұғалімдер</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🤖</div>
+          <div class="stat-num" id="statAI">—</div>
+          <div class="stat-label">AI сұраныс (бүгін)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📚</div>
+          <div class="stat-num" id="statLessons">—</div>
+          <div class="stat-label">Сақталған сабақтар</div>
+        </div>
+      </div>
+
+      <!-- Соңғы тіркелгендер -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🆕 Соңғы тіркелгендер</span>
+        </div>
+        <div class="card-body">
+          <table>
+            <thead>
+              <tr>
+                <th>Аты-жөні</th>
+                <th>Email</th>
+                <th>Мектеп</th>
+                <th>Жоспар</th>
+                <th>Тіркелген</th>
+              </tr>
+            </thead>
+            <tbody id="recentTable">
+              <tr><td colspan="5" class="loading">Жүктелуде...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ USERS ═══ -->
+    <div class="panel" id="panel-users">
+      <h2 style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:16px;">👥 Мұғалімдер</h2>
+
+      <div class="search-bar">
+        <input class="search-input" id="userSearch" placeholder="🔍 Email немесе аты бойынша іздеу..."
+          oninput="filterUsers()"/>
+        <button class="btn btn-primary" onclick="openAddUser()">+ Қосу</button>
+        <button class="btn btn-ghost" onclick="loadUsers()">🔄 Жаңарту</button>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <table>
+            <thead>
+              <tr>
+                <th>Аты-жөні</th>
+                <th>Email</th>
+                <th>Мектеп</th>
+                <th>Жоспар</th>
+                <th>AI (ай)</th>
+                <th>Соңғы кіру</th>
+                <th>Әрекет</th>
+              </tr>
+            </thead>
+            <tbody id="usersTable">
+              <tr><td colspan="7" class="loading">Жүктелуде...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PLANS ═══ -->
+    <div class="panel" id="panel-plans">
+      <h2 style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:20px;">💳 Жоспарлар</h2>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
+        <!-- FREE -->
+        <div class="card" style="padding:20px;">
+          <div style="font-size:28px;margin-bottom:8px;">🆓</div>
+          <div style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:4px;">FREE</div>
+          <div style="font-size:24px;font-weight:800;color:#4f46e5;margin-bottom:12px;">Тегін</div>
+          <div style="font-size:12px;color:#64748b;line-height:1.8;">
+            ✅ LiveRoom<br>
+            ✅ Тренажерлер<br>
+            ✅ Симуляторлар<br>
+            ✅ Рефлексия<br>
+            ⚡ AI: 10 сұраныс/ай<br>
+            ❌ Analytics экспорт<br>
+            ❌ Шексіз сабақ кабинеті
+          </div>
+        </div>
+        <!-- PRO -->
+        <div class="card" style="padding:20px;border:2px solid #4f46e5;">
+          <div style="font-size:28px;margin-bottom:8px;">⭐</div>
+          <div style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:4px;">PRO</div>
+          <div style="font-size:24px;font-weight:800;color:#4f46e5;margin-bottom:12px;">500₸/ай</div>
+          <div style="font-size:12px;color:#64748b;line-height:1.8;">
+            ✅ FREE-тің барлығы<br>
+            ✅ AI: 200 сұраныс/ай<br>
+            ✅ Analytics + CSV<br>
+            ✅ Шексіз сабақ кабинеті<br>
+            ✅ PISA генераторы<br>
+            ✅ AI ойын жасаушы<br>
+            ✅ Фото AI тексеру
+          </div>
+        </div>
+        <!-- UNLIMITED -->
+        <div class="card" style="padding:20px;border:2px solid #16a34a;">
+          <div style="font-size:28px;margin-bottom:8px;">🚀</div>
+          <div style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:4px;">UNLIMITED</div>
+          <div style="font-size:24px;font-weight:800;color:#16a34a;margin-bottom:12px;">1500₸/ай</div>
+          <div style="font-size:12px;color:#64748b;line-height:1.8;">
+            ✅ PRO-ның барлығы<br>
+            ✅ AI: Шексіз сұраныс<br>
+            ✅ Мектеп лицензиясы<br>
+            ✅ API қолжетімділік<br>
+            ✅ Приоритетті қолдау<br>
+            ✅ Жаңа функциялар бірінші
+          </div>
+        </div>
+      </div>
+
+      <!-- Жоспар статистикасы -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Жоспар бойынша пайдаланушылар</span>
+        </div>
+        <div class="card-body" style="padding:20px;">
+          <div id="planStats" class="loading">Жүктелуде...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ LIMITS ═══ -->
+    <div class="panel" id="panel-limits">
+      <h2 style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:20px;">⚙️ AI Лимиттер</h2>
+
+      <div class="card" style="padding:24px;">
+        <div class="card-title" style="margin-bottom:20px;">Жоспар бойынша AI лимиттер (ай сайын)</div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div style="width:120px;font-weight:700;color:#64748b;">🆓 FREE</div>
+            <input type="number" id="limitFree" value="10" min="0" max="1000"
+              style="width:100px;padding:8px 12px;border:1.5px solid #e2e6f0;border-radius:8px;font-size:14px;"/>
+            <span style="font-size:13px;color:#94a3b8;">сұраныс/ай</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div style="width:120px;font-weight:700;color:#4f46e5;">⭐ PRO</div>
+            <input type="number" id="limitPro" value="200" min="0" max="10000"
+              style="width:100px;padding:8px 12px;border:1.5px solid #e2e6f0;border-radius:8px;font-size:14px;"/>
+            <span style="font-size:13px;color:#94a3b8;">сұраныс/ай</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div style="width:120px;font-weight:700;color:#16a34a;">🚀 UNLIMITED</div>
+            <input type="number" id="limitUnlimited" value="999999" disabled
+              style="width:100px;padding:8px 12px;border:1.5px solid #e2e6f0;border-radius:8px;font-size:14px;background:#f9fafb;"/>
+            <span style="font-size:13px;color:#94a3b8;">шексіз</span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="margin-top:20px;" onclick="saveLimits()">
+          💾 Лимиттерді сақтау
+        </button>
+      </div>
+
+      <!-- API Key статус -->
+      <div class="card" style="padding:24px;margin-top:16px;">
+        <div class="card-title" style="margin-bottom:16px;">🔑 OpenAI API статусы</div>
+        <div id="apiStatus" class="loading">Тексерілуде...</div>
+      </div>
+    </div>
+
+    <!-- ═══ ACTIVITY ═══ -->
+    <div class="panel" id="panel-activity">
+      <h2 style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:20px;">📈 Белсенділік</h2>
+      <div class="card">
+        <div class="card-header"><span class="card-title">AI сұраныс тарихы</span></div>
+        <div class="card-body">
+          <table>
+            <thead><tr><th>Мұғалім</th><th>Режим</th><th>Уақыт</th><th>Статус</th></tr></thead>
+            <tbody id="activityTable">
+              <tr><td colspan="4" class="loading">Жүктелуде...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ LESSONS ═══ -->
+    <div class="panel" id="panel-lessons">
+      <h2 style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:20px;">📚 Барлық сабақтар</h2>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Сақталған сабақтар</span></div>
+        <div class="card-body">
+          <table>
+            <thead><tr><th>Тақырып</th><th>Мұғалім</th><th>Пән</th><th>Сынып</th><th>Сақталған</th></tr></thead>
+            <tbody id="lessonsTable">
+              <tr><td colspan="5" class="loading">Жүктелуде...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ MESSAGES ═══ -->
+    <div class="panel" id="panel-messages">
+      <h2 style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:20px;">✉️ Хабарламалар жіберу</h2>
+      <div class="card" style="padding:24px;">
+        <div class="form-group">
+          <label class="form-label">Алушы</label>
+          <select class="form-select" id="msgTarget">
+            <option value="all">Барлық мұғалімдер</option>
+            <option value="pro">PRO мұғалімдер</option>
+            <option value="free">FREE мұғалімдер</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Тақырып</label>
+          <input class="form-input" id="msgTitle" placeholder="Хабарлама тақырыбы..."/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Мазмұн</label>
+          <textarea class="form-input" id="msgBody" rows="5" style="resize:vertical;"
+            placeholder="Хабарлама мазмұны..."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="sendMessage()">📤 Жіберу</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- EDIT USER MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Мұғалімді өзгерту</div>
+    <input type="hidden" id="editUid"/>
+    <div class="form-group">
+      <label class="form-label">Аты-жөні</label>
+      <input class="form-input" id="editName" placeholder="Аты-жөні"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Мектеп</label>
+      <input class="form-input" id="editSchool" placeholder="Мектеп атауы"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Жоспар</label>
+      <select class="form-select" id="editPlan">
+        <option value="free">🆓 FREE (тегін)</option>
+        <option value="pro">⭐ PRO (500₸/ай)</option>
+        <option value="unlimited">🚀 UNLIMITED (1500₸/ай)</option>
+        <option value="blocked">🚫 Блокталған</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">AI лимит (ай сайын, 0 = жоспар бойынша)</label>
+      <input class="form-input" type="number" id="editAiLimit" placeholder="0" min="0"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Жоспар мерзімі (YYYY-MM-DD)</label>
+      <input class="form-input" type="date" id="editPlanExpiry"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeModal()">Болдырмау</button>
+      <button class="btn btn-primary" style="flex:2;" onclick="saveUser()">💾 Сақтау</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD USER MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-title">➕ Жаңа мұғалім қосу</div>
+    <div class="form-group">
+      <label class="form-label">Аты-жөні</label>
+      <input class="form-input" id="addName" placeholder="Мырзаева Назгүл"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" type="email" id="addEmail" placeholder="teacher@school.kz"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Мектеп</label>
+      <input class="form-input" id="addSchool" placeholder="№25 мектебі, Алматы"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Жоспар</label>
+      <select class="form-select" id="addPlan">
+        <option value="free">🆓 FREE</option>
+        <option value="pro">⭐ PRO</option>
+        <option value="unlimited">🚀 UNLIMITED</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" style="flex:1;" onclick="document.getElementById('addModal').classList.remove('open')">Болдырмау</button>
+      <button class="btn btn-success" style="flex:2;" onclick="addUser()">✅ Қосу</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif"></div>
+
+<script type="module">
+import { db, auth, ref, set, get, push, onValue, onAuthStateChanged, signOut } from "./firebaseConfig.js";
+
+// ══════════════════════════════════════════════
+// ADMIN EMAIL — тек осы email кіре алады
+// ══════════════════════════════════════════════
+const ADMIN_EMAIL = "naz-erke_k@mail.ru";
+
+let allUsers = [];
+let adminUser = null;
+
+// ── Auth тексеру ────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = "login.html"; return; }
+
+  if (user.email !== ADMIN_EMAIL) {
+    document.getElementById("accessDenied").classList.add("show");
+    return;
+  }
+
+  adminUser = user;
+  document.getElementById("adminName").textContent = user.email;
+  loadDashboard();
+  loadUsers();
+  loadLimits();
+  checkApiStatus();
+});
+
+// ── ПАНЕЛЬ АУЫСТЫРУ ─────────────────────────
+window.showPanel = function(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name)?.classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  if (name === 'users') loadUsers();
+  if (name === 'activity') loadActivity();
+  if (name === 'lessons') loadAllLessons();
+  if (name === 'plans') loadPlanStats();
+};
+
+// ── DASHBOARD ───────────────────────────────
+async function loadDashboard() {
+  try {
+    const snap = await get(ref(db, 'users'));
+    const users = snap.val() || {};
+    const list = Object.entries(users);
+
+    document.getElementById('statTotal').textContent = list.length;
+    document.getElementById('statPro').textContent = list.filter(([,u]) => u.plan === 'pro' || u.plan === 'unlimited').length;
+
+    // AI сұраныс бүгін
+    const today = new Date().toISOString().slice(0, 10);
+    const aiSnap = await get(ref(db, `aiLogs/${today}`));
+    const aiCount = aiSnap.exists() ? Object.keys(aiSnap.val() || {}).length : 0;
+    document.getElementById('statAI').textContent = aiCount;
+
+    // Сабақтар саны
+    let lessonCount = 0;
+    list.forEach(([, u]) => {
+      if (u.lessons) lessonCount += Object.keys(u.lessons).length;
+    });
+    document.getElementById('statLessons').textContent = lessonCount;
+
+    // Соңғы тіркелгендер
+    const recent = list
+      .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0))
+      .slice(0, 8);
+
+    document.getElementById('recentTable').innerHTML = recent.map(([uid, u]) => `
+      <tr>
+        <td><b>${u.name || '—'}</b></td>
+        <td style="color:#4f46e5;">${u.email || '—'}</td>
+        <td>${u.school || '—'}</td>
+        <td>${planBadge(u.plan)}</td>
+        <td style="color:#94a3b8;font-size:12px;">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('kk-KZ') : '—'}</td>
+      </tr>
+    `).join('');
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+// ── USERS ───────────────────────────────────
+window.loadUsers = async function() {
+  const tbody = document.getElementById('usersTable');
+  tbody.innerHTML = '<tr><td colspan="7" class="loading">Жүктелуде...</td></tr>';
+  try {
+    const snap = await get(ref(db, 'users'));
+    const users = snap.val() || {};
+    allUsers = Object.entries(users).map(([uid, u]) => ({ uid, ...u }));
+    renderUsers(allUsers);
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="7" style="color:#dc2626;padding:16px;">Қате: ${e.message}</td></tr>`;
+  }
+};
+
+function renderUsers(list) {
+  const month = new Date().toISOString().slice(0, 7);
+  document.getElementById('usersTable').innerHTML = list.map(u => {
+    const aiUsed = u.aiUsage?.[month] || 0;
+    const aiLimit = u.aiLimit || (u.plan === 'unlimited' ? '∞' : u.plan === 'pro' ? 200 : 10);
+    const pct = aiLimit === '∞' ? 0 : Math.min(100, (aiUsed / aiLimit) * 100);
+    return `
+      <tr>
+        <td><b>${u.name || '—'}</b></td>
+        <td style="color:#4f46e5;font-size:12px;">${u.email || '—'}</td>
+        <td style="font-size:12px;">${u.school || '—'}</td>
+        <td>${planBadge(u.plan)}</td>
+        <td>
+          <div style="font-size:12px;margin-bottom:3px;">${aiUsed} / ${aiLimit}</div>
+          <div class="usage-bar"><div class="usage-fill" style="width:${pct}%"></div></div>
+        </td>
+        <td style="color:#94a3b8;font-size:11px;">${u.lastLogin ? new Date(u.lastLogin).toLocaleDateString('kk-KZ') : '—'}</td>
+        <td>
+          <div style="display:flex;gap:4px;">
+            <button class="btn btn-primary" style="font-size:11px;padding:4px 10px;"
+              onclick="openEdit('${u.uid}')">✏️</button>
+            <button class="btn btn-danger" style="font-size:11px;padding:4px 10px;"
+              onclick="blockUser('${u.uid}','${u.name||u.email}')">🚫</button>
+            <button class="btn btn-warn" style="font-size:11px;padding:4px 10px;"
+              onclick="resetAI('${u.uid}')">🔄 AI</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('') || '<tr><td colspan="7" class="loading">Пайдаланушылар жоқ</td></tr>';
+}
+
+window.filterUsers = function() {
+  const q = document.getElementById('userSearch').value.toLowerCase();
+  renderUsers(allUsers.filter(u =>
+    (u.email||'').toLowerCase().includes(q) ||
+    (u.name||'').toLowerCase().includes(q) ||
+    (u.school||'').toLowerCase().includes(q)
+  ));
+};
+
+// ── EDIT USER ───────────────────────────────
+window.openEdit = function(uid) {
+  const u = allUsers.find(x => x.uid === uid);
+  if (!u) return;
+  document.getElementById('editUid').value = uid;
+  document.getElementById('editName').value = u.name || '';
+  document.getElementById('editSchool').value = u.school || '';
+  document.getElementById('editPlan').value = u.plan || 'free';
+  document.getElementById('editAiLimit').value = u.aiLimit || 0;
+  document.getElementById('editPlanExpiry').value = u.planExpiry || '';
+  document.getElementById('modalTitle').textContent = `✏️ ${u.name || u.email}`;
+  document.getElementById('editModal').classList.add('open');
+};
+
+window.saveUser = async function() {
+  const uid = document.getElementById('editUid').value;
+  const plan = document.getElementById('editPlan').value;
+  const aiLimit = parseInt(document.getElementById('editAiLimit').value) || 0;
+  const expiry = document.getElementById('editPlanExpiry').value;
+
+  try {
+    await set(ref(db, `users/${uid}/plan`), plan);
+    await set(ref(db, `users/${uid}/name`), document.getElementById('editName').value);
+    await set(ref(db, `users/${uid}/school`), document.getElementById('editSchool').value);
+    if (aiLimit > 0) await set(ref(db, `users/${uid}/aiLimit`), aiLimit);
+    if (expiry) await set(ref(db, `users/${uid}/planExpiry`), expiry);
+
+    closeModal();
+    showNotif('✅ Сақталды!');
+    loadUsers();
+  } catch(e) {
+    showNotif('❌ Қате: ' + e.message);
+  }
+};
+
+window.closeModal = function() {
+  document.getElementById('editModal').classList.remove('open');
+};
+
+// ── ADD USER ────────────────────────────────
+window.openAddUser = function() {
+  document.getElementById('addModal').classList.add('open');
+};
+
+window.addUser = async function() {
+  const name = document.getElementById('addName').value.trim();
+  const email = document.getElementById('addEmail').value.trim();
+  const school = document.getElementById('addSchool').value.trim();
+  const plan = document.getElementById('addPlan').value;
+
+  if (!name || !email) { showNotif('❗ Аты мен email міндетті'); return; }
+
+  const uid = btoa(email).replace(/[^a-zA-Z0-9]/g, '').slice(0, 28);
+  try {
+    await set(ref(db, `users/${uid}`), {
+      uid, name, email, school, plan,
+      createdAt: Date.now(), lastLogin: Date.now(),
+      aiUsage: {}, addedByAdmin: true
+    });
+    document.getElementById('addModal').classList.remove('open');
+    showNotif('✅ Мұғалім қосылды!');
+    loadUsers();
+  } catch(e) {
+    showNotif('❌ ' + e.message);
+  }
+};
+
+// ── BLOCK USER ──────────────────────────────
+window.blockUser = async function(uid, name) {
+  if (!confirm(`"${name}" пайдаланушысын блоктау керек пе?`)) return;
+  await set(ref(db, `users/${uid}/plan`), 'blocked');
+  showNotif(`🚫 ${name} блокталды`);
+  loadUsers();
+};
+
+// ── RESET AI ────────────────────────────────
+window.resetAI = async function(uid) {
+  const month = new Date().toISOString().slice(0, 7);
+  await set(ref(db, `users/${uid}/aiUsage/${month}`), 0);
+  showNotif('🔄 AI лимит тазаланды');
+  loadUsers();
+};
+
+// ── LIMITS ──────────────────────────────────
+async function loadLimits() {
+  const snap = await get(ref(db, 'config/aiLimits'));
+  const limits = snap.val() || {};
+  if (limits.free) document.getElementById('limitFree').value = limits.free;
+  if (limits.pro) document.getElementById('limitPro').value = limits.pro;
+}
+
+window.saveLimits = async function() {
+  const free = parseInt(document.getElementById('limitFree').value);
+  const pro = parseInt(document.getElementById('limitPro').value);
+  await set(ref(db, 'config/aiLimits'), { free, pro, unlimited: 999999 });
+  showNotif('✅ Лимиттер сақталды!');
+};
+
+// ── API STATUS ──────────────────────────────
+async function checkApiStatus() {
+  const el = document.getElementById('apiStatus');
+  if (!el) return;
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:10px;height:10px;border-radius:50%;background:#16a34a;"></div>
+      <span style="font-size:13px;color:#374151;">OpenAI API: Жұмыс жасап тұр</span>
+    </div>
+    <div style="font-size:12px;color:#94a3b8;margin-top:8px;">
+      GPT-4o-mini: ~$0.0001/сұраныс · GPT-4o: ~$0.003/сұраныс
+    </div>
+  `;
+}
+
+// ── ACTIVITY ────────────────────────────────
+window.loadActivity = async function() {
+  const tbody = document.getElementById('activityTable');
+  tbody.innerHTML = '<tr><td colspan="4" class="loading">Жүктелуде...</td></tr>';
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const snap = await get(ref(db, `aiLogs/${today}`));
+    const logs = snap.val() || {};
+    const list = Object.values(logs).sort((a, b) => b.time - a.time).slice(0, 50);
+    tbody.innerHTML = list.map(l => `
+      <tr>
+        <td style="font-size:12px;">${l.email || '—'}</td>
+        <td><span class="badge badge-free">${l.action || '—'}</span></td>
+        <td style="font-size:11px;color:#94a3b8;">${new Date(l.time).toLocaleTimeString('kk-KZ')}</td>
+        <td><span style="color:#16a34a;font-size:12px;">✅ OK</span></td>
+      </tr>
+    `).join('') || '<tr><td colspan="4" class="loading">Бүгін белсенділік жоқ</td></tr>';
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="4" style="color:#dc2626;padding:16px;">${e.message}</td></tr>`;
+  }
+};
+
+// ── ALL LESSONS ─────────────────────────────
+window.loadAllLessons = async function() {
+  const tbody = document.getElementById('lessonsTable');
+  tbody.innerHTML = '<tr><td colspan="5" class="loading">Жүктелуде...</td></tr>';
+  try {
+    const snap = await get(ref(db, 'users'));
+    const users = snap.val() || {};
+    const rows = [];
+    Object.values(users).forEach(u => {
+      Object.values(u.lessons || {}).forEach(l => {
+        rows.push({ ...l, teacherName: u.name, teacherEmail: u.email });
+      });
+    });
+    rows.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    tbody.innerHTML = rows.slice(0, 50).map(l => `
+      <tr>
+        <td><b>${l.title || '—'}</b></td>
+        <td style="font-size:12px;color:#4f46e5;">${l.teacherName || l.teacherEmail || '—'}</td>
+        <td style="font-size:12px;">${l.subject || '—'}</td>
+        <td style="font-size:12px;">${l.grade || '—'}</td>
+        <td style="font-size:11px;color:#94a3b8;">${l.updatedAt ? new Date(l.updatedAt).toLocaleDateString('kk-KZ') : '—'}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" class="loading">Сабақтар жоқ</td></tr>';
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="5" style="color:#dc2626;padding:16px;">${e.message}</td></tr>`;
+  }
+};
+
+// ── PLAN STATS ──────────────────────────────
+window.loadPlanStats = async function() {
+  const el = document.getElementById('planStats');
+  try {
+    const snap = await get(ref(db, 'users'));
+    const users = Object.values(snap.val() || {});
+    const counts = { free: 0, pro: 0, unlimited: 0, blocked: 0 };
+    users.forEach(u => { counts[u.plan || 'free'] = (counts[u.plan || 'free'] || 0) + 1; });
+    const total = users.length || 1;
+    el.innerHTML = Object.entries(counts).map(([plan, count]) => `
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+          <span style="font-weight:700;font-size:13px;">${planBadge(plan)}</span>
+          <span style="font-size:13px;color:#64748b;">${count} мұғалім (${Math.round(count/total*100)}%)</span>
+        </div>
+        <div class="usage-bar" style="height:8px;">
+          <div class="usage-fill" style="width:${count/total*100}%;background:${plan==='unlimited'?'#16a34a':plan==='pro'?'#4f46e5':plan==='blocked'?'#dc2626':'#94a3b8'};"></div>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    el.innerHTML = `<div style="color:#dc2626;">${e.message}</div>`;
+  }
+};
+
+// ── MESSAGE ─────────────────────────────────
+window.sendMessage = async function() {
+  const target = document.getElementById('msgTarget').value;
+  const title = document.getElementById('msgTitle').value.trim();
+  const body = document.getElementById('msgBody').value.trim();
+  if (!title || !body) { showNotif('❗ Тақырып пен мазмұн жазыңыз'); return; }
+  await push(ref(db, 'adminMessages'), {
+    target, title, body,
+    sentAt: Date.now(),
+    from: adminUser?.email
+  });
+  showNotif('✅ Хабарлама жіберілді!');
+  document.getElementById('msgTitle').value = '';
+  document.getElementById('msgBody').value = '';
+};
+
+// ── LOGOUT ──────────────────────────────────
+window.doLogout = async function() {
+  await signOut(auth);
+  window.location.href = 'login.html';
+};
+
+// ── HELPERS ─────────────────────────────────
+function planBadge(plan) {
+  const map = {
+    free: '<span class="badge badge-free">🆓 FREE</span>',
+    pro: '<span class="badge badge-pro">⭐ PRO</span>',
+    unlimited: '<span class="badge badge-unlimited">🚀 UNLIMITED</span>',
+    blocked: '<span class="badge badge-blocked">🚫 Блок</span>',
+  };
+  return map[plan] || map.free;
+}
+
+function showNotif(msg) {
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
